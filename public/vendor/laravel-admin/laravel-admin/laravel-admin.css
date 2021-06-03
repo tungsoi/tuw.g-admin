@@ -121,7 +121,7 @@ section.content-header small {
     font-size: 13px !important;
 }
 .user-panel {
-    background: #dd4b39;
+    background: #2c3b41;
 }
 
 .column-__actions__ {
@@ -132,4 +132,13 @@ section.content-header small {
     width: 25px;
     margin: 0px;
     margin-right: 2px !important;
+}
+td, th {
+    padding: 0;
+    border: 1px solid #d8d8d8 !important;
+}
+
+.column-number {
+    width: 50px !important;
+    text-align: center;
 }

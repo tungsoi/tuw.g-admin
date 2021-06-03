@@ -27,6 +27,7 @@ class UserController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new User());
+        $grid->model()->select('id', 'avatar', 'username', 'name', 'status', 'created_at');
         $grid->model()->whereIsCustomer(User::ADMIN)->orderBy('id', 'desc');
 
         $grid->expandFilter();
