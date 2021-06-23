@@ -4,15 +4,15 @@ use Illuminate\Routing\Router;
 
 // Dashboard
 Route::group([
-    'prefix'        => config('admin.route.prefix'),
-    'namespace'     => config('admin.route.namespace'),
-    'middleware'    => config('admin.route.middleware'),
-    'as'            => config('admin.route.prefix') . '.',
+    'prefix'        => '',
+    'namespace'     => 'App\\Admin\\Controllers\\Home',
+    'middleware'    => ['web'],
+    'as'            => 'home.',
 ], function (Router $router) {
 
-    $router->get('', function() {
-        return view('dashboard.index');
-    });
+    $router->get(
+        '/', 'IndexController@index'
+    )->name('index');
 
 });
 
@@ -27,8 +27,14 @@ Route::group([
     'as'            => config('admin.route.prefix') . '.',
 ], function (Router $router) {
 
-    $router->get('', 'HomeController@index')->name('home');
+    $router->get('', 'System\\HomeController@index')->name('home');
     $router->resources([
-        'auth/users'    =>  'UserController',
+        'auth/users'        =>  'System\\UserController',
+        'auth/roles'        =>  'System\\RoleController',
+        'warehouses'        =>  'System\\WarehouseController',
+        'exchange_rates'    =>  'System\\ExchangeRateController',
+        'alerts'            =>  'System\\AlertController',
+        'transport_lines'   =>  'System\\TransportLineController',
+        'customers'         =>  'System\\CustomerController'
     ]);
 });

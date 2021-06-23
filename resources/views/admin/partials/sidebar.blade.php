@@ -21,8 +21,8 @@
             </div>
         </div>
 
-        <div style="text-align: center;padding: 5px;font-size: 12px;background-color: #ffffd5;color: #ff0000;">
-            Tỷ giá: 3,755 VND
+        <div style="text-align: center;padding: 5px;font-size: 12px;background-color: wheat;color: black;">
+            Tỷ giá: <b style="color: red">3,755 VND</b> 
         </div>
 
         <!-- Sidebar Menu -->
@@ -32,7 +32,7 @@
 
         </ul>
 
-        <ul class="sidebar-menu sidebar-menu-bottom">
+        <ul class="sidebar-menu" style="background: #2c3b41;">
             <li class="">
                 <a href="{{route('admin.setting')}}">
                     <i class="fa fa-sun-o"></i>

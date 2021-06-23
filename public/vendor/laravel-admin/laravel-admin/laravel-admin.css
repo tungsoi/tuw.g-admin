@@ -1,3 +1,6 @@
+body {
+    color: #646464 !important;
+}
 input.content {
     min-height: 0 !important;
     padding: 6px 12px !important;
@@ -91,7 +94,7 @@ a.editable-empty {
 }
 body {
     font-family: "Tahoma" !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
 }
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     font-family: "Tahoma" !important;
@@ -126,19 +129,50 @@ section.content-header small {
 
 .column-__actions__ {
     width: 150px !important;
+    text-align: center;
+    border-right: none !important;
+}
+.column-number {
+    border-left: none !important;
 }
 
 .column-__actions__ button.btn, .column-__actions__ a.btn {
     width: 25px;
+    height: 25px;
     margin: 0px;
     margin-right: 2px !important;
+    margin-bottom: 2px !important;
 }
 td, th {
     padding: 0;
-    border: 1px solid #d8d8d8 !important;
+    border: 1px solid #d2d6de !important;
 }
 
 .column-number {
     width: 50px !important;
     text-align: center;
+}
+th {
+    font-weight: 600 !important;
+    color: #646464;
+    text-transform: uppercase;
+    text-align: center;
+    background-color: whitesmoke;
+    font-size: 10px;
+}
+.box {
+    border-radius: 3px !important;
+    box-shadow: none !important;
+    border: 1px solid #d2d6de !important;
+}
+.content-header {
+    padding: 5px 5px 0 5px;
+}
+.content {
+    min-height: 250px;
+    padding: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 5px;
+    padding-right: 5px;
 }

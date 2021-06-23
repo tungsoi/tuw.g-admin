@@ -18,8 +18,10 @@ $.fn.editable.defaults.error = function (data) {
 toastr.options = {
     closeButton: true,
     progressBar: true,
-    showMethod: 'slideDown',
-    timeOut: 4000
+    showMethod: 'fadeIn',
+    timeOut: 4000,
+    positionClass: "toast-bottom-right",
+    newestOnTop: true
 };
 
 $.pjax.defaults.timeout = 5000;
@@ -220,9 +222,18 @@ $('#btn-logout').on('click', function () {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Đồng ý',
         cancelButtonText: 'Huỷ bỏ'
-      }).then(function(){
-        window.location.href="/admin/auth/logout";
+      }).then(function(result){
+        if (result.isConfirmed) {
+            window.location.href="/admin/auth/logout";
+        } else if (result.isDenied) {
+            // Swal.fire('Changes are not saved', '', 'info')
+        }
+        
     }).catch(function(reason){
         // alert("The alert was dismissed by the user: "+reason);
     });
+})
+
+$(document).on('click', 'button.submit', function () {
+    $(this).attr('disabled', 'disabled')
 })

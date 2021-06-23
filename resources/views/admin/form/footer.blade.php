@@ -8,17 +8,17 @@
     <div class="col-md-{{$width['field']}}">
 
         @if(in_array('submit', $buttons))
-        <div class="btn-group pull-right">
-            <button type="submit" class="btn btn-primary btn-sm">{{ trans('admin.submit') }}</button>
-        </div>
+            <div class="btn-group pull-left">
+                <button type="submit" class="btn btn-primary btn-sm" style="margin-right: 10px;">{{ trans('admin.submit') }}</button>
+            </div>
 
-        @foreach($submit_redirects as $value => $redirect)
+        {{-- @foreach($submit_redirects as $value => $redirect)
             @if(in_array($redirect, $checkboxes))
             <label class="pull-right" style="margin: 5px 10px 0 0;">
                 <input type="checkbox" class="after-submit" name="after-save" value="{{ $value }}" {{ ($default_check == $redirect) ? 'checked' : '' }}> {{ trans("admin.{$redirect}") }}
             </label>
             @endif
-        @endforeach
+        @endforeach --}}
 
         @endif
 

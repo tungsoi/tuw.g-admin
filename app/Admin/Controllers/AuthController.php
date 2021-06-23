@@ -48,7 +48,7 @@ class AuthController extends Controller
         $credentials = [
             $this->username()   => $request->username,
             'password'          =>  $request->password,
-            'status'            =>  User::ACTIVE
+            'is_active'            =>  User::ACTIVE
         ];
         $remember = $request->get('remember', false);
 

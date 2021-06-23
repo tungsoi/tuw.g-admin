@@ -40,9 +40,22 @@ class User extends Model implements AuthenticatableContract
         'username',
         'name',
         'avatar',
+        'email',
+        'phone_number',
+        'wallet',
+        'address',
         'is_customer',
+        'symbol_name',
+        'ware_house_id',
+        'is_active',
         'password',
-        'status'
+        'note',
+        'wallet_order',
+        'province',
+        'district',
+        'staff_sale_id',
+        'customer_percent_service',
+        'type_customer'
     ];
 
     protected $casts = [
@@ -124,5 +137,9 @@ class User extends Model implements AuthenticatableContract
     public function profile()
     {
         return $this->hasOne('App\Models\UserProfile', 'user_id', 'id');
+    }
+
+    public function warehouse() {
+        return $this->hasOne('App\Models\System\Warehouse', 'id', 'ware_house_id');
     }
 }

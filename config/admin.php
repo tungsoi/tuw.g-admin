@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'Alilogi',
+    'name' => 'ALILOGI',
 
     /*
     |--------------------------------------------------------------------------
@@ -209,7 +209,7 @@ return [
     */
     'operation_log' => [
 
-        'enable' => true,
+        'enable' => false,
 
         /*
          * Only logging allowed methods in the list
@@ -289,7 +289,7 @@ return [
     | "sidebar-mini".
     |
     */
-    'layout' => ['sidebar-mini'],
+    'layout' => ['sidebar-mini', "sidebar-collapse"],
 
     /*
     |--------------------------------------------------------------------------
@@ -408,6 +408,16 @@ return [
         'material-ui' => [
             // If the value is set to false, this extension will be disabled
             'enable' => false
+        ],
+        'summernote' => [
+        
+            //Set to false if you want to disable this extension
+            'enable' => true,
+            
+            // Editor configuration
+            'config' => [
+                
+            ]
         ]
     ],
 ];
