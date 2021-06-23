@@ -31,7 +31,7 @@ return [
     'order'                 => 'Order',
     'expand'                => 'Mở rộng',
     'collapse'              => 'Thu gọn',
-    'filter'                => 'Bộ lọc',
+    'filter'                => 'Tìm kiếm',
     'search'                => 'Tìm kiếm',
     'close'                 => 'Đóng',
     'show'                  => 'Hiển thị',
@@ -96,7 +96,7 @@ return [
         'text_empty'         => 'Không có dữ liệu',
         'filtered'           => '{0} / {1}',
         'filter_clear'       => 'Hiển thị tất cả',
-        'filter_placeholder' => 'Bộ lọc',
+        'filter_placeholder' => 'Tìm kiếm',
     ],
     'grid_items_selected'    => '{n} sản phẩm được chọn',
 
