@@ -2,6 +2,9 @@
 
 namespace App;
 
+use App\Admin\Services\UserService;
+use App\Models\System\District;
+use App\Models\System\Province;
 use Encore\Admin\Traits\AdminBuilder;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -55,7 +58,8 @@ class User extends Model implements AuthenticatableContract
         'district',
         'staff_sale_id',
         'customer_percent_service',
-        'type_customer'
+        'type_customer',
+        'wallet_weight'
     ];
 
     protected $casts = [
@@ -141,5 +145,38 @@ class User extends Model implements AuthenticatableContract
 
     public function warehouse() {
         return $this->hasOne('App\Models\System\Warehouse', 'id', 'ware_house_id');
+    }
+
+    public function getDistrict() {
+        $district = District::where('district_id', $this->district)->first();
+
+        if (! $district) { return null; }
+
+        return $district->type . " " . $district->name;
+    }
+
+    public function getProvince() {
+        $province = Province::where('province_id', $this->province)->first();
+
+        if (! $province) { return null; }
+
+        return $province->type . " " . $province->name;
+    }
+
+    public function saleEmployee() {
+        return $this->hasOne('App\User', 'id', 'staff_sale_id');
+    }
+
+    public function percentService() {
+        return $this->hasOne('App\Models\System\CustomerPercentService', 'id', 'customer_percent_service');
+    }
+
+    public function updateWalletByHistory() {
+        $service = new UserService();
+        $data = $service->GetCustomerTransactionHistory($this->id, false);
+        $lastMoney = $data[0]['after_payment'];
+        $this->wallet = $lastMoney;
+        $this->save();
+        return true;
     }
 }

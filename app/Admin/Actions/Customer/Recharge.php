@@ -2,40 +2,36 @@
 
 namespace App\Admin\Actions\Customer;
 
+use App\Models\System\Transaction;
+use App\Models\System\TransactionType;
 use App\User;
 use Encore\Admin\Admin;
+use Encore\Admin\Form;
 
 class Recharge
 {
     protected $id;
+    protected $text;
     protected $customer;
 
-    public function __construct($id)
+    public function __construct($id, $text = "")
     {
         $this->id = $id;
-        $this->customer = User::find($id);
-        
+        $this->text = $text;
     }
 
     protected function script()
     {
         return <<<SCRIPT
-
-            $('.customer-recharge-{$this->id}').on('click', function () {
-
-                $('#mdl-customer-recharge-{$this->id}').modal('toggle');
-
-            });
-
         SCRIPT;
     }
 
     protected function render()
     {
-        Admin::script($this->script());
-        $id = $this->id;
-        $customer = $this->customer;
-        return view('admin.system.customer.recharge', compact('id', 'customer'))->render();
+        $route = route('admin.customers.transactions', $this->id) . "?mode=recharge";
+        return '<a href="'.$route.'" class="btn btn-xs btn-success" data-toggle="tooltip" title="Nạp tiền"">
+                    <i class="fa fa-dollar"></i> '.$this->text.'
+                </a>';
     }
 
     public function __toString()

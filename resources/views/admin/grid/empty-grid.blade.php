@@ -1,4 +1,4 @@
-<tr>
+{{-- <tr>
     <td colspan="{{ $grid->visibleColumns()->count() }}" class="empty-grid" style="padding: 100px;text-align: center;color: #999999">
         <svg t="1562312016538" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
              p-id="2076" width="128" height="128" style="fill: #e9e9e9;">
@@ -6,4 +6,4 @@
                   p-id="2077"></path>
         </svg>
     </td>
-</tr>
+</tr> --}}

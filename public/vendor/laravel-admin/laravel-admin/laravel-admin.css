@@ -128,7 +128,7 @@ section.content-header small {
 }
 
 .column-__actions__ {
-    width: 150px !important;
+    width: 200px !important;
     text-align: center;
     border-right: none !important;
 }
@@ -175,4 +175,7 @@ th {
     margin-left: auto;
     padding-left: 5px;
     padding-right: 5px;
+}
+.editable-click, a.editable-click, a.editable-click:hover {
+    border-bottom: none !important;
 }

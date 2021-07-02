@@ -3,11 +3,13 @@
 namespace App\Admin\Controllers\System;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting\RoleUser;
 use App\User;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Layout\Row;
 use Encore\Admin\Widgets\InfoBox;
+use Illuminate\Support\Facades\View;
 
 class HomeController extends Controller
 {

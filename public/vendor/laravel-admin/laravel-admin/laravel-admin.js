@@ -234,6 +234,6 @@ $('#btn-logout').on('click', function () {
     });
 })
 
-$(document).on('click', 'button.submit', function () {
-    $(this).attr('disabled', 'disabled')
-})
+// $(document).on('click', 'button.submit', function () {
+//     $(this).attr('disabled', 'disabled')
+// })
