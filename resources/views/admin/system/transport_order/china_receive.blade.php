@@ -3,6 +3,7 @@
         position: absolute;
         top: 0;
         width: 100%;
+        display: none;
     }
     td {
         padding: 0px !important;
@@ -11,10 +12,19 @@
     td input {
         height: 35px !important;
         border: none !important;
+        width: 100%;
     }
 </style>
 <div class="">
-    <table class="table table-bordered">
+    <div class="row" style="display: none" id="alert-box">
+        <div class="col-md-12">
+            <div class="" id="alert-content">
+                <p id="alert-loading"><i class="fa fa-spinner fa-spin"></i> Đang kiểm tra ...</p>
+                <p id="alert-text"></p>
+            </div>
+        </div>
+    </div>
+    <table class="table table-bordered" id="tbl-china-receive">
         <thead>
             <th>STT</th>
             <th>Mã vận đơn</th>
@@ -25,13 +35,17 @@
             <th>Ứng kéo (rmb)</th>
         </thead>
         <tbody>
-            @for ($row = 1; $row <= 50; $row++)
+            @for ($i = 1; $i <= 20; $i++)
+                @php
+                    $disabled = ($i == 1) ? false : true;
+                @endphp
                 <tr>
                     <td style="text-align: center; width: 40px;">
-                        <input type="text" class="form-control" readonly value="{{ $row }}">
+                        <input type="text" class="form-control order_number" readonly value="{{ $i }}" name="order_number">
                     </td>
-                    <td>
-                        <input type="text" class="form-control transport_code" name="transport_code[]">
+                    <td style="width: 300px">
+                        <input type="text" class="form-control transport_code" name="transport_code[]" 
+                            @if ($disabled) disabled @endif>
                     </td>
                     <td>
                         <input type="text" class="form-control" readonly value="0">
@@ -54,77 +68,139 @@
     </table>
 </div>
 
-@if (isset($mode) && $mode == "popup" && $callbackObj != null && $callbackObj->count() > 0)
-    <div id="callback-china-receive" class="modal" role="dialog">
-        <div class="modal-dialog modal-lg">
-
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title pull-left">Nhập hàng Trung Quốc thành công <i class="fa fa-check-circle-o" aria-hidden="true" style="color: green;"></i></h4>
-                    <br>
-                </div>
-                <div class="modal-body" style="text-align: left">
-                    <p>Danh sách mã vận đơn đã được lưu</p>
-                    <table class="table table-bordered">
-                        <thead>
-                            <th>STT</th>
-                            <th>Mã vận đơn</th>
-                            <th>Cân nặng (kg)</th>
-                            <th>Dài (cm)</th>
-                            <th>Rộng (cm)</th>
-                            <th>Cao (cm)</th>
-                            <th>Ứng kéo (rmb)</th>
-                        </thead>
-                        <tbody>
-                            @foreach ($callbackObj as $index => $row)
-                                <tr>
-                                    <td style="padding: 5px !important; text-align: center">{{ $index+1 }}</td>
-                                    <td style="padding: 5px !important; text-align: left">{{ $row->transport_code }}</td>
-                                    <td style="padding: 5px !important; text-align: right">{{ $row->kg }}</td>
-                                    <td style="padding: 5px !important; text-align: right">{{ $row->length }}</td>
-                                    <td style="padding: 5px !important; text-align: right">{{ $row->width }}</td>
-                                    <td style="padding: 5px !important; text-align: right">{{ $row->height }}</td>
-                                    <td style="padding: 5px !important; text-align: right">{{ $row->advance_drag }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        $( document ).ready(function() {
-            $("#callback-china-receive").modal('toggle');
-            $("#callback-china-receive").on("hidden.bs.modal", function () {
-                window.location.href = "/admin/china_receives";
-            });
-        });
-    </script>
-@endif
-
 <script>
+    const CHECK_TRANSPORT_CODE_URL = "transport_codes/seach";
+    const STORE_TRANSPORT_CODE_URL = "china_receives/storeChinaReceive";
+    const ALERT_STATUS_DANGER = 'alert alert-danger';
+    const ALERT_STATUS_SUCCESS = 'alert alert-success';
+    const ALERT_BOX = $('#alert-box');
+    const ALERT_CONTENT = $('#alert-content');
+    const ALERT_TEXT = $('#alert-text');
+    const ALERT_LOADING = $('#alert-loading');
+
     $( document ).ready(function() {
+        // init
         $('label.col-sm-2').remove();
         $('div.col-sm-8').addClass('col-lg-12');
         $('.box-footer .col-md-2').remove();
         $('button[type="reset"]').remove();
         $('button[type="submit"]').html("Lưu dữ liệu");
+        // end
 
+        // event paste
+        $('.transport_code').bind("paste", function(e) {
+            var iThis = $(this)
+            var transportCode = e.originalEvent.clipboardData.getData('text');
+
+            if (transportCode != "") {
+                initAlertBox();
+                showAlertLoading();
+                checkTransportCode(transportCode, iThis);
+            }
+        } );
+
+        // event enter input, then click enter button
         $(document).on('keydown','input', function(e) {
+            initAlertBox();
             if (e.which == 13) 
             {
                 e.preventDefault();
-                $(this).parent().parent().next().find('.transport_code').focus();
+                iThis = $(this)
+                var transportCode = iThis.val();
+
+                if (transportCode != "") {
+                    showAlertLoading();
+                    checkTransportCode(transportCode, iThis);
+                }
+
+                
             }
         });
 
-        $("input").bind("paste", function(e) {
-            var iThis = $(this)
-            setTimeout(function () {
-                iThis.parent().parent().next().find('.transport_code').focus();
-            }, 100);
-        } );
+        // check transport_code
+        function checkTransportCode(code, iThis) {
+            $.ajax({
+                url: CHECK_TRANSPORT_CODE_URL + "/" + code,
+                type: 'GET',
+                dataType: "JSON",
+                success: function (response)
+                {
+                    let status = "";
+                    let text = "";
+
+                    // if transport code is exists
+                    if (response.data != null) {
+                        status = ALERT_STATUS_DANGER;
+                        text = "Mã vận đơn "+ code +" đã tồn tại.";
+
+                        showAlertDanger(status, text);
+                    } else {
+                        saveTransportCode(code, iThis);
+                    }
+                }
+            });
+        }
+
+        // show alert and set status, set text
+        function initAlertBox() {
+            ALERT_TEXT.html("");
+            ALERT_LOADING.show();
+            ALERT_CONTENT.removeClass();
+            ALERT_BOX.hide();
+        }
+        function showAlertDanger(status, text) {
+            ALERT_CONTENT.removeClass();
+            ALERT_CONTENT.addClass(status);
+            ALERT_TEXT.html(text);
+            ALERT_LOADING.hide();
+        }
+
+        function showAlertLoading() {
+            ALERT_BOX.show();
+        }
+        // end
+
+        // save transport code
+        function saveTransportCode(code, iThis) {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            
+            $.ajax({
+                url: STORE_TRANSPORT_CODE_URL,
+                type: 'POST',
+                dataType: "JSON",
+                data: {
+                    'transport_code': code
+                },
+                success: function (response)
+                {
+                    if (response) {
+                        status = ALERT_STATUS_SUCCESS;
+                        text = "Mã vận đơn "+ code +" đã được lưu.";
+                        showAlertDanger(status, text);
+
+                        setTimeout(function () {
+                            nextRowElement(iThis);
+                        }, 500);
+
+                        setTimeout(function () {
+                            initAlertBox();
+                        }, 4000);
+                    }
+                }
+            });
+
+        }
+        // end
+
+        function nextRowElement(iThis) {
+            console.log(iThis);
+            iThis.parent().parent().next().children().find('.transport_code').prop("disabled", false);
+            iThis.parent().parent().next().children().find('.transport_code').focus();
+        }
+        
     });
 </script>

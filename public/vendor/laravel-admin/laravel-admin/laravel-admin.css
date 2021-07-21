@@ -128,7 +128,7 @@ section.content-header small {
 }
 
 .column-__actions__ {
-    width: 200px !important;
+    width: 100px !important;
     text-align: center;
     border-right: none !important;
 }
@@ -136,12 +136,15 @@ section.content-header small {
     border-left: none !important;
 }
 
-.column-__actions__ button.btn, .column-__actions__ a.btn {
+.column-__actions__ button.btn, .column-__actions__ a.btn, .actions a.btn {
     width: 25px;
     height: 25px;
     margin: 0px;
     margin-right: 2px !important;
     margin-bottom: 2px !important;
+}
+td.actions {
+    width: 100px;
 }
 td, th {
     padding: 0;
@@ -178,4 +181,21 @@ th {
 }
 .editable-click, a.editable-click, a.editable-click:hover {
     border-bottom: none !important;
+}
+
+.loading-overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: rgb(255 255 255 / 80%);
+    z-index: 1000;
+    top: 0;
+    text-align: center;
+    /* opacity: 0.5; */
+    color: #f39c12;
+    font-size: 24px;
+    vertical-align: middle;
+    padding-top: 15%;
+    font-weight: bold;
+    display: none;
 }

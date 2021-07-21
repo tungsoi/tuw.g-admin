@@ -11257,3 +11257,9 @@ body {
   border: 2px solid white;
   border-radius: 10px;
 }
+#brand-banner {
+  font-size: 4rem !important;
+  line-height: 4rem !important;
+  letter-spacing: 0 !important;
+  color: #e4c662 !important;
+}

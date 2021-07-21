@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\System;
 
+use App\Admin\Actions\Core\BtnDelete;
 use App\Admin\Services\UserService;
 use App\Models\System\Transaction;
 use App\Models\System\TransactionType;
@@ -90,8 +91,20 @@ class TransactionController extends AdminController
         $grid->disableCreateButton();
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
-        $grid->actions(function (Grid\Displayers\Actions $actions) {
+        $grid->actions(function ($actions) {
             $actions->disableView();
+            $actions->disableEdit();
+            $actions->disableDelete();
+
+            $route = route('admin.customers.transactions', $actions->row->customer_id) . "?mode=recharge&transaction_id=" . $actions->getKey();
+            $actions->append('
+                <a href="'.$route.'" class="grid-row-edit btn btn-xs btn-warning" data-toggle="tooltip" title="" data-original-title="Chỉnh sửa">
+                    <i class="fa fa-edit"></i>
+                </a>
+            ');
+
+            $urlDelete = route('admin.transactions.destroy', $actions->getKey());
+            $actions->append(new BtnDelete($actions->getKey(), $urlDelete));
         });
 
         return $grid;
@@ -126,6 +139,9 @@ class TransactionController extends AdminController
 
     protected function detail() {
         $grid = new Grid(new Transaction());
+
+        $grid->setTitle('Giao dịch Duplicate');
+
         $referrals =  Transaction::select('content')->selectRaw('count(content)')
         ->groupBy('content')
         ->where('type_recharge', 3)
@@ -138,7 +154,6 @@ class TransactionController extends AdminController
         ->whereIn('content', $referrals)
         ->orderBy('id', 'desc');
 
-        $grid->setTitle('Giao dịch Duplicate');
         $grid->disableFilter();
 
         $grid->rows(function (Grid\Row $row) {
@@ -173,9 +188,39 @@ class TransactionController extends AdminController
         $grid->disableColumnSelector();
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableView();
+            $actions->disableEdit();
+            $actions->disableDelete();
+
+            $route = route('admin.customers.transactions', $actions->row->customer_id) . "?mode=recharge&transaction_id=" . $actions->getKey();
+            $actions->append('
+                <a href="'.$route.'" class="grid-row-edit btn btn-xs btn-warning" data-toggle="tooltip" title="" data-original-title="Chỉnh sửa">
+                    <i class="fa fa-edit"></i>
+                </a>
+            ');
+
+            $urlDelete = route('admin.transactions.destroy', $actions->getKey());
+            $actions->append(new BtnDelete($actions->getKey(), $urlDelete));
         });
         $grid->paginate(500);
 
         return $grid;
+    }
+
+    public function destroy($id)
+    {
+        $transaction = Transaction::find($id);
+        $customer = User::find($transaction->customer_id);
+
+        $transaction->delete();
+        $customer->updateWalletByHistory();
+
+        admin_toastr('Xoá thành công', 'success');
+
+        return response()->json([
+            'status'    =>  'success',
+            'message'   =>  'Xoá thành công',
+            'isRedirect'    =>  true,
+            'url'   =>  route('admin.customers.transactions', $customer->id)
+        ]);
     }
 }

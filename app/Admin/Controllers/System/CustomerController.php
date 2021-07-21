@@ -6,6 +6,7 @@ use App\Admin\Actions\Customer\PurchaseOrder;
 use App\Admin\Actions\Customer\Recharge;
 use App\Admin\Actions\Customer\Transaction;
 use App\Admin\Actions\Customer\TransportOrder;
+use App\Admin\Actions\Customer\WalletWeight;
 use App\Admin\Services\UserService;
 use App\Models\System\Transaction as SystemTransaction;
 use App\Models\System\TransactionType;
@@ -97,7 +98,7 @@ class CustomerController extends AdminController
             'off' => ['value' => User::DEACTIVE, 'text' => 'Khoá', 'color' => 'danger'],
         ];
         $grid->staff_sale_id('Sale')->editable('select', $this->userService->GetListSaleEmployee());
-        $grid->customer_percent_service('Phí dịch vụ')->editable('select', $this->userService->GetListPercentService());
+        $grid->customer_percent_service('Phí dịch vụ')->editable('select', $this->userService->GetListPercentService())->width(50);
         $grid->note('Ghi chú')->editable()->width(100);
         $grid->column('is_active', 'Trạng thái')->switch($states)->style('text-align: center');
         $grid->disableCreateButton();
@@ -111,6 +112,7 @@ class CustomerController extends AdminController
             $actions->append(new TransportOrder($actions->getKey()));
             $actions->append(new Recharge($actions->getKey()));
             $actions->append(new Transaction($actions->getKey()));
+            $actions->append(new WalletWeight($actions->getKey()));
         });
 
         return $grid;
@@ -215,16 +217,24 @@ class CustomerController extends AdminController
 
             $mode = "";
             $form = "";
+            $transactionId = "";
             if (isset($_GET['mode']) && $_GET['mode'] == 'recharge') {
                 $mode = 'recharge';
 
                 if (isset($_GET['transaction_id']) && $_GET['transaction_id'] != "") { 
-                    $form = $this->formRecharge($id, $_GET['transaction_id'])->edit($_GET['transaction_id'])->render();
+                    $transactionId = $_GET['transaction_id'];
+                    $flag = SystemTransaction::find($transactionId);
+
+                    if ($flag) {
+                        $form = $this->formRecharge($id, $transactionId)->edit($transactionId)->render();
+                    } else {
+                        $form = $this->formRecharge($id, "")->render();
+                    }
                 } else {
                     $form = $this->formRecharge($id, "")->render();
                 }
             }
-            return view('admin.system.customer.transaction', compact('customer', 'empty', 'data', 'mode', 'form'))->render();
+            return view('admin.system.customer.transaction', compact('customer', 'empty', 'data', 'mode', 'form', 'transactionId'))->render();
 
         });
         
@@ -316,5 +326,61 @@ class CustomerController extends AdminController
         return <<<SCRIPT
             $("input[name='_method']").val('POST');
         SCRIPT;
+    }
+
+    public function walletWeight($id, Content $content) {
+        return $content
+            ->title($this->title() . " / LỊCH SỬ VÍ CÂN")
+            ->body($this->walletWeightGrid($id));
+    }
+
+    public function walletWeightGrid($id) {
+
+        $grid = new Grid(new SystemTransaction());
+        $grid->model()->whereCustomerId(0)->where('money', '!=', 0)->orderBy('id', 'desc');
+
+        $grid->header(function () use ($id) {
+
+            $customer = User::select('id', 'symbol_name', 'wallet')->whereId($id)->first();
+            $empty = true;
+            $service = new UserService();
+            $data = [];
+
+            $mode = "";
+            $form = "";
+            $transactionId = "";
+            if (isset($_GET['mode']) && $_GET['mode'] == 'recharge') {
+                $mode = 'recharge';
+
+                if (isset($_GET['transaction_id']) && $_GET['transaction_id'] != "") { 
+                    $transactionId = $_GET['transaction_id'];
+                    $flag = SystemTransaction::find($transactionId);
+
+                    if ($flag) {
+                        $form = $this->formRecharge($id, $transactionId)->edit($transactionId)->render();
+                    } else {
+                        $form = $this->formRecharge($id, "")->render();
+                    }
+                } else {
+                    $form = $this->formRecharge($id, "")->render();
+                }
+            }
+            return view('admin.system.customer.transactionWalletWeight', compact('customer', 'empty', 'data', 'mode', 'form', 'transactionId'))->render();
+
+        });
+        
+        $grid->disableFilter();
+        $grid->disableExport();
+        $grid->disableCreateButton();
+        $grid->disableBatchActions();
+        $grid->disableColumnSelector();
+        $grid->actions(function (Grid\Displayers\Actions $actions) {
+            $actions->disableView();
+        });
+        $grid->paginate(1000);
+        $grid->disableColumnSelector();
+        $grid->disablePagination();
+
+        return $grid;
     }
 }

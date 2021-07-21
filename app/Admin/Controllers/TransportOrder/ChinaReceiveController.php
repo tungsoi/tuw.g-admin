@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\TransportOrder;
 
+use App\Models\System\Warehouse;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -41,37 +42,22 @@ class ChinaReceiveController extends AdminController
             $tools->disableList();
         });
 
-        // $form->confirm('Xác nhận lưu dữ liệu nhập hàng ?');
-
         return $form;
     }
 
-    protected function save(Request $request) {
-        $transportCodeArr = $request->transport_code;
-        $createdUserId = $request->created_user_id;
-        $ids = [];
+    public function storeTransportCode(Request $request)
+    {
+        TransportCode::create([
+            'transport_code'    =>  $request->transport_code,
+            'status'            =>  TransportCode::CHINA_RECEIVE,
+            'china_recevie_at'  =>  now(),
+            'china_receive_user_id' =>  Admin::user()->id,
+            'ware_house_id' =>  Warehouse::whereIsDefault(1)->first()->id
+        ]);
 
-        if (is_array($transportCodeArr) && sizeof($transportCodeArr) > 0) {
-            foreach ($transportCodeArr as $transportCode) {
-                if ($transportCode != null) {
-                    $data = [
-                        'transport_code'        =>  $transportCode,
-                        'status'                =>  TransportCode::CHINA_RECEIVE,
-                        'china_receive_user_id' =>  $createdUserId,
-                        'china_recevie_at'      =>  now()
-                    ];
-
-                    $flag = TransportCode::where('transport_code', $data['transport_code'])->count();
-                    
-                    if ($flag == 0)
-                    {
-                        $res = TransportCode::create($data);
-                        $ids[] = $res->id;
-                    }
-                }
-            }
-        }
-
-        return redirect()->route('admin.china_receives', ['mode' => 'popup', 'callback'   =>  $ids]);
+        return response()->json([
+            'code'  =>  200,
+            'data'  =>  $request->all()
+        ]);
     }
 }

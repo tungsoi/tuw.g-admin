@@ -30,6 +30,10 @@
     </div>
 @endif
 
+<div class="loading-overlay">
+    <i class="fa fa-spinner fa-spin"></i> Đang xử lý ...
+</div>
+
 <div class="wrapper">
 
     {{-- @include('admin::partials.header') --}}
@@ -46,7 +50,6 @@
     </div>
 
     {{-- @include('admin::partials.footer') --}}
-
 </div>
 
 {{-- <button id="totop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up"></i></button> --}}

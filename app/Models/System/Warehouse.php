@@ -18,10 +18,23 @@ class Warehouse extends Model
         'name',
         'code',
         'address',
-        'is_active'
+        'is_active',
+        'is_default',
+        'user_id', 
+        'employees'
     ];
 
     public function userLead() {
         return $this->hasOne('App\User', 'id', 'user_id');
+    }
+
+    public function getEmployeesAttribute($value)
+    {
+        return explode(',', $value);
+    }
+
+    public function setEmployeesAttribute($value)
+    {
+        $this->attributes['employees'] = implode(',', $value);
     }
 }

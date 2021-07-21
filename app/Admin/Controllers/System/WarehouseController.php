@@ -38,11 +38,34 @@ class WarehouseController extends AdminController
             'off' => ['value' => Warehouse::CLOSE, 'text' =>  Warehouse::CLOSE_TXT, 'color' => 'danger'],
             'on'  => ['value' => Warehouse::LIVE, 'text' => Warehouse::LIVE_TXT, 'color' => 'success']
         ];
+
+        $isDefault = [
+            'off' => ['value' => 0, 'text' =>  'Kho phụ', 'color' => 'danger'],
+            'on'  => ['value' => 1, 'text' => 'Kho tổng', 'color' => 'success']
+        ];
+        $grid->column('is_default', 'Loại kho')->switch($isDefault)->style('text-align: center');
         $grid->column('is_active', 'Tình trạng kho')->switch($states)->style('text-align: center');
+        $grid->userLead()->name('Nhân viên quản lý')->style('text-align: center');
+
+        $grid->employees('Nhân viên đang làm việc')->display(function () {
+            $arr = $this->employees ?? [];
+
+            if (sizeof ($arr) > 0 && $arr[0] != "") {
+                $names = [];
+                foreach ($arr as $userId) {
+                    if ($userId != "") {
+                        $names[] = User::find($userId)->name;
+                    }
+                }
+                return $names;
+            }
+
+            return null;
+        })->label('info')->width(150);
         $grid->column('created_at', "Ngày tạo")->display(function () {
             return date('H:i | d-m-Y', strtotime($this->created_at));
         })->style('text-align: center');
-        $grid->userLead()->name('Nhân viên phụ trách')->style('text-align: center');
+
         $grid->disableExport();
         $grid->disableFilter();
         $grid->disableBatchActions();
@@ -74,9 +97,17 @@ class WarehouseController extends AdminController
             'on'  => ['value' => Warehouse::LIVE, 'text' => Warehouse::LIVE_TXT, 'color' => 'success']
         ];
         $form->switch('is_active', 'Trạng thái')->states($states)->default(1);
-        $form->select('user_id', 'Nhân viên phụ trách')->options(
+        $form->select('user_id', 'Nhân viên quản lý')->options(
             User::whereIsCustomer(User::ADMIN)->whereIsActive(User::ACTIVE)->pluck('name', 'id')
         )->rules(['required']);
+        $form->multipleSelect('employees', 'Nhân viên đang làm việc')->options(User::whereIsCustomer(User::ADMIN)->whereIsActive(User::ACTIVE)->pluck('name', 'id'));
+
+
+        $isDefault = [
+            'off' => ['value' => 0, 'text' =>  'Kho phụ', 'color' => 'danger'],
+            'on'  => ['value' => 1, 'text' => 'Kho tổng', 'color' => 'success']
+        ];
+        $form->switch('is_default', 'Loại kho')->states($isDefault)->default(1);
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
             $tools->disableView();

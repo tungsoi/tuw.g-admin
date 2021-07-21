@@ -11,7 +11,7 @@
                 <li class="nav-item"><a class="nav-link" href="#about">Giới thiệu</a></li>
                 <li class="nav-item"><a class="nav-link" href="#projects">Quy trình đặt hàng</a></li>
                 <li class="nav-item"><a class="nav-link" href="#signup">Liên hệ</a></li>
-                <li class="nav-item"><a class="nav-link navlink-border" href="#signup">Đăng ký</a></li>
+                <li class="nav-item"><a class="nav-link navlink-border" href="{{ route('home.register') }}">Đăng ký</a></li>
             </ul>
         </div>
     </div>

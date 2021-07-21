@@ -15,14 +15,12 @@
                 <img src="{{ Admin::user()->avatar }}" class="img-radius-10" alt="User Image">
             </div>
             <div class="pull-left info">
-                <p>{{ Admin::user()->name }}</p>
-                <!-- Status -->
                 <a href="#"><i class="fa fa-circle text-success"></i> {{ Admin::user()->symbol_name ?? "Mã khách hàng" }}</a>
             </div>
         </div>
 
         <div style="text-align: center;padding: 5px;font-size: 12px;background-color: wheat;color: black;">
-            Tỷ giá: <b style="color: red">3,755 VND</b> 
+            Tỷ giá: <b style="color: red">{{ \App\Models\System\ExchangeRate::first()->vnd }} VND / 1 RMB</b> 
         </div>
 
         <!-- Sidebar Menu -->
@@ -36,11 +34,11 @@
             <li class="">
                 <a href="{{route('admin.setting')}}">
                     <i class="fa fa-sun-o"></i>
-                       <span>Cài đặt cá nhân</span>
+                    <span>Cài đặt cá nhân</span>
                </a>
             </li>
             <li>
-                <a href="" id="btn-logout">
+                <a href="{{ route('admin.logout') }}" id="btn-logout">
                     <i class="fa fa-sign-out"></i>
                     <span>Đăng xuất</span>
                </a>

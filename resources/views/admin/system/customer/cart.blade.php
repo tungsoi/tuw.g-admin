@@ -1,0 +1,231 @@
+<div class="row">
+    <div class="col-md-12">
+        <h5>Tiền tạm tính: <b class="estimate-amount" style="color: red">0.00</b> (Tệ) = <b class="estimate-amount-vnd" style="color: red">0</b> (VND)</h5>
+    </div>
+</div>
+<table class="table table-bordered">
+    <thead>
+        <th></th>
+        <th>STT</th>
+        <th>Ảnh sản phẩm</th>
+        <th>Tên sản phẩm</th>
+        <th>Link sản phẩm</th>
+        <th>Size</th>
+        <th>Màu</th>
+        <th>Số lượng</th>
+        <th>Đơn giá (Tệ)</th>
+        <th>Thành tiền (Tệ)</th>
+        <th>Ghi chú</th>
+        <th>Thao tác</th>
+    </thead>
+    <tbody>
+        @if (sizeof($items) > 0 )
+        @foreach ($items as $item)
+            @if ($item['items']->count() > 0)
+            <tr>
+                <td colspan="12" style="background: linen">Tên shop: <b>{{ $item['shop_name'] }}</b></td>
+            </tr>
+
+                @foreach ($item['items'] as $key => $item_ele)
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="choose-item" id="" data-index={{ $item_ele->id }}>
+                        </td>
+                        <td style="width: 50px;">{{ $key+1 }}</td>
+                        <td style="width: 100px;">
+                            @php
+                                if (strpos($item_ele->product_image, '//') !== false){
+                                    $link = $item_ele->product_image;
+                                } else {
+                                    $link = asset('uploads/' . $item_ele->product_image );
+                                }
+                            @endphp 
+
+                            <img src="{{ $link }}" alt="" width="100">
+                        </td>
+                        <td style="width: 300px;">{{ $item_ele->product_name }}</td>
+                        <td style="width: 100px;">
+                            <a href="{{ $item_ele->product_link }}" target='_blank'>Link sản phẩm</a>
+                        </td>
+                        <td>
+                            {{ $item_ele->product_size }}
+                        </td>
+                        <td>
+                            {{ $item_ele->product_color }}
+                        </td>
+                        <td style="width: 100px;">
+                            {{ $item_ele->qty }}
+                        </td>
+                        @php
+                            $price = str_replace(",", ".", $item_ele->price);
+                        @endphp
+                        <td style="width: 100px">
+                            {{ $price }}
+                        </td>
+                        <td style="width: 150px">
+                            <span class="item-price" data-index="{{ $item_ele->id }}">{{ number_format($item_ele->qty * $price, 2) }}</span>
+                        </td>
+                        <td style="width: 200px;">
+                            {{ $item_ele->customer_note }}
+                        </td>
+                        <td style="width: 80px">
+
+                            <a href="{{ route('admin.carts.edit', $item_ele->id) }}" class="grid-row-edit btn btn-xs btn-warning" data-toggle="tooltip" title="" data-original-title="Chỉnh sửa">
+                                <i class="fa fa-edit"></i>
+                            </a>
+
+                            <a href="javascript:void(0);" data-url="{{ route('admin.carts.destroy', $item_ele->id) }}" data-id="{{ $item_ele->id }}" class="grid-row-custom-delete btn btn-xs btn-danger" data-toggle="tooltip" title="Xóa">
+                                <i class="fa fa-trash"></i>
+                            </a>
+
+                        </td>
+                    </tr>
+                @endforeach
+            @endif
+        @endforeach
+        @else
+        <tr>
+            <td colspan="12" style="text-align: center;">
+                <i>Chưa có sản phẩm</i>
+            </td>
+        </tr>
+        @endif
+    </tbody>
+</table>
+
+<input type="hidden" name="" class="exchange_rates" value="{{ $exchange_rates }}">
+
+<div id="myModal-storeOrderFromCart" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+  
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Tạo đơn hàng</h4>
+        </div>
+        <div class="modal-body">
+          <form action="{{ route('admin.customer_purchase_orders.storeFromCart') }}" method="post">
+                {{ @csrf_field() }}
+                <div class="form-group">
+                    <select class="form-control" name="warehouse_id">
+                        @foreach ($warehouses as $warehouse)
+                            <option value="{{ $warehouse->id }}">{{ $warehouse->code ." (".$warehouse->name." - ".$warehouse->address. ")" }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="hidden" name="ids" id="ids" value="">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-sm">Tạo đơn</button>
+                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Huỷ bỏ</button>
+                </div>
+          </form>
+        </div>
+      </div>
+  
+    </div>
+</div>
+
+<script>
+    let exchange_rates = $('.exchange_rates').val();
+
+    $(document).on('click', '.choose-item', function () {
+
+        if ( $(this).is(':checked') ) {
+            $(this).parent().parent().css('background', 'wheat');
+        } else {
+            $(this).parent().parent().css('background', 'white');
+        }
+
+        $('.estimate-amount').html(0.00);
+        $('.estimate-amount-vnd').html(0);
+
+        let amount = parseFloat($('.estimate-amount').html());
+
+        $(".choose-item:checked").each(function (index, obj) {
+            let iIndex = $(obj).data('index');
+            let iPrice = $('.item-price[data-index='+iIndex+']').html();
+
+            amount += parseFloat(iPrice);
+        })
+
+        amount = parseFloat(amount).toFixed(2);
+        let amount_vnd = parseFloat(amount * exchange_rates, 0).toFixed(0);
+
+        $('.estimate-amount').html(amount);
+        $('.estimate-amount-vnd').html(amount_vnd);
+        $('.estimate-amount-vnd').digits();
+    });
+
+    $.fn.digits = function(){ 
+        return this.each(function(){ 
+            $(this).text( $(this).text().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") ); 
+        })
+    }
+
+    $('.grid-row-custom-delete').on('click', function () {
+
+        let url = $(this).data('url');
+        let id = $(this).data('id');
+
+        Swal.fire({
+            title: 'Bạn có chắc chắn muốn xoá?',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Huỷ bỏ'
+        }).then((result) => {
+            if (result.value == true && result.dismiss == undefined) {
+
+                $('.loading-overlay').show();
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax(
+                {
+                    url: url,
+                    type: 'delete', // replaced from put
+                    dataType: "JSON",
+                    success: function (response)
+                    {
+                        if (response.isRedirect) {
+                            setTimeout(function () {
+                                window.location.href = response.url;
+                            }, 1000);
+                        } else {
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 1000);
+                        }
+                        
+                    }
+                });
+            }
+        })
+
+    });
+
+    $('.btn-create-order').on('click', function () {
+        let check_checked = $(".choose-item:checked");
+
+        if (check_checked.length == 0) {
+            $.admin.toastr.error('Vui lòng chọn sản phẩm !', '', {positionClass: 'toast-top-center'});
+        } else {
+
+            let ids = [];
+            check_checked.each(function (index, obj) {
+                ids.push($(obj).data('index'));
+            })
+
+            $("#myModal-storeOrderFromCart #ids").val(ids);
+            $("#myModal-storeOrderFromCart").modal('show');
+
+        }
+    });
+</script>

@@ -212,28 +212,3 @@ $('.sidebar-toggle').on('click', function (event) {
     }
     
 });
-
-$('#btn-logout').on('click', function () {
-    Swal.fire({
-        title: 'Đăng xuất?',
-        text: "",
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Đồng ý',
-        cancelButtonText: 'Huỷ bỏ'
-      }).then(function(result){
-        if (result.isConfirmed) {
-            window.location.href="/admin/auth/logout";
-        } else if (result.isDenied) {
-            // Swal.fire('Changes are not saved', '', 'info')
-        }
-        
-    }).catch(function(reason){
-        // alert("The alert was dismissed by the user: "+reason);
-    });
-})
-
-// $(document).on('click', 'button.submit', function () {
-//     $(this).attr('disabled', 'disabled')
-// })
