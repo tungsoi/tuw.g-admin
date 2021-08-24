@@ -31,7 +31,7 @@
 @endif
 
 <div class="loading-overlay">
-    <i class="fa fa-spinner fa-spin"></i> Đang xử lý ...
+    <i class="fa fa-spinner fa-spin" style="color: green"></i> Vui lòng đợi trong giây lát ...
 </div>
 
 <div class="wrapper">
@@ -63,5 +63,18 @@
 <!-- REQUIRED JS SCRIPTS -->
 {!! Admin::js() !!}
 
+<script>
+    function copyElementText(id) {
+        var text = document.getElementById(id).innerText;
+        var elem = document.createElement("textarea");
+        document.body.appendChild(elem);
+        elem.value = text;
+        elem.select();
+        document.execCommand("copy");
+        document.body.removeChild(elem);
+
+        $.admin.toastr.success('Đã Copy', '', {timeOut: 1000});
+    }
+</script>
 </body>
 </html>

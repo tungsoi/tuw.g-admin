@@ -29,7 +29,7 @@
   <div class="login-box-body">
     <p class="login-box-msg">{{ trans('admin.register') }}</p>
 
-    <form action="{{ route('home.register') }}" method="post">
+    <form action="{{ route('home.register') }}" method="post" id="frm-register">
       <div class="form-group has-feedback {!! !$errors->has('username') ?: 'has-error' !!}">
 
         @if($errors->has('username'))
@@ -39,7 +39,7 @@
         @endif
 
         <input type="text" class="form-control" placeholder="Địa chỉ email" name="username" value="{{ old('username') }}">
-        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+        {{-- <span class="glyphicon glyphicon-envelope form-control-feedback"></span> --}}
       </div>
       <div class="row">
         <div class="col-xs-12">
@@ -47,6 +47,13 @@
           <button type="submit" class="btn btn-warning btn-block btn-flat">{{ trans('admin.register') }}</button>
         </div>
         <!-- /.col -->
+      </div>
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <hr>
+          <a href="{{ route('home.getForgotPassword')}}">Quên mật khẩu ?</a> <br> <br>
+          <p>Đã có tài khoản ? <a href="{{ route('admin.login') }}">Đăng nhập</a></p>
+        </div>
       </div>
     </form>
 
@@ -68,6 +75,10 @@
       radioClass: 'iradio_square-blue',
       increaseArea: '20%' // optional
     });
+  });
+
+  $('form#frm-register').submit(function(){
+      $(this).find(':input[type=submit]').prop('disabled', true);
   });
 </script>
 </body>

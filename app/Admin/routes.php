@@ -15,8 +15,12 @@ Route::group([
     )->name('index');
 
     $router->get('register', 'RegisterController@index')->name('register');
-    $router->post('register', 'RegisterController@register')->name('register');
+    $router->post('register', 'RegisterController@register')->name('postRegister');
 
+    $router->get('forgotPassword', 'ForgotPasswordController@getForgotPassword')->name('getForgotPassword');
+    $router->post('postForgotPassword', 'ForgotPasswordController@postForgotPassword')->name('postForgotPassword');
+    $router->get('getVerifyForgotPassword', 'ForgotPasswordController@getVerifyForgotPassword')->name('getVerifyForgotPassword');
+    $router->post('postVerifyForgotPassword', 'ForgotPasswordController@postVerifyForgotPassword')->name('postVerifyForgotPassword');
 });
 
 
@@ -45,11 +49,15 @@ Route::group([
 
         // customer
         'carts'                         =>  'Customer\\CartController',
-        'customer_purchase_orders'      =>  'Customer\\CustomerPurchaseOrderController',
         'customer_transactions'         =>  'Customer\\CustomerTransactionController',
+        'customer_items'                =>  'Customer\\CustomerItemController',
 
         // purchase order
-        'purchase_orders'   =>  'PurchaseOrder\\PurchaseOrderController'
+        'purchase_orders'   =>  'PurchaseOrder\\PurchaseOrderController',
+        'purchase_order_items'  =>  'PurchaseOrder\\ItemController',
+
+        // transport order
+        'transport_codes'  =>  'TransportOrder\\TransportCodeController'
     ]);
 
     // transport order
@@ -73,7 +81,6 @@ Route::group([
     $router->post('customer_purchase_orders/storeFromCart', 'Customer\\CustomerPurchaseOrderController@storeFromCart')->name('customer_purchase_orders.storeFromCart');
 
     // purchase order
-    $router->post('purchase_orders/addTransportCode', 'PurchaseOrder\\PurchaseOrderController@addTransportCode')->name('purchase_orders.addTransportCode');
-
+    $router->post('purchase_orders/customer_deposite', 'PurchaseOrder\\PurchaseOrderController@customerDeposite')->name('purchase_orders.customer_deposite');
     
 });

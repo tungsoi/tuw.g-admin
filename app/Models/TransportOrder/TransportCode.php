@@ -20,9 +20,7 @@ class TransportCode extends Model
         'length',
         'width',
         'height',
-        'transport_order_id',
-        'v',
-        'm3',
+        'order_id',
         'price_service',
         'advance_drag',
         'status',
@@ -32,15 +30,20 @@ class TransportCode extends Model
         'payment_at',
         'begin_swap_warehouse_at',
         'finish_swap_warehouse_at',
-        'created_user_id',
+        'china_receive_user_id',
+        'vietnam_receive_user_id',
+        'payment_user_id',
+        'begin_swap_user_id',
+        'finish_swap_user_id',
         'admin_note',
         'customer_note',
         'customer_code_input',
-        'ware_house_id'
+        'ware_house_id',
+        'payment_type'
     ];
 
-    public function transportOrder() {
-
+    public function transportOrder()
+    {
     }
 
     public function warehouse() {
@@ -49,5 +52,33 @@ class TransportCode extends Model
 
     public function userCreated() {
         return $this->hasOne('App\User', 'id', 'created_user_id');
+    }
+    
+    public function v() {
+        try {
+            $width = ($this->width != "") ? $this->width : 0;
+            $height = ($this->height != "") ? $this->height : 0;
+            $length = ($this->length != "") ? $this->length : 0;
+
+            return number_format(($width * $height * $length)/6000, 2);
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    public function m3() {
+        try {
+            $width = ($this->width != "") ? $this->width : 0;
+            $height = ($this->height != "") ? $this->height : 0;
+            $length = ($this->length != "") ? $this->length : 0;
+            
+            return number_format(($width * $height * $length)/1000000, 3);
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    public function getStatus() {
+        return $this->status;
     }
 }

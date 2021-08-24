@@ -47,17 +47,45 @@ class CustomerController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new User());
-        $grid->model()->whereIsCustomer(User::CUSTOMER)->orderByRaw('CHAR_LENGTH(wallet) DESC');
+        $grid->model()->whereIsCustomer(User::CUSTOMER)->orderBy('id', 'desc');
 
+        $grid->expandFilter();
         $grid->filter(function($filter) {
             $filter->disableIdFilter();
 
-            $filter->column(1/2, function ($filter) {
+            $filter->column(1/4, function ($filter) {
+                $filter->like('symbol_name', 'Mã khách hàng');
+                $filter->equal('staff_sale_id', 'Nhân viên kinh doanh')->select($this->userService->GetListSaleEmployee());
+            });
+            $filter->column(1/4, function ($filter) {
                 $filter->like('name', 'Họ và tên');
+                $filter->equal('staff_order_id', 'Nhân viên đặt hàng')->select($this->userService->GetListOrderEmployee());
             });
-            $filter->column(1/2, function ($filter) {
+            $filter->column(1/4, function ($filter) {
                 $filter->like('username', 'Email');
+                $filter->equal('customer_percent_service', 'Phí dịch vụ')->select($this->userService->GetListPercentService());
             });
+            $filter->column(1/4, function ($filter) {
+                $filter->like('phone_number', 'Số điện thoại');
+                $filter->equal('ware_house_id', 'Kho nhận hàng')->select($this->userService->GetListWarehouse());
+            });
+
+            Admin::style('
+                #filter-box label {
+                    padding: 0px !important;
+                    padding-top: 10px;
+                    font-weight: 600;
+                    font-size: 12px;
+                }
+                #filter-box .col-sm-2 {
+                    width: 100% !important;
+                    text-align: left;
+                    padding: 0px 15px 3px 15px !important;
+                }
+                #filter-box .col-sm-8 {
+                    width: 100% !important;
+                }
+            ');
         });
 
         $grid->rows(function (Grid\Row $row) {
@@ -66,41 +94,52 @@ class CustomerController extends AdminController
 
         $grid->column('number', 'STT');
         $grid->id('Hồ sơ')->display(function (){
-            return "Xem";
+            return "Tất cả";
         })->expand(function ($model) {
             $info = [
                 "ID"    =>  $model->id,
                 "Mã khách hàng" =>  $model->symbol_name,
                 "Địa chỉ Email" =>  $model->email,
                 "Số điện thoại" =>  $model->phone_number,
-                "Số dư ví"  =>  number_format($model->wallet) ?? 0,
+                "Ví tiền"  =>  number_format($model->wallet) ?? 0,
                 "Ví cân"    =>  $model->wallet_weight,
                 "Ngày mở tài khoản" =>   date('H:i | d-m-Y', strtotime($this->created_at)),
                 "Giao dịch gần nhất"    =>  null,
-                "Kho nhận hàng" =>  $model->warehouse->name ?? "",
+                "Kho nhận hàng" =>  ($model->warehouse->name ?? "" ) . " - " . ( $model->warehouse->address ?? ""),
                 "Địa chỉ"   =>  $model->address,
                 "Quận / Huyện"  =>  $model->getDistrict(),
-                "Tỉnh / Thành phố" => $model->getProvince()
+                "Tỉnh / Thành phố" => $model->getProvince(),
+                'Nhân viên kinh doanh'  =>  $model->saleEmployee->name ?? "",
+                'Nhân viên đặt hàng'    =>  $model->orderEmployee->name ?? "",
+                'Phí dịch vụ'           =>  $model->percentService->name ?? "",
+                'Giá cân thanh toán'    =>  $model->default_price_kg,
+                'Giá khối thanh toán'   =>  $model->default_price_m3
             ];
         
             return new Table(['Thông tin', 'Nội dung'], $info);
-        })->width(70);
-        $grid->symbol_name('Mã khách hàng')->style('text-align: center;')->editable();
-        $grid->ware_house_id('Kho nhận hàng')->style('text-align: center;')->editable('select', $this->userService->GetListWarehouse());
+        })->style('max-width: 150px; text-align: center;');
+
+        $grid->symbol_name('Mã khách hàng')->style('max-width: 150px;');
         $grid->wallet('Ví tiền')->display(function () {
             $label = $this->wallet < 0 ? "red" : "green";
             return "<span style='color: {$label}'>".number_format($this->wallet)."</span>";
-        })->style('text-align: right;');
-        $grid->wallet_weight('Ví cân');
+        })->style('text-align: right; max-width: 150px;');
+        $grid->wallet_weight('Ví cân')->style('text-align: right; max-width: 150px;');
 
         $states = [
             'on'  => ['value' => User::ACTIVE, 'text' => 'Mở', 'color' => 'success'],
             'off' => ['value' => User::DEACTIVE, 'text' => 'Khoá', 'color' => 'danger'],
         ];
-        $grid->staff_sale_id('Sale')->editable('select', $this->userService->GetListSaleEmployee());
-        $grid->customer_percent_service('Phí dịch vụ')->editable('select', $this->userService->GetListPercentService())->width(50);
-        $grid->note('Ghi chú')->editable()->width(100);
+        $grid->staff_sale_id('NV Sale')->editable('select', $this->userService->GetListSaleEmployee())->style('max-width: 150px;');
+        $grid->order_sale_id('NV Order')->editable('select', $this->userService->GetListOrderEmployee())->style('max-width: 150px;');
+        $grid->customer_percent_service('Phí dịch vụ')->editable('select', $this->userService->GetListPercentService())->style('max-width: 150px;');
+        $grid->default_price_kg('Giá cân')->editable()->style('max-width: 150px;');
+        $grid->default_price_m3('Giá khối')->editable()->style('max-width: 150px;');
+        $grid->ware_house_id('Kho nhận hàng')->style('text-align: center; width: 200px;')->editable('select', $this->userService->GetListWarehouse());
+        $grid->note('Ghi chú')->editable()->style('max-width: 150px;');
         $grid->column('is_active', 'Trạng thái')->switch($states)->style('text-align: center');
+
+
         $grid->disableCreateButton();
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
@@ -109,12 +148,12 @@ class CustomerController extends AdminController
             $actions->disableDelete();
             $actions->disableView();    
             $actions->append(new PurchaseOrder($actions->getKey()));
-            $actions->append(new TransportOrder($actions->getKey()));
+            // $actions->append(new TransportOrder($actions->getKey()));
             $actions->append(new Recharge($actions->getKey()));
             $actions->append(new Transaction($actions->getKey()));
             $actions->append(new WalletWeight($actions->getKey()));
         });
-
+        
         return $grid;
     }
 

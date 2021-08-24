@@ -18,15 +18,17 @@ class HomeController extends Controller
         return $content
             ->title('Bảng điều khiển')
             ->row(function (Row $row) {
-                if (Admin::user()->isRole('administrator')) {
-                    $row->column(3, new InfoBox('Khách hàng', 'book', 'green', '/admin/customers', User::count()));
-                    $row->column(3, new InfoBox('Đơn hàng', 'users', 'aqua', 'admin/auth/users', 1));
-                    $row->column(3, new InfoBox('Tổng giá trị đơn hàng', 'tag', 'yellow', '/admin/puchase_orders', '10.452.500.000'));
-                    $row->column(3, new InfoBox('Tổng lợi nhuận', 'tag', 'red', '/admin/order_items', '1.500.680.000'));
+                if (Admin::user()->isRole('customer')) {
+                    // $row->column(12, view('admin.system.customer.info')->render());
+                    $row->column(3, new InfoBox('Khách hàng', 'book', 'green', '/admin/customers', Admin::user()->name));
+                    $row->column(3, new InfoBox('Mã khách hàng', 'tag', 'red', '/admin/order_items', Admin::user()->symbol_name));
+                    $row->column(3, new InfoBox('Số dư ví', 'users', 'aqua', 'admin/auth/users', number_format(Admin::user()->wallet) . " VND"));
+                    $row->column(3, new InfoBox('Số dư ví cân', 'tag', 'yellow', '/admin/puchase_orders', Admin::user()->wallet_weight . " KG"));
                 }
-                else if (Admin::user()->isRole('customer')) {
-                    $row->column(6, new InfoBox('Đơn hàng của bạn', 'users', 'aqua', 'admin/auth/users', 1));
-                    $row->column(6, new InfoBox('Tổng giá trị đơn hàng', 'tag', 'yellow', '/admin/puchase_orders', '350.000.000'));
+            })
+            ->row(function (Row $row) { 
+                if (Admin::user()->isRole('customer')) {
+                    $row->column(12, "Box tra thông tin mã vận đơn");
                 }
             });
     }

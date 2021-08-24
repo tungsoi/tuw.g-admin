@@ -37,7 +37,7 @@ class CustomerPurchaseOrderController extends AdminController {
                 'internal_note' =>  null,
                 'warehouse_id'  =>  $request->get('warehouse_id'),
                 'current_rate'  =>  $service->getCurrentRate(),
-                'supporter_order_id'            =>  null,
+                'supporter_order_id'            =>  Admin::user()->staff_order_id,
                 'purchase_order_service_fee'    =>  $service->calOrderService($item_total_amount, Admin::user()->percentService->percent),
                 'deposited_at'  =>  null,
                 'order_at'      =>  null,

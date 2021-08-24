@@ -59,7 +59,10 @@ class User extends Model implements AuthenticatableContract
         'staff_sale_id',
         'customer_percent_service',
         'type_customer',
-        'wallet_weight'
+        'wallet_weight',
+        'staff_order_id',
+        'default_price_kg',
+        'default_price_m3'
     ];
 
     protected $casts = [
@@ -165,6 +168,10 @@ class User extends Model implements AuthenticatableContract
 
     public function saleEmployee() {
         return $this->hasOne('App\User', 'id', 'staff_sale_id');
+    }
+
+    public function orderEmployee() {
+        return $this->hasOne('App\User', 'id', 'staff_order_id');
     }
 
     public function percentService() {

@@ -2,6 +2,8 @@
 
 namespace App\Admin\Services;
 
+use App\Jobs\HandleCustomerWallet;
+use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\PurchaseOrder\PurchaseOrderItem;
 use App\Models\PurchaseOrder\PurchaseOrderItemStatus;
 use App\Models\PurchaseOrder\PurchaseOrderStatus;
@@ -11,6 +13,7 @@ use App\Models\System\ExchangeRate;
 use App\Models\System\Transaction;
 use App\Models\System\Warehouse;
 use App\User;
+use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -38,6 +41,8 @@ class OrderService {
         return 'MH-'.$generateOrder_nr;
     }
 
+    // lấy id purchase order status bằng code -> trả về id
+    // new-order -> 2
     public function getStatus($code) {
         return PurchaseOrderStatus::whereCode($code)->first()->id;
     }
@@ -64,5 +69,39 @@ class OrderService {
 
     public function getItemStatus($code) {
         return PurchaseOrderItemStatus::whereCode($code)->first()->id;
+    }
+
+    // Huỷ đơn mua hộ
+    public function canclePurchaseOrder($orderId) {
+        $order = PurchaseOrder::find($orderId);
+
+        switch ($order->status) {
+            case $this->getStatus('new-order'):
+                $order->update([
+                    'status'    =>  $this->getStatus('cancle'),
+                    'cancle_at' =>  now(),
+                    'user_cancle_at'    =>  Admin::user()->id
+                ]);
+
+                return true;
+            case $this->getStatus('deposited'):
+                $order->update([
+                    'status'    =>  $this->getStatus('cancle'),
+                    'cancle_at' =>  now(),
+                    'user_cancle_at'    =>  Admin::user()->id
+                ]);
+
+                $job = new HandleCustomerWallet(
+                    $order->customer_id,
+                    1,
+                    $order->deposited,
+                    2,
+                    "Khách hàng huỷ đơn. Hoàn tiền cọc đơn hàng mua hộ $order->order_number"
+                );
+
+                dispatch($job);
+
+                return true;
+        }
     }
 }

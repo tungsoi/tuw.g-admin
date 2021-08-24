@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Services\UserService;
 use App\User;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -133,15 +134,40 @@ class AuthController extends Controller
         $class = config('admin.database.users_model');
 
         $form = new Form(new $class());
+        $form->setTitle('Cập nhật thông tin');
 
-        $form->display('username', trans('admin.username'));
-        $form->text('name', trans('admin.name'))->rules('required');
-        $form->image('avatar', trans('admin.avatar'));
-        $form->password('password', trans('admin.password'))->rules('confirmed|required');
-        $form->password('password_confirmation', trans('admin.password_confirmation'))->rules('required')
-            ->default(function ($form) {
-                return $form->model()->password;
-            });
+        // $form->column(1/3, function ($form) {
+        
+        //     $form->image('avatar', trans('admin.avatar'));
+        // });
+
+        $service = new UserService();
+        $form->column(1/2, function ($form) use ($service) {
+        
+            $form->display('username', 'Tên đăng nhập');
+            $form->display('symbol_name', 'Mã khách hàng');
+            $form->text('name', 'Họ và tên')->rules('required');
+            $form->text('phone_number', 'Số điện thoại')->rules('required');
+
+            $form->divider();
+            $form->select('staff_sale_id', 'Nhân viên Kinh doanh')->options($service->GetListSaleEmployee())->rules('required');
+            $form->select('staff_order_id', 'Nhân viên Đặt hàng')->options($service->GetListOrderEmployee())->readonly();
+            $form->select('customer_percent_service', '% Phí dịch vụ')->options($service->GetListPercentService())->readonly();
+        });
+        $form->column(1/2, function ($form) use ($service) {
+            $form->select('ware_house_id', 'Kho hàng')->options($service->GetListWarehouse())->rules('required');
+            $form->select('province', 'Tỉnh / Thành phố')->options($service->GetListProvince())->rules('required');
+            $form->select('district', 'Quận / Huyện')->options($service->GetListDistrict())->rules('required');
+            $form->text('address', 'Địa chỉ')->rules('required');
+
+            $form->divider();
+            $form->password('password', trans('admin.password'))->rules('confirmed|required');
+            $form->password('password_confirmation', trans('admin.password_confirmation'))->rules('required')
+                ->default(function ($form) {
+                    return $form->model()->password;
+                });
+        });
+       
 
         $form->setAction(admin_url('auth/setting'));
 
@@ -156,7 +182,7 @@ class AuthController extends Controller
         $form->saved(function () {
             admin_toastr(trans('admin.update_succeeded'));
 
-            return redirect(admin_url('auth/setting'));
+            return redirect()->route('admin.home');
         });
 
         return $form;

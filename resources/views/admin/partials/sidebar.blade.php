@@ -1,5 +1,4 @@
 <aside class="main-sidebar">
-    
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
         <ul class="sidebar-menu">
@@ -15,7 +14,8 @@
                 <img src="{{ Admin::user()->avatar }}" class="img-radius-10" alt="User Image">
             </div>
             <div class="pull-left info">
-                <a href="#"><i class="fa fa-circle text-success"></i> {{ Admin::user()->symbol_name ?? "Mã khách hàng" }}</a>
+                <a href="#"><i class="fa fa-circle text-success"></i> {{ Admin::user()->symbol_name ?? "Mã khách hàng" }}</a> <br> <br>
+                <a href="#"><i class="fa fa-circle text-success"></i> {{ number_format(Admin::user()->wallet) . " VND" }}</a>
             </div>
         </div>
 

@@ -191,12 +191,12 @@ class TransactionController extends AdminController
             $actions->disableEdit();
             $actions->disableDelete();
 
-            $route = route('admin.customers.transactions', $actions->row->customer_id) . "?mode=recharge&transaction_id=" . $actions->getKey();
-            $actions->append('
-                <a href="'.$route.'" class="grid-row-edit btn btn-xs btn-warning" data-toggle="tooltip" title="" data-original-title="Chỉnh sửa">
-                    <i class="fa fa-edit"></i>
-                </a>
-            ');
+            // $route = route('admin.customers.transactions', $actions->row->customer_id) . "?mode=recharge&transaction_id=" . $actions->getKey();
+            // $actions->append('
+            //     <a href="'.$route.'" class="grid-row-edit btn btn-xs btn-warning" data-toggle="tooltip" title="" data-original-title="Chỉnh sửa">
+            //         <i class="fa fa-edit"></i>
+            //     </a>
+            // ');
 
             $urlDelete = route('admin.transactions.destroy', $actions->getKey());
             $actions->append(new BtnDelete($actions->getKey(), $urlDelete));

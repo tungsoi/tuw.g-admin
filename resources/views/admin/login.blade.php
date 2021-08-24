@@ -35,13 +35,17 @@
   <!-- /.login-logo -->
   <div class="login-box-body">
     <p class="login-box-msg">{{ trans('admin.login') }}</p>
-
+    @if (session()->has('verify-forgot-password'))
+            <div class="panel panel-success">
+                <div class="panel-heading">{{ session()->get('verify-forgot-password') }}</div>
+            </div>
+            @endif
     <form action="{{ admin_url('auth/login') }}" method="post">
       <div class="form-group has-feedback {!! !$errors->has('username') ?: 'has-error' !!}">
 
         @if($errors->has('username'))
           @foreach($errors->get('username') as $message)
-            <label class="control-label" for="inputError"><i class="fa fa-times-circle-o"></i>{{$message}}</label><br>
+            <label class="control-label" for="inputError"><i class="fa fa-times-circle-o"></i> {{$message}}</label><br>
           @endforeach
         @endif
 
@@ -52,7 +56,7 @@
 
         @if($errors->has('password'))
           @foreach($errors->get('password') as $message)
-            <label class="control-label" for="inputError"><i class="fa fa-times-circle-o"></i>{{$message}}</label><br>
+            <label class="control-label" for="inputError"><i class="fa fa-times-circle-o"></i> {{$message}}</label><br>
           @endforeach
         @endif
 
@@ -60,7 +64,7 @@
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
       <div class="row">
-        <div class="col-xs-8">
+        <div class="col-xs-6">
           @if(config('admin.auth.remember'))
           <div class="checkbox icheck">
             <label>
@@ -71,11 +75,19 @@
           @endif
         </div>
         <!-- /.col -->
-        <div class="col-xs-4">
+        <div class="col-xs-6">
           <input type="hidden" name="_token" value="{{ csrf_token() }}">
-          <button type="submit" class="btn btn-primary btn-block btn-flat">{{ trans('admin.login') }}</button>
+          <button type="submit" class="btn btn-warning btn-block btn-flat btn-md">{{ trans('admin.login') }}</button>
         </div>
         <!-- /.col -->
+      </div>
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <hr>
+
+          <a href="{{ route('home.getForgotPassword') }}">Quên mật khẩu ?</a> <br> <br>
+          <p>Chưa có tài khoản ? <a href="{{ route('home.register') }}">Đăng ký</a></p>
+        </div>
       </div>
     </form>
 

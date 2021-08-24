@@ -60,13 +60,17 @@ class PurchaseOrderItem extends Model
     //     'price_vn'
     // ];
 
-    // /**
-    //  * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-    //  */
-    // public function order()
-    // {
-    //     return $this->hasOne(PurchaseOrder::class, 'id', 'order_id');
-    // }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function order()
+    {
+        return $this->hasOne('App\Models\PurchaseOrder\PurchaseOrder', 'id', 'order_id');
+    }
+
+    public function statusText() {
+        return $this->hasOne('App\Models\PurchaseOrder\PurchaseOrderItemStatus', 'id', 'status');
+    }
 
     // /**
     //  * @return float|int

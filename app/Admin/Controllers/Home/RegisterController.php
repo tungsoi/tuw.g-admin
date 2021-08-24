@@ -21,44 +21,25 @@ class RegisterController extends Controller
 
         $this->registerValidator($request->all())->validate();
 
-        $email = $request->username;
+        $user = User::create([
+            'username'      =>  $request->username,
+            'email'         =>  $request->username,
+            'password'      =>  Hash::make('123456')
+        ]);
 
-        $dataRegister = [
-            'username'  =>  $email,
-            'name'      =>  $email,
-            'avatar'    =>  '/vendor/laravel-admin/AdminLTE/dist/img/user2-160x160.jpg',
-            'email'     =>  $email,
-            'phone_number'  =>  NULL,
-            'wallet'    =>  0,
-            'address'   =>  NULL,
-            'is_customer'   =>  1,
-            'ware_house_id' =>  NULL,
-            'is_active'     =>  1,
-            'password'      =>  Hash::make('123456'),
-            'note'          =>  NULL,
-            'province'  =>  0,
-            'district'  =>  0,
-            'staff_sale_id' =>  NULL,
-            'customer_percent_service'  =>  1,
-            'type_customer' =>  NULL,
-            'is_updated_profile'    =>  0,
-            'wallet_weight' =>  0
-        ];
-
-        $user = User::create($dataRegister);
+        $user->symbol_name = 'MKH'.str_pad($user->id, 5, 0, STR_PAD_LEFT);
+        $user->save();
 
         DB::table('admin_role_users')->insert([
-            'role_id'   =>  7,
+            'role_id'   =>  2,
             'user_id'   =>  $user->id
         ]);
 
-        $user->symbol_name = 'KH'.str_pad($user->id, 4, 0);
-        $user->save();
-
         $credentials = [
-            'username'  =>  $email,
+            'username'  =>  $request->username,
             'password'  =>  '123456'
         ];
+        
         $remember = true;
 
         if ($this->guard()->attempt($credentials, $remember)) {
@@ -80,11 +61,11 @@ class RegisterController extends Controller
     protected function registerValidator(array $data)
     {
         return Validator::make($data, [
-            $this->username()   => 'required|email|unique:admin_users'
+            $this->username()   => 'required|email|unique:admin_users,username'
         ],[
             'username.required' =>  'Vui lòng nhập địa chỉ Email.',
             'username.email'    =>  'Vui lòng nhập đúng định dạng Email (VD: nguyenvantuan@gmail.com).',
-            'username.unique'   =>  'Email này đã được đăng ký trên hệ thống, vui lòng sửa dụng email khác.'
+            'username.unique'   =>  'Email này đã được đăng ký trên hệ thống, vui lòng sử dụng email khác.'
         ]);
     }
 

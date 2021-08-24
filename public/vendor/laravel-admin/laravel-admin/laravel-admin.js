@@ -18,9 +18,9 @@ $.fn.editable.defaults.error = function (data) {
 toastr.options = {
     closeButton: true,
     progressBar: true,
-    showMethod: 'fadeIn',
-    timeOut: 4000,
-    positionClass: "toast-bottom-right",
+    showMethod: 'slideDown',
+    timeOut: 5000,
+    positionClass: "toast-top-center",
     newestOnTop: true
 };
 

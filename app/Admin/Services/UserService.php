@@ -4,6 +4,8 @@ namespace App\Admin\Services;
 
 use App\Models\Setting\RoleUser;
 use App\Models\System\CustomerPercentService;
+use App\Models\System\District;
+use App\Models\System\Province;
 use App\Models\System\Transaction;
 use App\Models\System\Warehouse;
 use App\User;
@@ -13,6 +15,7 @@ class UserService {
 
     const SALE_EMPLOYEE_ROLE = 3;
     const AR_EMPLOYEE_ROLE = 5;
+    const ORDER_EMPLOYEE_ROLE = 4;
 
     public function GetListSaleEmployee()
     {
@@ -38,7 +41,14 @@ class UserService {
     }
 
     public function GetListWarehouse() {
-        return Warehouse::pluck('name', 'id');
+        $data = Warehouse::all();
+        $res = [];
+
+        foreach ($data as $warehouse) {
+            $res[$warehouse->id] = $warehouse->name ." - (". $warehouse->address.")";
+        }
+
+        return $res;
     }
 
     public function GetListCustomer() {
@@ -173,5 +183,30 @@ class UserService {
         }
 
         return $data;
+    }
+
+    public function GetListProvince() {
+        return Province::all()->pluck('name', 'province_id');
+    }
+
+    public function GetListDistrict() {
+        return District::all()->pluck('name', 'district_id');
+    }
+
+    public function GetListOrderEmployee() {
+        $userIdsSaleRole = RoleUser::whereRoleId(self::ORDER_EMPLOYEE_ROLE)->pluck('user_id');
+        $users = User::whereIn('id', $userIdsSaleRole)
+                        ->whereIsCustomer(User::ADMIN)
+                        ->whereIsActive(User::ACTIVE)
+                        ->orderBy('id', 'desc')
+                        ->pluck('name', 'id');
+
+        if ($users->count() > 0) {
+            foreach ($users as $key => $user) {
+                $users[$key] = Str::upper($user);
+            }
+        }
+
+        return $users;
     }
 }
