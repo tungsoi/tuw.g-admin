@@ -50,11 +50,10 @@ Route::group([
         // customer
         'carts'                         =>  'Customer\\CartController',
         'customer_transactions'         =>  'Customer\\CustomerTransactionController',
-        'customer_items'                =>  'Customer\\CustomerItemController',
 
         // purchase order
         'purchase_orders'   =>  'PurchaseOrder\\PurchaseOrderController',
-        'purchase_order_items'  =>  'PurchaseOrder\\ItemController',
+        'purchase_order_items'  =>  'PurchaseOrder\\PurchaseOrderItemController',
 
         // transport order
         'transport_codes'  =>  'TransportOrder\\TransportCodeController'

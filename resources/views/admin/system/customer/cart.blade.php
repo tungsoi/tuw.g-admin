@@ -34,14 +34,27 @@
                         <td style="width: 50px;">{{ $key+1 }}</td>
                         <td style="width: 100px;">
                             @php
-                                if (strpos($item_ele->product_image, '//') !== false){
-                                    $link = $item_ele->product_image;
-                                } else {
-                                    $link = asset('uploads/' . $item_ele->product_image );
+                                if (! $item_ele) {
+                                    return null;
                                 }
+                                else {
+                                    $route = "";
+                    
+                                    if (substr( $item_ele->product_image, 0, 7 ) === "images/") {
+                                        $route = asset('storage/admin/'.$item_ele->product_image);
+                                    } else {
+                                        $route = $item_ele->product_image;
+                                    }
+                                }
+                                
+                                // if (strpos($item_ele->product_image, '//') !== false){
+                                //     $link = $item_ele->product_image;
+                                // } else {
+                                //     $link = asset('uploads/' . $item_ele->product_image );
+                                // }
                             @endphp 
 
-                            <img src="{{ $link }}" alt="" width="100">
+                            <img src="{{$route}}" style="width:100px;" class="img img-thumbnail">
                         </td>
                         <td style="width: 300px;">{{ $item_ele->product_name }}</td>
                         <td style="width: 100px;">

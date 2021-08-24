@@ -7,7 +7,9 @@ use App\Admin\Services\UserService;
 use App\Jobs\HandleCustomerWallet;
 use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\PurchaseOrder\PurchaseOrderItem;
+use App\Models\PurchaseOrder\PurchaseOrderStatus;
 use App\Models\System\Alert;
+use App\Models\System\Warehouse;
 use App\Models\TransportOrder\TransportCode;
 use App\User;
 use DateTime;
@@ -52,45 +54,49 @@ class PurchaseOrderController extends AdminController
         $grid->filter(function($filter) {
             $filter->expand();
             $filter->disableIdFilter();
-            $filter->column(1/4, function ($filter) {
+
+            $service = new UserService();
+            $filter->column(1/4, function ($filter) use ($service) {
                 $filter->like('order_number', 'Mã đơn hàng');
 
                 if (! Admin::user()->isRole('customer')) {
-                    $filter->equal('customer_id', 'Mã khách hàng')->select(User::whereIsCustomer(1)->get()->pluck('symbol_name', 'id'));   
+                    $filter->equal('customer_id', 'Mã khách hàng')->select($service->GetListCustomer());   
                 } 
 
-                $filter->equal('status', 'Trạng thái')->select([]);
+                $filter->equal('status', 'Trạng thái')->select(PurchaseOrderStatus::pluck('name', 'id'));
             });
+
+            if (! Admin::user()->isRole('customer')) {
+                $filter->column(1/4, function ($filter) use ($service) {
+                    $filter->equal('supporter_id', 'Nhân viên kinh doanh')->select($service->GetListSaleEmployee());
+
+                    $order_ids = DB::table('admin_role_users')->where('role_id', 4)->get()->pluck('user_id');
+                    $filter->equal('supporter_order_id', 'Nhân viên đặt hàng')->select($service->GetListOrderEmployee());
+                    
+                    $filter->equal('warehouse_id', 'Kho nhận hàng')->select($service->GetListWarehouse());
+                });
+            }
             $filter->column(1/4, function ($filter) {
                 $filter->between('created_at', 'Ngày tạo')->date();
                 $filter->between('deposited_at', 'Ngày cọc')->date();
-
-                if (! Admin::user()->isRole('customer')) {
-                    $filter->where(function ($query) {
-                        if ($this->input == '0') {
-                            $dayAfter = (new DateTime(now()))->modify('-7 day')->format('Y-m-d H:i:s');
-                            $query->where('deposited_at', '<=', $dayAfter)
-                        ->whereIn('status', []);
-                        }
-                    }, 'Tìm kiếm', '7days')->radio(['Đơn hàng chưa hoàn thành trong 7 ngày']);
-                }
-            });
-            $filter->column(1/4, function ($filter) {
                 $filter->between('order_at', 'Ngày đặt hàng');
-                $filter->between('success_at', 'Ngày hoàn thành');
-            }); 
+
+                // if (! Admin::user()->isRole('customer')) {
+                //     $filter->where(function ($query) {
+                //         if ($this->input == '0') {
+                //             $dayAfter = (new DateTime(now()))->modify('-7 day')->format('Y-m-d H:i:s');
+                //             $query->where('deposited_at', '<=', $dayAfter)
+                //         ->whereIn('status', []);
+                //         }
+                //     }, 'Tìm kiếm', '7days')->radio(['Đơn hàng chưa hoàn thành trong 7 ngày']);
+                // }
+            });
             $filter->column(1/4, function ($filter) {
 
                 $filter->between('vn_receive_at', 'Ngày về Việt Nam');
-
-                if (! Admin::user()->isRole('customer')) {
-                    $service = new UserService();
-                    $filter->equal('supporter_id', 'Sale')->select($service->GetListSaleEmployee());
-
-                    $order_ids = DB::table('admin_role_users')->where('role_id', 4)->get()->pluck('user_id');
-                    $filter->equal('supporter_order_id', 'Order')->select(User::whereIsActive(1)->whereIn('id', $order_ids)->pluck('name', 'id'));
-                }
-            });
+                $filter->between('success_at', 'Ngày hoàn thành');
+            }); 
+            
 
             Admin::style('
                 #filter-box label {
@@ -137,7 +143,7 @@ class PurchaseOrderController extends AdminController
             $data = [
                 'order_number'   =>  [
                     'is_label'  =>  true,
-                    'color'     =>  'info',
+                    'color'     =>  'primary',
                     'text'      =>  "<b>".$this->order_number."</b>"
                 ],
                 'current_rate'  =>  [
@@ -173,29 +179,29 @@ class PurchaseOrderController extends AdminController
         });
         
 
-        $grid->shop_name('Tên Shop')->width(200);
+        $grid->shop_name('Tên Shop')->style('max-width: 150px');
 
         if (! Admin::user()->isRole('customer')) {
-            $grid->customer_id('Khách hàng (3)')->display(function () {
+            $grid->customer_id('Khách hàng')->display(function () {
                 $data = [
-                'customer_id'   =>  [
-                    'is_label'  =>  true,
-                    'color'     =>  'primary',
-                    'text'      =>  $this->customer->symbol_name
-                ],
-                'customer_wallet'  =>  [
-                    'is_label'  =>  false,
-                    'color'     =>  'info',
-                    'is_link'   =>  true,
-                    'text'      =>  number_format($this->customer->wallet) . " (vnd)",
-                    'route'     =>  route('admin.customers.transactions', $this->customer_id)
-                ],
-                'zalo'      =>  [
-                    'is_link'   =>  true,
-                    'text'      =>  "Zalo",
-                    'route'     =>  "https://zalo.me/" .  $this->customer->phone_number
-                ]
-            ];
+                    'customer_id'   =>  [
+                        'is_label'  =>  true,
+                        'color'     =>  'primary',
+                        'text'      =>  $this->customer->symbol_name
+                    ],
+                    'customer_wallet'  =>  [
+                        'is_label'  =>  false,
+                        'color'     =>  'info',
+                        'is_link'   =>  true,
+                        'text'      =>  number_format($this->customer->wallet) . " (vnd)",
+                        'route'     =>  route('admin.customers.transactions', $this->customer_id)
+                    ],
+                    'zalo'      =>  [
+                        'is_link'   =>  true,
+                        'text'      =>  $this->customer->phone_number,
+                        'route'     =>  "https://zalo.me/" .  $this->customer->phone_number
+                    ]
+                ];
                 return view('admin.system.core.list', compact('data'));
             });
 
@@ -210,13 +216,13 @@ class PurchaseOrderController extends AdminController
             
                 $data = [
                 'sale'   =>  [
-                    'is_link'   =>  true,
-                    'text'      =>  "- Sale: " . Str::upper($sale),
+                    'is_label'   =>  false,
+                    'text'      =>  "- Sale: " . $sale,
                     'route'     =>  "https://zalo.me/" .  $sale_link
                 ],
                 'order'  =>  [
-                    'is_link'  =>  true,
-                    'text'      =>  "- Order: " . Str::upper($order),
+                    'is_label'  =>  false,
+                    'text'      =>  "- Order: " . $order,
                     'route'     =>  "https://zalo.me/" .  $order_link
                 ],
                 'warehouse'    =>  [
@@ -225,7 +231,7 @@ class PurchaseOrderController extends AdminController
                 ]
             ];
                 return view('admin.system.core.list', compact('data'));
-            });
+            })->width(150);
         }
 
         $grid->sumItemPrice('Tổng giá sản phẩm')->display(function () {
@@ -538,7 +544,7 @@ class PurchaseOrderController extends AdminController
     }
 
     public function items($orderId) {
-        $itemController = new ItemController();
+        $itemController = new PurchaseOrderItemController();
         $grid = $itemController->grid($orderId);
 
         $grid->model()->whereOrderId($orderId)->orderBy('id', 'desc');

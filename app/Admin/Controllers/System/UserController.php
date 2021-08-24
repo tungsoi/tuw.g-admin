@@ -31,14 +31,18 @@ class UserController extends AdminController
         $grid->model()->select('id', 'avatar', 'username', 'name', 'is_active', 'created_at', 'phone_number');
         $grid->model()->whereIsCustomer(User::ADMIN)->orderBy('id', 'desc');
 
+        $grid->expandFilter();
         $grid->filter(function($filter) {
             $filter->disableIdFilter();
 
-            $filter->column(1/2, function ($filter) {
+            $filter->column(1/4, function ($filter) {
                 $filter->like('name', 'Họ và tên');
             });
-            $filter->column(1/2, function ($filter) {
+            $filter->column(1/4, function ($filter) {
                 $filter->like('username', 'Email');
+            });
+            $filter->column(1/4, function ($filter) {
+                $filter->like('phone_number', 'Số điện thoại');
             });
         });
 
@@ -47,12 +51,10 @@ class UserController extends AdminController
         });
         $grid->column('number', 'STT');
         $grid->avatar('Ảnh đại diện')->lightbox(['width' => 30, 'height' => 30])->style('text-align: center');
-        $grid->column('name', trans('admin.name'))->display(function () {
-            return Str::upper($this->name);
-        });
-        $grid->column('username', trans('admin.username'));
+        $grid->column('name', 'Họ và tên');
+        $grid->column('username', 'Tên đăng nhập / Email');
         $grid->column('phone_number', "Số điện thoại");
-        $grid->column('roles', trans('admin.roles'))->pluck('name')->label()->width(150);
+        $grid->column('roles', trans('admin.roles'))->pluck('name')->label()->width(200);
 
         $states = [
             'on'  => ['value' => User::ACTIVE, 'text' => 'Làm việc', 'color' => 'success'],

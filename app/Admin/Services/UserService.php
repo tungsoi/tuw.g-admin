@@ -27,11 +27,11 @@ class UserService {
                         ->orderBy('id', 'desc')
                         ->pluck('name', 'id');
 
-        if ($users->count() > 0) {
-            foreach ($users as $key => $user) {
-                $users[$key] = Str::upper($user);
-            }
-        }
+        // if ($users->count() > 0) {
+        //     foreach ($users as $key => $user) {
+        //         $users[$key] = Str::upper($user);
+        //     }
+        // }
 
         return $users;
     }
@@ -41,14 +41,7 @@ class UserService {
     }
 
     public function GetListWarehouse() {
-        $data = Warehouse::all();
-        $res = [];
-
-        foreach ($data as $warehouse) {
-            $res[$warehouse->id] = $warehouse->name ." - (". $warehouse->address.")";
-        }
-
-        return $res;
+        return Warehouse::pluck('name', 'id');
     }
 
     public function GetListCustomer() {
@@ -64,11 +57,11 @@ class UserService {
                         ->orderBy('id', 'desc')
                         ->pluck('name', 'id');
 
-        if ($users->count() > 0) {
-            foreach ($users as $key => $user) {
-                $users[$key] = Str::upper($user);
-            }
-        }
+        // if ($users->count() > 0) {
+        //     foreach ($users as $key => $user) {
+        //         $users[$key] = Str::upper($user);
+        //     }
+        // }
 
         return $users;
     }
@@ -201,11 +194,11 @@ class UserService {
                         ->orderBy('id', 'desc')
                         ->pluck('name', 'id');
 
-        if ($users->count() > 0) {
-            foreach ($users as $key => $user) {
-                $users[$key] = Str::upper($user);
-            }
-        }
+        // if ($users->count() > 0) {
+        //     foreach ($users as $key => $user) {
+        //         $users[$key] = Str::upper($user);
+        //     }
+        // }
 
         return $users;
     }

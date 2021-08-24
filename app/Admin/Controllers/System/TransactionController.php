@@ -43,6 +43,7 @@ class TransactionController extends AdminController
             $grid->expandFilter();
         }
 
+        $grid->expandFilter();
         $grid->filter(function($filter) {
             $filter->disableIdFilter();
 

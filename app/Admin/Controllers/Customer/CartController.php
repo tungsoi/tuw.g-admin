@@ -58,16 +58,6 @@ class CartController extends AdminController
     {
         $grid = new Grid(new PurchaseOrderItem());
         $grid->model()->where('customer_id', -1);
-        
-        // $sub = PurchaseOrderItem::select('shop_name')->whereNull('order_id')
-        //         ->where('customer_id', Admin::user()->id)
-        //         ->whereStatus(PurchaseOrderItemStatus::whereCode('in_cart')->first()->id)
-        //         ->orderBy('id', 'desc');
-
-        // $shops = DB::table(DB::raw("({$sub->toSql()}) as sub"))
-        //     ->select('shop_name')
-        //     ->groupBy('shop_name')
-        //     ->get();
 
         $shops = PurchaseOrderItem::select('shop_name')
                 ->whereNull('order_id')
@@ -104,22 +94,6 @@ class CartController extends AdminController
         $grid->disableActions();
         $grid->disableBatchActions();
         $grid->disablePagination();
-        $grid->actions(function ($actions) {
-            // $actions->disableAll();
-            // $actions->disableView();
-            // $actions->disableEdit();
-            // $actions->disableDelete();
-            
-            // $actions->append('
-            // <a href="'.route('admin.carts.edit', $this->getKey()).'" class="btn btn-xs btn-info ">
-            //     <i class="fa fa-edit"></i> Sửa
-            // </a>');
-            // $actions->append('
-            //     <a class="btn btn-xs btn-danger btn-customer-delete-item" data-id="'.$this->getKey().'">
-            //         <i class="fa fa-trash"></i><span class="hidden-xs">&nbsp; Xoá</span>
-            //     </a>
-            // ');
-        });
         $grid->disableCreateButton();
         $grid->tools(function (Grid\Tools $tools) {
             $tools->append('
