@@ -7,9 +7,11 @@ use App\Admin\Actions\Customer\Recharge;
 use App\Admin\Actions\Customer\Transaction;
 use App\Admin\Actions\Customer\TransportOrder;
 use App\Admin\Actions\Customer\WalletWeight;
+use App\Admin\Actions\Customer\HistoryWalletWeight;
 use App\Admin\Services\UserService;
 use App\Models\System\Transaction as SystemTransaction;
 use App\Models\System\TransactionType;
+use App\Models\System\TransactionWeight;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -54,7 +56,7 @@ class CustomerController extends AdminController
             $filter->disableIdFilter();
 
             $filter->column(1/4, function ($filter) {
-                $filter->like('symbol_name', 'Mã khách hàng');
+                $filter->equal('id', 'Mã khách hàng')->select($this->userService->GetListCustomer());
                 $filter->equal('staff_sale_id', 'Nhân viên kinh doanh')->select($this->userService->GetListSaleEmployee());
             });
             $filter->column(1/4, function ($filter) {
@@ -102,7 +104,7 @@ class CustomerController extends AdminController
                 "Địa chỉ Email" =>  $model->email,
                 "Số điện thoại" =>  $model->phone_number,
                 "Ví tiền"  =>  number_format($model->wallet) ?? 0,
-                "Ví cân"    =>  $model->wallet_weight,
+                "Ví cân"    =>  $model->wallet_weight . " (kg)",
                 "Ngày mở tài khoản" =>   date('H:i | d-m-Y', strtotime($this->created_at)),
                 "Giao dịch gần nhất"    =>  null,
                 "Kho nhận hàng" =>  ($model->warehouse->name ?? "" ) . " - " . ( $model->warehouse->address ?? ""),
@@ -131,7 +133,7 @@ class CustomerController extends AdminController
             'off' => ['value' => User::DEACTIVE, 'text' => 'Khoá', 'color' => 'danger'],
         ];
         $grid->staff_sale_id('NV Sale')->editable('select', $this->userService->GetListSaleEmployee())->style('max-width: 150px;');
-        $grid->order_sale_id('NV Order')->editable('select', $this->userService->GetListOrderEmployee())->style('max-width: 150px;');
+        $grid->staff_order_id('NV Order')->editable('select', $this->userService->GetListOrderEmployee())->style('max-width: 150px;');
         $grid->customer_percent_service('Phí dịch vụ')->editable('select', $this->userService->GetListPercentService())->style('max-width: 150px;');
         $grid->default_price_kg('Giá cân')->editable()->style('max-width: 150px;');
         $grid->default_price_m3('Giá khối')->editable()->style('max-width: 150px;');
@@ -152,6 +154,7 @@ class CustomerController extends AdminController
             $actions->append(new Recharge($actions->getKey()));
             $actions->append(new Transaction($actions->getKey()));
             $actions->append(new WalletWeight($actions->getKey()));
+            $actions->append(new HistoryWalletWeight($actions->getKey()));
         });
         
         return $grid;
@@ -176,49 +179,45 @@ class CustomerController extends AdminController
      */
     public function form()
     {
-        $permissionModel = config('admin.database.permissions_model');
-        $roleModel = config('admin.database.roles_model');
+        $class = config('admin.database.users_model');
 
-        $form = new Form(new User());
+        $form = new Form(new $class());
+        $form->setTitle('Cập nhật thông tin');
 
-        $userTable = config('admin.database.users_table');
-        $connection = config('admin.database.connection');
+        $service = new UserService();
+        $form->column(1/2, function ($form) use ($service) {
+        
+            $form->display('username', 'Tên đăng nhập');
+            $form->display('symbol_name', 'Mã khách hàng');
+            $form->text('name', 'Họ và tên')->rules('required');
+            $form->text('phone_number', 'Số điện thoại')->rules('required');
 
-        $form->image('avatar', trans('admin.avatar'));
-        $form->text('username', trans('admin.username'))
-            ->creationRules(['required', "unique:{$connection}.{$userTable}"])
-            ->updateRules(['required', "unique:{$connection}.{$userTable},username,{{id}}"]);
+            $form->divider();
+            $form->select('staff_sale_id', 'Nhân viên Kinh doanh')->options($service->GetListSaleEmployee())->rules('required');
+            $form->select('staff_order_id', 'Nhân viên Đặt hàng')->options($service->GetListOrderEmployee());
+            $form->select('customer_percent_service', '% Phí dịch vụ')->options($service->GetListPercentService())->rules('required');
+        });
+        $form->column(1/2, function ($form) use ($service) {
+            $form->select('ware_house_id', 'Kho hàng')->options($service->GetListWarehouse())->rules('required');
+            $form->select('province', 'Tỉnh / Thành phố')->options($service->GetListProvince())->rules('required');
+            $form->select('district', 'Quận / Huyện')->options($service->GetListDistrict())->rules('required');
+            $form->text('address', 'Địa chỉ')->rules('required');
 
-        $form->text('name', trans('admin.name'))->rules('required');
-        $form->text('symbol_name', 'Mã khách hàng')
-            ->creationRules(['required', 'unique:admin_users,symbol_name'])
-            ->updateRules(['required', "unique:admin_users,symbol_name,{{id}}"]);
-
-        $form->divider();
-        $form->password('password', trans('admin.password'))->rules('required|confirmed');
-        $form->password('password_confirmation', trans('admin.password_confirmation'))->rules('required')
-            ->default(function ($form) {
-                return $form->model()->password;
-            });
+            $form->divider();
+            $form->password('password', trans('admin.password'))->rules('confirmed|required');
+            $form->password('password_confirmation', trans('admin.password_confirmation'))->rules('required')
+                ->default(function ($form) {
+                    return $form->model()->password;
+                });
+        });
 
         $form->ignore(['password_confirmation']);
-
-        $form->hidden('is_customer')->default(User::ADMIN);
-        $states = [
-            'off' => ['value' => User::DEACTIVE, 'text' => 'Đã nghỉ', 'color' => 'danger'],
-            'on'  => ['value' => User::ACTIVE, 'text' => 'Làm việc', 'color' => 'success']
-        ];
-        $form->switch('is_active', 'Trạng thái')->states($states)->default(1);
 
         $form->saving(function (Form $form) {
             if ($form->password && $form->model()->password != $form->password) {
                 $form->password = Hash::make($form->password);
             }
         });
-
-        $form->disableEditingCheck();
-        $form->disableCreatingCheck();
-        $form->disableViewCheck();
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
             $tools->disableView();
@@ -380,29 +379,18 @@ class CustomerController extends AdminController
 
         $grid->header(function () use ($id) {
 
-            $customer = User::select('id', 'symbol_name', 'wallet')->whereId($id)->first();
+            $customer = User::select('id', 'symbol_name', 'wallet_weight')->whereId($id)->first();
             $empty = true;
             $service = new UserService();
-            $data = [];
+            $data = TransactionWeight::whereCustomerId($id)->get();
 
             $mode = "";
             $form = "";
             $transactionId = "";
             if (isset($_GET['mode']) && $_GET['mode'] == 'recharge') {
-                $mode = 'recharge';
+                $mode = $_GET['mode'];
 
-                if (isset($_GET['transaction_id']) && $_GET['transaction_id'] != "") { 
-                    $transactionId = $_GET['transaction_id'];
-                    $flag = SystemTransaction::find($transactionId);
-
-                    if ($flag) {
-                        $form = $this->formRecharge($id, $transactionId)->edit($transactionId)->render();
-                    } else {
-                        $form = $this->formRecharge($id, "")->render();
-                    }
-                } else {
-                    $form = $this->formRecharge($id, "")->render();
-                }
+                $form = $this->formRechargeWeight($id, "")->render();
             }
             return view('admin.system.customer.transactionWalletWeight', compact('customer', 'empty', 'data', 'mode', 'form', 'transactionId'))->render();
 
@@ -421,5 +409,56 @@ class CustomerController extends AdminController
         $grid->disablePagination();
 
         return $grid;
+    }
+
+    public function formRechargeWeight($id, $recordId)
+    {
+        # code...
+        $form = new Form(new TransactionWeight());
+
+        if ($recordId == "") {
+            $form->setTitle('Tạo giao dịch ví cân');
+            $route = route('admin.customers.storeRechargeWeight');
+        } else {
+            $form->setTitle('Chỉnh sửa giao dịch ví cân');
+            $route = route('admin.customers.updateRechargeWeight');
+            AdminSystem::script($this->script());
+        }
+
+        $form->setAction($route);
+
+        $form->html('Người thực hiện: ' . Admin::user()->name);
+        $form->hidden('user_id_created', 'Người tạo')->default(Admin::user()->id);
+        $form->currency('kg', 'Số cân')->rules('required|min:4')->symbol('KG')->digits(0)->width(100);
+        $form->text('content', 'Nội dung')->placeholder('Ghi rõ nội dung giao dịch')->rules('required|min:4');
+        $form->hidden('user_id_created')->default(Admin::user()->id);
+        $form->hidden('customer_id')->default($id);
+        $form->hidden('record_id')->default($recordId);
+        $form->hidden('updated_user_id')->default(Admin::user()->id);
+
+        $form->confirm('Xác nhận thực hiện giao dịch ?');
+
+        $form->tools(function (Form\Tools $tools) use ($id, $recordId) {
+            $tools->disableDelete();
+            $tools->disableView();
+            $tools->disableList();
+            
+            if ($recordId != "") {
+                $tools->append(new Recharge($id, "Tạo giao dịch nạp tiền"));
+            }
+        });
+
+        return $form;
+    }
+
+    public function storeRechargeWeight(Request $request) {
+        TransactionWeight::create($request->all());
+        $customer = User::find($request->customer_id);
+        $customer->wallet_weight += $request->kg;
+        $customer->save();
+
+        admin_toastr('Nạp ví cân thành công', 'success');
+
+        return back();
     }
 }

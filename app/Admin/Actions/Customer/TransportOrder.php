@@ -31,7 +31,7 @@ SCRIPT;
     {
         Admin::script($this->script());
 
-        return '<a href="#" class="customer-transport-order btn btn-xs btn-primary" data-toggle="tooltip" title="ĐH vận chuyển" data-id="'.$this->id.'">
+        return '<a href="#" class="customer-transport-order btn btn-xs btn-primary" data-toggle="tooltip" title="Đơn hàng thanh toán" data-id="'.$this->id.'">
             <i class="fa fa-car"></i>
         </a>';
     }

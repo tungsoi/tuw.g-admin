@@ -81,4 +81,10 @@ class TransportCode extends Model
     public function getStatus() {
         return $this->status;
     }
+
+    public function paymentType() {
+        if ($this->payment_type == "") { return null; }
+
+        return $this->payment_type == 1 ? 'Khối lượng' : 'Mét khối';
+    }
 }

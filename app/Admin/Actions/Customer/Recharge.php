@@ -29,7 +29,7 @@ class Recharge
     protected function render()
     {
         $route = route('admin.customers.transactions', $this->id) . "?mode=recharge";
-        return '<a href="'.$route.'" class="btn btn-xs btn-success" data-toggle="tooltip" title="Nạp tiền"">
+        return '<a href="'.$route.'" target="_blank" class="btn btn-xs btn-success" data-toggle="tooltip" title="Nạp tiền"">
                     <i class="fa fa-dollar"></i> '.$this->text.'
                 </a>';
     }

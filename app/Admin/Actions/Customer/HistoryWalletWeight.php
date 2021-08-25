@@ -4,7 +4,7 @@ namespace App\Admin\Actions\Customer;
 
 use Encore\Admin\Admin;
 
-class WalletWeight
+class HistoryWalletWeight
 {
     protected $id;
 
@@ -24,10 +24,10 @@ SCRIPT;
     {
         Admin::script($this->script());
 
-        $route = route('admin.customers.walletWeight', $this->id) . "?mode=recharge";
+        $route = route('admin.customers.walletWeight', $this->id);
 
-        return '<a href="'.$route.'" target="_blank" class="btn btn-xs btn-warning" data-toggle="tooltip" title="Ví cân" data-id="'.$this->id.'">
-            <i class="fa fa-bolt"></i>
+        return '<a href="'.$route.'" target="_blank" class="btn btn-xs btn-danger" data-toggle="tooltip" title="Lịch sử Ví cân" data-id="'.$this->id.'">
+            <i class="fa fa-times"></i>
         </a>';
     }
 

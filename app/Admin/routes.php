@@ -76,6 +76,8 @@ Route::group([
     $router->post('customers/storeRecharge', 'System\\CustomerController@storeRecharge')->name('customers.storeRecharge');
     $router->post('customers/updateRecharge', 'System\\CustomerController@updateRecharge')->name('customers.updateRecharge');
     $router->get('customers/{id}/walletWeight', 'System\\CustomerController@walletWeight')->name('customers.walletWeight');
+    $router->post('customers/storeRechargeWeight', 'System\\CustomerController@storeRechargeWeight')->name('customers.storeRechargeWeight');
+    $router->post('customers/updateRechargeWeght', 'System\\CustomerController@updateRechargeWeght')->name('customers.updateRechargeWeght');
 
     $router->post('customer_purchase_orders/storeFromCart', 'Customer\\CustomerPurchaseOrderController@storeFromCart')->name('customer_purchase_orders.storeFromCart');
 
