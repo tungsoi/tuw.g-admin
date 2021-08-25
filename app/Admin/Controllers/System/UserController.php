@@ -29,7 +29,7 @@ class UserController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new User());
-        $grid->model()->select('id', 'avatar', 'username', 'name', 'is_active', 'created_at', 'phone_number');
+        $grid->model()->select('id', 'avatar', 'username', 'name', 'is_active', 'created_at', 'phone_number', 'wallet_weight');
         $grid->model()->whereIsCustomer(User::ADMIN)->orderBy('id', 'desc');
 
         $grid->expandFilter();
@@ -78,6 +78,7 @@ class UserController extends AdminController
             'on'  => ['value' => User::ACTIVE, 'text' => 'Làm việc', 'color' => 'success'],
             'off' => ['value' => User::DEACTIVE, 'text' => 'Đã nghỉ', 'color' => 'danger'],
         ];
+        $grid->wallet_weight('Ví cân (KG)');
         $grid->column('is_active', 'Trạng thái đăng nhập')->switch($states)->style('text-align: center');
         $grid->column('created_at', 'Ngày tạo tài khoản')->display(function () {
             return date('H:i | d-m-Y', strtotime($this->created_at));

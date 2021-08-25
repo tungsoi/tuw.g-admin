@@ -46,6 +46,7 @@ Route::group([
         'transport_lines'   =>  'System\\TransportLineController',
         'customers'         =>  'System\\CustomerController',
         'transactions'      =>  'System\\TransactionController',
+        'weight_portals'    =>  'System\\WeightPortalController',
 
         // customer
         'carts'                         =>  'Customer\\CartController',
@@ -83,5 +84,6 @@ Route::group([
 
     // purchase order
     $router->post('purchase_orders/customer_deposite', 'PurchaseOrder\\PurchaseOrderController@customerDeposite')->name('purchase_orders.customer_deposite');
-    
+    $router->get('weight_portals', 'System\\WeightPortalController@indexRebuild')->name('weight_portals.index');    
+
 });
