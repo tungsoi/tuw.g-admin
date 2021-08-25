@@ -322,9 +322,9 @@ class PurchaseOrderController extends AdminController
         $grid->disablePerPageSelector();
         $grid->paginate(20);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
-            if (Admin::user()->isRole('customer')) {
+            // if (Admin::user()->isRole('customer')) {
                 $actions->disableEdit();
-            }
+            // }
 
             $orderService = new OrderService();
             if (! in_array($this->row->status, [$orderService->getStatus('new-order'), $orderService->getStatus('deposited')]) ) {
