@@ -20,7 +20,7 @@ class HomeController extends Controller
             ->row(function (Row $row) {
                 if (Admin::user()->isRole('customer')) {
                     // $row->column(12, view('admin.system.customer.info')->render());
-                    $row->column(3, new InfoBox('Khách hàng', 'book', 'green', '/admin/customers', Admin::user()->name));
+                    $row->column(3, new InfoBox('Khách hàng', 'book', 'green', '/admin/customers', Admin::user()->name != null ? Admin::user()->name : Admin::user()->symbol_name));
                     $row->column(3, new InfoBox('Mã khách hàng', 'tag', 'red', '/admin/order_items', Admin::user()->symbol_name));
                     $row->column(3, new InfoBox('Số dư ví', 'users', 'aqua', 'admin/auth/users', number_format(Admin::user()->wallet) . " VND"));
                     $row->column(3, new InfoBox('Số dư ví cân', 'tag', 'yellow', '/admin/puchase_orders', Admin::user()->wallet_weight . " KG"));
