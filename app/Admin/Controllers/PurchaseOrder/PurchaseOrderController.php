@@ -420,7 +420,7 @@ class PurchaseOrderController extends AdminController
         $rows = [
             [
                 "<b id='order_number' onclick='copyElementText(this.id)' style='cursor:pointer'>" . $order->order_number . " / " . $order->customer->symbol_name . " <a style='font-weight: 400;'> - Copy</a></b>", 
-                "<span style='float: right'>". number_format($order->current_rate) . " (vnd) <br> Kho: ".$order->warehouse->name ?? ""."</span>",
+                "<span style='float: right'>". number_format($order->current_rate) . " (vnd) <br> Kho: ". ($order->warehouse ? $order->warehouse->name : null) . ""."</span>",
                 "<span style='float: right'>". $order->shop_name . "</span>"
             ],
             [
