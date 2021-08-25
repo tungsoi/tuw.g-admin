@@ -402,7 +402,13 @@ class PurchaseOrderController extends AdminController
 
     protected function detail($id) {
         $order = PurchaseOrder::find($id);
+
         $headers = ['Mã đơn hàng', 'Tỷ giá', 'Tên shop'];
+        
+        if ($order == null) {
+            $table = new Table($headers, []);
+            return $table;
+        }
 
         $item_price_rmb = $order->sumItemPrice();
         $item_price_vnd = str_replace(",", "", $order->sumItemPrice()) * $order->current_rate;
