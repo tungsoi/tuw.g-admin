@@ -8,6 +8,7 @@ use Encore\Admin\Show;
 use Illuminate\Support\Facades\Hash;
 use Encore\Admin\Controllers\AdminController;
 use App\User;
+use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Str;
 
 class UserController extends AdminController
@@ -44,6 +45,23 @@ class UserController extends AdminController
             $filter->column(1/4, function ($filter) {
                 $filter->like('phone_number', 'Số điện thoại');
             });
+
+            Admin::style('
+                #filter-box label {
+                    padding: 0px !important;
+                    padding-top: 10px;
+                    font-weight: 600;
+                    font-size: 12px;
+                }
+                #filter-box .col-sm-2 {
+                    width: 100% !important;
+                    text-align: left;
+                    padding: 0px 15px 3px 15px !important;
+                }
+                #filter-box .col-sm-8 {
+                    width: 100% !important;
+                }
+            ');
         });
 
         $grid->rows(function (Grid\Row $row) {
