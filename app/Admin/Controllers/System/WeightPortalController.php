@@ -4,6 +4,7 @@ namespace App\Admin\Controllers\System;
 
 use App\Http\Controllers\Controller;
 use App\Models\System\WeightPortal;
+use App\Models\System\TransactionWeight;
 use App\User;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -45,8 +46,13 @@ class WeightPortalController extends AdminController
             ->description($this->description['index'] ?? trans('admin.list'))
             ->row(function (Row $row)
             {
-                $kg = WeightPortal::whereType(1)->orderBy('id', 'asc')->first();
-                $row->column(3, new InfoBox($this->current_kg, 'weight', 'green', '/admin/customers', number_format($kg->value) . ' (kg)'));
+                $row->column(2, new InfoBox("Tổng cân trên toàn thời gian", 'weight', 'aqua', '/admin/customers', WeightPortal::whereType(2)->sum('value')));
+                $row->column(2, new InfoBox("Cân tổng còn lại chưa chia", 'weight', 'red', '/admin/customers', WeightPortal::whereType(1)->sum('value')));
+                $row->column(2, new InfoBox("Tổng cân đã chia nhân viên", 'weight', 'primary', '/admin/customers', WeightPortal::whereType(3)->sum('value')));
+                $row->column(2, new InfoBox("Tổng cân đã chia khách hàng", 'weight', 'orange', '/admin/customers', TransactionWeight::sum('kg')));
+                $row->column(2, new InfoBox("Tổng số cân nhân viên còn giữ", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::ADMIN)->sum('wallet_weight')));
+                $row->column(2, new InfoBox("Tổng cân khách hàng còn dư", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::CUSTOMER)->sum('wallet_weight')));
+
             })
             ->row(function (Row $row) {
 
@@ -61,15 +67,15 @@ class WeightPortalController extends AdminController
                     $column->append((new Box('Lịch sử ' . $this->add_employee, $this->gridEmployee()->render())));
                 });
 
-                // $row->column(12, function (Column $column)
-                // {
-                //     $column->append((new Box('Lịch sử ' . $this->add_customer, $this->grid()->render())));
-                // });
+                $row->column(12, function (Column $column)
+                {
+                    $column->append((new Box('Lịch sử ' . $this->add_customer, $this->gridCustomer()->render()))); 
+                });
 
-                // $row->column(12, function (Column $column)
-                // {
-                //     $column->append((new Box('Lịch sử ' . $this->used_customer, $this->grid()->render())));
-                // });
+                $row->column(12, function (Column $column)
+                {
+                    $column->append((new Box('Lịch sử ' . $this->used_customer, ""))); // $this->gridUsed()->render()
+                });
             });
     }
     
@@ -302,5 +308,116 @@ SCRIPT;
         Admin::script($this->offerOrderScript());
 
         return $form;
+    }
+
+    /**
+     * Make a grid builder.
+     *
+     * @return Grid
+     */
+    protected function gridCustomer()
+    {
+        $grid = new Grid(new TransactionWeight());
+        $grid->model()->orderBy('id', 'desc');
+
+        $grid->rows(function (Grid\Row $row) {
+            $row->column('number', ($row->number+1));
+        });
+        $grid->column('number', 'STT');
+        $grid->userCreated()->name('Nhân viên tạo');
+        $grid->customer_id('Khách hàng')->display(function () {
+            return $this->customer->symbol_name;
+        });
+        $grid->kg('Cân nặng (KG)')->totalRow();
+        $grid->content('Nội dung');
+        
+        $grid->column('created_at', "Ngày tạo")->display(function () {
+            return date('H:i | d-m-Y', strtotime($this->created_at));
+        })->style('text-align: center');
+
+        $grid->disableCreateButton();
+        $grid->disableFilter();
+        $grid->disableExport();
+        $grid->disableBatchActions();
+        $grid->disableColumnSelector();
+        $grid->disableActions();
+
+        Admin::style('
+            form .col-sm-2, form .col-sm-8 {
+                width: 100%;
+                text-align: left !important;
+                padding: 0px !important;
+            }
+            .box {
+                border: none !important;
+            }
+            table td {
+                text-align: center;
+            }
+        ');
+
+        Admin::script($this->offerOrderScript());
+
+        return $grid;
+    }
+
+    /**
+     * Make a grid builder.
+     *
+     * @return Grid
+     */
+    protected function gridUsed()
+    {
+        $grid = new Grid(new WeightPortal());
+        $grid->model()->whereType(5)->orderBy('id', 'desc');
+
+        // $grid->header(function () {
+        //     return '<a href="'.route('admin.weight_portals.show', 1).'" class="btn btn-sm btn-success" title="'.$this->add_employee.'">
+        //     <i class="fa fa-share-square-o"></i><span class="hidden-xs"> '.$this->add_employee.'</span>
+        // </a>';
+        // });
+        $grid->rows(function (Grid\Row $row) {
+            $row->column('number', ($row->number+1));
+        });
+        $grid->column('number', 'STT');
+        $grid->userCreate()->name('Người tạo');
+        $grid->userReceive()->name('Nhân viên');
+        $grid->value('Cân nặng (KG)')->totalRow();
+        $grid->price('Giá cân ước tính (VND)')->display(function () {
+            return number_format($this->price);
+        });
+        $grid->amount('Tổng giá trị (VND)')->display(function () {
+            return number_format($this->value * $this->price);
+        });
+        $grid->content('Nội dung');
+        
+        $grid->column('created_at', "Ngày tạo")->display(function () {
+            return date('H:i | d-m-Y', strtotime($this->created_at));
+        })->style('text-align: center');
+
+        $grid->disableCreateButton();
+        $grid->disableFilter();
+        $grid->disableExport();
+        $grid->disableBatchActions();
+        $grid->disableColumnSelector();
+        $grid->disableActions();
+
+        Admin::style('
+            form .col-sm-2, form .col-sm-8 {
+                width: 100%;
+                text-align: left !important;
+                padding: 0px !important;
+            }
+            .box {
+                border: none !important;
+            }
+            table td {
+                text-align: center;
+            }
+        ');
+
+        Admin::script($this->offerOrderScript());
+
+        return $grid;
     }
 }

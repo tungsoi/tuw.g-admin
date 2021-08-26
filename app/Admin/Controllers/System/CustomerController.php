@@ -428,6 +428,7 @@ class CustomerController extends AdminController
         $form->setAction($route);
 
         $form->html('Người thực hiện: ' . Admin::user()->name);
+        $form->html('Số dư ví cân: ' . number_format(Admin::user()->wallet_weight));
         $form->hidden('user_id_created', 'Người tạo')->default(Admin::user()->id);
         $form->currency('kg', 'Số cân')->rules('required|min:4')->symbol('KG')->digits(0)->width(100);
         $form->text('content', 'Nội dung')->placeholder('Ghi rõ nội dung giao dịch')->rules('required|min:4');
@@ -442,23 +443,28 @@ class CustomerController extends AdminController
             $tools->disableDelete();
             $tools->disableView();
             $tools->disableList();
-            
-            if ($recordId != "") {
-                $tools->append(new Recharge($id, "Tạo giao dịch nạp tiền"));
-            }
         });
 
         return $form;
     }
 
     public function storeRechargeWeight(Request $request) {
-        TransactionWeight::create($request->all());
-        $customer = User::find($request->customer_id);
-        $customer->wallet_weight += $request->kg;
-        $customer->save();
-
-        admin_toastr('Nạp ví cân thành công', 'success');
-
-        return back();
+        if (Admin::user()->wallet_weight < $request->kg) {
+            admin_error('Số cân trong ví của bạn không đủ để chuyển cho Khách hàng này.');
+            return back();
+        } else {
+            $user = Admin::user();
+            $user->wallet_weight -= $request->kg;
+            $user->save();
+    
+            TransactionWeight::create($request->all());
+            $customer = User::find($request->customer_id);
+            $customer->wallet_weight += $request->kg;
+            $customer->save();
+    
+            admin_toastr('Nạp ví cân thành công', 'success');
+    
+            return back();
+        }
     }
 }

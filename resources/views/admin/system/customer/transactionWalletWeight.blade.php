@@ -60,11 +60,13 @@
     <tbody>
         @if ($data->count() > 0)
             @foreach ($data as $key => $transaction)
-                <td>{{ $key+1 }}</td>
-                <td align="center">{{ date('H:i | d-m-Y', strtotime($transaction->created_at)) }}</td>
-                <td align="center">{{ $transaction->userCreated->name }}</td>
-                <td align="center">{{ $transaction->kg }}</td>
-                <td align="center">{{ $transaction->content }}</td>
+                <tr>
+                    <td>{{ $key+1 }}</td>
+                    <td align="center">{{ date('H:i | d-m-Y', strtotime($transaction->created_at)) }}</td>
+                    <td align="center">{{ $transaction->userCreated->name }}</td>
+                    <td align="center">{{ $transaction->kg }}</td>
+                    <td align="center">{{ $transaction->content }}</td>
+                </tr>
             @endforeach
         @endif
     </tbody>
