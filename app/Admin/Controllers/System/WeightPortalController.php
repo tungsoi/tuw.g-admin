@@ -30,7 +30,7 @@ class WeightPortalController extends AdminController
     protected $add_kg = 'Thêm cân';
     protected $add_employee = 'Chia cân đến nhân viên';
     protected $add_customer = 'Chia cân đến khách hàng';
-    protected $used_customer = 'Thanh toán';
+    protected $used_customer = 'Khách hàng dùng cân thanh toán';
 
     /**
      * Index interface.
@@ -371,11 +371,6 @@ SCRIPT;
         $grid = new Grid(new WeightPortal());
         $grid->model()->whereType(5)->orderBy('id', 'desc');
 
-        // $grid->header(function () {
-        //     return '<a href="'.route('admin.weight_portals.show', 1).'" class="btn btn-sm btn-success" title="'.$this->add_employee.'">
-        //     <i class="fa fa-share-square-o"></i><span class="hidden-xs"> '.$this->add_employee.'</span>
-        // </a>';
-        // });
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
