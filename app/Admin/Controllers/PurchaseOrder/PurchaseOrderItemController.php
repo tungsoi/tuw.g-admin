@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\PurchaseOrder;
 
+use App\Admin\Actions\PurchaseOrder\ConfirmOrderItem;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
 use App\Models\PurchaseOrder\PurchaseOrder;
@@ -182,27 +183,34 @@ class PurchaseOrderItemController extends AdminController
                 'text'      =>  $this->statusText->name
                 ],
                 [
-                    'is_link'   =>  true,
-                    'route'     =>  $this->product_link,
-                    'text'      =>  'Link sản phẩm'
+                    'is_label'  =>  false,
+                    'text'      =>  $this->getTimeline()
                 ]
             ];
             return view('admin.system.core.list', compact('data'));
         });
-        $grid->column('product_image', 'Ảnh')->lightbox(['width' => 70, 'height' => 70])->width(100);
+        $grid->column('product_image', 'Ảnh')->lightbox(['width' => 40])->width(60);
+        $grid->column('product_link', 'Link SP')->display(function () {
+            return "<a href='$this->product_link' target='_blank'>Xem</a>";
+        })->width(100);
         $grid->product_size('Kích thước')->style('text-align: right; max-width: 100px;');
         $grid->product_color('Màu')->style('text-align: right; max-width: 100px;');
 
         // trường hợp đang ở màn hình chi tiết đơn hàng mua hộ
         $flag_qty = false;
+        $is_edit_qty_reality = true;
         if (strpos(url()->current(), route('admin.purchase_orders.index')) !== false) {
             $param = str_replace(route('admin.purchase_orders.index')."/", "", url()->current());
             if ($param != null) {
                 $orderId = (int) $param;
                 $status = PurchaseOrder::find($orderId)->status;
 
-                if ($status == $orderService->getStatus('new-order') || $status == $orderService->getStatus('deposited')) {
+                if ($status == $orderService->getStatus('new-order')) {
                     $flag_qty = true;
+                }
+
+                if ($status == $orderService->getStatus('ordered')) {
+                    $is_edit_qty_reality = false;
                 }
             }
         }
@@ -212,8 +220,13 @@ class PurchaseOrderItemController extends AdminController
         } else {
             $grid->qty('Số lượng lên đơn')->style('text-align: right; max-width: 100px;');
         }
-       
-        $grid->qty_reality('Số lượng thực đặt')->style('text-align: right; max-width: 100px;');
+      
+        if (Admin::user()->isRole('customer') || ! $is_edit_qty_reality) {
+            $grid->qty_reality('Số lượng thực đặt')->style('text-align: right; max-width: 100px;');
+        } else {
+            $grid->qty_reality('Số lượng thực đặt')->style('text-align: right; max-width: 100px;')->editable();
+        }
+        
         $grid->price('Đơn giá')->display(function () {
             try {
                 $price_rmb = $this->price;
@@ -222,11 +235,7 @@ class PurchaseOrderItemController extends AdminController
                 $data = [
                     'amount_rmb'   =>  [
                         'is_label'   =>  false,
-                        'text'      =>  $price_rmb . " (tệ)"
-                    ],
-                    'amount_vnd'  =>  [
-                        'is_label'  =>  false,
-                        'text'      =>  "<i>= ". number_format($price_vnd) . " (vnd)" ."</i>"
+                        'text'      =>  $price_rmb
                     ]
                 ];            
                 return view('admin.system.core.list', compact('data'));
@@ -235,27 +244,7 @@ class PurchaseOrderItemController extends AdminController
             }
         })->style('text-align: right; max-width: 150px;');
 
-        $grid->purchase_cn_transport_fee('Phí vận chuyển')->display(function () {
-            try {
-                $purchase_cn_transport_fee = $this->purchase_cn_transport_fee != null ? $this->purchase_cn_transport_fee : 0;
-                $price_rmb = $purchase_cn_transport_fee;
-                $price_vnd = str_replace(",", "", $price_rmb) * $this->order->current_rate;
-
-                $data = [
-                    'amount_rmb'   =>  [
-                        'is_label'   =>  false,
-                        'text'      =>  $price_rmb . " (tệ)"
-                    ],
-                    'amount_vnd'  =>  [
-                        'is_label'  =>  false,
-                        'text'      =>  "<i>= ". number_format($price_vnd) . " (vnd)" ."</i>"
-                    ]
-                ];            
-                return view('admin.system.core.list', compact('data'));
-            } catch (\Exception $e) {
-                return "<span style='color: red'> Lỗi $this->id</span>";
-            }
-        })->style('text-align: right; max-width: 150px;');
+        $grid->purchase_cn_transport_fee('Phí vận chuyển')->editable()->style('text-align: right; max-width: 150px;');
         $grid->column('total_price', 'Tổng tiền sản phẩm')->display(function () {
 
             try {
@@ -295,13 +284,12 @@ class PurchaseOrderItemController extends AdminController
         Admin::script($this->script());
 
         $grid->disableCreateButton();
-        $grid->disableBatchActions();
         $grid->disableExport();
         $grid->disableColumnSelector();
 
-        // if (Admin::user()->isRole('customer')) {
-        //     $grid->disableActions();
-        // }
+        if (Admin::user()->isRole('customer')) {
+            $grid->disableActions();
+        }
 
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableView();
@@ -326,12 +314,28 @@ class PurchaseOrderItemController extends AdminController
             $form->currency('qty_reality', 'Số lượng thực đặt')->digits(0)->symbol('');
             $form->text('admin_note', 'Admin ghi chú');
             $form->textarea('cn_order_number', 'Mã giao dịch');
+            $form->currency('purchase_cn_transport_fee', 'Phí vận chuyển')->digits(1)->symbol('');
         }
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
             $tools->disableView();
             $tools->disableList();
+        });
+        
+        $form->saved(function (Form $form) {
+            if ($form->model()->qty_reality == 0) {
+                // het hang
+                PurchaseOrderItem::find($form->model()->id)->update([
+                    'status'    =>  4,
+                    'outstock_at'   =>  now()
+                ]);
+            } else if ($form->model()->qty_reality > 0 && $form->model()->status == 4) {
+                PurchaseOrderItem::find($form->model()->id)->update([
+                    'status'    =>  0,
+                    'outstock_at'   =>  null
+                ]);
+            }
         });
 
         return $form;
@@ -346,6 +350,22 @@ class PurchaseOrderItemController extends AdminController
             });
 
             $('.column-customer_note a').each(function () {
+                $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
+            });
+
+            $('.column-qty_reality a').each(function () {
+                $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
+            });
+
+            $('.column-admin_note a').each(function () {
+                $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
+            });
+
+            $('.column-cn_order_number a').each(function () {
+                $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
+            });
+
+            $('.column-purchase_cn_transport_fee a').each(function () {
                 $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
             });
 

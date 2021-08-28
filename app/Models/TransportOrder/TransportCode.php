@@ -24,8 +24,8 @@ class TransportCode extends Model
         'price_service',
         'advance_drag',
         'status',
-        'china_recevie_at',
-        'vietnam_recevie_at',
+        'china_receive_at',
+        'vietnam_receive_at',
         'waitting_payment_at',
         'payment_at',
         'begin_swap_warehouse_at',
@@ -39,7 +39,9 @@ class TransportCode extends Model
         'customer_note',
         'customer_code_input',
         'ware_house_id',
-        'payment_type'
+        'payment_type',
+        'ware_house_swap_id',
+        'internal_note'
     ];
 
     public function transportOrder()
@@ -49,6 +51,11 @@ class TransportCode extends Model
     public function warehouse() {
         return $this->hasOne('App\Models\System\Warehouse', 'id', 'ware_house_id');
     }
+
+    public function warehouseSwap() {
+        return $this->hasOne('App\Models\System\Warehouse', 'id', 'ware_house_swap_id');
+    }
+
 
     public function userCreated() {
         return $this->hasOne('App\User', 'id', 'created_user_id');
@@ -79,12 +86,52 @@ class TransportCode extends Model
     }
 
     public function getStatus() {
-        return $this->status;
+        switch ($this->status) {
+            case self::CHINA_RECEIVE: 
+                return 'Đã về kho Trung Quốc';
+            case self::VIETNAM_RECEIVE:
+                return 'Đã về kho Việt Nam (' . $this->warehouse->name . ')';
+            case self::WAITTING_PAYMENT:
+                return 'Đã thanh toán tạm';
+            case self::PAYMENT:
+                return 'Đã xuất kho';
+            case self::SWAP_WAREHOUSE:
+                return 'Đang luân chuyển từ ' . $this->warehouse->name . ' đến ' . $this->warehouseSwap->name;
+        }
     }
 
     public function paymentType() {
         if ($this->payment_type == "") { return null; }
 
         return $this->payment_type == 1 ? 'Khối lượng' : 'Mét khối';
+    }
+
+    public function statusText() {
+        return $this->hasOne(TransportCodeStatus::class, 'id', 'status');
+    }
+
+    public function getTimeline() {
+        switch ($this->status) {
+            case self::CHINA_RECEIVE: 
+                return $this->china_receive_at != null ? date('H:i | d-m-Y', strtotime($this->china_receive_at)) : null;
+            case self::VIETNAM_RECEIVE:
+                return $this->vietnam_receive_at != null ? date('H:i | d-m-Y', strtotime($this->vietnam_receive_at)) : null;
+            case self::WAITTING_PAYMENT:
+                return $this->waitting_payment_at != null ? date('H:i | d-m-Y', strtotime($this->waitting_payment_at)) : null;
+            case self::PAYMENT:
+                return $this->payment_at != null ? date('H:i | d-m-Y', strtotime($this->payment_at)) : null;
+            case self::SWAP_WAREHOUSE:
+                return $this->begin_swap_warehouse_at != null ? date('H:i | d-m-Y', strtotime($this->begin_swap_warehouse_at)) : null;
+        }
+    }
+
+    public function amount() {
+        if ($this->payment_type == 1) {
+            return $this->price_service * $this->kg;
+        } else if ($this->payment_type == -1) {
+            return $this->m3() * $this->price_service;
+        } else {
+            return 0;
+        }
     }
 }

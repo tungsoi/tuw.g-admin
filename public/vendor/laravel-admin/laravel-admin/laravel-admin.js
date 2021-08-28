@@ -20,7 +20,7 @@ toastr.options = {
     progressBar: true,
     showMethod: 'slideDown',
     timeOut: 5000,
-    positionClass: "toast-top-center",
+    positionClass: "toast-top-right",
     newestOnTop: true
 };
 

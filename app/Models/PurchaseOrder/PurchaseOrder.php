@@ -3,6 +3,7 @@
 namespace App\Models\PurchaseOrder;
 
 use App\Admin\Services\OrderService;
+use App\Models\TransportOrder\TransportCode;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -176,5 +177,20 @@ class PurchaseOrder extends Model
     public function depositeAmountCal($type = 'vn') {
         $rmb =  $this->sumItemPrice(false) / 100 * 70;
         return $type == 'vn' ? str_replace(",", "", number_format($rmb * $this->current_rate, 0)) : $rmb;
+    }
+
+    public function countItemFollowStatus() {
+        switch ($this->statusText->code) {
+            case "vn-recevice": 
+                if ($this->transport_code != "") {
+                    $arr = explode(',', $this->transport_code);
+                    $done = TransportCode::whereIn('transport_code', $arr)->whereStatus(1)->count();
+                    return " (".$done."/".sizeof($arr).")";
+                } else {
+                    return " (0/0)";
+                }
+            case "deposited":
+                return " (" . $this->items()->whereStatus(1)->count() . "/" . $this->items()->where('status', '!=', 4)->count() .")";
+        }
     }
 }

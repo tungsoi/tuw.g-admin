@@ -25,7 +25,7 @@ class CustomerPurchaseOrderController extends AdminController {
         foreach ($shop as $shop_name => $row) {
             $service = new OrderService();
             $item_total_amount = $service->getItemTotalAmount($row);
-
+            
             $order = [
                 'shop_name'     =>  $shop_name,
                 'order_number'  =>  $service->generateOrderNR(),

@@ -2,6 +2,9 @@
 
 namespace App\Admin\Controllers\TransportOrder;
 
+use App\Admin\Actions\TransportCode\ConfirmSwapWarehouse;
+use App\Admin\Actions\TransportCode\SwapWarehouse;
+use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
 use App\Models\System\Alert;
 use App\Models\System\Warehouse;
@@ -10,6 +13,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Illuminate\Http\Request;
 use App\Models\TransportOrder\TransportCode;
+use App\Models\TransportOrder\TransportCodeStatus;
 use Encore\Admin\Grid;
 
 class TransportCodeController extends AdminController
@@ -27,15 +31,16 @@ class TransportCodeController extends AdminController
     public function grid() 
     {
         $grid = new Grid(new TransportCode());
-        $grid->model()->orderBy('id', 'desc');
+        $grid->model()->where('transport_code', '!=', "")->orderBy('id', 'desc');
 
         $userService = new UserService();
+        $orderService = new OrderService();
 
         $grid->header(function () {
             return "<b style='color: red'>Chưa check query khi ở màn hình customer -> chỉ lấy các mã vận đơn thuộc các đơn thanh toán của khách hàng này</b>";
         });
         $grid->expandFilter();
-        $grid->filter(function($filter) use ($userService) {
+        $grid->filter(function($filter) use ($userService, $orderService) {
             $filter->expand();
             $filter->disableIdFilter();
             $filter->column(1/4, function ($filter) use ($userService) {
@@ -43,12 +48,13 @@ class TransportCodeController extends AdminController
                 $filter->like('transport_code', 'Mã vận đơn');
 
                 if (! Admin::user()->isRole('customer')) {
-                    $filter->equal('customer_id', 'Mã khách hàng')->select($userService->GetListCustomer());
+                    $filter->equal('customer_id', 'Khách hàng thanh toán')->select($userService->GetListCustomer());
                 }
                 
             });
-            $filter->column(1/4, function ($filter)  {
+            $filter->column(1/4, function ($filter) use ($orderService)  {
                 $filter->like('customer_code_input', 'Khách hàng vận đơn');
+                $filter->equal('status', 'Trạng thái')->select(TransportCodeStatus::pluck('name', 'id'));
             });
 
             $filter->column(1/4, function ($filter) {
@@ -77,16 +83,32 @@ class TransportCodeController extends AdminController
             ');
         });
 
+        $grid->tools(function (Grid\Tools $tools) {
+            $tools->append(new SwapWarehouse());
+            $tools->append(new ConfirmSwapWarehouse());
+            $tools->batch(function(Grid\Tools\BatchActions $actions) {
+                $actions->disableDelete();
+            });
+        });
 
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->order_id('Mã đơn hàng')->style('color: red');
-        $grid->transport_code('Mã vận đơn');
-        $grid->customer_code_input('Khách hàng vận đơn');
-        $grid->customer_payment('Khách hàng thanh toán')->style('color: red');
-        $grid->kg('KG');
+        $grid->order_id('Mã đơn hàng')->style('color: red; max-width: 150px');
+        $grid->transport_code('Mã vận đơn')->style('max-width: 150px');
+        $grid->customer_code_input('Khách hàng vận đơn')->style('max-width: 100px')->display(function () {
+            $data = [
+                'order_number'   =>  [
+                    'is_link'   =>  true,
+                    'route'     =>  route('admin.transport_codes.index'). "?customer_code_input=". $this->customer_code_input,
+                    'text'      =>  $this->customer_code_input
+                ]
+            ];
+            return view('admin.system.core.list', compact('data'));
+        });
+        $grid->customer_payment('Khách hàng thanh toán')->style('color: red;max-width: 100px');
+        $grid->kg('Cân nặng (kg)');
         $grid->length('Dài (cm)');
         $grid->width('Rộng (cm)');
         $grid->height('Cao (cm)');
@@ -96,28 +118,44 @@ class TransportCodeController extends AdminController
         $grid->m3('M3')->display(function () {
             return $this->m3();
         });
-        $grid->advance_drag('Ứng kéo (Tệ)');
+        $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
         $grid->price_service('Giá vận chuyển')->display(function () {
             return number_format($this->price_service); 
-        });
-        $grid->amount('Tổng tiền')->style('color: red');
+        })->style('max-width: 100px');
         $grid->payment_type('Loại thanh toán')->display(function () {
             return $this->paymentType();
-        });
+        })->style('max-width: 100px');
+        $grid->amount('Tổng tiền')->display(function ()  {
+            $amount = $this->amount();
+
+            return $amount == 0 ? "<span style='color: red'>0</span>" : number_format($amount);
+            
+        })->style('max-width: 100px');
         $grid->status('Trạng thái')->display(function () {
-            return $this->getStatus();
-        })->style('color: red');
-        $grid->warehouse()->name('Kho hàng');
-        $grid->china_recevie_at('Ngày về TQ')->display(function () {
-            return $this->china_recevie_at != null ? date('H:i | d-m-Y', strtotime($this->china_recevie_at)) : null;
+            $data = [
+                'order_number'   =>  [
+                    'is_label'  =>  true,
+                    'color'     =>  $this->statusText->label,
+                    'text'      =>  $this->statusText->name
+                ],
+                'time'  =>  [
+                    'is_label'  =>  false,
+                    'text'      =>  $this->getTimeline()
+                ]
+            ];
+            return view('admin.system.core.list', compact('data'));
         });
 
-        $grid->vietnam_recevie_at('Ngày về VN')->display(function () {
-            return $this->vietnam_recevie_at != null ? date('H:i | d-m-Y', strtotime($this->vietnam_recevie_at)) : null;
-        });
+        $grid->ware_house_id('Kho hàng')->display(function () use ($orderService) {
+            if ($this->status == $orderService->getTransportCodeStatus('swap')) {
+                return ($this->warehouse->name ?? "") . " --> " . ($this->warehouseSwap->name ?? "");
+            }
+
+            return $this->warehouse->name ?? "";
+        })->style('max-width: 150px');
 
         if (! Admin::user()->isRole('customer')) {
-            $grid->admin_note('Ghi chú')->editable();
+            $grid->admin_note('Ghi chú');
         } else {
             $grid->disableActions();
         }
@@ -135,9 +173,9 @@ class TransportCodeController extends AdminController
             $actions->disableView();
             $actions->disableDelete();
 
-            if ($this->row->order_id != "") {
-                // $actions->disableEdit();
-                // $actions->disableDelete();
+            $orderService = new OrderService();
+            if (in_array($this->row->status, [$orderService->getTransportCodeStatus('wait-payment'), $orderService->getTransportCodeStatus('payment')])) {
+                $actions->disableEdit();
             }
         });
 
@@ -153,7 +191,7 @@ class TransportCodeController extends AdminController
     {
         $form = new Form(new TransportCode);
 
-        $form->text('customer_code_input', 'Mã khách hàng')->rules(['required']);
+        $form->text('customer_code_input', 'Mã khách hàng vận đơn');
         $form->text('transport_code', "Mã vận đơn")->rules(['required']);
 
         $form->currency('kg', "KG")->rules(['required'])->digits(1)->symbol('KG');

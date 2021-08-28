@@ -53,21 +53,30 @@ Route::group([
         'customer_transactions'         =>  'Customer\\CustomerTransactionController',
 
         // purchase order
-        'purchase_orders'   =>  'PurchaseOrder\\PurchaseOrderController',
+        'purchase_orders'       =>  'PurchaseOrder\\PurchaseOrderController',
         'purchase_order_items'  =>  'PurchaseOrder\\PurchaseOrderItemController',
+        'offers'                =>  'PurchaseOrder\\OfferController',
 
         // transport order
-        'transport_codes'  =>  'TransportOrder\\TransportCodeController'
+        'transport_codes'   =>  'TransportOrder\\TransportCodeController',
+        'china_receives'    =>  'TransportOrder\\ChinaReceiveController',
+        'vietnam_receives'    =>  'TransportOrder\\VietnamReceiveController'
     ]);
 
-    // transport order
+    // transport order')
     $router->get('transport_codes/seach/{transport_code}', 'TransportOrder\\TransportCodeController@search')->name('transport_codes.search');
 
-    $router->get('china_receives', 'TransportOrder\\ChinaReceiveController@index')->name('china_receives');
-    $router->post('china_receives/storeChinaReceive', 'TransportOrder\\ChinaReceiveController@storeTransportCode')->name('china_receives.storeChinaReceive');
+    $router->get('china_receives', 'TransportOrder\\ChinaReceiveController@indexRebuild')->name('china_receives.index');
+    $router->post('china_receives', 'TransportOrder\\ChinaReceiveController@storeRebuild')->name('china_receives.store');
 
-    $router->get('vietnam_receives', 'TransportOrder\\VietnamReceiveController@index')->name('vietnam_receives');
-    $router->post('vietnam_receives/storeVietnamReceive', 'TransportOrder\\VietnamReceiveController@storeTransportCode')->name('vietnam_receives.storeChinaReceive');
+    $router->get('vietnam_receives', 'TransportOrder\\VietnamReceiveController@indexRebuild')->name('vietnam_receives.index');
+    $router->get('vietnam_receives/search/{transport_code}', 'TransportOrder\\VietnamReceiveController@search')->name('vietnam_receives.search');
+    $router->post('vietnam_receives', 'TransportOrder\\VietnamReceiveController@storeRebuild')->name('vietnam_receives.store');
+    // $router->get('china_receives', 'TransportOrder\\ChinaReceiveController@index')->name('china_receives');
+    // $router->post('china_receives/storeChinaReceive', 'TransportOrder\\ChinaReceiveController@storeTransportCode')->name('china_receives.storeChinaReceive');
+
+    // $router->get('vietnam_receives', 'TransportOrder\\VietnamReceiveController@index')->name('vietnam_receives');
+    // $router->post('vietnam_receives/storeVietnamReceive', 'TransportOrder\\VietnamReceiveController@storeTransportCode')->name('vietnam_receives.storeChinaReceive');
 
     // transaction
     $router->get('transactions/duplicate', 'System\\TransactionController@detail')->name('transactions.duplicate');
@@ -84,6 +93,11 @@ Route::group([
 
     // purchase order
     $router->post('purchase_orders/customer_deposite', 'PurchaseOrder\\PurchaseOrderController@customerDeposite')->name('purchase_orders.customer_deposite');
+    $router->get('purchase_orders/{id}/admin_deposite', 'PurchaseOrder\\PurchaseOrderController@adminDeposite')->name('purchase_orders.admin_deposite');
+    $router->post('purchase_orders/post_admin_deposite', 'PurchaseOrder\\PurchaseOrderController@postAdminDeposite')->name('purchase_orders.post_admin_deposite');
+    $router->post('purchase_orders/confirm_ordered', 'PurchaseOrder\\PurchaseOrderController@postConfirmOrdered')->name('purchase_orders.confirm_ordered');
+
+    // weight portal
     $router->get('weight_portals', 'System\\WeightPortalController@indexRebuild')->name('weight_portals.index');    
 
 });

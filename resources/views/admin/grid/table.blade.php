@@ -13,7 +13,7 @@
             {!! $grid->renderCreateButton() !!}
         </div>
         @if ( $grid->showTools() )
-        <div class="pull-right">
+        <div class="pull-left">
             {!! $grid->renderHeaderTools() !!}
         </div>
         @endif

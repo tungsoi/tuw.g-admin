@@ -45,7 +45,8 @@ class PurchaseOrderItem extends Model
         'weight_date',
         'order_id',
         'customer_id',
-        'order_at'
+        'order_at',
+        'outstock_at'
     ];
 
     // protected $casts = [
@@ -70,6 +71,16 @@ class PurchaseOrderItem extends Model
 
     public function statusText() {
         return $this->hasOne('App\Models\PurchaseOrder\PurchaseOrderItemStatus', 'id', 'status');
+    }
+
+    public function getTimeline() {
+        if ($this->status == 1) {
+            return $this->order_at != null ? date('H:i | d-m-Y', strtotime($this->order_at)) : null;
+        } else if ($this->status == 4) {
+            return $this->outstock_at != null ? date('H:i | d-m-Y', strtotime($this->outstock_at)) : null;
+        }
+
+        return null;
     }
 
     // /**

@@ -2,6 +2,8 @@
 
 namespace App\Admin\Controllers\PurchaseOrder;
 
+use App\Admin\Actions\PurchaseOrder\ConfirmOrderItem;
+use App\Admin\Actions\PurchaseOrder\Deposite;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
 use App\Jobs\HandleCustomerWallet;
@@ -149,22 +151,22 @@ class PurchaseOrderController extends AdminController
                 'current_rate'  =>  [
                     'is_label'  =>  false,
                     'color'     =>  'info',
-                    'text'      =>  "<i>Tỷ giá: ".number_format($this->current_rate) . " (vnd) </i>"
+                    'text'      =>  "<i>TG: ".number_format($this->current_rate) . "</i>"
                 ],
                 'total_item'    =>  [
                     'is_label'  =>  false,
-                    'text'      =>  "".$this->totalItems() . " sản phẩm"
+                    'text'      =>  "". $this->items->where('status', '!=', 4)->count()." link, ". $this->totalItems() . " sp"
                 ]
             ];
             return view('admin.system.core.list', compact('data'));
-        });
+        })->width(100);
 
         $grid->status('Trạng thái')->display(function () {
             $data = [
                 'status'        =>  [
                     'is_label'  =>  true,
                     'color'     =>  $this->statusText->label,
-                    'text'      =>  $this->statusText->name
+                    'text'      =>  $this->statusText->name . $this->countItemFollowStatus()
                 ],
                 'timeline'        =>  [
                     'is_label'  =>  false,
@@ -193,8 +195,8 @@ class PurchaseOrderController extends AdminController
                         'is_label'  =>  false,
                         'color'     =>  'info',
                         'is_link'   =>  true,
-                        'text'      =>  number_format($this->customer->wallet) . " (vnd)",
-                        'route'     =>  route('admin.customers.transactions', $this->customer_id)
+                        'text'      =>  number_format($this->customer->wallet),
+                        'route'     =>  route('admin.customers.transactions', $this->customer_id)."?mode=recharge"
                     ],
                     'zalo'      =>  [
                         'is_link'   =>  true,
@@ -241,15 +243,15 @@ class PurchaseOrderController extends AdminController
             $data = [
                 'amount_rmb'   =>  [
                     'is_label'   =>  false,
-                    'text'      =>  $price_rmb . " (tệ)"
+                    'text'      =>  $price_rmb
                 ],
                 'amount_vnd'  =>  [
                     'is_label'  =>  false,
-                    'text'      =>  "<i>= ". number_format($price_vnd) . " (vnd)" ."</i>"
+                    'text'      =>  "<i>= ". number_format($price_vnd) ."</i>"
                 ],
                 'deposite'  =>  [
                     'is_label'  =>  false,
-                    'text'      =>  "<i style='color: red'>Tiền cọc: ". number_format($deposite) . " (vnd)" ."</i>"
+                    'text'      =>  "<i style='color: red'>Tiền cần cọc: ". number_format($deposite) . "</i>"
                 ]
             ];            
             return view('admin.system.core.list', compact('data'));
@@ -262,11 +264,11 @@ class PurchaseOrderController extends AdminController
                 $data = [
                     'amount_rmb'   =>  [
                         'is_label'   =>  false,
-                        'text'      =>  $this->purchase_order_service_fee . " (tệ)"
+                        'text'      =>  $this->purchase_order_service_fee
                     ],
                     'amount_vnd'  =>  [
                         'is_label'  =>  false,
-                        'text'      =>  "<i>= ".number_format(str_replace(",", "", $this->purchase_order_service_fee) * $this->current_rate) . " (vnd)" ."</i>"
+                        'text'      =>  "<i>= ".number_format(str_replace(",", "", $this->purchase_order_service_fee) * $this->current_rate) . "</i>"
                     ]
                 ];            
                 return view('admin.system.core.list', compact('data'));
@@ -277,11 +279,11 @@ class PurchaseOrderController extends AdminController
             $data = [
                 'amount_rmb'   =>  [
                     'is_label'   =>  false,
-                    'text'      =>  $this->sumShipFee() . " (tệ)" 
+                    'text'      =>  $this->sumShipFee()
                 ],
                 'amount_vnd'  =>  [
                     'is_label'  =>  false,
-                    'text'      =>  "<i>= ".number_format(str_replace(",", "", $this->sumShipFee()) * $this->current_rate) . " (vnd)" ."</i>"
+                    'text'      =>  "<i>= ".number_format(str_replace(",", "", $this->sumShipFee()) * $this->current_rate) . "</i>"
                 ]
             ];            
             return view('admin.system.core.list', compact('data'));
@@ -291,11 +293,11 @@ class PurchaseOrderController extends AdminController
             $data = [
                 'amount_rmb'   =>  [
                     'is_label'   =>  false,
-                    'text'      =>  $this->amount(). " (tệ)"
+                    'text'      =>  $this->amount()
                 ],
                 'amount_vnd'  =>  [
                     'is_label'  =>  false,
-                    'text'      =>  "<i>= ".number_format(str_replace(",", "", $this->amount()) * $this->current_rate) . " (vnd)" ."</i>"
+                    'text'      =>  "<i>= ".number_format(str_replace(",", "", $this->amount()) * $this->current_rate) . "</i>"
                 ]
             ];            
             return view('admin.system.core.list', compact('data'));
@@ -306,12 +308,27 @@ class PurchaseOrderController extends AdminController
         })->style('text-align: right');
 
         $grid->deposited('Đã cọc')->display(function () {
-            return number_format($this->deposited) . " (vnd)";
+            return number_format($this->deposited);
         })->style('text-align: right;');
 
+        $grid->transport_code('Mã vận đơn')->display(function () {
+            if ($this->transport_code != "") {
+                $arr = explode(',', $this->transport_code);
+                $html = "";
+                foreach ($arr as $code) {
+                    $class = 'default';
+                    if (TransportCode::where('transport_code', $code)->whereStatus(1)->count() > 0) {
+                        $class = 'success';
+                    }
+                    $html .= "<span class='label label-$class' style='margin-bottom: 5px !important;'>$code</span> &nbsp;";
+                }
+
+                return $html;
+            }
+        })->width(150);
+
         if (! Admin::user()->isRole('customer')) {
-            // $grid->transport_code('Mã vận đơn')->style('text-align: right; width: 150px');
-            $grid->final_payment('Tổng thanh toán')->editable()->style('text-align: right');
+            $grid->final_payment('Tổng thanh toán')->editable()->style('text-align: right')->width(80);
         }
         
         $grid->disableCreateButton();
@@ -322,15 +339,21 @@ class PurchaseOrderController extends AdminController
         $grid->disablePerPageSelector();
         $grid->paginate(20);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
-            // if (Admin::user()->isRole('customer')) {
+            if (Admin::user()->isRole('customer')) {
                 $actions->disableEdit();
-            // }
+            }
 
             $orderService = new OrderService();
             if (! in_array($this->row->status, [$orderService->getStatus('new-order'), $orderService->getStatus('deposited')]) ) {
                 $actions->disableDelete();
             }
 
+            if (! Admin::user()->isRole('customer')) {
+                if ($this->row->status == $orderService->getStatus('new-order')) {
+                    $actions->append(new Deposite($this->row->id));
+                }
+            }
+            
         });
 
         return $grid;
@@ -393,6 +416,19 @@ class PurchaseOrderController extends AdminController
                 });
             }
 
+            $order = PurchaseOrder::find($id);
+            $orderService = new OrderService();
+            $flagItem = $order->items->whereNotIn('status', [$orderService->getItemStatus('out_stock'), $orderService->getItemStatus('wait_order')])->count();
+            // flagitem -> check khong con san pham nao co trang thai # het hang hoac da dat hang
+
+
+            if ($flagItem == 0 && ! Admin::user()->isRole('customer') && $order->status == $orderService->getStatus('deposited')) {
+                $row->column(12, function (Column $column) use ($id)
+                {
+                    $column->append((new Box('', $this->notifiOrdered($id))));
+                });
+            }
+            
             $row->column(12, function (Column $column) use ($id)
             {
                 $column->append((new Box('Danh sách sản phẩm', $this->items($id)->render())));
@@ -425,7 +461,7 @@ class PurchaseOrderController extends AdminController
             ],
             [
                 'Trạng thái',
-                "<span style='float: right' class='label label-".$order->statusText->label."'>".$order->statusText->name."</span>",
+                "<span style='float: right' class='label label-".$order->statusText->label."'>".$order->statusText->name. $order->countItemFollowStatus()."</span>",
                 "<span style='float: right'>". $order->getStatusTimeline() . "</span>"
             ],
             [
@@ -504,10 +540,10 @@ class PurchaseOrderController extends AdminController
                         $total_price += $amount;
     
                         $rows[] = [
-                            $code->transport_code,
-                            "<span style='float: right'>".$code->kg."</span>",
-                            "<span style='float: right'>".number_format($code->price_service)."</span>",
-                            "<span style='float: right'>".number_format($amount, 0)."</span>"
+                            "<span style='float: left; color: green;'>".$code->transport_code."</span>",
+                            "<span style='float: right; color: green;'>".$code->kg."</span>",
+                            "<span style='float: right; color: green;'>".number_format($code->price_service)."</span>",
+                            "<span style='float: right; color: green;'>".number_format($amount, 0)."</span>"
                         ];
                     } else {
                         $rows[] = [
@@ -555,8 +591,19 @@ class PurchaseOrderController extends AdminController
 
         $grid->model()->whereOrderId($orderId)->orderBy('id', 'desc');
 
-        $grid->disableTools();
-        $grid->disableBatchActions();
+        $grid->tools(function (Grid\Tools $tools) use ($orderId) {
+            $order = PurchaseOrder::find($orderId);
+
+            $orderService = new OrderService();
+            if ($order->items()->whereStatus($orderService->getItemStatus('in_order'))->count() > 0) {
+                $tools->append(new ConfirmOrderItem());
+            }
+            
+            $tools->batch(function(Grid\Tools\BatchActions $actions) {
+                $actions->disableDelete();
+            });
+        });
+
         $grid->disableCreateButton();
         $grid->disableExport();
         $grid->disableFilter();
@@ -593,6 +640,17 @@ class PurchaseOrderController extends AdminController
             }
             .box {
                 border: none !important;
+            }
+            .box-footer .col-md-2 {
+                display: none;
+            }
+            .box-footer .col-md-8 {
+                padding-left: 0px !important;
+            }
+            .box-footer {
+                padding-top: 0px;
+                padding-bottom: 0px;
+                border: none;
             }
         ');
 
@@ -662,6 +720,124 @@ SCRIPT;
                     'message'   =>  "Đặt cọc đơn hàng mua hộ $order->order_number thành công."
                 ]);
             }
+        }
+    }
+
+    public function adminDeposite($id, Content $content) {
+        return $content
+            ->title($this->title())
+            ->description($this->description['show'] ?? trans('admin.show'))
+            ->row(function (Row $row) use ($id)
+            {
+                $row->column(8, function (Column $column) use ($id) 
+                {
+                    $column->append((new Box('Thông tin đơn hàng', $this->detail($id))));
+                });
+
+                $row->column(4, function (Column $column) use ($id) 
+                {
+                    $column->append((new Box('', $this->formAdminDeposite($id))));
+                });
+            });
+    }
+
+    public function formAdminDeposite($id) {
+        $order = PurchaseOrder::find($id);
+
+        $form = new Form(new PurchaseOrder());
+        $form->setTitle('Đặt cọc đơn hàng');
+
+        $form->hidden('order_id')->default($id);
+
+        $form->setAction(route('admin.purchase_orders.post_admin_deposite'));
+
+        $form->html($order->customer->symbol_name, 'Mã khách hàng: ');
+
+        $route = route('admin.customers.transactions', $order->customer->id);
+        $link = "<a href=".$route." target='_blank'> Xem lịch sử ví</a>";
+        $form->html(number_format($order->customer->wallet) . " (vnd) - " . $link, 'Số dư ví:');
+        $form->html(
+            '<b style="color: red">'.number_format($order->depositeAmountCal()) . " (vnd) </b>", 
+            'Số tiền phải cọc tối thiểu:');
+
+        $form->currency('deposited', 'Tiền vào cọc')->symbol('VND')->digits(0)->rules(['required'])->style('width', '100%')->default($order->depositeAmountCal());
+
+        $form->tools(function (Form\Tools $tools) {
+            $tools->disableDelete();
+            $tools->disableView();
+            $tools->disableList();
+        });
+
+        $form->confirm('Xác nhận đặt cọc đơn hàng ?');
+
+        Admin::style('
+            form .col-sm-2, form .col-sm-8 {
+                width: 100%;
+                text-align: left !important;
+                padding: 0px !important;
+            }
+            .box {
+                border: none !important;
+            }
+        ');
+
+        $orderService = new OrderService();
+        if ($order->status != $orderService->getStatus('new-order')) {
+            $form->disableSubmit();
+            $form->disableReset();
+
+            $form->html(
+                '<a href="'.route('admin.purchase_orders.index').'" class="btn btn-sm btn-danger" title="Danh sách"><i class="fa fa-arrow-left"></i><span class="hidden-xs">&nbsp;Quay lại danh sách</span></a>'
+            );
+        }
+
+        return $form;
+    }
+
+    public function postAdminDeposite(Request $request) 
+    {
+        $orderService = new OrderService();
+
+        $order = PurchaseOrder::find($request->order_id);
+
+        $order->status = $orderService->getStatus('deposited');
+        $order->deposited = $request->deposited;
+        $order->deposited_at = now();
+        $order->user_deposited_at = Admin::user()->id;
+        $order->save();
+
+        $job = new HandleCustomerWallet(
+            $order->customer->id,
+            Admin::user()->id, // system
+            $request->deposited,
+            3,
+            "Đặt cọc đơn hàng mua hộ $order->order_number"
+        );
+        dispatch($job);
+
+        admin_toastr('Đặt cọc thành công', 'success');
+
+        return redirect()->route('admin.purchase_orders.show', $order->id);
+    }
+
+    public function notifiOrdered($id) {
+        return view('admin.system.purchase_order.confirm_ordered', compact('id'))->render();
+    }
+
+    public function postConfirmOrdered(Request $request) {
+        if ($request->ajax()) {
+            $orderService = new OrderService();
+
+            $order = PurchaseOrder::find($request->id);
+            $order->status = $orderService->getStatus('ordered');
+            $order->order_at = now();
+            $order->user_order_at = Admin::user()->id;
+            $order->save();
+
+            return response()->json([
+                'status'    =>  true,
+                'message'   =>  "Lưu thành công"
+            ]);
         }
     }
     

@@ -202,4 +202,11 @@ class UserService {
 
         return $users;
     }
+
+    public function GetAllEmployee() {
+        return User::whereIsCustomer(User::ADMIN)
+        ->whereIsActive(User::ACTIVE)
+        ->orderBy('id', 'desc')
+        ->pluck('name', 'id');
+    }
 }

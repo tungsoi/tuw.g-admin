@@ -12,6 +12,7 @@ use App\Models\System\CustomerPercentService;
 use App\Models\System\ExchangeRate;
 use App\Models\System\Transaction;
 use App\Models\System\Warehouse;
+use App\Models\TransportOrder\TransportCodeStatus;
 use App\User;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\DB;
@@ -64,7 +65,10 @@ class OrderService {
     }
 
     public function calOrderService($total, $percent) {
-        return number_format($total / 100 * $percent, 2);
+        $total = (float) str_replace(",", "", $total);
+        $service = number_format($total / 100 * $percent, 2);
+
+        return $service;
     }
 
     public function getItemStatus($code) {
@@ -103,5 +107,9 @@ class OrderService {
 
                 return true;
         }
+    }
+
+    public function getTransportCodeStatus($code) {
+        return TransportCodeStatus::whereCode($code)->first()->id;
     }
 }
