@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Actions\PurchaseOrder;
+namespace App\Admin\Actions\TransportCode;
 
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
@@ -9,17 +9,17 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
-class ConfirmOrderItem extends BatchAction
+class PaymentExport extends BatchAction
 {
-    public $name = 'Xác nhận đã đặt hàng sản phẩm';
-    protected $selector = '.confirm-order-item';
+    public $name = 'Xác nhận đã nhận hàng luân chuyển kho';
+    protected $selector = '.confirm-swap-warehouse';
 
     /**
      * {@inheritdoc}
      */
     public function actionScript()
     {
-        $warning = __('Vui lòng chọn sản phẩm');
+        $warning = __('Vui lòng chọn Mã vận đơn');
 
         return <<<SCRIPT
         var key = $.admin.grid.selected();
@@ -38,8 +38,10 @@ SCRIPT;
         $orderService = new OrderService();
 
         foreach ($collection as $model) {
-            $model->status = $orderService->getItemStatus('wait_order');
-            $model->order_at = now();
+            $model->status = $orderService->getTransportCodeStatus('vietnam-rev');
+            $model->finish_swap_warehouse_at = now();
+            $model->finish_swap_user_id = Admin::user()->id;
+            $model->ware_house_id = $model->ware_house_swap_id;
             $model->save();
         }
 
@@ -48,12 +50,12 @@ SCRIPT;
 
     public function form()
     {
-        $this->text('noti', 'Thông báo')->default('Xác nhận đã đặt hàng các sản phẩm này ?')->disable();
+        $this->text('noti', 'Thông báo')->default('Bạn xác nhận rằng các mã vận đơn đã chọn được chuyển về kho luân chuyển thành công ?')->disable();
     }
 
     public function html()
     {
-        return "<a class='confirm-order-item btn btn-sm btn-primary'><i class='fa fa-check'></i>&nbsp; Xác nhận đã đặt hàng</a>";
+        return "<a class='confirm-swap-warehouse btn btn-md btn-primary'><i class='fa fa-download'></i>&nbsp; Thanh toán xuất kho</a>";
     }
 
 }

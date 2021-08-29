@@ -2,6 +2,7 @@
 
 namespace App\Models\TransportOrder;
 
+use App\Models\PurchaseOrder\PurchaseOrder;
 use Illuminate\Database\Eloquent\Model;
 
 class TransportCode extends Model
@@ -133,5 +134,11 @@ class TransportCode extends Model
         } else {
             return 0;
         }
+    }
+
+    public function getOrdernNumberPurchase() {
+        $orders = PurchaseOrder::select('transport_code', 'order_number')->where('transport_code', 'like', '%'.$this->transport_code.'%')->pluck('order_number')->toArray();
+        
+        return sizeof($orders) > 0 ? " (".implode(", ", $orders).")" : null;
     }
 }

@@ -72,6 +72,8 @@ Route::group([
     $router->get('vietnam_receives', 'TransportOrder\\VietnamReceiveController@indexRebuild')->name('vietnam_receives.index');
     $router->get('vietnam_receives/search/{transport_code}', 'TransportOrder\\VietnamReceiveController@search')->name('vietnam_receives.search');
     $router->post('vietnam_receives', 'TransportOrder\\VietnamReceiveController@storeRebuild')->name('vietnam_receives.store');
+
+    $router->get('payments/{ids}', 'TransportOrder\\PaymentController@indexRebuild')->name('payments.index');
     // $router->get('china_receives', 'TransportOrder\\ChinaReceiveController@index')->name('china_receives');
     // $router->post('china_receives/storeChinaReceive', 'TransportOrder\\ChinaReceiveController@storeTransportCode')->name('china_receives.storeChinaReceive');
 

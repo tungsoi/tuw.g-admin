@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Actions\PurchaseOrder;
+namespace App\Admin\Actions\TransportCode;
 
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
@@ -9,17 +9,17 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
-class ConfirmOrderItem extends BatchAction
+class PaymentNotExport extends BatchAction
 {
-    public $name = 'Xác nhận đã đặt hàng sản phẩm';
-    protected $selector = '.confirm-order-item';
+    public $name = 'Thanh toán chưa xuất kho';
+    protected $selector = '.confirm-payment-not-export';
 
     /**
      * {@inheritdoc}
      */
     public function actionScript()
     {
-        $warning = __('Vui lòng chọn sản phẩm');
+        $warning = __('Vui lòng chọn Mã vận đơn');
 
         return <<<SCRIPT
         var key = $.admin.grid.selected();
@@ -37,23 +37,26 @@ SCRIPT;
     {
         $orderService = new OrderService();
 
+        $ids = [];
         foreach ($collection as $model) {
-            $model->status = $orderService->getItemStatus('wait_order');
-            $model->order_at = now();
-            $model->save();
+            $ids[] = $model->id;
         }
 
-        return $this->response()->success('Đã xác nhận thành công')->refresh();
+        $ids_route = implode(',', $ids);
+
+        $route = route('admin.payments.index', ['ids' => $ids_route]) . "?type=payment_not_export";
+
+        return $this->response()->redirect($route);
     }
 
     public function form()
     {
-        $this->text('noti', 'Thông báo')->default('Xác nhận đã đặt hàng các sản phẩm này ?')->disable();
+        $this->text('noti', 'Thông báo')->default('Xác nhận thanh toán chưa xuất kho các mã vận đơn đã chọn ?')->disable();
     }
 
     public function html()
     {
-        return "<a class='confirm-order-item btn btn-sm btn-primary'><i class='fa fa-check'></i>&nbsp; Xác nhận đã đặt hàng</a>";
+        return "<a class='confirm-payment-not-export btn btn-md btn-info'><i class='fa fa-pause'></i>&nbsp; Thanh toán chưa xuất kho</a>";
     }
 
 }

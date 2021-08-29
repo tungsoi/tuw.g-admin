@@ -14,6 +14,25 @@ class ConfirmSwapWarehouse extends BatchAction
     public $name = 'Xác nhận đã nhận hàng luân chuyển kho';
     protected $selector = '.confirm-swap-warehouse';
 
+    /**
+     * {@inheritdoc}
+     */
+    public function actionScript()
+    {
+        $warning = __('Vui lòng chọn Mã vận đơn');
+
+        return <<<SCRIPT
+        var key = $.admin.grid.selected();
+        
+        if (key.length === 0) {
+            $.admin.toastr.error('{$warning}', '', {positionClass: 'toast-top-center'});
+            return ;
+        }
+        
+        Object.assign(data, {_key:key});
+SCRIPT;
+    }
+    
     public function handle(Collection $collection, Request $request)
     {
         $orderService = new OrderService();
@@ -36,7 +55,7 @@ class ConfirmSwapWarehouse extends BatchAction
 
     public function html()
     {
-        return "<a class='confirm-swap-warehouse btn btn-sm btn-success'><i class='fa fa-check'></i>&nbsp; Xác nhận hàng luân chuyển kho</a>";
+        return "<a class='confirm-swap-warehouse btn btn-md btn-success'><i class='fa fa-check'></i>&nbsp; Xác nhận hàng luân chuyển kho</a>";
     }
 
 }

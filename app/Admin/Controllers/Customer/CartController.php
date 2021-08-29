@@ -97,13 +97,13 @@ class CartController extends AdminController
         $grid->disableCreateButton();
         $grid->tools(function (Grid\Tools $tools) {
             $tools->append('
-                <a href="'.route('admin.carts.create').'" class="btn btn-sm btn-success">
+                <a href="'.route('admin.carts.create').'" class="btn btn-md btn-success">
                     <i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;Thêm sản phẩm vào giỏ</span>
                 </a>
             ');
 
             $tools->append("
-                <a class='btn-create-order btn btn-sm btn-danger'>
+                <a class='btn-create-order btn btn-md btn-danger'>
                     <i class='fa fa-cart-plus'></i>
                     &nbsp; Tạo đơn hàng
                 </a>

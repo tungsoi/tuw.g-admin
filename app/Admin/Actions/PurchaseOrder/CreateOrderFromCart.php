@@ -113,7 +113,7 @@ class CreateOrderFromCart extends BatchAction
 
     public function actionScript()
     {
-        $warning = __('Vui lòng tích chọn sản phẩm !');
+        $warning = __('Vui lòng chọn sản phẩm');
 
         return <<<SCRIPT
         var key = $.admin.grid.selected();

@@ -12,8 +12,8 @@
                 @endforeach
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">{{ __('admin.close') }}</button>
-                <button type="submit" class="btn btn-primary btn-sm">{{ __('admin.submit') }}</button>
+                <button type="submit" class="btn btn-primary btn-md">{{ __('admin.submit') }}</button>
+                <button type="button" class="btn btn-danger btn-md" data-dismiss="modal">{{ __('admin.close') }}</button>
             </div>
             </form>
         </div><!-- /.modal-content -->

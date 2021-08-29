@@ -3,6 +3,9 @@
 namespace App\Admin\Controllers\TransportOrder;
 
 use App\Admin\Actions\TransportCode\ConfirmSwapWarehouse;
+use App\Admin\Actions\TransportCode\Payment;
+use App\Admin\Actions\TransportCode\PaymentExport;
+use App\Admin\Actions\TransportCode\PaymentNotExport;
 use App\Admin\Actions\TransportCode\SwapWarehouse;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
@@ -89,14 +92,32 @@ class TransportCodeController extends AdminController
             $tools->batch(function(Grid\Tools\BatchActions $actions) {
                 $actions->disableDelete();
             });
+            $tools->append(new Payment());
+            $tools->append(new PaymentNotExport());
+            $tools->append(new PaymentExport());
         });
 
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->order_id('Mã đơn hàng')->style('color: red; max-width: 150px');
-        $grid->transport_code('Mã vận đơn')->style('max-width: 150px');
+        $grid->order_id('Mã đơn hàng')->style('color: red; max-width: 150px')->display(function () {
+            $html = "<input type='hidden' value='$this->id' id='id' />";
+            return $html .= $this->order_id;
+        });
+        $grid->transport_code('Mã vận đơn')->style('max-width: 150px')->display(function () {
+            $data = [
+                'order_number'   =>  [
+                    'is_label'   =>  false,
+                    'text'      =>  $this->transport_code
+                ],
+                'purchase_orders' => [
+                    'is_label'  =>  false,
+                    'text'      =>  $this->getOrdernNumberPurchase()
+                ]
+            ];
+            return view('admin.system.core.list', compact('data'));
+        });
         $grid->customer_code_input('Khách hàng vận đơn')->style('max-width: 100px')->display(function () {
             $data = [
                 'order_number'   =>  [
@@ -169,6 +190,13 @@ class TransportCodeController extends AdminController
         }
         $grid->disableColumnSelector();
         $grid->paginate(20);
+
+        $grid->tools(function (Grid\Tools $tools) {
+            $tools->batch(function(Grid\Tools\BatchActions $actions) {
+                $actions->disableDelete();
+            });
+        });
+
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableView();
             $actions->disableDelete();
@@ -176,6 +204,13 @@ class TransportCodeController extends AdminController
             $orderService = new OrderService();
             if (in_array($this->row->status, [$orderService->getTransportCodeStatus('wait-payment'), $orderService->getTransportCodeStatus('payment')])) {
                 $actions->disableEdit();
+            }
+
+            if ($this->row->status != $orderService->getTransportCodeStatus('vietnam-rev')) {
+                Admin::script(
+                    <<<EOT
+                    $('input[data-id={$this->row->id}]').parent().parent().empty();
+EOT);
             }
         });
 
@@ -209,5 +244,12 @@ class TransportCodeController extends AdminController
         return $form;
     }
 
+    public function offerOrderScript() {
+        return <<<SCRIPT
+            $('form').attr('action', location.href);
+            $('form').prev().remove();
+            $('form button[type="reset"]').remove();
+SCRIPT;
+    }
 
 }

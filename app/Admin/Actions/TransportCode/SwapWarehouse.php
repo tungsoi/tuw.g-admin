@@ -14,6 +14,25 @@ class SwapWarehouse extends BatchAction
     public $name = 'Luân chuyển kho';
     protected $selector = '.swap-warehouse';
 
+    /**
+     * {@inheritdoc}
+     */
+    public function actionScript()
+    {
+        $warning = __('Vui lòng chọn Mã vận đơn');
+
+        return <<<SCRIPT
+        var key = $.admin.grid.selected();
+        
+        if (key.length === 0) {
+            $.admin.toastr.error('{$warning}', '', {positionClass: 'toast-top-center'});
+            return ;
+        }
+        
+        Object.assign(data, {_key:key});
+SCRIPT;
+    }
+
     public function handle(Collection $collection, Request $request)
     {
         $orderService = new OrderService();
@@ -42,7 +61,7 @@ class SwapWarehouse extends BatchAction
 
     public function html()
     {
-        return "<a class='swap-warehouse btn btn-sm btn-warning'><i class='fa fa-mail-reply'></i>&nbsp; Luân chuyển kho</a>";
+        return "<a class='swap-warehouse btn btn-md btn-warning'><i class='fa fa-mail-reply'></i>&nbsp; Luân chuyển kho</a>";
     }
 
 }
