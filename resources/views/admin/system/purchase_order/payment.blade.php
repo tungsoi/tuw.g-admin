@@ -79,12 +79,12 @@
             });
     });
     
-        $(".btn-success").toggle();
+        // $(".btn-success").toggle();
         $(".payment_user_id").on("select2:select", function (e) { 
             var userId = $(e.currentTarget).val();
 
             $('.loading-overlay').toggle();
-            $(".btn-success").toggle();
+            // $(".btn-success").toggle();
             $.ajax({
                 url: '/admin/customers/' + userId + '/find',
                 type: 'GET',
@@ -219,13 +219,13 @@
             amount_v = amount_v.toFixed(2);
 
             $('.lb-sum-kg').html(amount_kg);
-            $('.count-kg').val(amount_kg);
+            $('.count_kg').val(amount_kg);
 
             $('.lb-sum-cublic-meter').html(amount_m3);
-            $('.count-cublic-meter').val(amount_m3);
+            $('.count_cublic_meter').val(amount_m3);
 
             $('.lb-sum-volumn').html(amount_v);
-            $('.count-volumn').val(amount_v);
+            $('.count_volumn').val(amount_v);
 
             console.log('amount_kg: ' + amount_kg);
             console.log('amount_m3: ' + amount_m3);
@@ -236,17 +236,17 @@
         }
         
         function calculatorMoney() {
-            var amount_kg = $('.count-kg').val();
+            var amount_kg = $('.count_kg').val();
             if (amount_kg == "") {
                 amount_kg = parseFloat(0);
             }
 
-            var amount_m3 = $('.count-cublic-meter').val();
+            var amount_m3 = $('.count_cublic_meter').val();
             if (amount_m3 == "") {
                 amount_m3 = parseFloat(0);
             }
             
-            var amount_v = $('.count-volumn').val();
+            var amount_v = $('.count_volumn').val();
             if (amount_v == "") {
                 amount_v = parseFloat(0);
             }

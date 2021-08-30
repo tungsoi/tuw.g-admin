@@ -81,7 +81,7 @@
                 <td>{{ $transaction['user_id_created'] }}</td>
                 <td>{{ date('H:i | d-m-Y', strtotime($transaction['updated_at'])) }}</td>
                 <td>{{ $transaction['updated_user_id'] }}</td>
-                <td>{{ $transaction['order_link'] }}</td>
+                <td>Chưa link vào xem đơn hàng thanh toán</td>
                 <td align="center">{{ $transaction['type_recharge'] }}</td>
                 <td>{{ $transaction['content'] }}</td>
                 <td align="right">{!! $transaction['before_payment'] !!}</td>

@@ -10,7 +10,7 @@
             <td align="center"><b>Tổng khối lượng (kg)</b></td>
             <td align="right">
                 <span class="lb-sum-kg" name="lb-sum-kg">{{ $amount_kg }}</span>
-                <input type="hidden" name="count-kg" class="count-kg" value="{{ $amount_kg }}">
+                <input type="hidden" name="count_kg" class="count_kg" value="{{ $amount_kg }}">
             </td>
             <td>
                 <input type="text" name="sum_kg" class="form-control sum_kg" placeholder="Nhập đơn giá kg" value="0">
@@ -23,7 +23,7 @@
             <td align="center"><b>Tổng mét khối (m3)</b></td>
             <td align="right">
                 <span class="lb-sum-cublic-meter" name="lb-sum-cublic-meter">0</span>
-                <input type="hidden" name="count-cublic-meter" class="count-cublic-meter" value="">
+                <input type="hidden" name="count_cublic_meter" class="count_cublic_meter" value="">
             </td>
             <td>
                 <input type="text" name="sum_cublic_meter" class="form-control sum_cublic_meter" placeholder="Nhập đơn giá mét khối" value="0">
@@ -36,7 +36,7 @@
             <td align="center"><b>Tổng V/6000</b></td>
             <td align="right">
                 <span class="lb-sum-volumn" name="lb-sum-volumn">0</span>
-                <input type="hidden" name="count-volumn" class="count-volumn" value="">
+                <input type="hidden" name="count_volumn" class="count_volumn" value="">
             </td>
             <td>
                 <input type="text" name="sum_volumn" class="form-control sum_volumn" placeholder="Nhập đơn giá V/6000" value="0">

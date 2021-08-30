@@ -2,6 +2,7 @@
 
 namespace App\Models\TransportOrder;
 
+use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,6 +13,7 @@ class TransportCode extends Model
     const WAITTING_PAYMENT = 2;
     const PAYMENT = 3;
     const SWAP_WAREHOUSE = 4;
+    const NOT_EXPORT = 5;
 
     protected $table = "transport_codes";
 
@@ -43,11 +45,13 @@ class TransportCode extends Model
         'payment_type',
         'ware_house_swap_id',
         'internal_note',
-        'payment_note'
+        'payment_note',
+        'export_at'
     ];
 
-    public function transportOrder()
+    public function paymentOrder()
     {
+        return $this->hasOne(PaymentOrder::class, 'id', 'order_id');
     }
 
     public function warehouse() {
@@ -124,6 +128,8 @@ class TransportCode extends Model
                 return $this->payment_at != null ? date('H:i | d-m-Y', strtotime($this->payment_at)) : null;
             case self::SWAP_WAREHOUSE:
                 return $this->begin_swap_warehouse_at != null ? date('H:i | d-m-Y', strtotime($this->begin_swap_warehouse_at)) : null;
+            case self::NOT_EXPORT:
+                    return $this->payment_at != null ? date('H:i | d-m-Y', strtotime($this->payment_at)) : null;
         }
     }
 

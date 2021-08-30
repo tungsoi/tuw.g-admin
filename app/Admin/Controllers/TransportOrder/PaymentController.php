@@ -2,14 +2,19 @@
 
 namespace App\Admin\Controllers\TransportOrder;
 
+use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
+use App\Jobs\HandleCustomerWallet;
+use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\System\ExchangeRate;
+use App\Models\System\TransactionWeight;
 use App\Models\System\Warehouse;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Illuminate\Http\Request;
 use App\Models\TransportOrder\TransportCode;
+use App\User;
 use Encore\Admin\Layout\Row;
 use Encore\Admin\Layout\Column;
 use Encore\Admin\Layout\Content;
@@ -189,38 +194,80 @@ class PaymentController extends AdminController
     }
 
     public function storeRebuild(Request $request) {
-        dd($request->all());
-        // if ($request->ajax()) {
-        //     $transport_code = $request->transport_code;
+        $orderService = new OrderService();
 
-        //     if ($transport_code != "") {
-        //         if (TransportCode::whereTransportCode($transport_code)->first()) {
-        //             return response()->json([
-        //                 'status'    =>  false,
-        //                 'message'   =>  'Mã vận đơn đã tồn tại'
-        //             ]);
-        //         } else {
-        //             $res = TransportCode::create([
-        //                 'transport_code'    =>  trim($transport_code),
-        //                 'status'            =>  TransportCode::CHINA_RECEIVE,
-        //                 'china_receive_at'  =>  now(),
-        //                 'china_receive_user_id' =>  Admin::user()->id
-        //             ]);
+        $listTransportCode = TransportCode::whereIn('id', $request->transport_code_id)->pluck('transport_code')->toArray();
+        $content = "Thanh toán tổ hợp mã vận đơn " . (sizeof($listTransportCode) > 0 ? "(".implode(", ", $listTransportCode).")" : null);
+
+        // step 1: create payment order
+        $paymentOrderData = [
+            'order_number'  =>  $orderService->generatePaymentOrderNumber(),
+            'status'        =>  $request->order_type,
+            'amount'        =>  $request->total_money,
+            'total_kg'      =>  $request->count_kg,
+            'total_m3'      =>  $request->count_cublic_meter,
+            'total_v'       =>  $request->count_volumn,
+            'total_advance_drag'    =>  $request->advan_vnd,
+            'user_created_id'   =>  Admin::user()->id,
+            'payment_customer_id'   =>  $request->payment_user_id,
+            'internal_note'     =>  $request->internal_note,
+            'discount_value'    =>  $request->discount_value,
+            'discount_type'     =>  $request->discount_type,
+            'price_kg'          =>  str_replace(",", "", $request->sum_kg),
+            'price_m3'          =>  str_replace(",", "", $request->sum_cublic_meter),
+            'price_v'           =>  str_replace(",", "", $request->sum_volumn),
+            'is_sub_customer_wallet_weight' =>  $request->wallet_weight,
+            'total_sub_wallet_weight'   =>  $request->payment_customer_wallet_weight_used,
+            'current_rate'      =>  ExchangeRate::first()->vnd,
+            'transaction_note'  =>  $content
+        ];
+
+        $paymentOrder = PaymentOrder::firstOrCreate($paymentOrderData);
+
+        // step 2: update transport code
+        foreach ($request->transport_code_id as $index => $transport_code_id) {
+            $status = "";
+            if ($request->order_type == 'payment_not_export') {
+                $status = $orderService->getTransportCodeStatus('not-export');
+            } 
+            // else if () payment_temp
+            // else if () payment_export
+            TransportCode::find($transport_code_id)->update([
+                'order_id'  =>  $paymentOrder->id,
+                'status'    =>  $status,
+                'payment_at'    =>  now(),
+                'payment_user_id'   =>  Admin::user()->id,
+                'payment_type'  =>  $request->payment_type[$index]
+            ]);
+        }
+
+        // step 3: create transaction to wallet user
+        $job = new HandleCustomerWallet(
+            $request->payment_user_id,
+            Admin::user()->id,
+            $request->total_money,
+            3,
+            $content
+        );
+        dispatch($job);
+
+        //step 4: update customer wallet weight and create transaction weight
+        if ($request->wallet_weight == 1 && $request->payment_customer_wallet_weight_used > 0) {
+            $customer = User::find($request->payment_user_id);
+            $customer->wallet_weight -= $request->payment_customer_wallet_weight_used;
+            $customer->save();
     
-        //             return response()->json([
-        //                 'status'    =>  true,
-        //                 'message'   =>  'Lưu thành công',
-        //                 'data'      =>  $res
-        //             ]);
-        //         }
-        //     } else {
-        //         return response()->json([
-        //             'status'    =>  false,
-        //             'message'   =>  'Mã vận đơn không được để trống'
-        //         ]);
-        //     }
-            
-        // }
+            TransactionWeight::create([
+                'customer_id'   => (int) $request->payment_user_id,
+                'user_id_created'   =>  Admin::user()->id,
+                'content'   =>  $content,
+                'kg'    =>  $request->payment_customer_wallet_weight_used
+            ]);
+        }
+
+        admin_toastr('Thanh toán thành công', 'success');
+
+        return redirect()->route('admin.transport_codes.index'); // return ve chi tiet don thanh toan
     }
 
     public function script() {

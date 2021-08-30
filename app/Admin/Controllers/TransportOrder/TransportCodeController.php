@@ -9,6 +9,7 @@ use App\Admin\Actions\TransportCode\PaymentNotExport;
 use App\Admin\Actions\TransportCode\SwapWarehouse;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
+use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\System\Alert;
 use App\Models\System\Warehouse;
 use Encore\Admin\Controllers\AdminController;
@@ -39,9 +40,11 @@ class TransportCodeController extends AdminController
         $userService = new UserService();
         $orderService = new OrderService();
 
-        $grid->header(function () {
-            return "<b style='color: red'>Chưa check query khi ở màn hình customer -> chỉ lấy các mã vận đơn thuộc các đơn thanh toán của khách hàng này</b>";
-        });
+        if (Admin::user()->isRole('customer')) {
+            $orderIds = PaymentOrder::where('payment_customer_id', Admin::user()->id)->pluck('id')->toArray();
+            $grid->model()->whereIn('order_id', $orderIds);
+        }
+
         $grid->expandFilter();
         $grid->filter(function($filter) use ($userService, $orderService) {
             $filter->expand();
@@ -101,9 +104,9 @@ class TransportCodeController extends AdminController
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->order_id('Mã đơn hàng')->style('color: red; max-width: 150px')->display(function () {
+        $grid->order_id('Mã đơn hàng')->style('width: 100px')->display(function () {
             $html = "<input type='hidden' value='$this->id' id='id' />";
-            return $html .= $this->order_id;
+            return $html .=  $this->paymentOrder->order_number ?? null;
         });
         $grid->transport_code('Mã vận đơn')->style('max-width: 150px')->display(function () {
             $data = [
@@ -128,7 +131,9 @@ class TransportCodeController extends AdminController
             ];
             return view('admin.system.core.list', compact('data'));
         });
-        $grid->customer_payment('Khách hàng thanh toán')->style('color: red;max-width: 100px');
+        $grid->customer_payment('Khách hàng thanh toán')->style('width: 100px')->display(function () {
+            return $this->paymentOrder->paymentCustomer->symbol_name ?? "";
+        });
         $grid->kg('Cân nặng (kg)');
         $grid->length('Dài (cm)');
         $grid->width('Rộng (cm)');
