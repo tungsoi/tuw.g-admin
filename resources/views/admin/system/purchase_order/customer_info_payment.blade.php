@@ -1,4 +1,4 @@
-<table class="table table-bordered">
+<table class="table table-bordered" id="customer-info-payment">
     <thead>
         <th colspan="4" style="text-align: left">Thông tin khách hàng</th>
     </thead>
@@ -10,8 +10,15 @@
             <td>Giá khối</td>
         </tr>
         <tr>
-            <td><span id="payment_customer_wallet">0</span></td>
-            <td><span id="payment_customer_wallet_weight">0</span></td>
+            <td>
+                <input type="hidden" name="customer_id" class="customer_select_id" value="">
+                <span id="payment_customer_wallet">0</span>
+            </td>
+            <td>
+                <input type="hidden" name="payment_customer_wallet_weight" class="payment_customer_wallet_weight" value="0">
+                <input type="hidden" name="payment_customer_wallet_weight_used" class="payment_customer_wallet_weight_used" value="0">
+                <span id="payment_customer_wallet_weight">0</span>
+            </td>
             <td><span id="price_kg">0</span></td>
             <td><span id="price_m3">0</span></td>
         </tr>

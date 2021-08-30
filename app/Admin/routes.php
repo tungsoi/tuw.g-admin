@@ -74,6 +74,7 @@ Route::group([
     $router->post('vietnam_receives', 'TransportOrder\\VietnamReceiveController@storeRebuild')->name('vietnam_receives.store');
 
     $router->get('payments/{ids}', 'TransportOrder\\PaymentController@indexRebuild')->name('payments.index');
+    $router->post('payments', 'TransportOrder\\PaymentController@storeRebuild')->name('payments.storeRebuild');
     // $router->get('china_receives', 'TransportOrder\\ChinaReceiveController@index')->name('china_receives');
     // $router->post('china_receives/storeChinaReceive', 'TransportOrder\\ChinaReceiveController@storeTransportCode')->name('china_receives.storeChinaReceive');
 
@@ -90,6 +91,7 @@ Route::group([
     $router->get('customers/{id}/walletWeight', 'System\\CustomerController@walletWeight')->name('customers.walletWeight');
     $router->post('customers/storeRechargeWeight', 'System\\CustomerController@storeRechargeWeight')->name('customers.storeRechargeWeight');
     $router->post('customers/updateRechargeWeght', 'System\\CustomerController@updateRechargeWeght')->name('customers.updateRechargeWeght');
+    $router->get('customers/{id}/find', 'System\\CustomerController@find')->name('customers.find');
 
     $router->post('customer_purchase_orders/storeFromCart', 'Customer\\CustomerPurchaseOrderController@storeFromCart')->name('customer_purchase_orders.storeFromCart');
 

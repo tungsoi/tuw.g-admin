@@ -5,8 +5,10 @@
     <tbody>
         <tr>
             <td>
-                <label class="checkbox-inline" style="text-align: left;">
-                    <input id="genMale" type="checkbox" value="genMale" style="width: 20px !important;"> &nbsp;Trừ ví cân còn dư </label>
+                <select class="wallet_weight form-control" style="width: 100%;" name="wallet_weight">
+                    <option value="1">Trừ vào ví cân</option>
+                    <option value="0" selected="">Không trừ</option>
+                </select>
             </td>
         </tr>
     </tbody>

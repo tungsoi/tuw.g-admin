@@ -42,7 +42,8 @@ class TransportCode extends Model
         'ware_house_id',
         'payment_type',
         'ware_house_swap_id',
-        'internal_note'
+        'internal_note',
+        'payment_note'
     ];
 
     public function transportOrder()

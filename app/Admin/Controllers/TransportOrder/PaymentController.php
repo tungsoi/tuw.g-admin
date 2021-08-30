@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers\TransportOrder;
 
 use App\Admin\Services\UserService;
+use App\Models\System\ExchangeRate;
 use App\Models\System\Warehouse;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -81,7 +82,8 @@ class PaymentController extends AdminController
             if ($payment_type == 'payment_not_export') {
                 $help = "Thanh toán các mã vận đơn đã chọn, tự động trừ tiền ví khách hàng. Trạng thái của mã vận chuyển thành chưa xuất kho";
             }
-            $form->select('payment_type', 'LOẠI THANH TOÁN')->options([
+            $form->hidden('order_type')->default($payment_type);
+            $form->select('payment_note', 'LOẠI THANH TOÁN')->options([
                 'payment_temp'  =>  'Thanh toán tạm',
                 'payment_export'    =>  'Thanh toán + xuất kho',
                 'payment_not_export'    =>  'Thanh toán + chưa xuất kho'
@@ -126,9 +128,12 @@ class PaymentController extends AdminController
             $form->html( view('admin.system.purchase_order.wallet_weight')->render() );
         });
 
-        $form->column(12, function ($form) {
+        $form->column(12, function ($form) use ($transportCodes) {
             $form->divider('CHI TIẾT THANH TOÁN');
-            $form->html( view('admin.system.purchase_order.detail_payment')->render() );
+            $amount_advance_drag = $transportCodes->sum('advance_drag');
+            $current_rate = ExchangeRate::first()->vnd;
+            $amount_kg = $transportCodes->sum('kg');
+            $form->html( view('admin.system.purchase_order.detail_payment', compact('amount_advance_drag', 'amount_kg', 'current_rate'))->render() );
         });
 
         $form->tools(function (Form\Tools $tools) {
@@ -184,37 +189,38 @@ class PaymentController extends AdminController
     }
 
     public function storeRebuild(Request $request) {
-        if ($request->ajax()) {
-            $transport_code = $request->transport_code;
+        dd($request->all());
+        // if ($request->ajax()) {
+        //     $transport_code = $request->transport_code;
 
-            if ($transport_code != "") {
-                if (TransportCode::whereTransportCode($transport_code)->first()) {
-                    return response()->json([
-                        'status'    =>  false,
-                        'message'   =>  'Mã vận đơn đã tồn tại'
-                    ]);
-                } else {
-                    $res = TransportCode::create([
-                        'transport_code'    =>  trim($transport_code),
-                        'status'            =>  TransportCode::CHINA_RECEIVE,
-                        'china_receive_at'  =>  now(),
-                        'china_receive_user_id' =>  Admin::user()->id
-                    ]);
+        //     if ($transport_code != "") {
+        //         if (TransportCode::whereTransportCode($transport_code)->first()) {
+        //             return response()->json([
+        //                 'status'    =>  false,
+        //                 'message'   =>  'Mã vận đơn đã tồn tại'
+        //             ]);
+        //         } else {
+        //             $res = TransportCode::create([
+        //                 'transport_code'    =>  trim($transport_code),
+        //                 'status'            =>  TransportCode::CHINA_RECEIVE,
+        //                 'china_receive_at'  =>  now(),
+        //                 'china_receive_user_id' =>  Admin::user()->id
+        //             ]);
     
-                    return response()->json([
-                        'status'    =>  true,
-                        'message'   =>  'Lưu thành công',
-                        'data'      =>  $res
-                    ]);
-                }
-            } else {
-                return response()->json([
-                    'status'    =>  false,
-                    'message'   =>  'Mã vận đơn không được để trống'
-                ]);
-            }
+        //             return response()->json([
+        //                 'status'    =>  true,
+        //                 'message'   =>  'Lưu thành công',
+        //                 'data'      =>  $res
+        //             ]);
+        //         }
+        //     } else {
+        //         return response()->json([
+        //             'status'    =>  false,
+        //             'message'   =>  'Mã vận đơn không được để trống'
+        //         ]);
+        //     }
             
-        }
+        // }
     }
 
     public function script() {

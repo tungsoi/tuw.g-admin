@@ -5,7 +5,7 @@
     <tbody>
         <tr>
             <td>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" name="internal_note">
             </td>
         </tr>
     </tbody>

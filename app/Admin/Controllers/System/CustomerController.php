@@ -209,6 +209,10 @@ class CustomerController extends AdminController
                 ->default(function ($form) {
                     return $form->model()->password;
                 });
+            
+            $form->divider();
+            $form->currency('default_price_kg', 'Giá cân')->symbol('VND')->digits(0);
+            $form->currency('default_price_m3', 'Giá khối')->symbol('VND')->digits(0);
         });
 
         $form->ignore(['password_confirmation']);
@@ -466,5 +470,17 @@ class CustomerController extends AdminController
     
             return back();
         }
+    }
+
+    public function find($id) {
+        $customer =  User::select('id', 'wallet', 'wallet_weight', 'default_price_kg', 'default_price_m3')->whereId($id)->first();
+        $customer->wallet = number_format($customer->wallet);
+        $customer->default_price_kg = number_format(str_replace(",", "", $customer->default_price_kg));
+        $customer->default_price_m3 = number_format(str_replace(",", "", $customer->default_price_m3));
+        return response()->json([
+            'status'    =>  true,
+            'message'   =>  '',
+            'data'      =>  $customer
+        ]);
     }
 }
