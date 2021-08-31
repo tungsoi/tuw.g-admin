@@ -90,14 +90,17 @@ class TransportCodeController extends AdminController
         });
 
         $grid->tools(function (Grid\Tools $tools) {
-            $tools->append(new SwapWarehouse());
-            $tools->append(new ConfirmSwapWarehouse());
             $tools->batch(function(Grid\Tools\BatchActions $actions) {
                 $actions->disableDelete();
             });
-            $tools->append(new Payment());
-            $tools->append(new PaymentNotExport());
-            $tools->append(new PaymentExport());
+            if (! Admin::user()->isRole('customer')) {
+                $tools->append(new SwapWarehouse());
+                $tools->append(new ConfirmSwapWarehouse());
+                $tools->append(new Payment());
+                $tools->append(new PaymentNotExport());
+                $tools->append(new PaymentExport());
+            }
+            
         });
 
         $grid->rows(function (Grid\Row $row) {
