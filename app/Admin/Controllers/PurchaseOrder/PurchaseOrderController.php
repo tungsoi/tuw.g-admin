@@ -594,11 +594,13 @@ class PurchaseOrderController extends AdminController
         $grid->tools(function (Grid\Tools $tools) use ($orderId) {
             $order = PurchaseOrder::find($orderId);
 
-            $orderService = new OrderService();
-            if ($order->items()->whereStatus($orderService->getItemStatus('in_order'))->count() > 0) {
-                $tools->append(new ConfirmOrderItem());
+            if (! Admin::user()->isRole('customer')) {
+                $orderService = new OrderService();
+                if ($order->items()->whereStatus($orderService->getItemStatus('in_order'))->count() > 0) {
+                    $tools->append(new ConfirmOrderItem());
+                }
             }
-            
+           
             $tools->batch(function(Grid\Tools\BatchActions $actions) {
                 $actions->disableDelete();
             });
