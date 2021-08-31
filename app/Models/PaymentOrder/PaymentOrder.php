@@ -2,6 +2,7 @@
 
 namespace App\Models\PaymentOrder;
 
+use App\Models\TransportOrder\TransportCode;
 use Illuminate\Database\Eloquent\Model;
 use App\User;
 
@@ -34,4 +35,36 @@ class PaymentOrder extends Model
     public function paymentCustomer() {
         return $this->hasOne(User::class, 'id', 'payment_customer_id');
     }
+
+    public function userCreated() {
+        return $this->hasOne(User::class, 'id', 'user_created_id');
+    }
+
+    public function transportCode() {
+        return $this->hasMany(TransportCode::class, 'order_id', 'id');
+    }
+
+    public function statusText() {
+        switch ($this->status) {
+            case "payment_export": 
+                return "Thanh toán xuất kho";
+            case "payment_not_export": 
+                return "Thanh toán chưa xuất kho";
+            case "payment_temp":
+                return "Thanh toán tạm";
+        }
+    }
+
+    public function statusColor() {
+        switch ($this->status) {
+            case "payment_export": 
+                return "success";
+            case "payment_not_export": 
+                return "warning";
+            case "payment_temp":
+                return "default";
+        }
+    }
+
+    
 }

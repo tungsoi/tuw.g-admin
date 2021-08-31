@@ -11,8 +11,8 @@ use Illuminate\Http\Request;
 
 class PaymentExport extends BatchAction
 {
-    public $name = 'Xác nhận đã nhận hàng luân chuyển kho';
-    protected $selector = '.confirm-swap-warehouse';
+    public $name = 'Thanh toán xuất kho';
+    protected $selector = '.confirm-payment-export';
 
     /**
      * {@inheritdoc}
@@ -37,25 +37,26 @@ SCRIPT;
     {
         $orderService = new OrderService();
 
+        $ids = [];
         foreach ($collection as $model) {
-            $model->status = $orderService->getTransportCodeStatus('vietnam-rev');
-            $model->finish_swap_warehouse_at = now();
-            $model->finish_swap_user_id = Admin::user()->id;
-            $model->ware_house_id = $model->ware_house_swap_id;
-            $model->save();
+            $ids[] = $model->id;
         }
 
-        return $this->response()->success('Đã xác nhận thành công')->refresh();
+        $ids_route = implode(',', $ids);
+
+        $route = route('admin.payments.index', ['ids' => $ids_route]) . "?type=payment_export";
+
+        return $this->response()->redirect($route);
     }
 
     public function form()
     {
-        $this->text('noti', 'Thông báo')->default('Bạn xác nhận rằng các mã vận đơn đã chọn được chuyển về kho luân chuyển thành công ?')->disable();
+        $this->text('noti', 'Thông báo')->default('Xác nhận thanh toán xuất kho các mã vận đơn đã chọn ?')->disable();
     }
 
     public function html()
     {
-        return "<a class='confirm-swap-warehouse btn btn-md btn-primary'><i class='fa fa-download'></i>&nbsp; Thanh toán xuất kho</a>";
+        return "<a class='confirm-payment-export btn btn-md btn-primary'><i class='fa fa-download'></i>&nbsp; Thanh toán xuất kho</a>";
     }
 
 }

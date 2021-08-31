@@ -63,7 +63,7 @@ Route::group([
         'vietnam_receives'    =>  'TransportOrder\\VietnamReceiveController'
     ]);
 
-    // transport order')
+    // transport order
     $router->get('transport_codes/seach/{transport_code}', 'TransportOrder\\TransportCodeController@search')->name('transport_codes.search');
 
     $router->get('china_receives', 'TransportOrder\\ChinaReceiveController@indexRebuild')->name('china_receives.index');
@@ -73,13 +73,10 @@ Route::group([
     $router->get('vietnam_receives/search/{transport_code}', 'TransportOrder\\VietnamReceiveController@search')->name('vietnam_receives.search');
     $router->post('vietnam_receives', 'TransportOrder\\VietnamReceiveController@storeRebuild')->name('vietnam_receives.store');
 
+    // payment order
     $router->get('payments/{ids}', 'TransportOrder\\PaymentController@indexRebuild')->name('payments.index');
     $router->post('payments', 'TransportOrder\\PaymentController@storeRebuild')->name('payments.storeRebuild');
-    // $router->get('china_receives', 'TransportOrder\\ChinaReceiveController@index')->name('china_receives');
-    // $router->post('china_receives/storeChinaReceive', 'TransportOrder\\ChinaReceiveController@storeTransportCode')->name('china_receives.storeChinaReceive');
-
-    // $router->get('vietnam_receives', 'TransportOrder\\VietnamReceiveController@index')->name('vietnam_receives');
-    // $router->post('vietnam_receives/storeVietnamReceive', 'TransportOrder\\VietnamReceiveController@storeTransportCode')->name('vietnam_receives.storeChinaReceive');
+    $router->get('payment_orders/all', 'TransportOrder\\PaymentController@indexAll')->name('payments.all');
 
     // transaction
     $router->get('transactions/duplicate', 'System\\TransactionController@detail')->name('transactions.duplicate');
