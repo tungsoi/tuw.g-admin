@@ -355,7 +355,7 @@ SCRIPT;
         $grid->model()->orderBy('id', 'desc');
 
         if (Admin::user()->isRole('customer')) {
-            $grid->model()->where('customer_payment_id', Admin::user()->id);
+            $grid->model()->where('payment_customer_id', Admin::user()->id);
         }
 
         $grid->filter(function($filter) {
