@@ -589,7 +589,7 @@ SCRIPT;
                 });
 
                 $paymentOrder = PaymentOrder::find($id);
-                if ($paymentOrder->purchase_order_id != null) {
+                if ($paymentOrder->purchase_order_id != null && $paymentOrder->purchase_order_id != 0) {
                     $purchaseOrderData = PurchaseOrder::find($paymentOrder->purchase_order_id);
                     $row->column(12, function (Column $column) use ($id, $purchaseOrderData) 
                     {
