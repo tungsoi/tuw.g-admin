@@ -76,7 +76,7 @@
                             {{ $price }}
                         </td>
                         <td style="width: 150px">
-                            <span class="item-price" data-index="{{ $item_ele->id }}">{{ number_format($item_ele->qty * $price, 2) }}</span>
+                            <span class="item-price" data-index="{{ $item_ele->id }}">{{ str_replace(",", "", number_format($item_ele->qty * $price, 2)) }}</span>
                         </td>
                         <td style="width: 200px;">
                             {{ $item_ele->customer_note }}
