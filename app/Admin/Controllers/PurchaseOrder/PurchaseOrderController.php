@@ -4,6 +4,7 @@ namespace App\Admin\Controllers\PurchaseOrder;
 
 use App\Admin\Actions\PurchaseOrder\ConfirmOrderItem;
 use App\Admin\Actions\PurchaseOrder\Deposite;
+use App\Admin\Actions\PurchaseOrder\Update;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
 use App\Jobs\HandleCustomerWallet;
@@ -339,9 +340,9 @@ class PurchaseOrderController extends AdminController
         $grid->disablePerPageSelector();
         $grid->paginate(20);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
-            if (Admin::user()->isRole('customer')) {
+            // if (Admin::user()->isRole('customer')) {
                 $actions->disableEdit();
-            }
+            // }
 
             $orderService = new OrderService();
             if (! in_array($this->row->status, [$orderService->getStatus('new-order'), $orderService->getStatus('deposited')]) ) {
@@ -352,6 +353,8 @@ class PurchaseOrderController extends AdminController
                 if ($this->row->status == $orderService->getStatus('new-order')) {
                     $actions->append(new Deposite($this->row->id));
                 }
+
+                $actions->append(new Update($this->row->id));
             }
             
         });
@@ -841,6 +844,64 @@ SCRIPT;
                 'message'   =>  "Lưu thành công"
             ]);
         }
+    }
+
+    public function editData($id, Content $content) {
+        return $content
+            ->title($this->title())
+            ->description($this->description['edit'] ?? trans('admin.edit'))
+            ->body($this->formEditPortal($id));
+    }
+
+    public function formEditPortal($id) {
+        $form = new Form(new PurchaseOrder());
+        $userService = new UserService();
+
+        $order = PurchaseOrder::find($id);
+        $form->setAction(route('admin.purchase_orders.store_edit_data'));
+
+        $form->column(1/2, function ($form) use ($userService, $id, $order) {
+
+            $form->hidden('order_id')->default($order->id);
+            $form->text('order_number', 'Mã đơn hàng')->readonly()->default($order->order_number);
+            $form->select('customer_id', 'Mã khách hàng')->options($userService->GetListCustomer())->readonly()->default($order->customer_id);
+            $form->divider();
+            $form->text('shop_name', 'Tên shop')->default($order->shop_name);
+            $form->text('customer_note', 'Khách hàng ghi chú')->default($order->customer_note);
+            $form->text('admin_note', 'Admin ghi chú')->default($order->admin_note);
+            $form->text('internal_note', 'Nội bộ ghi chú')->default($order->internal_note);
+        });
+        
+        $form->column(1/2, function ($form) use ($order, $userService) {
+            $form->html('Tổng tiền sản phẩm: ' . $order->sumItemPrice() . ' (Tệ)');
+            $form->currency('purchase_order_service_fee', 'Phí dịch vụ')->symbol('Tệ')->digits(2)->default($order->purchase_order_service_fee);
+
+            $form->select('supporter_sale_id', 'Nhân viên kinh doanh')->options($userService->GetListSaleEmployee())->default($order->supporter_sale_id);
+            $form->select('supporter_order_id', 'Nhân viên đặt hàng')->options($userService->GetListOrderEmployee())->default($order->supporter_order_id);
+            $form->select('warehouse_id', 'Kho hàng')->options($userService->GetListWarehouse())->default($order->warehouse_id);
+        });
+
+        $form->tools(function (Form\Tools $tools) {
+            $tools->disableDelete();
+            $tools->disableView();
+            $tools->disableList();
+        });
+
+        return $form;
+    }
+
+    public function postEditData(Request $request) {
+        $order = PurchaseOrder::find($request->order_id);
+        $res = $order->update($request->only([
+            'customer_note',
+            'admin_note',
+            'internal_note',
+            'purchase_order_service_fee'
+        ]));
+
+        admin_toastr('Chỉnh sửa thành công', 'success');
+
+        return redirect()->back();
     }
     
 }

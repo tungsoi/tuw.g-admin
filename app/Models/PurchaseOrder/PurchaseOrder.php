@@ -37,6 +37,7 @@ class PurchaseOrder extends Model
         'user_success_at',
         'user_cancle_at',
         'transport_code',
+        'supporter_sale_id'
     ];
 
     public function customer() {

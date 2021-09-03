@@ -2,6 +2,8 @@
 
 namespace App\Admin\Controllers\TransportOrder;
 
+use App\Admin\Actions\Core\BtnView;
+use App\Admin\Actions\PaymentOrder\ExportTransportCode;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
 use App\Jobs\HandleCustomerWallet;
@@ -223,7 +225,8 @@ class PaymentController extends AdminController
             'is_sub_customer_wallet_weight' =>  $request->wallet_weight,
             'total_sub_wallet_weight'   =>  $request->payment_customer_wallet_weight_used,
             'current_rate'      =>  ExchangeRate::first()->vnd,
-            'transaction_note'  =>  $content
+            'transaction_note'  =>  $content,
+            'export_at'         =>  $request->order_type == 'payment_export' ? now() : null
         ];
 
         $paymentOrder = PaymentOrder::firstOrCreate($paymentOrderData);
@@ -408,7 +411,7 @@ SCRIPT;
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->order_number('Mã đơn hàng');
+        $grid->order_number('Mã đơn hàng')->width(100)->label('primary');
         $grid->status('Trạng thái')->display(function () {
             $data = [
                 'amount_rmb'   =>  [
@@ -509,8 +512,331 @@ SCRIPT;
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableEdit();
             $actions->disableDelete();
+            $actions->disableView();
+
+
+            $actions->append(new BtnView($this->row->id, route('admin.payments.showRebuild', $this->row->id)));
+
+            if ($this->row->status == 'payment_not_export' && ! Admin::user()->isRole('customer')) {
+                $route = route('admin.payments.exportOrder'); // route export
+                $actions->append(new ExportTransportCode($this->row->id, $route));
+            }
         });
 
         return $grid;
+    }
+
+    public function exportOrder(Request $request) {
+        $orderService = new OrderService();
+        if ($request->ajax()) {
+            $paymentOrder = PaymentOrder::find($request->order_id);
+            $paymentOrder->status = 'payment_export';
+            $paymentOrder->export_at = now();
+            $paymentOrder->user_export_id = Admin::user()->id;
+            $paymentOrder->save();
+
+            if ($paymentOrder->transportCode->count() > 0) {
+                foreach ($paymentOrder->transportCode as $transport_code) {
+                    $transport_code->status  =  $orderService->getTransportCodeStatus('payment');
+                    $transport_code->save();
+                }
+            }
+        }
+
+        return response()->json([
+            'status'    =>  true,
+            'message'   =>  'Xuất kho thành công',
+            'isRedirect'    =>  false
+        ]);
+    }
+
+    public function showRebuild($id, Content $content) {
+        return $content
+            ->title('Chi tiết đơn thanh toán')
+            ->description($this->description['show'] ?? trans('admin.show'))
+            ->row(function (Row $row) use ($id)
+            {
+                $row->column(12, function (Column $column) use ($id) 
+                {
+                    $column->append((new Box('Thông tin đơn hàng', $this->gridDetail($id)->render())));
+                });
+
+                $row->column(12, function (Column $column) use ($id) 
+                {
+                    $column->append((new Box('Mã vận đơn', $this->gridListTransportCode($id)->render())));
+                });
+            })
+            ->row(function (Row $row) use ($id)
+            {
+                $row->column(6, function (Column $column) use ($id) 
+                {
+                    $column->append((new Box('Giảm trừ cân nặng', $this->gridDiscount($id)->render())));
+                });
+
+                $row->column(6, function (Column $column) use ($id) 
+                {
+                    $column->append((new Box('Sử dụng ví cân', $this->gridWalletWeight($id)->render())));
+                });
+            })
+            ->row(function (Row $row) use ($id)
+            {
+                $row->column(12, function (Column $column) use ($id) 
+                {
+                    $column->append((new Box('Chi tiết thanh toán', $this->gridPayment($id)->render())));
+                });
+
+                $row->column(12, function (Column $column) use ($id) 
+                {
+                    $column->append((new Box('Ký nhận', $this->gridNotifi($id)->render())));
+                });
+            });
+    }
+
+    public function gridDetail($id) {
+        $order = PaymentOrder::find($id);
+        $headers = ['Trạng thái', 'Mã đơn hàng', 'Tổng tiền', 'Mã khách hàng', 'Khách hàng thanh toán', 'Ngày thanh toán', 'Ngày xuất kho', 'Người tạo'];
+        
+        $data = [
+            'amount_rmb'   =>  [
+                'is_label'   =>  true,
+                'color'     =>  $order->statusColor(),
+                'text'      =>  $order->statusText()
+            ]
+        ];
+
+        $rows = [
+            [
+                view('admin.system.core.list', compact('data'))->render(),
+                $order->order_number,
+                number_format($order->amount),
+                $order->transportCode->first()->customer_code_input ?? "",
+                $order->paymentCustomer->symbol_name ?? "",
+                date('H:i | d-m-Y', strtotime($order->created_at)),
+                $order->payment_at != null ?  date('H:i | d-m-Y', strtotime($order->payment_at)) : null,
+                $order->userCreated->name ?? ""
+            ]
+        ];
+
+        $table = new Table($headers, $rows);
+
+        Admin::style('
+            form .col-sm-2, form .col-sm-8 {
+                width: 100%;
+                text-align: left !important;
+                padding: 0px !important;
+            }
+
+            form .input-group-addon {
+                display: none;
+            }
+
+            #has-many-payment .add {
+                display: none;
+            }
+
+            .box {
+                border: none !important;
+            }
+            .input-group {
+                width: 100%;
+            }
+
+            .has-many-payment-form td:nth-child(1) {
+                min-width: 250px !important;
+            }
+
+            form input {
+                width: 100% !important;
+            }
+
+            table {
+                text-align: right;
+            }
+
+            .td-50 th, .td-50 td {
+                width: 50%;
+                text-align: center !important;
+            }
+        ');
+
+        return $table;
+    }
+
+    public function gridListTransportCode($id) {
+        $order = PaymentOrder::find($id);
+        $headers = [
+            'STT',	
+            'Mã vận đơn',	
+            'KG',
+            'Dài',
+            'Rộng',
+            'Cao',		
+            'Thể tích',	
+            'Mét khối',
+            'Loại thanh toán',	
+            'Ứng kéo (Tệ)',	
+            'Giá dịch vụ (VND)',	
+            'Tổng tiền'
+        ];
+        
+        $rows = [];
+        $total_kg = 0;
+        $total_m3 = 0;
+        $total_v = 0;
+        $total_advance_drag = 0;
+        $total_amount = 0;
+
+        if ($order->transportCode->count() > 0 ) {
+            foreach ($order->transportCode as $key => $code) {
+                $price = 0;
+                $amount = 0;
+
+                if ($code->payment_type == 1) {
+                    $payment_type = "Khối lượng";
+                    $price = $order->price_kg;
+                    $amount = $price * $code->kg;
+                } else if ($code->payment_type == -1) {
+                    $payment_type = "Mét khối";
+                    $price = $order->price_m3;
+                    $amount = $price * $code->m3();
+                } else {
+                    $payment_type = "V/6000";
+                    $price = $order->price_v;
+                    $amount = $price * $code->v();
+                }
+
+                $rows[] = [
+                    $key+1,
+                    $code->transport_code,
+                    $code->kg,
+                    $code->length,
+                    $code->width,
+                    $code->height,
+                    $code->v(),
+                    $code->m3(),
+                    $payment_type,
+                    $code->advance_drag,
+                    number_format($price),
+                    number_format($amount)
+                ];
+
+                $total_kg += $code->kg;
+                $total_m3 += $code->m3();
+                $total_v += $code->v();
+                $total_advance_drag += $code->advance_drag;
+                $total_amount += $amount;
+            }
+        }
+
+        $rows[] = [
+            '',
+            '',
+            $total_kg,
+            '',
+            '',
+            '',
+            $total_v,
+            $total_m3,
+            '',
+            $total_advance_drag,
+            '',
+            number_format($total_amount)
+        ];
+
+
+
+        $table = new Table($headers, $rows);
+
+        return $table;
+    }
+
+    public function gridDiscount($id) {
+        $order = PaymentOrder::find($id);
+        $headers = ['Loại giảm trừ', 'KG'];
+
+        $rows = [
+            [
+                $order->discount_type == 1 ? "Giảm đi" : "Tăng lên",
+                ($order->discount_type == 1 ? "- " : "+ ") . $order->discount_value
+            ]
+        ];
+
+        $table = new Table($headers, $rows, ['td-50']);
+
+        return $table;
+    }
+
+    public function gridWalletWeight($id) {
+        $order = PaymentOrder::find($id);
+        $headers = ['Loại giảm trừ', 'KG'];
+
+        $rows = [
+            [
+                $order->is_sub_customer_wallet_weight == 1 ? "Trừ vào ví cân" : "Không trừ ví",
+                $order->total_sub_wallet_weight
+            ]
+        ];
+
+        $table = new Table($headers, $rows, ['td-50']);
+
+        return $table;
+    }
+
+    public function gridPayment($id) {
+        $order = PaymentOrder::find($id);
+        $headers = ['', 'Số lượng', 'Giá dịch vụ', 'Thành tiền'];
+
+        $rows = [
+            [
+                '<b style="float: left !important;">Tổng cân</b> <br> <i style="float: left !important;">( Đã bao gồm giảm trừ cân nặng và sử dụng ví cân)</i>',
+                $order->total_kg,
+                number_format($order->price_kg),
+                number_format($order->total_kg * $order->price_kg),
+            ],
+            [
+                '<b style="float: left !important;">Tổng V/6000</b>',
+                $order->total_v,
+                number_format($order->price_v),
+                number_format($order->total_v * $order->price_v),
+            ],
+            [
+                '<b style="float: left !important;">Tổng khối</b>',
+                $order->total_m3,
+                number_format($order->price_m3),
+                number_format($order->total_m3 * $order->price_m3),
+            ],
+            [
+                '<b style="float: left !important;">Tổng ứng kéo</b>',
+                '',
+                '',
+                number_format($order->total_advance_drag)
+            ],
+            [
+                '<b style="float: left !important;">Tổng tiền</b>',
+                '',
+                '',
+                number_format($order->amount)
+            ]
+        ];
+
+        $table = new Table($headers, $rows);
+
+        return $table;
+    }
+
+    public function gridNotifi($id) {
+        $order = PaymentOrder::find($id);
+        $headers = [];
+
+        $rows = [
+            [
+                '<b style="width: 50%;">Yêu cầu Khách hàng kiểm tra đủ số lượng hàng hoá và đúng mã vận đơn theo đơn hàng. Nếu có sai sót xin phản ánh lại với công ty trong vòng 24h.</b>', 
+                '<b>Khách hàng ký nhận</b> <br> <i> ('.date('H:i | d-m-Y', strtotime(now())).') </i> <br> <br> <br> <br> <br><b>' . ($order->paymentCustomer->symbol_name ?? "") . "</b><br><b>" . ($order->paymentCustomer->name ?? "") . "</b>"
+            ]
+        ];
+
+        $table = new Table($headers, $rows, ['td-50']);
+
+        return $table;
     }
 }

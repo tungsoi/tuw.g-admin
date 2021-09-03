@@ -77,6 +77,9 @@ Route::group([
     $router->get('payments/{ids}', 'TransportOrder\\PaymentController@indexRebuild')->name('payments.index');
     $router->post('payments', 'TransportOrder\\PaymentController@storeRebuild')->name('payments.storeRebuild');
     $router->get('payment_orders/all', 'TransportOrder\\PaymentController@indexAll')->name('payments.all');
+    $router->post('payment_orders/export_order', 'TransportOrder\\PaymentController@exportOrder')->name('payments.exportOrder');
+    $router->get('payment_orders/{id}/detail', 'TransportOrder\\PaymentController@showRebuild')->name('payments.showRebuild');
+
 
     // transaction
     $router->get('transactions/duplicate', 'System\\TransactionController@detail')->name('transactions.duplicate');
@@ -97,7 +100,9 @@ Route::group([
     $router->get('purchase_orders/{id}/admin_deposite', 'PurchaseOrder\\PurchaseOrderController@adminDeposite')->name('purchase_orders.admin_deposite');
     $router->post('purchase_orders/post_admin_deposite', 'PurchaseOrder\\PurchaseOrderController@postAdminDeposite')->name('purchase_orders.post_admin_deposite');
     $router->post('purchase_orders/confirm_ordered', 'PurchaseOrder\\PurchaseOrderController@postConfirmOrdered')->name('purchase_orders.confirm_ordered');
-
+    $router->get('purchase_orders/{id}/edit_data', 'PurchaseOrder\\PurchaseOrderController@editData')->name('purchase_orders.edit_data');
+    $router->post('purchase_orders/store_edit_data', 'PurchaseOrder\\PurchaseOrderController@postEditData')->name('purchase_orders.store_edit_data');
+   
     // weight portal
     $router->get('weight_portals', 'System\\WeightPortalController@indexRebuild')->name('weight_portals.index');    
 

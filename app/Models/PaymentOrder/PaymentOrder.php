@@ -29,7 +29,9 @@ class PaymentOrder extends Model
         'is_sub_customer_wallet_weight',
         'total_sub_wallet_weight',
         'current_rate',
-        'transaction_note'
+        'transaction_note',
+        'export_at',
+        'user_export_id'
     ];
 
     public function paymentCustomer() {
