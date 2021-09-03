@@ -186,7 +186,7 @@ class CartController extends AdminController
         //     return $form;
         // }
         
-        $form->text('shop_name', 'Tên shop')->rules('required');
+        $form->text('shop_name', 'Tên shop');
         $form->text('product_name', 'Tên sản phẩm');
         $form->text('product_link', 'Link sản phẩm')->rules('required');
         $form->image('product_image','Ảnh sản phẩm')->thumbnail('small', $width = 150, $height = 150);

@@ -79,12 +79,12 @@
             });
     });
     
-        // $(".btn-success").toggle();
+        $(".btn-success").toggle();
         $(".payment_user_id").on("select2:select", function (e) { 
             var userId = $(e.currentTarget).val();
 
             $('.loading-overlay').toggle();
-            // $(".btn-success").toggle();
+            $(".btn-success").toggle();
             $.ajax({
                 url: '/admin/customers/' + userId + '/find',
                 type: 'GET',
@@ -280,7 +280,15 @@
                 total_advance_drag_str = 0;
             }
             var total_advance_drag = parseInt(total_advance_drag_str);
-            var total_bill = parseInt(total_kg + total_m3 + total_v + total_advance_drag);
+
+            var owed_purchase_order = 0;
+            if( $('input.owed_purchase_order').length )         // use this if you are using id to check
+            {
+                var owed_purchase_order_input = $('input.owed_purchase_order').val();
+                owed_purchase_order = parseInt(owed_purchase_order_input);
+            }
+
+            var total_bill = parseInt(total_kg + total_m3 + total_v + total_advance_drag + owed_purchase_order);
 
             console.log('amount_kg: ' + amount_kg + " - price: " + price_kg + " - total: " + total_kg);
             console.log('amount_m3: ' + amount_m3 + " - price: " + price_m3 + " - total: " + total_m3);

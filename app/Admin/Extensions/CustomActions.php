@@ -16,7 +16,7 @@ class CustomActions extends Actions
     protected function renderView()
     {
         return <<<EOT
-<a href="{$this->getResource()}/{$this->getRouteKey()}" class="{$this->grid->getGridRowName()}-view btn btn-xs btn-primary" data-toggle="tooltip" title="Xem chi tiết">
+<a href="{$this->getResource()}/{$this->getRouteKey()}" class="{$this->grid->getGridRowName()}-view btn btn-xs btn-primary" data-toggle="tooltip" title="Xem chi tiết" target="_blank">
     <i class="fa fa-eye"></i>
 </a>
 EOT;
@@ -30,7 +30,7 @@ EOT;
     protected function renderEdit()
     {
         return <<<EOT
-<a href="{$this->getResource()}/{$this->getRouteKey()}/edit" class="{$this->grid->getGridRowName()}-edit btn btn-xs btn-warning" data-toggle="tooltip" title="Chỉnh sửa">
+<a href="{$this->getResource()}/{$this->getRouteKey()}/edit" class="{$this->grid->getGridRowName()}-edit btn btn-xs btn-warning" data-toggle="tooltip" title="Chỉnh sửa" target="_blank">
     <i class="fa fa-edit"></i>
 </a>
 EOT;

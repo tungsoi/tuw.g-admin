@@ -59,7 +59,7 @@ class TransportCodeController extends AdminController
                 
             });
             $filter->column(1/4, function ($filter) use ($orderService)  {
-                $filter->like('customer_code_input', 'Khách hàng vận đơn');
+                $filter->like('customer_code_input', 'Mã khách hàng');
                 $filter->equal('status', 'Trạng thái')->select(TransportCodeStatus::pluck('name', 'id'));
             });
 
@@ -96,7 +96,7 @@ class TransportCodeController extends AdminController
             if (! Admin::user()->isRole('customer')) {
                 $tools->append(new SwapWarehouse());
                 $tools->append(new ConfirmSwapWarehouse());
-                $tools->append(new Payment());
+                // $tools->append(new Payment());
                 $tools->append(new PaymentNotExport());
                 $tools->append(new PaymentExport());
             }
@@ -124,7 +124,7 @@ class TransportCodeController extends AdminController
             ];
             return view('admin.system.core.list', compact('data'));
         });
-        $grid->customer_code_input('Khách hàng vận đơn')->style('max-width: 100px')->display(function () {
+        $grid->customer_code_input('Mã khách hàng')->style('max-width: 100px')->display(function () {
             $data = [
                 'order_number'   =>  [
                     'is_link'   =>  true,
@@ -177,7 +177,7 @@ class TransportCodeController extends AdminController
 
         $grid->ware_house_id('Kho hàng')->display(function () use ($orderService) {
             if ($this->status == $orderService->getTransportCodeStatus('swap')) {
-                return ($this->warehouse->name ?? "") . " --> " . ($this->warehouseSwap->name ?? "");
+                return ($this->warehouse->name ?? "") . " => " . ($this->warehouseSwap->name ?? "");
             }
 
             return $this->warehouse->name ?? "";
@@ -214,7 +214,7 @@ class TransportCodeController extends AdminController
                 $actions->disableEdit();
             }
 
-            if ($this->row->status != $orderService->getTransportCodeStatus('vietnam-rev')) {
+            if (! in_array($this->row->status, [$orderService->getTransportCodeStatus('vietnam-rev'), $orderService->getTransportCodeStatus('swap')])) {
                 Admin::script(
                     <<<EOT
                     $('input[data-id={$this->row->id}]').parent().parent().empty();

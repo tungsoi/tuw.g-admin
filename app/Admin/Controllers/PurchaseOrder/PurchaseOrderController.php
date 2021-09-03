@@ -318,7 +318,9 @@ class PurchaseOrderController extends AdminController
                 $html = "";
                 foreach ($arr as $code) {
                     $class = 'default';
-                    if (TransportCode::where('transport_code', $code)->whereStatus(1)->count() > 0) {
+                    if (TransportCode::where('transport_code', $code)->whereIn('status', [1, 4, 5])->count() > 0) {
+                        $class = 'primary';
+                    } else if (TransportCode::where('transport_code', $code)->whereIn('status', [3])->count() > 0) {
                         $class = 'success';
                     }
                     $html .= "<span class='label label-$class' style='margin-bottom: 5px !important;'>$code</span> &nbsp;";
@@ -331,13 +333,14 @@ class PurchaseOrderController extends AdminController
         if (! Admin::user()->isRole('customer')) {
             $grid->final_payment('Tổng thanh toán')->editable()->style('text-align: right')->width(80);
         }
+
+        $grid->admin_note('Admin ghi chú');
+        $grid->customer_note('KH ghi chú');
         
         $grid->disableCreateButton();
         $grid->disableExport();
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
-        $grid->disablePagination();
-        $grid->disablePerPageSelector();
         $grid->paginate(20);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             // if (Admin::user()->isRole('customer')) {
@@ -396,10 +399,19 @@ class PurchaseOrderController extends AdminController
             $mvd_width = 4;
             $update_width = 3;
 
+            $order = PurchaseOrder::find($id);
             if (Admin::user()->isRole('customer')) {
                 $info_width = 8;
                 $mvd_width = 4;
                 $update_width = 0;
+            }
+
+
+            if (! Admin::user()->isRole('customer') && $order->status != 11) {
+                $row->column(12, function (Column $column) use ($id) 
+                {
+                    $column->append((new Box('', $this->action($id))));
+                });   
             }
 
             $row->column($info_width, function (Column $column) use ($id) 
@@ -419,7 +431,6 @@ class PurchaseOrderController extends AdminController
                 });
             }
 
-            $order = PurchaseOrder::find($id);
             $orderService = new OrderService();
             $flagItem = $order->items->whereNotIn('status', [$orderService->getItemStatus('out_stock'), $orderService->getItemStatus('wait_order')])->count();
             // flagitem -> check khong con san pham nao co trang thai # het hang hoac da dat hang
@@ -902,6 +913,17 @@ SCRIPT;
         admin_toastr('Chỉnh sửa thành công', 'success');
 
         return redirect()->back();
+    }
+
+    public function action($id) {
+        $order = PurchaseOrder::find($id);
+        $transport_codes = explode(',', $order->transport_code);
+        $codes = TransportCode::whereIn('transport_code', $transport_codes)->get()->pluck('id')->toArray();
+        $ids_route = implode(',', $codes);
+
+        $route = route('admin.payments.index', ['ids' => $ids_route]) . "?type=payment_temp&order_id=".$id;
+
+        return "<a class='confirm-swap-warehouse btn btn-md btn-danger' href=".$route." target='_blank'><i class='fa fa-check'></i>&nbsp; Thanh toán tạm</a>";
     }
     
 }

@@ -31,7 +31,9 @@ class PaymentOrder extends Model
         'current_rate',
         'transaction_note',
         'export_at',
-        'user_export_id'
+        'user_export_id',
+        'owed_purchase_order',
+        'purchase_order_id'
     ];
 
     public function paymentCustomer() {

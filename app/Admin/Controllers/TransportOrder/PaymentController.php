@@ -8,6 +8,7 @@ use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
 use App\Jobs\HandleCustomerWallet;
 use App\Models\PaymentOrder\PaymentOrder;
+use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\System\ExchangeRate;
 use App\Models\System\TransactionWeight;
 use App\Models\System\Warehouse;
@@ -105,7 +106,7 @@ class PaymentController extends AdminController
 
         $form->column(3, function ($form) use ($userService) {
             $form->select('payment_user_id', 'KHÁCH HÀNG THANH TOÁN')
-                ->options(User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::CUSTOMER)->where('wallet_weight', '>', 0)->pluck('symbol_name', 'id'))
+                ->options(User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::CUSTOMER)->pluck('symbol_name', 'id'))
                 ->rules(['required']);
         });
         $form->column(1, function ($form) {
@@ -115,6 +116,21 @@ class PaymentController extends AdminController
         $form->column(4, function ($form) {
             $form->html( view('admin.system.purchase_order.customer_info_payment')->render() );
         });
+
+        $order_id = "";
+        $purchaseOrderData = null;
+        if (isset($_GET['order_id']) && $_GET['order_id'] != null) {
+            $order_id = $_GET['order_id'];
+            $purchaseOrderData = PurchaseOrder::find($order_id);
+        }
+
+        if ($purchaseOrderData != null ) {
+
+            $form->column(12, function ($form) use ($purchaseOrderData) {
+                $form->divider('ĐƠN HÀNG MUA HỘ');
+                $form->html( view('admin.system.purchase_order.payment_purchase_order_info', compact('purchaseOrderData'))->render() );
+            });
+        }
 
         $form->column(12, function ($form) use ($transportCodes) {
             $form->divider('DANH SÁCH MÃ VẬN ĐƠN');
@@ -139,12 +155,12 @@ class PaymentController extends AdminController
             $form->html( view('admin.system.purchase_order.wallet_weight')->render() );
         });
 
-        $form->column(12, function ($form) use ($transportCodes) {
+        $form->column(12, function ($form) use ($transportCodes, $purchaseOrderData) {
             $form->divider('CHI TIẾT THANH TOÁN');
             $amount_advance_drag = $transportCodes->sum('advance_drag');
             $current_rate = ExchangeRate::first()->vnd;
             $amount_kg = $transportCodes->sum('kg');
-            $form->html( view('admin.system.purchase_order.detail_payment', compact('amount_advance_drag', 'amount_kg', 'current_rate'))->render() );
+            $form->html( view('admin.system.purchase_order.detail_payment', compact('amount_advance_drag', 'amount_kg', 'current_rate', 'purchaseOrderData'))->render() );
         });
 
         $form->tools(function (Form\Tools $tools) {
@@ -226,7 +242,9 @@ class PaymentController extends AdminController
             'total_sub_wallet_weight'   =>  $request->payment_customer_wallet_weight_used,
             'current_rate'      =>  ExchangeRate::first()->vnd,
             'transaction_note'  =>  $content,
-            'export_at'         =>  $request->order_type == 'payment_export' ? now() : null
+            'export_at'         =>  $request->order_type == 'payment_export' ? now() : null,
+            'owed_purchase_order'   =>  $request->owed_purchase_order ?? 0,
+            'purchase_order_id' =>  $request->purchase_order_id ?? 0
         ];
 
         $paymentOrder = PaymentOrder::firstOrCreate($paymentOrderData);
@@ -238,9 +256,10 @@ class PaymentController extends AdminController
                 $status = $orderService->getTransportCodeStatus('not-export');
             } else if ($request->order_type == 'payment_export') {
                 $status = $orderService->getTransportCodeStatus('payment');
+            } else if ($request->order_type == 'payment_temp') {
+                $status = $orderService->getTransportCodeStatus('wait-payment');
             }
-            // else if () payment_temp
-            // else if () payment_export
+
             TransportCode::find($transport_code_id)->update([
                 'order_id'  =>  $paymentOrder->id,
                 'status'    =>  $status,
@@ -250,30 +269,38 @@ class PaymentController extends AdminController
             ]);
         }
 
-        // step 3: create transaction to wallet user
-        $job = new HandleCustomerWallet(
-            $request->payment_user_id,
-            Admin::user()->id,
-            $request->total_money,
-            3,
-            $content
-        );
-        dispatch($job);
+        if ($request->order_type != 'payment_temp') {
+            // step 3: create transaction to wallet user
+            $job = new HandleCustomerWallet(
+                $request->payment_user_id,
+                Admin::user()->id,
+                $request->total_money,
+                3,
+                $content
+            );
+            dispatch($job);
 
-        //step 4: update customer wallet weight and create transaction weight
-        if ($request->wallet_weight == 1 && $request->payment_customer_wallet_weight_used > 0) {
-            $customer = User::find($request->payment_user_id);
-            $customer->wallet_weight -= $request->payment_customer_wallet_weight_used;
-            $customer->save();
-    
-            TransactionWeight::create([
-                'customer_id'   => (int) $request->payment_user_id,
-                'user_id_created'   =>  Admin::user()->id,
-                'content'   =>  $content,
-                'kg'    =>  $request->payment_customer_wallet_weight_used
-            ]);
+            //step 4: update customer wallet weight and create transaction weight
+            if ($request->wallet_weight == 1 && $request->payment_customer_wallet_weight_used > 0) {
+                $customer = User::find($request->payment_user_id);
+                $customer->wallet_weight -= $request->payment_customer_wallet_weight_used;
+                $customer->save();
+        
+                TransactionWeight::create([
+                    'customer_id'   => (int) $request->payment_user_id,
+                    'user_id_created'   =>  Admin::user()->id,
+                    'content'   =>  $content,
+                    'kg'    =>  $request->payment_customer_wallet_weight_used
+                ]);
+            }
+        } else {
+            if ($request->purchase_order_id != null) {
+                $order = PurchaseOrder::find($request->purchase_order_id);
+                $order->status =  $orderService->getStatus('payment-temp');
+                $order->save();
+            }
         }
-
+        
         admin_toastr('Thanh toán thành công', 'success');
 
         return redirect()->route('admin.transport_codes.index'); // return ve chi tiet don thanh toan
@@ -561,6 +588,15 @@ SCRIPT;
                     $column->append((new Box('Thông tin đơn hàng', $this->gridDetail($id)->render())));
                 });
 
+                $paymentOrder = PaymentOrder::find($id);
+                if ($paymentOrder->purchase_order_id != null) {
+                    $purchaseOrderData = PurchaseOrder::find($paymentOrder->purchase_order_id);
+                    $row->column(12, function (Column $column) use ($id, $purchaseOrderData) 
+                    {
+                        $column->append((new Box('Đơn hàng mua hộ', view('admin.system.purchase_order.payment_purchase_order_info', compact('purchaseOrderData'))->render())));
+                    });
+                }
+
                 $row->column(12, function (Column $column) use ($id) 
                 {
                     $column->append((new Box('Mã vận đơn', $this->gridListTransportCode($id)->render())));
@@ -810,13 +846,26 @@ SCRIPT;
                 '',
                 '',
                 number_format($order->total_advance_drag)
-            ],
-            [
-                '<b style="float: left !important;">Tổng tiền</b>',
-                '',
-                '',
-                number_format($order->amount)
             ]
+        ];
+
+
+        if ($order->purchase_order_id != null ) {
+            $rows[] = 
+            [
+                '<b style="float: left !important;">Tiền phải thanh toán order</b>',
+                '',
+                '',
+                number_format($order->owed_purchase_order)
+            ];
+        }
+
+        $rows[] = 
+        [
+            '<b style="float: left !important;">Tổng tiền</b>',
+            '',
+            '',
+            number_format($order->amount)
         ];
 
         $table = new Table($headers, $rows);
@@ -831,7 +880,7 @@ SCRIPT;
         $rows = [
             [
                 '<b style="width: 50%;">Yêu cầu Khách hàng kiểm tra đủ số lượng hàng hoá và đúng mã vận đơn theo đơn hàng. Nếu có sai sót xin phản ánh lại với công ty trong vòng 24h.</b>', 
-                '<b>Khách hàng ký nhận</b> <br> <i> ('.date('H:i | d-m-Y', strtotime(now())).') </i> <br> <br> <br> <br> <br><b>' . ($order->paymentCustomer->symbol_name ?? "") . "</b><br><b>" . ($order->paymentCustomer->name ?? "") . "</b>"
+                '<b>Khách hàng ký nhận</b> <br> <i> ('.date('H:i | d-m-Y', strtotime(now())).') </i> <br> <br> <br> <br> <br><b>' . ($order->paymentCustomer->symbol_name ?? "") . "</b>"
             ]
         ];
 

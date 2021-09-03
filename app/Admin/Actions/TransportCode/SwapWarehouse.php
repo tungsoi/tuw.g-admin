@@ -55,8 +55,8 @@ SCRIPT;
     {
         $userService = new UserService();
         $this->hidden('begin_swap_user_id')->default(Admin::user()->id);
-        $this->select('ware_house_swap_id', 'Kho nhận hàng')->options($userService->GetListWarehouse());
-        $this->select('finish_swap_user_id', 'Nhân viên xác nhận kho hàng luân chuyển đến kho')->options($userService->GetAllEmployee());
+        $this->select('ware_house_swap_id', 'Kho nhận hàng')->options($userService->GetListWarehouse())->rules(['required']);
+        $this->select('finish_swap_user_id', 'Nhân viên xác nhận kho hàng luân chuyển đến kho')->options($userService->GetAllEmployee())->rules(['required']);
     }
 
     public function html()

@@ -45,6 +45,13 @@
                 <input type="text" name="total_volumn" class="form-control total_volumn" placeholder="Thành tiền V/6000" readonly="">
             </td>
         </tr>
+        @php
+            $total_money = 0;
+
+            if ($amount_advance_drag > 0) {
+                $total_money += $amount_advance_drag * $current_rate;
+            }
+        @endphp
         <tr>
             <td colspan="2" align="center"><b>Tổng ứng kéo</b></td>
             <td>
@@ -56,11 +63,26 @@
                 <input type="hidden" name="advan_vnd" class="advan_vnd" value="{{ str_replace(",", "", number_format($amount_advance_drag * $current_rate, 0)) }}">
             </td>
         </tr>
+        @if (isset($purchaseOrderData) && $purchaseOrderData != null)
+            @php
+                $money = (str_replace(",", "", $purchaseOrderData->amount()) * $purchaseOrderData->current_rate) - $purchaseOrderData->deposited;
+                $total_money += $money;
+            @endphp
+            <tr>
+                <td colspan="2" align="center"><b>Tiền mua hộ còn thiếu</b></td>
+                <td></td>
+                <td>
+                    <span class="owed_purchase_order" name="owed_purchase_order[]">{{ number_format($money) }}</span>
+                    <input type="hidden" name="owed_purchase_order" class="owed_purchase_order" value="{{ $money }}">
+                    <input type="hidden" name="purchase_order_id" class="purchase_order_id" value="{{ $purchaseOrderData->id }}">
+                </td>
+            </tr>
+        @endif
         <tr>
             <td colspan="3" align="center"><b>Tổng tiền</b></td>
             <td>
-                <span class="total_money" name="total_money[]"></span>
-                <input type="hidden" name="total_money" class="total_money">
+                <span class="total_money" name="total_money[]">{{ number_format($total_money) }}</span>
+                <input type="hidden" name="total_money" class="total_money" value="{{ $total_money }}">
             </td>
         </tr>
     </tbody>
