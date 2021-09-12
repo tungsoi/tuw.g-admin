@@ -581,6 +581,16 @@ SCRIPT;
         return $content
             ->title('Chi tiết đơn thanh toán')
             ->description($this->description['show'] ?? trans('admin.show'))
+            ->row(function (Row $row) {
+                
+                $row->column(12, function (Column $column)
+                {
+                    $column->append(
+                        '<a class="btn btn-danger btn-sm pull-left" style="margin-bottom: 10px;" id="btn-print-this-page">In hoá đơn</a>'
+                    );
+                });
+
+            })
             ->row(function (Row $row) use ($id)
             {
                 $row->column(12, function (Column $column) use ($id) 

@@ -26,7 +26,7 @@ SCRIPT;
 
         $route = route('admin.customers.walletWeight', $this->id);
 
-        return '<a href="'.$route.'" target="_blank" class="btn btn-xs btn-danger" data-toggle="tooltip" title="Lịch sử Ví cân" data-id="'.$this->id.'">
+        return '<a href="'.$route.'" class="btn btn-xs btn-danger" data-toggle="tooltip" title="Lịch sử Ví cân" data-id="'.$this->id.'">
             <i class="fa fa-times"></i>
         </a>';
     }

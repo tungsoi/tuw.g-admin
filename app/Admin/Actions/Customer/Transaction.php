@@ -26,7 +26,7 @@ SCRIPT;
 
         $route = route('admin.customers.transactions', $this->id);
 
-        return '<a href="'.$route.'" target="_blank" class="btn btn-xs btn-info" data-toggle="tooltip" title="Lịch sử ví">
+        return '<a href="'.$route.'" class="btn btn-xs btn-info" data-toggle="tooltip" title="Lịch sử ví">
             <i class="fa fa-google-wallet"></i>
         </a>';
     }

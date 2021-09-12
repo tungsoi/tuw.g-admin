@@ -276,7 +276,7 @@ class PurchaseOrderController extends AdminController
             })->style('text-align: right');
         }
 
-        $grid->sumShipFee('Phí vận chuyển')->display(function () {
+        $grid->sumShipFee('VC nội địa TQ')->display(function () {
             $data = [
                 'amount_rmb'   =>  [
                     'is_label'   =>  false,
@@ -494,7 +494,7 @@ class PurchaseOrderController extends AdminController
                 "<span style='float: right'>". number_format(str_replace(",", "", $order->purchase_order_service_fee) * $order->current_rate) . " (vnd) </span>"
             ],
             [
-                'Phí vận chuyển',
+                'VC nội địa TQ',
                 "<span style='float: right'>". $order->sumShipFee() .  " (tệ) </span>",
                 "<span style='float: right'>". number_format(str_replace(",", "", $order->sumShipFee()) * $order->current_rate) . " (vnd) </span>"
             ],

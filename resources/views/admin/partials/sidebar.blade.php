@@ -20,7 +20,7 @@
         </div>
 
         <div style="text-align: center;padding: 5px;font-size: 12px;background-color: wheat;color: black;">
-            Tỷ giá: <b style="color: red">{{ \App\Models\System\ExchangeRate::first()->vnd }} VND / 1 RMB</b> 
+            Tỷ giá: <b style="color: red">{{ \App\Models\System\ExchangeRate::first()->vnd }} VND / 1 Tệ</b> 
         </div>
 
         <!-- Sidebar Menu -->

@@ -17,7 +17,7 @@ class PurchaseOrder
     {
         $route = route('admin.purchase_orders.index') . "?customer_id=" . $this->id;
 
-        return '<a href="'.$route.'" target="_blank" class="customer-purchase-order btn btn-xs btn-primary" data-toggle="tooltip" title="Đơn hàng mua hộ" data-id="'.$this->id.'">
+        return '<a href="'.$route.'" class="customer-purchase-order btn btn-xs btn-primary" data-toggle="tooltip" title="Đơn hàng mua hộ" data-id="'.$this->id.'">
             <i class="fa fa-cart-arrow-down"></i>
         </a>';
     }

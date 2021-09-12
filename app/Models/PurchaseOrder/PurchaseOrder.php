@@ -149,20 +149,17 @@ class PurchaseOrder extends Model
     }
 
     public function sumItemWeight() {
-        // return "Tính link theo mã vận đơn";
-
-        $service = new OrderService();
-        $total = 0;
-        foreach ($this->items as $item) {
-            if ($item->status != $service->getItemStatus('out_stock')) {
-                if ($item->purchase_cn_transport_fee != "") {
-                    $total += str_replace(",", ".", $item->purchase_cn_transport_fee);
-                }
-                
-            }   
+        if ($this->transport_code == null) {
+            return 0;
+        } else {
+            $arr_codes = explode(",", $this->transport_code);
+            if (! is_array($arr_codes) || sizeof($arr_codes) == 0) {
+                return 0;
+            }
+            else {
+                return TransportCode::whereIn('transport_code', $arr_codes)->sum('kg');
+            }
         }
-
-        return str_replace(".00", "", number_format($total, 2));
     }
 
     public function amount($format = true) {

@@ -95,6 +95,7 @@ class CustomerController extends AdminController
         });
 
         $grid->column('number', 'STT');
+        $grid->avatar()->lightbox(['width' => 40]);
         $grid->id('Hồ sơ')->display(function (){
             return "Tất cả";
         })->expand(function ($model) {
@@ -188,7 +189,7 @@ class CustomerController extends AdminController
         $form->column(1/2, function ($form) use ($service) {
         
             $form->display('username', 'Tên đăng nhập');
-            $form->display('symbol_name', 'Mã khách hàng');
+            $form->text('symbol_name', 'Mã khách hàng')->rules('required');
             $form->text('name', 'Họ và tên')->rules('required');
             $form->text('phone_number', 'Số điện thoại')->rules('required');
 

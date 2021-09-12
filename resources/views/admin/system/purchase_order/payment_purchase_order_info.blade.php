@@ -5,7 +5,7 @@
         <th>Mã vận đơn</th>
         <th>Tổng giá sản phẩm</th>
         <th>Phí dịch vụ</th>
-        <th>Phí vận chuyển</th>
+        <th>VC nội địa TQ</th>
         <th>Tổng giá cuối</th>
         <th>Đã cọc</th>
         <th>Còn thiếu</th>

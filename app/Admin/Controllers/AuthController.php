@@ -136,23 +136,27 @@ class AuthController extends Controller
         $form = new Form(new $class());
         $form->setTitle('Cập nhật thông tin');
 
-        // $form->column(1/3, function ($form) {
-        
-        //     $form->image('avatar', trans('admin.avatar'));
-        // });
-
         $service = new UserService();
         $form->column(1/2, function ($form) use ($service) {
-        
+            
             $form->display('username', 'Tên đăng nhập');
-            $form->display('symbol_name', 'Mã khách hàng');
+
+            if (Admin::user()->isRole('customer')) {
+                $form->text('symbol_name', 'Mã khách hàng')
+                ->creationRules(['required', "unique:admin_users"])
+                ->updateRules(['required', "unique:admin_users,symbol_name,{{id}}"]);
+            }
             $form->text('name', 'Họ và tên')->rules('required');
             $form->text('phone_number', 'Số điện thoại')->rules('required');
 
-            $form->divider();
-            $form->select('staff_sale_id', 'Nhân viên Kinh doanh')->options($service->GetListSaleEmployee())->rules('required');
-            $form->select('staff_order_id', 'Nhân viên Đặt hàng')->options($service->GetListOrderEmployee())->readonly();
-            $form->select('customer_percent_service', '% Phí dịch vụ')->options($service->GetListPercentService())->readonly();
+            if (Admin::user()->isRole('customer')) {
+                $form->divider();
+                $form->select('staff_sale_id', 'Nhân viên Kinh doanh')->options($service->GetListSaleEmployee())->rules('required');
+                $form->select('staff_order_id', 'Nhân viên Đặt hàng')->options($service->GetListOrderEmployee());
+                $form->select('customer_percent_service', '% Phí dịch vụ')->options($service->GetListPercentService())->readonly();
+            }
+       
+            $form->image('avatar', trans('admin.avatar'));
         });
         $form->column(1/2, function ($form) use ($service) {
             $form->select('ware_house_id', 'Kho hàng')->options($service->GetListWarehouse())->rules('required');

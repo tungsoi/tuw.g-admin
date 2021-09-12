@@ -244,7 +244,7 @@ class PurchaseOrderItemController extends AdminController
             }
         })->style('text-align: right; max-width: 150px;');
 
-        $grid->purchase_cn_transport_fee('Phí vận chuyển')->editable()->style('text-align: right; max-width: 150px;');
+        $grid->purchase_cn_transport_fee('VC nội địa TQ')->editable()->style('text-align: right; max-width: 150px;');
         $grid->column('total_price', 'Tổng tiền sản phẩm')->display(function () {
 
             try {
@@ -314,7 +314,7 @@ class PurchaseOrderItemController extends AdminController
             $form->currency('qty_reality', 'Số lượng thực đặt')->digits(0)->symbol('');
             $form->text('admin_note', 'Admin ghi chú');
             $form->textarea('cn_order_number', 'Mã giao dịch');
-            $form->currency('purchase_cn_transport_fee', 'Phí vận chuyển')->digits(1)->symbol('');
+            $form->currency('purchase_cn_transport_fee', 'VC nội địa TQ')->digits(1)->symbol('');
         }
 
         $form->tools(function (Form\Tools $tools) {

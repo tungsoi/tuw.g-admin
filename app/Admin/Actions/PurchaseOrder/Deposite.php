@@ -29,7 +29,7 @@ class Deposite
     protected function render()
     {
         $route = route('admin.purchase_orders.admin_deposite', $this->id);
-        return '<a href="'.$route.'" target="_blank" class="btn btn-xs btn-success" data-toggle="tooltip" title="Đặt cọc"">
+        return '<a href="'.$route.'" class="btn btn-xs btn-success" data-toggle="tooltip" title="Đặt cọc"">
                     <i class="fa fa-dollar"></i>
                 </a>';
     }

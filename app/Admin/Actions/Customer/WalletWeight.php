@@ -26,7 +26,7 @@ SCRIPT;
 
         $route = route('admin.customers.walletWeight', $this->id) . "?mode=recharge";
 
-        return '<a href="'.$route.'" target="_blank" class="btn btn-xs btn-warning" data-toggle="tooltip" title="Ví cân" data-id="'.$this->id.'">
+        return '<a href="'.$route.'" class="btn btn-xs btn-warning" data-toggle="tooltip" title="Ví cân" data-id="'.$this->id.'">
             <i class="fa fa-bolt"></i>
         </a>';
     }

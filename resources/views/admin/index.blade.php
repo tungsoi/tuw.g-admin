@@ -75,6 +75,10 @@
 
         $.admin.toastr.success('Đã Copy', '', {timeOut: 1000});
     }
+
+    $('#btn-print-this-page').on('click', function () {
+        window.print();
+    })
 </script>
 </body>
 </html>

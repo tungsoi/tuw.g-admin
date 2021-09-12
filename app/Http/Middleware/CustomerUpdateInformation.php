@@ -35,7 +35,7 @@ class CustomerUpdateInformation
             || is_null($user->ware_house_id) || $user->ware_house_id == ""
             || is_null($user->province) || $user->province == ""
             || is_null($user->district) || $user->district == ""
-            || is_null($user->staff_sale_id) || $user->staff_sale_id == ""
+            || ($user->is_customer == 1 && $user->staff_sale_id == "")
         ) {
             return false;
         }

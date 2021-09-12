@@ -33,11 +33,11 @@
     <div class="login-box">
         <div class="login-logo">
             <h1>
-                <a href="{{ admin_url('/') }}" style="text-transform: uppercase; color: white !important;"><b>{{config('admin.name')}}</b></a>
+                <a href="{{ admin_url('/') }}" style="text-transform: uppercase; color: #464646 !important;"><b>{{config('admin.name')}}</b></a>
             </h1>
         </div>
         <!-- /.login-logo -->
-        <div class="login-box-body">
+        <div class="login-box-body" style="border: 1px solid grey; border-radius: 10px;">
             <p class="login-box-msg">Quên mật khẩu</p>
 
             <form action="{{ route('home.postForgotPassword') }}" method="post" id="frm-forgot-password">
@@ -64,11 +64,11 @@
                 </div>
                 <div class="row">
                     <hr>
-                    <div class="col-xs-6">
-                    </div>
 
-                    <div class="col-xs-6">
-                        <a href="{{ route('admin.login') }}" style="float: right">{{ trans('admin.login') }}</a>
+                    <div class="col-xs-12">
+                        <p  style="float: right">
+                            Đã có tài khoản ?
+                        <a href="{{ route('admin.login') }}">{{ trans('admin.login') }}</a></p>
                     </div>
                 </div>
             </form>

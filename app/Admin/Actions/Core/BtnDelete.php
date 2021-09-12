@@ -61,7 +61,7 @@ class BtnDelete
                     });
                 }
 
-                // $('.loading-overlay').hide();
+                $('.loading-overlay').hide();
             })
 
         });

@@ -29,7 +29,7 @@ class Update
     protected function render()
     {
         $route = route('admin.purchase_orders.edit_data', $this->id);
-        return '<a href="'.$route.'" target="_blank" class="btn btn-xs btn-warning" data-toggle="tooltip" title="Chỉnh sửa"">
+        return '<a href="'.$route.'" class="btn btn-xs btn-warning" data-toggle="tooltip" title="Chỉnh sửa"">
                     <i class="fa fa-edit"></i>
                 </a>';
     }

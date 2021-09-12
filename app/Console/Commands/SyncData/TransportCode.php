@@ -40,18 +40,19 @@ class TransportCode extends Command
     public function handle()
     {
         // TransportCodeModel::truncate();
-        $oldData = AlilogiTransportCode::chunk(5000, function ($rows) {
+        $oldData = AlilogiTransportCode::where('id', '>', '15006')->chunk(5000, function ($rows) {
             foreach ($rows as $key => $row) {
-                if (! TransportCodeModel::where('transport_code', $row->cn_code)->first()) {
+                // if (! TransportCodeModel::where('transport_code', $row->cn_code)->first()) {
                     echo $key . " - " . $row->cn_code . "\n";
-                    try {
+                //     try {
                         $data = [
+                            'id'    =>  $row->id,
                             'transport_code'    =>  $row->cn_code,
                             'kg'    =>  $row->kg,
                             'length'    =>  $row->product_length,
                             'width'     =>  $row->product_width,
                             'height'    =>  $row->product_height,
-                            'transport_order_id'    =>  $row->order_id,
+                            'order_id'    =>  $row->order_id,
                             'price_service' =>  $row->price_service,
                             'advance_drag'  =>  $row->advance_drag,
                             'status'    =>  $this->getStatus(
@@ -59,8 +60,8 @@ class TransportCode extends Command
                                 $row->warehouse_vn, $row->warehouse_vn_date,
                                 $row->is_payment
                             ),
-                            'china_recevie_at'  =>  $row->warehouse_cn_date,
-                            'vietnam_recevie_at'    =>  $row->warehouse_vn_date,
+                            'china_receive_at'  =>  $row->warehouse_cn_date,
+                            'vietnam_receive_at'    =>  $row->warehouse_vn_date,
                             'waitting_payment_at'   =>  null,
                             'payment_at'    =>  $row->order ? $row->order->created_at : null,
                             'begin_swap_warehouse_at'   =>  null,
@@ -72,14 +73,19 @@ class TransportCode extends Command
                             'payment_type'  =>  $row->payment_type
                         ];
     
-                        TransportCodeModel::firstOrCreate($data);
-                    } catch (\Exception $e) {
-                        echo "- Error: $e->getMessage()";
-                        dd($data);
-                    }
-                } else {
-                    echo "- Exitse: $row->cn_code \n";
-                }
+                        $newData = TransportCodeModel::firstOrCreate($data);
+
+                        if ($newData->id != $row->id) {
+                            echo "id moi: " . $newData->id . " ---> id alilogi cu: " . $row->id . "\n";
+                            dd('fail');
+                        }
+                //     } catch (\Exception $e) {
+                //         echo "- Error: ".$e->getMessage();
+                //         // dd($data);
+                //     }
+                // } else {
+                //     echo "- Exitse: $row->cn_code \n";
+                // }
                 
             }
         });

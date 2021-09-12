@@ -26,7 +26,7 @@
     <a href="{{ admin_url('/') }}"><b>{{config('admin.name')}}</b></a>
   </div>
   <!-- /.login-logo -->
-  <div class="login-box-body">
+  <div class="login-box-body" style="border: 1px solid grey; border-radius: 10px;">
     <p class="login-box-msg">{{ trans('admin.register') }}</p>
 
     <form action="{{ route('home.register') }}" method="post" id="frm-register">

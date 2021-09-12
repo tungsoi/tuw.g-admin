@@ -30,7 +30,12 @@ class UserController extends AdminController
     {
         $grid = new Grid(new User());
         $grid->model()->select('id', 'avatar', 'username', 'name', 'is_active', 'created_at', 'phone_number', 'wallet_weight');
+        
         $grid->model()->whereIsCustomer(User::ADMIN)->orderBy('id', 'desc');
+
+        if (! isset($_GET['is_active'])) {
+            $grid->model()->whereIsActive(User::ACTIVE);
+        }
 
         $grid->expandFilter();
         $grid->filter(function($filter) {
@@ -44,6 +49,13 @@ class UserController extends AdminController
             });
             $filter->column(1/4, function ($filter) {
                 $filter->like('phone_number', 'Số điện thoại');
+            });
+
+            $filter->column(1/4, function ($filter) {
+                $filter->equal('is_active', 'Tình trạng làm việc')->select([
+                    1   =>  'Đang làm việc',
+                    0   =>  'Đã nghỉ việc'
+                ])->default(1);
             });
 
             Admin::style('
@@ -69,7 +81,7 @@ class UserController extends AdminController
         });
         $grid->column('number', 'STT');
         $grid->avatar('Ảnh đại diện')->lightbox(['width' => 30, 'height' => 30])->style('text-align: center');
-        $grid->column('name', 'Họ và tên');
+        $grid->column('name', 'Họ và tên')->editable();
         $grid->column('username', 'Tên đăng nhập / Email');
         $grid->column('phone_number', "Số điện thoại");
         $grid->column('roles', trans('admin.roles'))->pluck('name')->label()->width(200);
@@ -79,7 +91,7 @@ class UserController extends AdminController
             'off' => ['value' => User::DEACTIVE, 'text' => 'Đã nghỉ', 'color' => 'danger'],
         ];
         $grid->wallet_weight('Ví cân (KG)');
-        $grid->column('is_active', 'Trạng thái đăng nhập')->switch($states)->style('text-align: center');
+        $grid->column('is_active', 'Tình trạng làm việc')->switch($states)->style('text-align: center');
         $grid->column('created_at', 'Ngày tạo tài khoản')->display(function () {
             return date('H:i | d-m-Y', strtotime($this->created_at));
         })->style('text-align: center');
