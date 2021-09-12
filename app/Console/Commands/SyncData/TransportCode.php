@@ -43,7 +43,7 @@ class TransportCode extends Command
         $oldData = AlilogiTransportCode::where('id', '>', '45592')->chunk(5000, function ($rows) {
             foreach ($rows as $key => $row) {
                 // if (! TransportCodeModel::where('transport_code', $row->cn_code)->first()) {
-                    echo $key . " - " . $row->cn_code . "\n";
+                    // echo $key . " - " . $row->cn_code . "\n";
                 //     try {
                         $data = [
                             'id'    =>  $row->id,
