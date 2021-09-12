@@ -124,7 +124,7 @@ class TransportCodeController extends AdminController
             ];
             return view('admin.system.core.list', compact('data'));
         });
-        $grid->customer_code_input('Mã khách hàng')->style('max-width: 100px')->display(function () {
+        $grid->customer_code_input('Mã khách hàng')->display(function () {
             $data = [
                 'order_number'   =>  [
                     'is_link'   =>  true,
