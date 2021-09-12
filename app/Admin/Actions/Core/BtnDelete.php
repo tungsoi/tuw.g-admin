@@ -59,9 +59,9 @@ class BtnDelete
                             
                         }
                     });
+                } else {
+                    $('.loading-overlay').hide();
                 }
-
-                $('.loading-overlay').hide();
             })
 
         });
