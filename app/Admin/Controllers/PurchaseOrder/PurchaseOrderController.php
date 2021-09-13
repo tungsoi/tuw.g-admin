@@ -52,6 +52,9 @@ class PurchaseOrderController extends AdminController
         // Khach hang
         if (Admin::user()->isRole('customer')) {
             $grid->model()->whereCustomerId(Admin::user()->id);
+        } else if (Admin::user()->isRole('sale_employee')) {
+            $customers = User::where('staff_sale_id', Admin::user()->id)->pluck('id');
+            $grid->model()->whereIn('customer_id', $customers);
         }
 
         $grid->filter(function($filter) {
@@ -79,21 +82,13 @@ class PurchaseOrderController extends AdminController
                     $filter->equal('warehouse_id', 'Kho nhận hàng')->select($service->GetListWarehouse());
                 });
             }
+            
             $filter->column(1/4, function ($filter) {
                 $filter->between('created_at', 'Ngày tạo')->date();
                 $filter->between('deposited_at', 'Ngày cọc')->date();
                 $filter->between('order_at', 'Ngày đặt hàng');
-
-                // if (! Admin::user()->isRole('customer')) {
-                //     $filter->where(function ($query) {
-                //         if ($this->input == '0') {
-                //             $dayAfter = (new DateTime(now()))->modify('-7 day')->format('Y-m-d H:i:s');
-                //             $query->where('deposited_at', '<=', $dayAfter)
-                //         ->whereIn('status', []);
-                //         }
-                //     }, 'Tìm kiếm', '7days')->radio(['Đơn hàng chưa hoàn thành trong 7 ngày']);
-                // }
             });
+
             $filter->column(1/4, function ($filter) {
 
                 $filter->between('vn_receive_at', 'Ngày về Việt Nam');

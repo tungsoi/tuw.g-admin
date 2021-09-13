@@ -40,56 +40,90 @@ class TransportCode extends Command
     public function handle()
     {
         // TransportCodeModel::truncate();
-        $oldData = AlilogiTransportCode::where('id', '>', '143959')->chunk(5000, function ($rows) {
-            foreach ($rows as $key => $row) {
-                // if (! TransportCodeModel::where('transport_code', $row->cn_code)->first()) {
-                    // echo $key . " - " . $row->cn_code . "\n";
-                //     try {
-                        $data = [
-                            'id'    =>  $row->id,
-                            'transport_code'    =>  $row->cn_code,
-                            'kg'    =>  $row->kg,
-                            'length'    =>  $row->product_length,
-                            'width'     =>  $row->product_width,
-                            'height'    =>  $row->product_height,
-                            'order_id'    =>  $row->order_id,
-                            'price_service' =>  $row->price_service,
-                            'advance_drag'  =>  $row->advance_drag,
-                            'status'    =>  $this->getStatus(
-                                $row->warehouse_cn, $row->warehouse_cn_date,
-                                $row->warehouse_vn, $row->warehouse_vn_date,
-                                $row->is_payment
-                            ),
-                            'china_receive_at'  =>  $row->warehouse_cn_date,
-                            'vietnam_receive_at'    =>  $row->warehouse_vn_date,
-                            'waitting_payment_at'   =>  null,
-                            'payment_at'    =>  $row->order ? $row->order->created_at : null,
-                            'begin_swap_warehouse_at'   =>  null,
-                            'finish_swap_warehouse_at'  =>  null,
-                            'admin_note'    =>  $row->note,
-                            'customer_note' =>  null,
-                            'customer_code_input'   =>  $row->customer_name,
-                            'ware_house_id' =>  $row->ware_house_id,
-                            'payment_type'  =>  $row->payment_type
-                        ];
+        // $oldData = AlilogiTransportCode::where('id', '>', '143959')->chunk(5000, function ($rows) {
+        //     foreach ($rows as $key => $row) {
+        //         // if (! TransportCodeModel::where('transport_code', $row->cn_code)->first()) {
+        //             // echo $key . " - " . $row->cn_code . "\n";
+        //         //     try {
+        //                 $data = [
+        //                     'id'    =>  $row->id,
+        //                     'transport_code'    =>  $row->cn_code,
+        //                     'kg'    =>  $row->kg,
+        //                     'length'    =>  $row->product_length,
+        //                     'width'     =>  $row->product_width,
+        //                     'height'    =>  $row->product_height,
+        //                     'order_id'    =>  $row->order_id,
+        //                     'price_service' =>  $row->price_service,
+        //                     'advance_drag'  =>  $row->advance_drag,
+        //                     'status'    =>  $this->getStatus(
+        //                         $row->warehouse_cn, $row->warehouse_cn_date,
+        //                         $row->warehouse_vn, $row->warehouse_vn_date,
+        //                         $row->is_payment
+        //                     ),
+        //                     'china_receive_at'  =>  $row->warehouse_cn_date,
+        //                     'vietnam_receive_at'    =>  $row->warehouse_vn_date,
+        //                     'waitting_payment_at'   =>  null,
+        //                     'payment_at'    =>  $row->order ? $row->order->created_at : null,
+        //                     'begin_swap_warehouse_at'   =>  null,
+        //                     'finish_swap_warehouse_at'  =>  null,
+        //                     'admin_note'    =>  $row->note,
+        //                     'customer_note' =>  null,
+        //                     'customer_code_input'   =>  $row->customer_name,
+        //                     'ware_house_id' =>  $row->ware_house_id,
+        //                     'payment_type'  =>  $row->payment_type
+        //                 ];
     
-                        $newData = TransportCodeModel::firstOrCreate($data);
+        //                 $newData = TransportCodeModel::firstOrCreate($data);
 
-                        if ($newData->id != $row->id) {
-                            echo "id moi: " . $newData->id . " ---> id alilogi cu: " . $row->id . "\n";
-                            dd('fail');
-                        }
-                //     } catch (\Exception $e) {
-                //         echo "- Error: ".$e->getMessage();
-                //         // dd($data);
-                //     }
-                // } else {
-                //     echo "- Exitse: $row->cn_code \n";
-                // }
+        //                 if ($newData->id != $row->id) {
+        //                     echo "id moi: " . $newData->id . " ---> id alilogi cu: " . $row->id . "\n";
+        //                     dd('fail');
+        //                 }
+        //         //     } catch (\Exception $e) {
+        //         //         echo "- Error: ".$e->getMessage();
+        //         //         // dd($data);
+        //         //     }
+        //         // } else {
+        //         //     echo "- Exitse: $row->cn_code \n";
+        //         // }
                 
-            }
-        });
+        //     }
+        // });
 
+        $codes = AlilogiTransportCode::where('updated_at', 'like', '2021-09-13%')->get();
+
+        foreach ($codes as $row) {
+            $data = [
+                'transport_code'    =>  $row->cn_code,
+                'kg'    =>  $row->kg,
+                'length'    =>  $row->product_length,
+                'width'     =>  $row->product_width,
+                'height'    =>  $row->product_height,
+                'order_id'    =>  $row->order_id,
+                'price_service' =>  $row->price_service,
+                'advance_drag'  =>  $row->advance_drag,
+                'status'    =>  $this->getStatus(
+                    $row->warehouse_cn, $row->warehouse_cn_date,
+                    $row->warehouse_vn, $row->warehouse_vn_date,
+                    $row->is_payment
+                ),
+                'china_receive_at'  =>  $row->warehouse_cn_date,
+                'vietnam_receive_at'    =>  $row->warehouse_vn_date,
+                'waitting_payment_at'   =>  null,
+                'payment_at'    =>  $row->order ? $row->order->created_at : null,
+                'begin_swap_warehouse_at'   =>  null,
+                'finish_swap_warehouse_at'  =>  null,
+                'admin_note'    =>  $row->note,
+                'customer_note' =>  null,
+                'customer_code_input'   =>  $row->customer_name,
+                'ware_house_id' =>  $row->ware_house_id,
+                'payment_type'  =>  $row->payment_type
+            ];
+
+            TransportCodeModel::find($row->id)->update($data);
+        } 
+
+        dd($codes->count());
        
     }
 
