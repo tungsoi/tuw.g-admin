@@ -278,6 +278,7 @@ class PurchaseOrderItemController extends AdminController
             $grid->admin_note('Admin ghi chú')->style('max-width: 100px');
         } else {
             $grid->admin_note('Admin ghi chú')->editable()->style('max-width: 100px');
+            $grid->cn_code('Mã vận đơn')->editable();
             $grid->cn_order_number('Mã giao dịch')->editable();
         }
 

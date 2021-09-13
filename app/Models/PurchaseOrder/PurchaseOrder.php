@@ -37,7 +37,8 @@ class PurchaseOrder extends Model
         'user_success_at',
         'user_cancle_at',
         'transport_code',
-        'supporter_sale_id'
+        'supporter_sale_id',
+        '_id'
     ];
 
     public function customer() {
@@ -126,7 +127,11 @@ class PurchaseOrder extends Model
         $total = 0;
         foreach ($this->items as $item) {
             if ($item->status != $service->getItemStatus('out_stock')) {
-                $total += $item->qty_reality * str_replace(',', '.', $item->price);
+                try {
+                    $total += $item->qty_reality * number_format( $item->price, 2, '.', '');
+                } catch (\Exception $e) {
+                    dd($item);
+                }
             }   
         }
 

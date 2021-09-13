@@ -33,7 +33,8 @@ class PaymentOrder extends Model
         'export_at',
         'user_export_id',
         'owed_purchase_order',
-        'purchase_order_id'
+        'purchase_order_id',
+        '_id'
     ];
 
     public function paymentCustomer() {

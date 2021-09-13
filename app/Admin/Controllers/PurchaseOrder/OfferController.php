@@ -195,8 +195,6 @@ class OfferController extends AdminController
         $grid->disableExport();
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
-        $grid->disablePagination();
-        $grid->disablePerPageSelector();
         $grid->paginate(20);
         $grid->disableActions();
 

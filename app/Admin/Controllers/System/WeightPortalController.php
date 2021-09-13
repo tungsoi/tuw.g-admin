@@ -54,11 +54,6 @@ class WeightPortalController extends AdminController
                 $row->column(2, new InfoBox("Tổng cân khách hàng còn dư", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::CUSTOMER)->sum('wallet_weight')));
 
             })
-            ->row(function (Row $row)
-            {
-                $row->column(12, new InfoBox("Luồng thực hiện: Admin tổng ra số cân tổng -> Chia cho nhân viên -> Nhân viên chia cho khách hàng -> Khách hàng sử dụng để thanh toán", 'weight', 'aqua', '/admin/customers', ""));
-
-            })
             ->row(function (Row $row) {
 
                 $row->column(12, function (Column $column) {
