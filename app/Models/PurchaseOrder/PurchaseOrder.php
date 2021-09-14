@@ -131,7 +131,7 @@ class PurchaseOrder extends Model
                     $price = number_format($item->price, 2);
                     $total += $item->qty_reality * $price;
                 } catch (\Exception $e) {
-                    dd($price);
+                    dd($item . " - " . $e->getMessage());
                 }
             }   
         }
