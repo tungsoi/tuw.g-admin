@@ -61,7 +61,7 @@ SCRIPT;
 
     public function html()
     {
-        return "<a class='swap-warehouse btn btn-md btn-warning'><i class='fa fa-mail-reply'></i>&nbsp; Luân chuyển kho</a>";
+        return "<a class='swap-warehouse btn btn-sm btn-warning'><i class='fa fa-mail-reply'></i>&nbsp; Luân chuyển kho</a>";
     }
 
 }

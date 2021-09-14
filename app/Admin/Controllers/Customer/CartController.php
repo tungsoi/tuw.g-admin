@@ -12,6 +12,7 @@ use Encore\Admin\Show;
 use App\Models\OrderItem;
 use App\Models\PurchaseOrder\PurchaseOrderItem;
 use App\Models\PurchaseOrder\PurchaseOrderItemStatus;
+use App\Models\SyncData\AloorderPurchaseOrderItem;
 use App\Models\System\ExchangeRate;
 use App\Models\System\Warehouse;
 use Encore\Admin\Facades\Admin;
@@ -97,13 +98,13 @@ class CartController extends AdminController
         $grid->disableCreateButton();
         $grid->tools(function (Grid\Tools $tools) {
             $tools->append('
-                <a href="'.route('admin.carts.create').'" class="btn btn-md btn-success">
+                <a href="'.route('admin.carts.create').'" class="btn btn-sm btn-success">
                     <i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;Thêm sản phẩm vào giỏ</span>
                 </a>
             ');
 
             $tools->append("
-                <a class='btn-create-order btn btn-md btn-danger'>
+                <a class='btn-create-order btn btn-sm btn-danger'>
                     <i class='fa fa-cart-plus'></i>
                     &nbsp; Tạo đơn hàng
                 </a>
@@ -121,31 +122,10 @@ class CartController extends AdminController
      */
     protected function detail($id)
     {
-        $show = new Show(OrderItem::findOrFail($id));
+        $ids = explode(',', $id);
+        $items = PurchaseOrderItem::whereIn('id', $ids)->get();
 
-        $show->field('id', trans('admin.id'));
-        $show->title(trans('admin.title'));
-        $show->order(trans('admin.order'));
-        $show->field('created_at', trans('admin.created_at'));
-        $show->field('updated_at', trans('admin.updated_at'));
-
-        return $show;
-    }
-
-    /**
-     * Edit interface.
-     *
-     * @param mixed   $id
-     * @param Content $content
-     *
-     * @return Content
-     */
-    public function addCart($id, Content $content)
-    {
-        return $content
-            ->title($this->title())
-            ->description($this->description['edit'] ?? trans('admin.edit'))
-            ->body($this->formEdit((int) $id)) ;
+        return view('admin.system.customer.booking', compact('items'))->render();
     }
 
     /**
@@ -156,35 +136,6 @@ class CartController extends AdminController
     protected function form()
     {
         $form = new Form(new PurchaseOrderItem);
-        
-        // if (session()->has('booking_product')) {
-        //     $booking = session()->get('booking_product');
-
-        //     $form->text('shop_name', 'Tên shop')->default($booking[0]['shop_name']);
-        //     $form->text('product_name', 'Tên sản phẩm')->default($booking[0]['product_name']);
-        //     $form->text('product_link', 'Link sản phẩm')->rules('required')->default($booking[0]['product_link']);
-        //     $form->html('<img src="'.$booking[0]['product_image'].'" style="width: 150px;"/>');
-
-        //     $form->text('product_size', 'Size sản phẩm')->rules('required')->default($booking[0]['product_size']);
-        //     $form->text('product_color', 'Màu sắc sản phẩm')->rules('required')->default($booking[0]['product_color']);
-        //     $form->number('qty', 'Số lượng')->rules('required')->default($booking[0]['qty']);
-        //     $form->currency('price', 'Giá sản phẩm (Tệ)')->rules('required')->symbol('￥')->digits(2)->default($booking[0]['price']);
-        //     $form->textarea('customer_note', 'Ghi chú của bạn');
-        //     $form->hidden('customer_id')->default(Admin::user()->id);
-        //     $form->hidden('status')->default(OrderItem::PRODUCT_NOT_IN_CART);
-        //     $form->hidden('qty_reality');
-        //     $form->hidden('product_image')->default($booking[0]['product_image']);
-    
-        //     $form->disableEditingCheck();
-        //     $form->disableCreatingCheck();
-        //     $form->disableViewCheck();
-    
-        //     $form->saving(function (Form $form) {
-        //         $form->qty_reality = $form->qty;
-        //     });
-    
-        //     return $form;
-        // }
         
         $form->text('shop_name', 'Tên shop');
         $form->text('product_name', 'Tên sản phẩm');
@@ -215,76 +166,6 @@ class CartController extends AdminController
         return $form;
     }
 
-    /**
-     * Make a form builder.
-     *
-     * @return Form
-     */
-    protected function formEdit($id = "")
-    {
-        $form = new Form(new OrderItem);
-
-        $item = OrderItem::find($id);
-        $form->setAction(route('admin.carts.storeAddByTool'));
-
-        $form->text('shop_name', 'Tên shop')->default($item->shop_name);
-        $form->text('product_name', 'Tên sản phẩm')->default($item->product_name);
-        $form->text('product_link', 'Link sản phẩm')->rules('required')->default($item->product_link);
-        $form->html('<img src="'.$item->product_image.'" style="width: 150px;"/>');
-
-        $form->text('product_size', 'Size sản phẩm')->rules('required')->default($item->product_size);
-        $form->text('product_color', 'Màu sắc sản phẩm')->rules('required')->default($item->product_color);
-        $form->number('qty', 'Số lượng')->rules('required')->default($item->qty);
-        $form->currency('price', 'Giá sản phẩm (Tệ)')->rules('required')->symbol('￥')->digits(2)->default($item->price);
-        $form->textarea('customer_note', 'Ghi chú');
-        // $form->hidden('customer_id')->default(Admin::user()->id);
-        $form->hidden('status')->default(OrderItem::PRODUCT_NOT_IN_CART);
-        $form->hidden('qty_reality');
-        $form->hidden('product_image')->default($item->product_image);
-
-        $form->hidden('xid','Id')->default($item->id);
-
-        $form->disableEditingCheck();
-        $form->disableCreatingCheck();
-        $form->disableViewCheck();
-
-        return $form;
-    }
-
-    public function storeAddByTool(Request $request)
-    {
-        # code...
-
-        $data = $request->all();
-        $data['customer_id'] = Admin::user()->id;
-        $data['qty_reality'] = $data['qty'];
-        OrderItem::find($data['xid'])->update($data);
-
-        admin_toastr('Lưu thành công !', 'success');
-        return redirect()->route('admin.carts.index');
-    }
-
-    public function addCart1688($id, Content $content)
-    {
-        return $content
-            ->title($this->title())
-            ->description($this->description['edit'] ?? trans('admin.edit'))
-            ->body($this->formEdit1688((string) $id)) ;
-    }
-
-    /**
-     * Make a form builder.
-     *
-     * @return Form
-     */
-    protected function formEdit1688($id = "")
-    {
-        $ids = explode(',', $id);
-        $items = OrderItem::whereIn('id', $ids)->get();
-
-        return view('admin.cart1688', compact('items'))->render();
-    }
-
     public function storeAdd1688(Request $request)
     {
         # code...
@@ -297,14 +178,14 @@ class CartController extends AdminController
                 'product_size' =>  $data['product_size'][$item_id],
                 'product_color' =>  $data['product_color'][$item_id],
                 'qty' =>  $data['qty'][$item_id],
-                'price' =>  $data['price'][$item_id],
+                'price' =>  str_replace(',', '', $data['price'][$item_id]),
                 'customer_note' =>  $data['customer_note'][$item_id],
                 'qty_reality'   =>  $data['qty'][$item_id],
                 'customer_id'   =>  Admin::user()->id,
-                'status'  =>  OrderItem::PRODUCT_NOT_IN_CART
+                'status'  => 10
             ];
 
-            OrderItem::find($item_id)->update($res);
+            PurchaseOrderItem::find($item_id)->update($res);
         }
 
         admin_toastr('Lưu thành công', 'success');

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Actions\TransportCode;
+namespace App\Admin\Actions\PurchaseOrder;
 
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
@@ -9,17 +9,17 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
-class PaymentExport extends BatchAction
+class ConfirmVnReceiveItem extends BatchAction
 {
-    public $name = 'Thanh toán xuất kho';
-    protected $selector = '.confirm-payment-export';
+    public $name = 'Xác nhận sản phẩm đã về Việt Nam';
+    protected $selector = '.confirm-vn-receive-item';
 
     /**
      * {@inheritdoc}
      */
     public function actionScript()
     {
-        $warning = __('Vui lòng chọn Mã vận đơn');
+        $warning = __('Vui lòng chọn sản phẩm');
 
         return <<<SCRIPT
         var key = $.admin.grid.selected();
@@ -37,26 +37,23 @@ SCRIPT;
     {
         $orderService = new OrderService();
 
-        $ids = [];
         foreach ($collection as $model) {
-            $ids[] = $model->id;
+            $model->status = $orderService->getItemStatus('vn_received');
+            $model->vn_receive_at = now();
+            $model->save();
         }
 
-        $ids_route = implode(',', $ids);
-
-        $route = route('admin.payments.index', ['ids' => $ids_route]) . "?type=payment_export";
-
-        return $this->response()->redirect($route);
+        return $this->response()->success('Đã xác nhận thành công')->refresh();
     }
 
     public function form()
     {
-        $this->text('noti', 'Thông báo')->default('Xác nhận thanh toán xuất kho các mã vận đơn đã chọn ?')->disable();
+        $this->text('noti', 'Thông báo')->default('Xác nhận đã về Việt Nam các sản phẩm này ?')->disable();
     }
 
     public function html()
     {
-        return "<a class='confirm-payment-export btn btn-sm btn-primary'><i class='fa fa-download'></i>&nbsp; Thanh toán xuất kho</a>";
+        return "<a class='confirm-vn-receive-item btn btn-sm btn-warning'>Xác nhận đã về Việt Nam</a>";
     }
 
 }

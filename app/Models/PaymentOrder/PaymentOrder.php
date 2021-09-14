@@ -67,7 +67,7 @@ class PaymentOrder extends Model
             case "payment_not_export": 
                 return "warning";
             case "payment_temp":
-                return "default";
+                return "primary";
         }
     }
 

@@ -55,7 +55,7 @@ SCRIPT;
 
     public function html()
     {
-        return "<a class='confirm-swap-warehouse btn btn-md btn-success'><i class='fa fa-check'></i>&nbsp; Xác nhận hàng luân chuyển kho</a>";
+        return "<a class='confirm-swap-warehouse btn btn-sm btn-success'><i class='fa fa-check'></i>&nbsp; Xác nhận hàng luân chuyển kho</a>";
     }
 
 }

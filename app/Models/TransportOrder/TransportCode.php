@@ -146,6 +146,6 @@ class TransportCode extends Model
     public function getOrdernNumberPurchase() {
         $orders = PurchaseOrder::select('transport_code', 'order_number')->where('transport_code', 'like', '%'.$this->transport_code.'%')->pluck('order_number')->toArray();
         
-        return sizeof($orders) > 0 ? " (".implode(", ", $orders).")" : null;
+        return sizeof($orders) > 0 ? implode(", ", $orders) : null;
     }
 }

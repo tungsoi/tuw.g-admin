@@ -37,8 +37,8 @@ class CustomerPurchaseOrderController extends AdminController {
                 'internal_note' =>  null,
                 'warehouse_id'  =>  $request->get('warehouse_id'),
                 'current_rate'  =>  $service->getCurrentRate(),
-                'supporter_order_id'            =>  Admin::user()->staff_order_id,
-                'supporter_sale_id'            =>  Admin::user()->staff_sale_id,
+                'supporter_order_id'            =>  Admin::user()->staff_order_id ?? null,
+                'supporter_sale_id'            =>  Admin::user()->staff_sale_id ?? null,
                 'purchase_order_service_fee'    =>  $service->calOrderService($item_total_amount, Admin::user()->percentService->percent),
                 'deposited_at'  =>  null,
                 'order_at'      =>  null,
@@ -60,6 +60,6 @@ class CustomerPurchaseOrderController extends AdminController {
         }
         
         admin_toastr('Tạo đơn hàng thành công', 'success');
-        return redirect()->back();
+        return redirect()->route('admin.purchase_orders.index');
     }
 }

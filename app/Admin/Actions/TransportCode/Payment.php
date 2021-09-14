@@ -55,7 +55,7 @@ SCRIPT;
 
     public function html()
     {
-        return "<a class='confirm-swap-warehouse btn btn-md btn-danger'><i class='fa fa-times'></i>&nbsp; Thanh toán tạm</a>";
+        return "<a class='confirm-swap-warehouse btn btn-sm btn-danger'><i class='fa fa-times'></i>&nbsp; Thanh toán tạm</a>";
     }
 
 }

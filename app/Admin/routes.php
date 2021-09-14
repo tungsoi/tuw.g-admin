@@ -104,6 +104,12 @@ Route::group([
     $router->post('purchase_orders/store_edit_data', 'PurchaseOrder\\PurchaseOrderController@postEditData')->name('purchase_orders.store_edit_data');
    
     // weight portal
-    $router->get('weight_portals', 'System\\WeightPortalController@indexRebuild')->name('weight_portals.index');    
+    $router->get('weight_portals', 'System\\WeightPortalController@indexRebuild')->name('weight_portals.index'); 
+    
+    // carts
+    $router->get('/carts/booking/{ids}', 'Customer\\CartController@booking')->name('carts.booking');
+    $router->post('/carts/storeAdd1688', 'Customer\\CartController@storeAdd1688')->name('carts.storeAdd1688');
+
+
 
 });

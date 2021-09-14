@@ -53,7 +53,7 @@ SCRIPT;
 
     public function html()
     {
-        return "<a class='confirm-order-item btn btn-sm btn-primary'><i class='fa fa-check'></i>&nbsp; Xác nhận đã đặt hàng</a>";
+        return "<a class='confirm-order-item btn btn-sm btn-primary'>Xác nhận đã đặt hàng</a>";
     }
 
 }

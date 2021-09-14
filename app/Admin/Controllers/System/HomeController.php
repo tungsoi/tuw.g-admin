@@ -30,9 +30,9 @@ class HomeController extends Controller
                 }
             })
             ->row(function (Row $row) { 
-                if (Admin::user()->isRole('customer')) {
-                    $row->column(12, "Box tra thông tin mã vận đơn");
-                }
+                // if (Admin::user()->isRole('customer')) {
+                //     $row->column(12, "Box tra thông tin mã vận đơn");
+                // }
             });
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Admin\Controllers\PurchaseOrder;
 
 use App\Admin\Actions\PurchaseOrder\ConfirmOrderItem;
+use App\Admin\Actions\PurchaseOrder\ConfirmOutstockItem;
+use App\Admin\Actions\PurchaseOrder\ConfirmVnReceiveItem;
 use App\Admin\Actions\PurchaseOrder\Deposite;
 use App\Admin\Actions\PurchaseOrder\Update;
 use App\Admin\Services\OrderService;
@@ -325,7 +327,7 @@ class PurchaseOrderController extends AdminController
             }
         })->width(150);
 
-        if (! Admin::user()->isRole('customer')) {
+        if (! Admin::user()->isRole('customer') && Admin::user()->isRole('order_employee')) {
             $grid->final_payment('Tổng thanh toán')->editable()->style('text-align: right')->width(80);
         }
 
@@ -405,7 +407,7 @@ class PurchaseOrderController extends AdminController
             if (! Admin::user()->isRole('customer') && $order->status != 11) {
                 $row->column(12, function (Column $column) use ($id) 
                 {
-                    $column->append((new Box('', $this->action($id))));
+                    $column->append((new Box('Thao tác', $this->action($id))));
                 });   
             }
 
@@ -427,16 +429,16 @@ class PurchaseOrderController extends AdminController
             }
 
             $orderService = new OrderService();
-            $flagItem = $order->items->whereNotIn('status', [$orderService->getItemStatus('out_stock'), $orderService->getItemStatus('wait_order')])->count();
-            // flagitem -> check khong con san pham nao co trang thai # het hang hoac da dat hang
+            // $flagItem = $order->items->whereNotIn('status', [$orderService->getItemStatus('out_stock'), $orderService->getItemStatus('wait_order')])->count();
+            // // flagitem -> check khong con san pham nao co trang thai # het hang hoac da dat hang
 
 
-            if ($flagItem == 0 && ! Admin::user()->isRole('customer') && $order->status == $orderService->getStatus('deposited')) {
-                $row->column(12, function (Column $column) use ($id)
-                {
-                    $column->append((new Box('', $this->notifiOrdered($id))));
-                });
-            }
+            // if ($flagItem == 0 && ! Admin::user()->isRole('customer') && $order->status == $orderService->getStatus('deposited')) {
+            //     $row->column(12, function (Column $column) use ($id)
+            //     {
+            //         $column->append((new Box('', $this->notifiOrdered($id))));
+            //     });
+            // }
             
             $row->column(12, function (Column $column) use ($id)
             {
@@ -476,7 +478,7 @@ class PurchaseOrderController extends AdminController
             [
                 'Số sản phẩm',
                 "<span style='float: right'>". 'Lên đơn: ' .$order->items->sum('qty'). "</span>",
-                "<span style='float: right'>". 'Thực đặt: ' .$order->items->sum('qty_reality'). "</span>"
+                "<span style='float: right'>". 'Thực đặt: ' .$order->items->where('status', '!=', 4)->sum('qty_reality'). "</span>"
             ],
             [
                 'Tổng giá sản phẩm',
@@ -531,7 +533,7 @@ class PurchaseOrderController extends AdminController
 
     public function transportCode($id) {
         $transport_code_str = PurchaseOrder::find($id)->transport_code;
-        $headers = ['Mã vận đơn', 'Khối lượng', 'Giá', 'Tổng tiền'];
+        $headers = ['Mã vận đơn', 'Cân', 'Dài / Rộng / Cao', 'Giá', 'Tổng tiền', 'Trạng thái'];
         $rows = [];
 
         $total_kg = 0;
@@ -541,23 +543,28 @@ class PurchaseOrderController extends AdminController
             
             if (sizeof($transport_code_arr) > 0) {
                 foreach ($transport_code_arr as $key => $code_row) {
-                    $code = TransportCode::select('transport_code', 'kg', 'price_service')->where('transport_code', $code_row)->first();
+                    $code = TransportCode::where('transport_code', $code_row)->first();
 
                     if ($code) {
                         $amount = $code->kg * $code->price_service;
                         $total_kg += $code->kg;
                         $total_price += $amount;
     
+                        $tag = "<a style='color: green !important;' target='_blank' href=".route('admin.transport_codes.index')."?transport_code=".$code->transport_code.">".$code->transport_code."</a>";
                         $rows[] = [
-                            "<span style='float: left; color: green;'>".$code->transport_code."</span>",
+                            "<span style='float: left; color: green !important;'>".$tag."</span>",
                             "<span style='float: right; color: green;'>".$code->kg."</span>",
+                            "<span style='float: right; color: green;'>".$code->length." / ".$code->width." / ".$code->height."</span>",
                             "<span style='float: right; color: green;'>".number_format($code->price_service)."</span>",
-                            "<span style='float: right; color: green;'>".number_format($amount, 0)."</span>"
+                            "<span style='float: right; color: green;'>".number_format($amount, 0)."</span>",
+                            "<span style='float: right; color: green;'>".$code->getStatus()."</span>"
                         ];
                     } else {
                         $rows[] = [
                             $code_row,
                             'Chưa có dữ liệu',
+                            '',
+                            '',
                             '',
                             ''
                         ];
@@ -569,11 +576,15 @@ class PurchaseOrderController extends AdminController
                     '',
                     "<span style='float: right'>".$total_kg."</span>",
                     '',
-                    "<span style='float: right'>".number_format($total_price, 0)."</span>"
+                    '',
+                    "<span style='float: right'>".number_format($total_price, 0)."</span>",
+                    ''
                 ];
             } else {
                 $rows[] = [
                     'Mã vận đơn sai',
+                    '',
+                    '',
                     '',
                     '',
                     ''
@@ -582,6 +593,8 @@ class PurchaseOrderController extends AdminController
         } else {
             $rows[] = [
                 'Trống',
+                '',
+                '',
                 '',
                 '',
                 ''
@@ -605,9 +618,11 @@ class PurchaseOrderController extends AdminController
 
             if (! Admin::user()->isRole('customer')) {
                 $orderService = new OrderService();
-                if ($order->items()->whereStatus($orderService->getItemStatus('in_order'))->count() > 0) {
+                // if ($order->items()->whereStatus($orderService->getItemStatus('in_order'))->count() > 0) {
                     $tools->append(new ConfirmOrderItem());
-                }
+                    $tools->append(new ConfirmVnReceiveItem());
+                    $tools->append(new ConfirmOutstockItem());
+                // }
             }
            
             $tools->batch(function(Grid\Tools\BatchActions $actions) {
@@ -632,10 +647,13 @@ class PurchaseOrderController extends AdminController
 
         $form->hidden('id');
         $form->tags('transport_code', "Mã vận đơn")->help('Mã đầu tiên được hiểu là MVD chính, các mã sau là MVD phụ.');
-        $form->currency('final_payment', "Tệ thanh toán")->symbol('Tệ')->digits(2)->style('width', '100%');
 
-        $form->currency('offer_cn', 'Chiết khẩu')->symbol('Tệ')->digits(2)->readonly()->style('width', '100%');
-        $form->currency('offer_vn', 'Chiết khẩu')->symbol('VND')->digits(0)->readonly()->style('width', '100%');
+        if (Admin::user()->isRole('order_employee')) {
+            $form->currency('final_payment', "Tệ thanh toán")->symbol('Tệ')->digits(2)->style('width', '100%');
+
+            $form->currency('offer_cn', 'Chiết khẩu')->symbol('Tệ')->digits(2)->readonly()->style('width', '100%');
+            $form->currency('offer_vn', 'Chiết khẩu')->symbol('VND')->digits(0)->readonly()->style('width', '100%');
+        }
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
@@ -840,9 +858,19 @@ SCRIPT;
             $orderService = new OrderService();
 
             $order = PurchaseOrder::find($request->id);
-            $order->status = $orderService->getStatus('ordered');
-            $order->order_at = now();
-            $order->user_order_at = Admin::user()->id;
+            $order->status = $orderService->getStatus($request->type);
+
+            if ($request->type == "ordered") {
+                $order->order_at = now();
+                $order->user_order_at = Admin::user()->id;
+            } else if ($request->type == "vn-recevice") {
+                $order->vn_receive_at = now();
+                $order->user_vn_receive_at = Admin::user()->id;
+            } else if ($request->type == "success") {
+                $order->success_at = now();
+                $order->user_success_at = Admin::user()->id;
+            }
+            
             $order->save();
 
             return response()->json([
@@ -913,12 +941,45 @@ SCRIPT;
     public function action($id) {
         $order = PurchaseOrder::find($id);
         $transport_codes = explode(',', $order->transport_code);
-        $codes = TransportCode::whereIn('transport_code', $transport_codes)->get()->pluck('id')->toArray();
+        
+        // lấy danh sách các code đã về việt nam, đủ điều kiện thanh toán
+        $codes = TransportCode::whereIn('transport_code', $transport_codes)->where('status', 1)->get()->pluck('id')->toArray();
         $ids_route = implode(',', $codes);
+        $total = sizeof($transport_codes) ?? 0;
+        $can_payment = sizeof($codes) ?? 0;
+        $remain = $total - $can_payment;
 
-        $route = route('admin.payments.index', ['ids' => $ids_route]) . "?type=payment_temp&order_id=".$id;
+        $tips = "";
 
-        return "<a class='confirm-swap-warehouse btn btn-md btn-danger' href=".$route." target='_blank'><i class='fa fa-check'></i>&nbsp; Thanh toán tạm</a>";
+        $flag_payment = true; // van chuyen + mua ho
+        if (! is_array($transport_codes) && sizeof($transport_codes) == 0) {
+            $flag_payment = false; // van chuyen
+        } else {
+            foreach ($transport_codes as $code) {
+                $rs = TransportCode::where('transport_code', $code)->first();
+    
+                if (! $rs) {
+                    $flag_payment = false;
+                }
+            }
+        }
+
+        if (! $flag_payment) {
+            // còn mã chưa về --> chỉ thanh toán vận chuyển
+            $tips = "vận chuyển " . $can_payment . " MVD";
+            $payment_route = route('admin.payments.index', ['ids' => $ids_route]) . "?type=payment_export"; // <---- thanh toán xuất kho
+
+        } else {
+            // đã về hết --> thanh toán cả vận chuyển và mua hộ
+            $tips = "vận chuyển ".$can_payment." VND + Mua hộ còn nợ";
+            $payment_route = route('admin.payments.index', ['ids' => $ids_route]) . "?type=payment_temp&order_id=".$id;
+        }
+
+        if ($ids_route == "") {
+            $payment_route = "#";
+        }
+
+        return view('admin.system.purchase_order.action_portal', compact('id', 'payment_route', 'total', 'can_payment', 'tips'))->render();
     }
     
 }

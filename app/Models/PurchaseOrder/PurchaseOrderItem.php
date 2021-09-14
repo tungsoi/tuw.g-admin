@@ -46,7 +46,8 @@ class PurchaseOrderItem extends Model
         'order_id',
         'customer_id',
         'order_at',
-        'outstock_at'
+        'outstock_at',
+        'vn_receive_at'
     ];
 
     // protected $casts = [
@@ -78,6 +79,8 @@ class PurchaseOrderItem extends Model
             return $this->order_at != null ? date('H:i | d-m-Y', strtotime($this->order_at)) : null;
         } else if ($this->status == 4) {
             return $this->outstock_at != null ? date('H:i | d-m-Y', strtotime($this->outstock_at)) : null;
+        } else if ($this->status == 3) {
+            return $this->vn_receive_at != null ? date('H:i | d-m-Y', strtotime($this->vn_receive_at)) : null;
         }
 
         return null;

@@ -62,7 +62,7 @@ class PaymentController extends AdminController
                 display: none;
             }
         ');
-
+        
         return $content
             ->title($this->title)
             ->description($this->description['index'] ?? trans('admin.list'))
@@ -92,6 +92,8 @@ class PaymentController extends AdminController
                 $help = "Thanh toán các mã vận đơn đã chọn, tự động trừ tiền ví khách hàng. Trạng thái của mã vận chuyển thành chưa xuất kho.";
             } else if ($payment_type == 'payment_export') {
                 $help = "Thanh toán các mã vận đơn đã chọn, tự động trừ tiền ví khách hàng. Trạng thái của mã vận chuyển thành đã xuất kho.";
+            } else if ($payment_type == 'payment_temp') {
+                $help = "Thanh toán tiền vận chuyển của các mã vận đơn đã chọn, cộng tiền còn thiếu của đơn hàng mua hộ. Tự động trừ tiền ví khách hàng. Trạng thái mã vận đơn chuyển thành đã xuất kho.";
             }
             $form->hidden('order_type')->default($payment_type);
             $form->select('payment_note', 'LOẠI THANH TOÁN')->options([
@@ -257,7 +259,9 @@ class PaymentController extends AdminController
             } else if ($request->order_type == 'payment_export') {
                 $status = $orderService->getTransportCodeStatus('payment');
             } else if ($request->order_type == 'payment_temp') {
-                $status = $orderService->getTransportCodeStatus('wait-payment');
+                $status = $orderService->getTransportCodeStatus('payment');
+                $purchase_orders = PurchaseOrder::find($request->purchase_order_id);
+                $content = "Thanh toán kết đơn $purchase_orders->order_number (vận chuyển + tiền mua hộ)";
             }
 
             TransportCode::find($transport_code_id)->update([
@@ -269,36 +273,28 @@ class PaymentController extends AdminController
             ]);
         }
 
-        if ($request->order_type != 'payment_temp') {
-            // step 3: create transaction to wallet user
-            $job = new HandleCustomerWallet(
-                $request->payment_user_id,
-                Admin::user()->id,
-                $request->total_money,
-                3,
-                $content
-            );
-            dispatch($job);
+        // step 3: create transaction to wallet user
+        $job = new HandleCustomerWallet(
+            $request->payment_user_id,
+            Admin::user()->id,
+            $request->total_money,
+            3,
+            $content
+        );
+        dispatch($job);
 
-            //step 4: update customer wallet weight and create transaction weight
-            if ($request->wallet_weight == 1 && $request->payment_customer_wallet_weight_used > 0) {
-                $customer = User::find($request->payment_user_id);
-                $customer->wallet_weight -= $request->payment_customer_wallet_weight_used;
-                $customer->save();
-        
-                TransactionWeight::create([
-                    'customer_id'   => (int) $request->payment_user_id,
-                    'user_id_created'   =>  Admin::user()->id,
-                    'content'   =>  $content,
-                    'kg'    =>  $request->payment_customer_wallet_weight_used
-                ]);
-            }
-        } else {
-            if ($request->purchase_order_id != null) {
-                $order = PurchaseOrder::find($request->purchase_order_id);
-                $order->status =  $orderService->getStatus('payment-temp');
-                $order->save();
-            }
+        //step 4: update customer wallet weight and create transaction weight
+        if ($request->wallet_weight == 1 && $request->payment_customer_wallet_weight_used > 0) {
+            $customer = User::find($request->payment_user_id);
+            $customer->wallet_weight -= $request->payment_customer_wallet_weight_used;
+            $customer->save();
+    
+            TransactionWeight::create([
+                'customer_id'   => (int) $request->payment_user_id,
+                'user_id_created'   =>  Admin::user()->id,
+                'content'   =>  $content,
+                'kg'    =>  $request->payment_customer_wallet_weight_used
+            ]);
         }
         
         admin_toastr('Thanh toán thành công', 'success');
@@ -535,7 +531,7 @@ SCRIPT;
         $grid->disableExport();
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
-        $grid->paginate(100);
+        $grid->paginate(20);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableEdit();
             $actions->disableDelete();

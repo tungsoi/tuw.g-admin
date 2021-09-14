@@ -118,7 +118,8 @@ class TransportCodeController extends AdminController
                     'text'      =>  $this->transport_code
                 ],
                 'purchase_orders' => [
-                    'is_label'  =>  false,
+                    'is_link'  =>  true,
+                    'route' =>  route('admin.purchase_orders.index') . "?order_number=".$this->getOrdernNumberPurchase(),
                     'text'      =>  $this->getOrdernNumberPurchase()
                 ]
             ];

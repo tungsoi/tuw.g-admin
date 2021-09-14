@@ -56,7 +56,7 @@ SCRIPT;
 
     public function html()
     {
-        return "<a class='confirm-payment-not-export btn btn-md btn-info'><i class='fa fa-pause'></i>&nbsp; Thanh toán chưa xuất kho</a>";
+        return "<a class='confirm-payment-not-export btn btn-sm btn-info'><i class='fa fa-pause'></i>&nbsp; Thanh toán chưa xuất kho</a>";
     }
 
 }
