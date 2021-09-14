@@ -237,7 +237,7 @@ class PurchaseOrderItemController extends AdminController
         $grid->price('Đơn giá')->display(function () {
             try {
                 $price_rmb = (float) $this->price;
-                $price_rmb = number_format($price_rmb, 2);
+                $price_rmb = number_format($price_rmb, 2, '.', '');
                 $price_vnd = str_replace(",", "", $price_rmb) * $this->order->current_rate;
 
                 $data = [
