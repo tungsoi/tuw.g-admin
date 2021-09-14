@@ -227,7 +227,7 @@ class TransportCodeController extends AdminController
                 $actions->disableEdit();
             }
 
-            if (! in_array($this->row->status, [$orderService->getTransportCodeStatus('vietnam-rev'), $orderService->getTransportCodeStatus('swap')])) {
+            if (! in_array($this->row->status, [$orderService->getTransportCodeStatus('vietnam-rev'), $orderService->getTransportCodeStatus('swap'), $orderService->getTransportCodeStatus('not-export')])) {
                 Admin::script(
                     <<<EOT
                     $('input[data-id={$this->row->id}]').parent().parent().empty();
