@@ -51,6 +51,13 @@ class PurchaseOrderItemController extends AdminController
         $orderIds = PurchaseOrder::whereCustomerId(Admin::user()->id)->pluck('id');
         if (Admin::user()->isRole('customer')) {
             $grid->model()->whereIn('order_id', $orderIds);
+        } else if (Admin::user()->isRole('sale_employee') ) {
+            $customers = User::where('staff_sale_id', Admin::user()->id)->pluck('id');
+            $orders = PurchaseOrder::whereIn('customer_id', $customers)->pluck('id');
+            $grid->model()->whereIn('order_id', $orders);
+        } else if (Admin::user()->isRole('order_employee')) {
+            $orders = PurchaseOrder::where('supporter_order_id', Admin::user()->id)->pluck('id');
+            $grid->model()->whereIn('order_id', $orders);
         }
 
         $grid->filter(function($filter) use ($orderService) {
