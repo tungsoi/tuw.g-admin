@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers\TransportOrder;
 
 use App\Admin\Actions\TransportCode\ConfirmSwapWarehouse;
+use App\Admin\Actions\TransportCode\Export;
 use App\Admin\Actions\TransportCode\Payment;
 use App\Admin\Actions\TransportCode\PaymentExport;
 use App\Admin\Actions\TransportCode\PaymentNotExport;
@@ -99,6 +100,7 @@ class TransportCodeController extends AdminController
                 // $tools->append(new Payment());
                 $tools->append(new PaymentNotExport());
                 $tools->append(new PaymentExport());
+                $tools->append(new Export());
             }
             
         });
