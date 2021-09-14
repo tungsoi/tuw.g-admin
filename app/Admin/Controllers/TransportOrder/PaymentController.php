@@ -261,6 +261,11 @@ class PaymentController extends AdminController
             } else if ($request->order_type == 'payment_temp') {
                 $status = $orderService->getTransportCodeStatus('payment');
                 $purchase_orders = PurchaseOrder::find($request->purchase_order_id);
+
+                $purchase_orders->status = 9;
+                $purchase_orders->user_success_at = Admin::user()->id;
+                $purchase_orders->save();
+                
                 $content = "Thanh toán kết đơn $purchase_orders->order_number (vận chuyển + tiền mua hộ)";
             }
 
