@@ -112,7 +112,7 @@ class VietnamReceiveController extends AdminController
 
         $form->column(12, function ($form) {
             $form->table('vietnam-receive', '', function ($table) {
-                $table->display('STT')->default(1);
+                $table->text('STT')->default(1)->readonly();
                 $table->text('transport_code', 'Mã vận đơn')->autofocus();
                 $table->currency('kg', 'Cân nặng (kg)')->digits(1)->default(0);
                 $table->currency('length', 'Dài (cm)')->digits(0)->default(0);
@@ -157,6 +157,9 @@ class VietnamReceiveController extends AdminController
 
             .has-many-vietnam-receive-form td:nth-child(2) {
                 min-width: 250px !important;
+            }
+            .has-many-vietnam-receive-form td:nth-child(1) {
+                width: 20px !important;
             }
 
             form input {
@@ -246,31 +249,37 @@ class VietnamReceiveController extends AdminController
                 if (e.which == 13) 
                 {
                     e.preventDefault();
-                
-                    // add data vao list bang da ban
-                    $( '.col-md-4 tbody' ).append(
-                        "<tr><td>"
-                        + $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').val()
-                        + "</td> <td>"
-                        + $( ".has-many-vietnam-receive-form" ).last().find('.kg').val()
-                        + "</td> <td>"
-                        + $( ".has-many-vietnam-receive-form" ).last().find('.length').val()
-                        + " / "
-                        + $( ".has-many-vietnam-receive-form" ).last().find('.width').val()
-                        + " / "
-                        + $( ".has-many-vietnam-receive-form" ).last().find('.height').val()
-                        + "</td> <td>"
-                        + $( ".has-many-vietnam-receive-form" ).last().find('.advance_drag').val()
-                        + "</td> <td>"
-                        + $( ".has-many-vietnam-receive-form" ).last().find('.internal_note').val()
-                        + "</td>  </tr>"
-                    );
+
+                    let last_input_code = $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').val();
+
+                    if (last_input_code != "") {
+                    
+                        // add data vao list bang da ban
+                        $( '.col-md-4 tbody' ).append(
+                            "<tr><td>"
+                            + $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').val()
+                            + "</td> <td>"
+                            + $( ".has-many-vietnam-receive-form" ).last().find('.kg').val()
+                            + "</td> <td>"
+                            + $( ".has-many-vietnam-receive-form" ).last().find('.length').val()
+                            + " / "
+                            + $( ".has-many-vietnam-receive-form" ).last().find('.width').val()
+                            + " / "
+                            + $( ".has-many-vietnam-receive-form" ).last().find('.height').val()
+                            + "</td> <td>"
+                            + $( ".has-many-vietnam-receive-form" ).last().find('.advance_drag').val()
+                            + "</td> <td>"
+                            + $( ".has-many-vietnam-receive-form" ).last().find('.internal_note').val()
+                            + "</td>  </tr>"
+                        );
 
 
-                    // them dong moi + focus
+                        // them dong moi + focus
 
-                    $('#has-many-vietnam-receive .add').click();
-                    $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').focus();
+                        $('#has-many-vietnam-receive .add').click();
+                        $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').focus();
+                        $( ".has-many-vietnam-receive-form" ).last().find('.STT').val( $('tr.has-many-vietnam-receive-form').length );
+                    }
                 }
             });
 
@@ -278,39 +287,54 @@ class VietnamReceiveController extends AdminController
                 $('#scan-alert').hide();
                 $('#scan-alert span').html("");
 
-                // call ajax submit
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                let value = e.originalEvent.clipboardData.getData('text');
+                let codes = $(".has-many-vietnam-receive-form .transport_code");
+                let flag = true;
+
+                $('.transport_code').each(function(){
+                    console.log($(this).val(), "val");
+                    if (value.trim() === $(this).val().trim()) {
+                        $.admin.toastr.error('MVD "'+ value +'" trùng.', '', {timeOut: 5000});
+                        flag = false;
                     }
                 });
 
-                $.ajax({
-                    url: "vietnam_receives/search/" + e.originalEvent.clipboardData.getData('text'),
-                    type: 'GET',
-                    dataType: "JSON",
-                    success: function (response)
-                    {
-                        console.log(response);
+                if (flag) {
 
-                        if (! response.status) {
-                            $.admin.toastr.error(response.message, '', {timeOut: 2000});
-                            $( ".has-many-vietnam-receive-form" ).last().find('.kg').focus();
-                            $( ".has-many-vietnam-receive-form" ).last().find('.kg').click();
-                        } else {
-
-                            // da co thong tin, fill vao bang
-                            $( ".has-many-vietnam-receive-form" ).last().find('.kg').val(response.data.kg);
-                            $( ".has-many-vietnam-receive-form" ).last().find('.length').val(response.data.length);
-                            $( ".has-many-vietnam-receive-form" ).last().find('.width').val(response.data.width);
-                            $( ".has-many-vietnam-receive-form" ).last().find('.height').val(response.data.height);
-                            $( ".has-many-vietnam-receive-form" ).last().find('.advance_drag').val(response.data.advance_drag);
-                            $( ".has-many-vietnam-receive-form" ).last().find('.internal_note').val("Da ban TQ nhan");
-                            $( ".has-many-vietnam-receive-form" ).last().find('.kg').focus();
-                            $( ".has-many-vietnam-receive-form" ).last().find('.kg').click();
+                    // call ajax submit
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         }
-                    }
-                });
+                    });
+
+                    $.ajax({
+                        url: "vietnam_receives/search/" + e.originalEvent.clipboardData.getData('text'),
+                        type: 'GET',
+                        dataType: "JSON",
+                        success: function (response)
+                        {
+                            console.log(response);
+
+                            if (! response.status) {
+                                $.admin.toastr.warning(response.message, '', {timeOut: 2000});
+                                $( ".has-many-vietnam-receive-form" ).last().find('.kg').focus();
+                                $( ".has-many-vietnam-receive-form" ).last().find('.kg').click();
+                            } else {
+
+                                // da co thong tin, fill vao bang
+                                $( ".has-many-vietnam-receive-form" ).last().find('.kg').val(response.data.kg);
+                                $( ".has-many-vietnam-receive-form" ).last().find('.length').val(response.data.length);
+                                $( ".has-many-vietnam-receive-form" ).last().find('.width').val(response.data.width);
+                                $( ".has-many-vietnam-receive-form" ).last().find('.height').val(response.data.height);
+                                $( ".has-many-vietnam-receive-form" ).last().find('.advance_drag').val(response.data.advance_drag);
+                                $( ".has-many-vietnam-receive-form" ).last().find('.internal_note').val("Da ban TQ nhan");
+                                $( ".has-many-vietnam-receive-form" ).last().find('.kg').focus();
+                                $( ".has-many-vietnam-receive-form" ).last().find('.kg').click();
+                            }
+                        }
+                    });
+                }
             } );
         });
 SCRIPT;
