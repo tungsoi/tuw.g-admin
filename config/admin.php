@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'ALILOGI',
+    'name' => 'Alilogi',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<b>Alilogi</b> admin',
+    'logo' => '<b>Alilogi</b>',
 
     /*
     |--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ return [
     | If your page is going to be accessed via https, set it to `true`.
     |
     */
-    'https' => env('ADMIN_HTTPS', false),
+    'https' => env('ADMIN_HTTPS', true),
 
     /*
     |--------------------------------------------------------------------------
