@@ -310,7 +310,7 @@ class PurchaseOrderItemController extends AdminController
                 } else {
                     return null;
                 }
-            })->label('default')->width(200);
+            })->label('default')->width(150);
             $grid->cn_order_number('Mã giao dịch')->editable();
         }
 
