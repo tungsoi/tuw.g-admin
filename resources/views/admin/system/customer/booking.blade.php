@@ -42,7 +42,7 @@
                                     style="width: 70px; border: 1px solid gray; min-height: 70px;">
                             </td>
                             <td>
-                                <input value="{{ $item->shop_name }}" type="text"
+                                <input value="{{ $item->shop_name != "" ? $item->shop_name : "Không tên" }}" type="text"
                                     name="shop_name[{{ $item->id }}]" value="" class="form-control shop_name"
                                     placeholder="Nhập vào Tên shop">
                             </td>
