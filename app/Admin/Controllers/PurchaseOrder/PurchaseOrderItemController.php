@@ -84,9 +84,16 @@ class PurchaseOrderItemController extends AdminController
                         ->get()
                         ->pluck('name', 'id')
                     );
+
+
                 
                 if (! Admin::user()->isRole('customer')) {
-                    $filter->like('cn_order_number', 'Mã giao dịch');
+                    $filter->where(function ($query) {
+                        if ($this->input != "") {
+                            $orderIds = PurchaseOrder::select('transport_code', 'id')->where('transport_code','like', '%'.$this->input.'%')->pluck('id');
+                            $query->whereIn('order_id', $orderIds);
+                        }
+                    }, 'Mã vận đơn', 'transport_code');
                 }
             });
 
@@ -103,6 +110,12 @@ class PurchaseOrderItemController extends AdminController
             //             }
             //         }, 'Tìm kiếm', '7days')->radio(['Đơn hàng chưa hoàn thành trong 7 ngày']);
             //     }
+
+
+                    
+                if (! Admin::user()->isRole('customer')) {
+                    $filter->like('cn_order_number', 'Mã giao dịch');
+                }
             });
 
             Admin::style('
@@ -291,7 +304,13 @@ class PurchaseOrderItemController extends AdminController
             $grid->admin_note('Admin ghi chú')->style('max-width: 100px');
         } else {
             $grid->admin_note('Admin ghi chú')->editable()->style('max-width: 100px');
-            $grid->cn_code('Mã vận đơn')->editable();
+            $grid->cn_code('Mã vận đơn')->display(function () {
+                if ($this->order) {
+                    return explode(',', $this->order->transport_code);
+                } else {
+                    return null;
+                }
+            })->label('default')->width(200);
             $grid->cn_order_number('Mã giao dịch')->editable();
         }
 
