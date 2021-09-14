@@ -225,7 +225,7 @@ class VietnamReceiveController extends AdminController
 
             admin_toastr("Lưu thành công", 'success');
 
-            return redirect()->route('admin.transport_codes.index', ['customer_code_input' => $data['customer_code_input']]);
+            return redirect()->back();
         }
 
         admin_toastr("Xảy ra lỗi", 'error');
