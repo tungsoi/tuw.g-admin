@@ -51,7 +51,7 @@ class ForgotPasswordController extends AdminController
 
         session()->flash('verify-forgot-password', 'Vui lòng kiểm tra Email để xác thực thao tác đổi mật khẩu của bạn.');
 
-        return view('admin.login');
+        return redirect()->route('admin.login');
     }
 
     /**

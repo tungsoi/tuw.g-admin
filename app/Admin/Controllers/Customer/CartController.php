@@ -60,6 +60,12 @@ class CartController extends AdminController
         $grid = new Grid(new PurchaseOrderItem());
         $grid->model()->where('customer_id', -1);
 
+        PurchaseOrderItem::where('customer_id', Admin::user()->id)
+            ->whereNull('shop_name')
+            ->update([
+                'shop_name' =>  'Không tên'
+            ]);
+
         $shops = PurchaseOrderItem::select('shop_name')
                 ->whereNull('order_id')
                 ->where('customer_id', Admin::user()->id)

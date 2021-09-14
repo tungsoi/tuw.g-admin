@@ -112,6 +112,7 @@ class VietnamReceiveController extends AdminController
 
         $form->column(12, function ($form) {
             $form->table('vietnam-receive', '', function ($table) {
+                $table->display('STT')->default(1);
                 $table->text('transport_code', 'Mã vận đơn')->autofocus();
                 $table->currency('kg', 'Cân nặng (kg)')->digits(1)->default(0);
                 $table->currency('length', 'Dài (cm)')->digits(0)->default(0);
@@ -154,7 +155,7 @@ class VietnamReceiveController extends AdminController
                 width: 100%;
             }
 
-            .has-many-vietnam-receive-form td:nth-child(1) {
+            .has-many-vietnam-receive-form td:nth-child(2) {
                 min-width: 250px !important;
             }
 
