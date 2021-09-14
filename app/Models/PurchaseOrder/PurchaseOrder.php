@@ -128,10 +128,11 @@ class PurchaseOrder extends Model
         foreach ($this->items as $item) {
             if ($item->status != $service->getItemStatus('out_stock')) {
                 try {
-                    $price = number_format($item->price, 2);
+                    $price = (float) $item->price;
+                    $price = number_format($price, 2);
                     $total += $item->qty_reality * $price;
                 } catch (\Exception $e) {
-                    dd($item . " - " . $e->getMessage());
+                    
                 }
             }   
         }

@@ -229,7 +229,8 @@ class PurchaseOrderItemController extends AdminController
         
         $grid->price('Đơn giá')->display(function () {
             try {
-                $price_rmb = $this->price;
+                $price_rmb = (float) $this->price;
+                $price_rmb = number_format($price_rmb, 2);
                 $price_vnd = str_replace(",", "", $price_rmb) * $this->order->current_rate;
 
                 $data = [
@@ -249,7 +250,12 @@ class PurchaseOrderItemController extends AdminController
 
             try {
                 $purchase_cn_transport_fee = $this->purchase_cn_transport_fee != null ? $this->purchase_cn_transport_fee : 0;
-                $price_rmb = $this->qty_reality * $this->price + $purchase_cn_transport_fee ;
+                $purchase_cn_transport_fee = (float) $purchase_cn_transport_fee;
+                $purchase_cn_transport_fee = number_format($purchase_cn_transport_fee, 2);
+
+                $price = (float) $this->price;
+                $price = number_format($price, 2);
+                $price_rmb = $this->qty_reality * $price + $purchase_cn_transport_fee ;
                 $price_vnd = str_replace(",", "", $price_rmb) * $this->order->current_rate;
 
                 $data = [
