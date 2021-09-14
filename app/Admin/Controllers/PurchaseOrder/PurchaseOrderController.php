@@ -261,14 +261,19 @@ class PurchaseOrderController extends AdminController
             $grid->purchase_order_service_fee('Phí dịch vụ')->editable()->style('text-align: right');
         } else {
             $grid->purchase_order_service_fee('Phí dịch vụ')->display(function () {
+                if ($this->purchase_order_service_fee == "") {
+                    $purchase_order_service_fee = 0;
+                } else {
+                    $purchase_order_service_fee = $this->purchase_order_service_fee;
+                }
                 $data = [
                     'amount_rmb'   =>  [
                         'is_label'   =>  false,
-                        'text'      =>  $this->purchase_order_service_fee
+                        'text'      =>  $purchase_order_service_fee
                     ],
                     'amount_vnd'  =>  [
                         'is_label'  =>  false,
-                        'text'      =>  "<i>= ".number_format(str_replace(",", "", $this->purchase_order_service_fee) * $this->current_rate) . "</i>"
+                        'text'      =>  "<i>= ".number_format(str_replace(",", "", $purchase_order_service_fee) * $this->current_rate) . "</i>"
                     ]
                 ];            
                 return view('admin.system.core.list', compact('data'));
