@@ -161,6 +161,16 @@ class TransportCodeController extends AdminController
             return $amount == 0 ? "<span style='color: red'>0</span>" : number_format($amount);
             
         })->style('max-width: 100px');
+        $grid->china_receive_at('Về kho TQ')->display(function () {
+            if ($this->china_receive_at != null) {
+                return date('H:i d-m-Y', strtotime($this->china_receive_at));
+            }
+        });
+        $grid->vietnam_receive_at('Về kho VN')->display(function () {
+            if ($this->china_receive_at != null) {
+                return date('H:i d-m-Y', strtotime($this->china_receive_at));
+            }
+        });
         $grid->status('Trạng thái')->display(function () {
             $data = [
                 'order_number'   =>  [
