@@ -151,7 +151,7 @@ class AuthController extends Controller
 
             if (Admin::user()->isRole('customer')) {
                 $form->divider();
-                $form->select('staff_sale_id', 'Nhân viên Kinh doanh')->options($service->GetListSaleEmployee())->rules('required');
+                $form->select('staff_sale_id', 'Nhân viên Kinh doanh')->options($service->GetListSaleEmployee());
                 $form->select('staff_order_id', 'Nhân viên Đặt hàng')->options($service->GetListOrderEmployee());
                 $form->select('customer_percent_service', '% Phí dịch vụ')->options($service->GetListPercentService())->readonly();
             }
