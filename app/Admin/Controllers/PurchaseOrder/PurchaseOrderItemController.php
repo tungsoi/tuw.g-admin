@@ -258,10 +258,10 @@ class PurchaseOrderItemController extends AdminController
             try {
                 $purchase_cn_transport_fee = $this->purchase_cn_transport_fee != null ? $this->purchase_cn_transport_fee : 0;
                 $purchase_cn_transport_fee = (float) $purchase_cn_transport_fee;
-                $purchase_cn_transport_fee = number_format($purchase_cn_transport_fee, 2);
+                $purchase_cn_transport_fee = number_format($purchase_cn_transport_fee, 2, '.', '');
 
                 $price = (float) $this->price;
-                $price = number_format($price, 2);
+                $price = number_format($price, 2, '.', '');
                 $price_rmb = $this->qty_reality * $price + $purchase_cn_transport_fee ;
                 $price_vnd = str_replace(",", "", $price_rmb) * $this->order->current_rate;
 
