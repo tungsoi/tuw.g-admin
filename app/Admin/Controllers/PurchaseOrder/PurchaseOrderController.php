@@ -335,7 +335,10 @@ class PurchaseOrderController extends AdminController
 
         $grid->admin_note('Admin ghi chú');
         $grid->customer_note('KH ghi chú');
-        $grid->internal_note('Ghi chú nội bộ');
+
+        if (! Admin::user()->isRole('customer')) {
+            $grid->internal_note('Ghi chú nội bộ');
+        }
         
         $grid->disableCreateButton();
         $grid->disableExport();
