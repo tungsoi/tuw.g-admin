@@ -167,8 +167,8 @@ class TransportCodeController extends AdminController
             }
         });
         $grid->vietnam_receive_at('Về kho VN')->display(function () {
-            if ($this->china_receive_at != null) {
-                return date('H:i d-m-Y', strtotime($this->china_receive_at));
+            if ($this->vietnam_receive_at != null) {
+                return date('H:i d-m-Y', strtotime($this->vietnam_receive_at));
             }
         });
         $grid->status('Trạng thái')->display(function () {
