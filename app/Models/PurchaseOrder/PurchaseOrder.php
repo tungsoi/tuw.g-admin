@@ -127,13 +127,9 @@ class PurchaseOrder extends Model
         $total = 0;
         foreach ($this->items as $item) {
             if ($item->status != $service->getItemStatus('out_stock')) {
-                try {
-                    $price = (float) $item->price;
-                    $price = number_format($price, 2);
-                    $total += $item->qty_reality * $price;
-                } catch (\Exception $e) {
-                    
-                }
+                $price = (float) $item->price;
+                $price = number_format($price, 2, '.', '');
+                $total += $item->qty_reality * $price;
             }   
         }
 
