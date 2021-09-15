@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers\PurchaseOrder;
 
 use App\Admin\Actions\PurchaseOrder\ConfirmOrderItem;
+use App\Admin\Actions\PurchaseOrder\ConfirmVnReceiveItem;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
 use App\Models\PurchaseOrder\PurchaseOrder;
@@ -310,7 +311,8 @@ class PurchaseOrderItemController extends AdminController
                 } else {
                     return null;
                 }
-            })->label('default')->width(150);
+                return $this->order->transport_code;
+            })->width(150)->label('default');
             $grid->cn_order_number('Mã giao dịch')->editable();
         }
 
@@ -332,6 +334,21 @@ class PurchaseOrderItemController extends AdminController
                 $actions->disableEdit();
             }
 
+        });
+
+        $grid->tools(function (Grid\Tools $tools) {
+
+            if (! Admin::user()->isRole('customer')) {
+                // if ($order->items()->whereStatus($orderService->getItemStatus('in_order'))->count() > 0) {
+                    // $tools->append(new ConfirmOrderItem());
+                    $tools->append(new ConfirmVnReceiveItem());
+                    // $tools->append(new ConfirmOutstockItem());
+                // }
+            }
+           
+            $tools->batch(function(Grid\Tools\BatchActions $actions) {
+                $actions->disableDelete();
+            });
         });
 
         return $grid;
