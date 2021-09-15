@@ -28,6 +28,10 @@
             .main-header {
                 display: block;
             }
+
+            .box-header, .box-body {
+                overflow: scroll;
+            }
         }
      </style>
 </head>
