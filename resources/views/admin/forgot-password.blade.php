@@ -65,10 +65,13 @@
                 <div class="row">
                     <hr>
 
-                    <div class="col-xs-12">
-                        <p  style="float: right">
+                    <div class="col-xs-12" style="text-align: center;">
+                        <p>
                             Đã có tài khoản ?
                         <a href="{{ route('admin.login') }}">{{ trans('admin.login') }}</a></p>
+
+                        <hr>
+                        <p><a href="https://alilogi.vn">Trang chủ</a></p>
                     </div>
                 </div>
             </form>

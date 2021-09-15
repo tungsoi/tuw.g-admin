@@ -80,6 +80,8 @@
 
           <a href="{{ route('home.getForgotPassword') }}">Quên mật khẩu ?</a> <br> <br>
           <p>Chưa có tài khoản ? <a href="{{ route('home.register') }}">Đăng ký</a></p>
+          <hr>
+          <p><a href="https://alilogi.vn">Trang chủ</a></p>
         </div>
       </div>
     </form>

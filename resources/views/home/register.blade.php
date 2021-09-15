@@ -53,6 +53,9 @@
           <hr>
           <a href="{{ route('home.getForgotPassword')}}">Quên mật khẩu ?</a> <br> <br>
           <p>Đã có tài khoản ? <a href="{{ route('admin.login') }}">Đăng nhập</a></p>
+
+          <hr>
+          <p><a href="https://alilogi.vn">Trang chủ</a></p>
         </div>
       </div>
     </form>
