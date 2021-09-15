@@ -38,7 +38,7 @@ class TransportCodeController extends AdminController
         $grid = new Grid(new TransportCode());
         $grid->model()->where('transport_code', '!=', "")
             ->orderBy('vietnam_receive_at', 'desc')
-            ->orderBy('order_id', 'asc')
+            ->orderBy('export_at', 'asc')
             ->orderBy('customer_code_input', 'desc');
         
         // $grid->model()
