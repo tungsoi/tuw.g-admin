@@ -701,7 +701,7 @@ class PurchaseOrderController extends AdminController
         ');
 
         Admin::script($this->offerOrderScript());
-
+            
         $form->saved(function (Form $form) {
             $id = $form->model()->id;
             $order = PurchaseOrder::find($id);
@@ -714,8 +714,8 @@ class PurchaseOrderController extends AdminController
     
             }
 
-            admin_toastr('Chỉnh sửa thành công', 'success');
-            return redirect()->back();
+            // admin_toastr('Chỉnh sửa thành công', 'success');
+            // return redirect()->back();
         });
 
         return $form;
