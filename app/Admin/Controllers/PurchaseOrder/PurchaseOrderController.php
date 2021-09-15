@@ -994,5 +994,15 @@ SCRIPT;
 
         return view('admin.system.purchase_order.action_portal', compact('id', 'payment_route', 'total', 'can_payment', 'tips'))->render();
     }
+
+    public function updateTransportCode(Request $request) {
+        PurchaseOrder::find($request->id)->update([
+            'transport_code'  =>  $request->transport_code
+        ]);
+
+        admin_toastr('Cập nhật thành công', 'success');
+
+        return back();
+    }
     
 }

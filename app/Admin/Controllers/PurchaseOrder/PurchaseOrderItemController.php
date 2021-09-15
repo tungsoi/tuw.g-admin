@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\PurchaseOrder;
 
+use App\Admin\Actions\PurchaseOrder\AddTransportCode;
 use App\Admin\Actions\PurchaseOrder\ConfirmOrderItem;
 use App\Admin\Actions\PurchaseOrder\ConfirmVnReceiveItem;
 use App\Admin\Services\OrderService;
@@ -306,13 +307,25 @@ class PurchaseOrderItemController extends AdminController
         } else {
             $grid->admin_note('Admin ghi chú')->editable()->style('max-width: 100px');
             $grid->cn_code('Mã vận đơn')->display(function () {
-                if ($this->order) {
-                    return explode(',', $this->order->transport_code);
-                } else {
-                    return null;
+
+                if ($this->order->transport_code != "") {
+                    $arr = explode(',', $this->order->transport_code);
+                    $html = "";
+                    foreach ($arr as $code) {
+                        $class = 'default';
+                        if (TransportCode::where('transport_code', $code)->whereIn('status', [1, 4, 5])->count() > 0) {
+                            $class = 'primary';
+                        } else if (TransportCode::where('transport_code', $code)->whereIn('status', [3])->count() > 0) {
+                            $class = 'success';
+                        }
+                        $html .= "<span class='label label-$class' style='margin-bottom: 5px !important;'>$code</span> &nbsp;";
+                    }
+    
+                    return $html;
                 }
-                return $this->order->transport_code;
-            })->width(150)->label('default');
+
+                return null;
+            })->width(150);
             $grid->cn_order_number('Mã giao dịch')->editable();
         }
 
@@ -332,6 +345,10 @@ class PurchaseOrderItemController extends AdminController
 
             if (($this->row->order == null) || ! in_array($this->row->order->status, [2, 4])) {
                 $actions->disableEdit();
+            }
+
+            if (! Admin::user()->isRole('customer')) {
+                $actions->append(new AddTransportCode($this->row->order_id));
             }
 
         });
