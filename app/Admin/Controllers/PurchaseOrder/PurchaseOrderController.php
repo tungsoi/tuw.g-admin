@@ -668,6 +668,12 @@ class PurchaseOrderController extends AdminController
             $form->currency('offer_vn', 'Chiết khẩu')->symbol('VND')->digits(0)->readonly()->style('width', '100%');
         }
 
+        $form->hidden('admin_note');
+        $form->hidden('customer_note');
+        $form->hidden('internal_note');
+
+
+
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
             $tools->disableView();
