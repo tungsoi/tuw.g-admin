@@ -313,7 +313,23 @@ class VietnamReceiveController extends AdminController
                         }
                     });
 
+
                     let transportCode = e.originalEvent.clipboardData.getData('text');
+
+                    // load data order
+
+                    $.ajax({
+                        url: "search_items/" + transportCode,
+                        type: 'GET',
+                        dataType: "JSON",
+                        success: function (response)
+                        {
+                            if (response.status && response.html != "") {
+                                $(".content > .row > .col-md-12 table tbody").prepend(response.html); 
+                            }
+                        }
+                    });
+
                     $.ajax({
                         url: "vietnam_receives/search/" + transportCode,
                         type: 'GET',
@@ -323,7 +339,7 @@ class VietnamReceiveController extends AdminController
                             console.log(response);
 
                             if (! response.status) {
-                                $.admin.toastr.warning(response.message, '', {timeOut: 2000});
+                                // $.admin.toastr.warning(response.message, '', {timeOut: 2000});
                                 $( ".has-many-vietnam-receive-form" ).last().find('.kg').focus();
                                 $( ".has-many-vietnam-receive-form" ).last().find('.kg').click();
                             } else {
@@ -338,21 +354,7 @@ class VietnamReceiveController extends AdminController
                                 $( ".has-many-vietnam-receive-form" ).last().find('.kg').focus();
                                 $( ".has-many-vietnam-receive-form" ).last().find('.kg').click();
                             }
-
-
-                            // load data order
-
-                            $.ajax({
-                                url: "search_items/" + transportCode,
-                                type: 'GET',
-                                dataType: "JSON",
-                                success: function (response)
-                                {
-                                    if (response.status && response.html != "") {
-                                        $(".content > .row > .col-md-12 table tbody").prepend(response.html); 
-                                    }
-                                }
-                            });
+                        
                         }
                     });
                 }

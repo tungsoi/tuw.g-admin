@@ -3,7 +3,7 @@
 
     <tr>
         <td>{{ $item->order->order_number }}</td>
-        <td>{{ $item->order->transport_code }}</td>
+        <td style="width: 200px;">{{ $item->order->transport_code }}</td>
         <td>
             @php
                 if (strpos($item->product_image, 'https://') !== false) {
@@ -23,7 +23,9 @@
         <td>{{ $item->price }}</td>
         <td>{{ $item->purchase_cn_transport_fee }}</td>
         <td>---</td>
-        <td>{{ $item->statusText->name }}</td>
+        <td>
+            <span class="status">{{ $item->statusText->name }}</span>
+        </td>
         <td>
             <button class="btn btn-sm btn-warning vn-receive-item" data-pk="{{ $item->id }}">Đã về kho VN</button>
         </td>
@@ -33,5 +35,25 @@
 @endif
 
 <script>
-    
+    $(document).on('click', '.vn-receive-item', function () {
+        let iThis = $(this);
+        // console.log('oke');
+        $.ajax({
+            url: '/admin/vn_received',
+            type: 'POST',
+            dataType: "JSON",
+            data: {
+                id: $(this).data('pk')
+            },
+            success: function (response)
+            {
+                console.log(response);
+                if (response.status) {
+                    $.admin.toastr.success("Đã tích nhận", '', {timeOut: 2000});
+                    iThis.parent().prev().find('.status').html(response.status);
+                    iThis.remove();
+                }
+            }
+        });
+    });
 </script>

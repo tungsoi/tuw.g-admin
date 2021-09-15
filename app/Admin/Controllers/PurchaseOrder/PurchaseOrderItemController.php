@@ -420,5 +420,20 @@ SCRIPT;
             'html'      =>  view('admin.system.purchase_order.search_items', compact('items'))->render()
         ]);
     }
+
+    public function vnReceived(Request $request) {
+        PurchaseOrderItem::find($request->id)->update([
+            'status'    =>  3,
+            'vn_receive_at' =>  now()
+        ]);
+
+        $res = PurchaseOrderItem::find($request->id);
+        $status = $res->statusText->name;
+        return response()->json([
+            'status'    =>  true,
+            'data'  =>  PurchaseOrderItem::find($request->id),
+            'status'    =>  $status
+        ]);
+    }
     
 }
