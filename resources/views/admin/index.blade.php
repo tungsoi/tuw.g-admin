@@ -20,6 +20,16 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+     <style>
+        .main-header {
+            display: none;
+        }
+         @media only screen and (max-width: 900px) {
+            .main-header {
+                display: block;
+            }
+        }
+     </style>
 </head>
 
 <body class="hold-transition {{config('admin.skin')}} {{join(' ', config('admin.layout'))}}">
@@ -36,7 +46,7 @@
 
 <div class="wrapper">
 
-    {{-- @include('admin::partials.header') --}}
+    @include('admin::partials.header')
 
     @include('admin::partials.sidebar')
 
