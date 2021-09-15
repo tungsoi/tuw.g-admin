@@ -65,7 +65,7 @@ class PurchaseOrderItemController extends AdminController
         $grid->filter(function($filter) use ($orderService) {
             $filter->expand();
             $filter->disableIdFilter();
-            $filter->column(1/3, function ($filter) {
+            $filter->column(1/4, function ($filter) {
                 $filter->where(function ($query) {
                     $orderIds = PurchaseOrder::select('id')->where('order_number', 'like', "%".$this->input."%")->get()->pluck('id');
                     $query->whereIn('order_id', $orderIds);
@@ -76,7 +76,7 @@ class PurchaseOrderItemController extends AdminController
                 } 
 
             });
-            $filter->column(1/3, function ($filter) use ($orderService) {
+            $filter->column(1/4, function ($filter) use ($orderService) {
                 $filter->equal('status', 'Trạng thái')
                     ->select(
                         PurchaseOrderItemStatus::whereIn(
@@ -99,25 +99,38 @@ class PurchaseOrderItemController extends AdminController
                 }
             });
 
-            $filter->column(1/3, function ($filter) {
+            $filter->column(1/4, function ($filter) {
                 $filter->between('order_at', 'Ngày đặt hàng')->date();
-            //     $filter->between('deposited_at', 'Ngày cọc')->date();
 
-            //     if (! Admin::user()->isRole('customer')) {
-            //         $filter->where(function ($query) {
-            //             if ($this->input == '0') {
-            //                 $dayAfter = (new DateTime(now()))->modify('-7 day')->format('Y-m-d H:i:s');
-            //                 $query->where('deposited_at', '<=', $dayAfter)
-            //             ->whereIn('status', []);
-            //             }
-            //         }, 'Tìm kiếm', '7days')->radio(['Đơn hàng chưa hoàn thành trong 7 ngày']);
-            //     }
-
-
-                    
                 if (! Admin::user()->isRole('customer')) {
                     $filter->like('cn_order_number', 'Mã giao dịch');
                 }
+            });
+            $filter->column(1/4, function ($filter) {
+                if (! Admin::user()->isRole('customer')) {
+                    $filter->where(function ($query) {
+                        if ($this->input != "all") {
+                            switch ($this->input) {
+                                case "all":
+                                    break;
+                                case "product_add":
+                                    $query->where('cn_code', '!=', null);
+                                    break;
+                                case "product_not_add":
+                                    $query->whereNull('cn_code');
+                                case "order_not_add";
+                                    $orderIds = PurchaseOrder::select('id')->whereNull('transport_code')->pluck('id');
+                                    $query->whereIn('order_id', $orderIds);
+                            }
+                        }
+                    }, 'Trạng thái Mã vận đơn', 'status_transport_code')->select([
+                        'all'   =>  'Tất cả',
+                        'product_add'   =>  'Sản phẩm đã có MVD',
+                        'product_not_add'   =>  'Sản phẩm chưa có MVD',
+                        'order_not_add'     =>  'Đơn hàng chưa có MVD',
+                    ]);
+                }
+                
             });
 
             Admin::style('
@@ -306,7 +319,7 @@ class PurchaseOrderItemController extends AdminController
             $grid->admin_note('Admin ghi chú')->style('max-width: 100px');
         } else {
             $grid->admin_note('Admin ghi chú')->editable()->style('max-width: 100px');
-            $grid->cn_code('Mã vận đơn')->display(function () {
+            $grid->order_cn_code('Mã vận đơn')->display(function () {
 
                 if ($this->order->transport_code != "") {
                     $arr = explode(',', $this->order->transport_code);
@@ -326,6 +339,7 @@ class PurchaseOrderItemController extends AdminController
 
                 return null;
             })->width(150);
+            $grid->cn_code('MVD trên sản phẩm');
             $grid->cn_order_number('Mã giao dịch')->editable();
         }
 
