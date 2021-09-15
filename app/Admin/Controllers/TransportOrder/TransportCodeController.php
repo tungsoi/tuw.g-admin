@@ -278,7 +278,7 @@ SCRIPT;
     {
         $grid = new Grid(new TransportCode());
         $grid->model()->where('transport_code', '!=', "")
-        ->orderBy('vietnam_receive_at', 'desc');
+        ->orderBy('vietnam_receive_at', 'asc');
         // ->orderBy('payment_at', 'asc')
         // ->orderBy('customer_code_input', 'desc');
 
