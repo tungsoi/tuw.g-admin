@@ -9,6 +9,7 @@ use App\Admin\Services\UserService;
 use App\Jobs\HandleCustomerWallet;
 use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
+use App\Models\PurchaseOrder\PurchaseOrderItem;
 use App\Models\System\ExchangeRate;
 use App\Models\System\TransactionWeight;
 use App\Models\System\Warehouse;
@@ -403,8 +404,12 @@ SCRIPT;
             });
 
             $filter->column(1/4, function ($filter) {
-                $filter->like('customer_code_input', 'Mã khách hàng');
-
+                $filter->where(function ($query) {
+                    if ($this->input != "") {
+                        $orderIds = TransportCode::select('order_id', 'customer_code_input')->where('customer_code_input', 'like', '%'.$this->input.'%')->pluck('order_id');
+                        $query->whereIn('id', $orderIds);
+                    }
+                }, 'Mã khách hàng', 'customer_code_input');
             });
             $filter->column(1/4, function ($filter) use ($service)  {
                 if (! Admin::user()->isRole('customer') ) {
