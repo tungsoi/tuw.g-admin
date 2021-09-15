@@ -110,22 +110,27 @@ class UserService {
                 $flag = 'down';
             }
 
-            $data[] = [
-                'id'    =>  $record->id,
-                'order' =>  $key + 1,
-                'payment_date'  =>  date('H:i | d-m-Y', strtotime($record->created_at)),
-                'order_link'    =>  null,
-                'type_recharge' =>  $record->type->name,
-                'content'   =>  $record->content,
-                'before_payment'    =>  '',
-                'down'   =>  $down,
-                'up'    => $up,
-                'after_payment' =>  '',
-                'flag'  =>  $flag,
-                'user_id_created'   =>  $record->userCreated->name ?? "",
-                'updated_user_id'   =>  $record->userUpdated->name ?? "",
-                'updated_at'    =>  $record->updated_at
-            ];
+            // try {
+                $data[] = [
+                    'id'    =>  $record->id,
+                    'order' =>  $key + 1,
+                    'payment_date'  =>  date('H:i | d-m-Y', strtotime($record->created_at)),
+                    'order_link'    =>  null,
+                    'type_recharge' =>  $record->type->name ?? "",
+                    'content'   =>  $record->content,
+                    'before_payment'    =>  '',
+                    'down'   =>  $down,
+                    'up'    => $up,
+                    'after_payment' =>  '',
+                    'flag'  =>  $flag,
+                    'user_id_created'   =>  $record->userCreated->name ?? "",
+                    'updated_user_id'   =>  $record->userUpdated->name ?? "",
+                    'updated_at'    =>  $record->updated_at
+                ];
+            // } catch (\Exception $e) {
+            //     dd($record);
+            // }
+            
         }
 
         $data = array_reverse($data);
