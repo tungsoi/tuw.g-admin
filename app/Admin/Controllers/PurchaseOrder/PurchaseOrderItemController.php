@@ -343,7 +343,7 @@ class PurchaseOrderItemController extends AdminController
 
                 return null;
             })->width(150);
-            $grid->cn_code('MVD trên sản phẩm');
+            $grid->cn_code('MVD trên sản phẩm')->editable();
             $grid->cn_order_number('Mã giao dịch')->editable();
         }
 
@@ -400,6 +400,7 @@ class PurchaseOrderItemController extends AdminController
             $form->currency('qty_reality', 'Số lượng thực đặt')->digits(0)->symbol('');
             $form->text('admin_note', 'Admin ghi chú');
             $form->textarea('cn_order_number', 'Mã giao dịch');
+            $form->textarea('cn_code', 'Mã vận đơn trên sản phẩm');
             $form->currency('purchase_cn_transport_fee', 'VC nội địa TQ')->digits(1)->symbol('');
         }
 
