@@ -36,7 +36,15 @@ class TransportCodeController extends AdminController
     public function grid() 
     {
         $grid = new Grid(new TransportCode());
-        $grid->model()->where('transport_code', '!=', "")->orderBy('payment_at', 'asc')->orderBy('customer_code_input', 'desc');
+        $grid->model()->where('transport_code', '!=', "")
+            ->orderBy('vietnam_receive_at', 'desc')
+            ->orderBy('order_id', 'asc')
+            ->orderBy('customer_code_input', 'desc');
+        
+        // $grid->model()
+        // ->orderBy('updated_at', 'desc');
+        // ->orderBy('payment_at', 'asc')
+        // ->orderBy('customer_code_input', 'desc');
 
         $userService = new UserService();
         $orderService = new OrderService();
@@ -278,9 +286,8 @@ SCRIPT;
     {
         $grid = new Grid(new TransportCode());
         $grid->model()->where('transport_code', '!=', "")
-        ->orderBy('vietnam_receive_at', 'asc');
-        // ->orderBy('payment_at', 'asc')
-        // ->orderBy('customer_code_input', 'desc');
+        ->orderBy('vietnam_receive_at', 'desc')
+        ->orderBy('customer_code_input', 'desc');
 
         if (! isset($_GET['transport_code'])) {
             $grid->model()->where('transport_code', '-111');
