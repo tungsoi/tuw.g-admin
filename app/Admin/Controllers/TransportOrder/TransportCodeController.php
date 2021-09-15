@@ -278,9 +278,9 @@ SCRIPT;
     {
         $grid = new Grid(new TransportCode());
         $grid->model()->where('transport_code', '!=', "")
-        ->orderBy('vietnam_receive_at', 'desc')
-        ->orderBy('payment_at', 'asc')
-        ->orderBy('customer_code_input', 'desc');
+        ->orderBy('vietnam_receive_at', 'desc');
+        // ->orderBy('payment_at', 'asc')
+        // ->orderBy('customer_code_input', 'desc');
 
         if (! isset($_GET['transport_code'])) {
             $grid->model()->where('transport_code', '-111');
