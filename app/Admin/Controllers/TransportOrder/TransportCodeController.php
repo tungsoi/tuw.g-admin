@@ -150,7 +150,9 @@ class TransportCodeController extends AdminController
         $grid->customer_payment('Khách hàng thanh toán')->style('width: 100px')->display(function () {
             return $this->paymentOrder->paymentCustomer->symbol_name ?? "";
         });
-        $grid->kg('Cân nặng (kg)');
+        $grid->kg('Cân nặng (kg)')->totalRow(function ($amount) {
+            return number_format($amount, 2);
+        });
         $grid->length('Dài (cm)');
         $grid->width('Rộng (cm)');
         $grid->height('Cao (cm)');
