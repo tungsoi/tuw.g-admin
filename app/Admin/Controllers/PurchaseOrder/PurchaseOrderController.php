@@ -58,6 +58,8 @@ class PurchaseOrderController extends AdminController
         } else if (Admin::user()->isRole('sale_employee')) {
             $customers = User::where('staff_sale_id', Admin::user()->id)->pluck('id');
             $grid->model()->whereIn('customer_id', $customers);
+        } else if (Admin::user()->isRole('order_manager')) {
+            // $grid->model()->where('supporter_order_id', Admin::user()->id);
         } else if (Admin::user()->isRole('order_employee')) {
             $grid->model()->where('supporter_order_id', Admin::user()->id);
         }
