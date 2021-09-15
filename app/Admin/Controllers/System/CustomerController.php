@@ -51,9 +51,9 @@ class CustomerController extends AdminController
         $grid = new Grid(new User());
         $grid->model()->whereIsCustomer(User::CUSTOMER)->orderBy('id', 'desc');
 
-        if (Admin::user()->isRole('sale_employee')) {
-            $grid->model()->where('staff_sale_id', Admin::user()->id);
-        }
+        // if (Admin::user()->isRole('sale_employee')) {
+        //     $grid->model()->where('staff_sale_id', Admin::user()->id);
+        // }
 
         $grid->expandFilter();
         $grid->filter(function($filter) {
