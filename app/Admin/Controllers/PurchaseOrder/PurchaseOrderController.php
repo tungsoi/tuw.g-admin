@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\PurchaseOrder;
 
+use App\Admin\Actions\Customer\Recharge;
 use App\Admin\Actions\PurchaseOrder\ConfirmOrderItem;
 use App\Admin\Actions\PurchaseOrder\ConfirmOutstockItem;
 use App\Admin\Actions\PurchaseOrder\ConfirmVnReceiveItem;
@@ -366,6 +367,7 @@ class PurchaseOrderController extends AdminController
                 }
 
                 $actions->append(new Update($this->row->id));
+                $actions->append(new Recharge($this->row->customer_id));
             }
             
         });

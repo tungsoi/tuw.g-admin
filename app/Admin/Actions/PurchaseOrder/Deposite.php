@@ -30,7 +30,7 @@ class Deposite
     {
         $route = route('admin.purchase_orders.admin_deposite', $this->id);
         return '<a href="'.$route.'" class="btn btn-xs btn-success" data-toggle="tooltip" title="Đặt cọc"">
-                    <i class="fa fa-dollar"></i>
+                    <i class="fa fa-money"></i>
                 </a>';
     }
 
