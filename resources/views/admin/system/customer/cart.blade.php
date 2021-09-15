@@ -46,12 +46,6 @@
                                         $route = $item_ele->product_image;
                                     }
                                 }
-                                
-                                // if (strpos($item_ele->product_image, '//') !== false){
-                                //     $link = $item_ele->product_image;
-                                // } else {
-                                //     $link = asset('uploads/' . $item_ele->product_image );
-                                // }
                             @endphp 
 
                             <img src="{{$route}}" style="width:100px;" class="img img-thumbnail">
@@ -70,7 +64,7 @@
                             {{ $item_ele->qty }}
                         </td>
                         @php
-                            $price = str_replace(",", ".", $item_ele->price);
+                            $price = str_replace(",", ".", (float) $item_ele->price);
                         @endphp
                         <td style="width: 100px">
                             {{ $price }}
