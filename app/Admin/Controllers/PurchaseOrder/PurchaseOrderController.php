@@ -357,8 +357,10 @@ class PurchaseOrderController extends AdminController
             // }
 
             $orderService = new OrderService();
-            if (! in_array($this->row->status, [$orderService->getStatus('new-order'), $orderService->getStatus('deposited')]) ) {
-                // $actions->disableDelete();
+            if (Admin::user()->isRole('customer')) {
+                if (! in_array($this->row->status, [$orderService->getStatus('new-order'), $orderService->getStatus('deposited')]) ) {
+                    $actions->disableDelete();
+                }
             }
 
             if (! Admin::user()->isRole('customer')) {
