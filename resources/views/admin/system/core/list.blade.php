@@ -7,7 +7,7 @@
     @foreach ($data as $key => $row)
         <li style="margin: 3px 0px;">
             @if (isset($row['is_link']) && $row['is_link'])
-                <a href="{{ $row['route'] }}" target="_blank">{!! $row['text'] !!}</a>
+                <a href="{{ $row['route'] }}" target="_blank" @if (isset($row['style'])) style="{{ $row['style'] }}" @endif>{!! $row['text'] !!}</a>
             @elseif (isset($row['is_image']) && $row['is_image'])
                 <img src="{{ $row['link'] }}" style="max-width:70px;max-height:70px" class="img img-thumbnail">
             @else

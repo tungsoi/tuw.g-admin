@@ -36,7 +36,7 @@ class TransportCodeController extends AdminController
     public function grid() 
     {
         $grid = new Grid(new TransportCode());
-        $grid->model()->where('transport_code', '!=', "")->orderBy('id', 'desc');
+        $grid->model()->where('transport_code', '!=', "")->orderBy('payment_at', 'asc')->orderBy('customer_code_input', 'desc');
 
         $userService = new UserService();
         $orderService = new OrderService();
@@ -132,11 +132,12 @@ class TransportCodeController extends AdminController
                 'order_number'   =>  [
                     'is_link'   =>  true,
                     'route'     =>  route('admin.transport_codes.index'). "?customer_code_input=". $this->customer_code_input,
-                    'text'      =>  $this->customer_code_input
+                    'text'      =>  $this->customer_code_input,
+                    'style'     =>  'color: black'
                 ]
             ];
             return view('admin.system.core.list', compact('data'));
-        });
+        })->style('color: black !important;');
         $grid->customer_payment('Khách hàng thanh toán')->style('width: 100px')->display(function () {
             return $this->paymentOrder->paymentCustomer->symbol_name ?? "";
         });
