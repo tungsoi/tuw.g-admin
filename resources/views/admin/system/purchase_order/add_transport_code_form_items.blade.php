@@ -1,11 +1,11 @@
-<a class="btn btn-xs btn-warning btn-edit-transport-code" 
+<a class="btn btn-xs btn-info btn-edit-transport-code" 
 style="width: auto !important;"
-data-toggle="modal" data-target="#myModal"data-pk="{{ $order->id }}">
+data-toggle="modal" data-target="#myModal-{{ $order->id }}"data-pk="{{ $order->id }}">
     Sửa MVD
 </a>
 
 <!-- Modal -->
-<div id="myModal" class="modal fade" role="dialog">
+<div id="myModal-{{ $order->id }}" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <form action="{{ route('admin.purchase_orders.updateTransportCode') }}" method="post">
