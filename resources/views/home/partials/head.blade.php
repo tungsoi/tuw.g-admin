@@ -4,4 +4,4 @@
 <meta name="author" content="" />
 <title>{{ config('admin.name') }}</title>
 <link rel="icon" type="image/x-icon" href="{{ asset('home/images/favicon.png') }}" />
-<link href="{{ asset('home/css/styles.css') }}" rel="stylesheet" />
+<link href="{{ asset('home/css/styles.css') }}?time={{now()}}" rel="stylesheet" />
