@@ -126,6 +126,24 @@ class OrderService {
                 dispatch($job);
 
                 return true;
+            case $this->getStatus('ordered'):
+                $order->update([
+                    'status'    =>  $this->getStatus('cancle'),
+                    'cancle_at' =>  now(),
+                    'user_cancle_at'    =>  Admin::user()->id
+                ]);
+
+                $job = new HandleCustomerWallet(
+                    $order->customer_id,
+                    1,
+                    $order->deposited,
+                    2,
+                    "Huỷ đơn hàng. Hoàn tiền cọc đơn hàng mua hộ $order->order_number"
+                );
+
+                dispatch($job);
+
+                return true;
         }
     }
 
