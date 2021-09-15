@@ -375,8 +375,9 @@ class PurchaseOrderItemController extends AdminController
         $form = new Form(new PurchaseOrderItem());
         
         $form->currency('qty', 'Số lượng lên đơn')->digits(0)->symbol('');
+        $form->text('customer_note', 'Khách hàng ghi chú');
         if (Admin::user()->isRole('customer')) {
-            $form->text('customer_note', 'Khách hàng ghi chú');
+            
         } else {
             $form->currency('qty_reality', 'Số lượng thực đặt')->digits(0)->symbol('');
             $form->text('admin_note', 'Admin ghi chú');
