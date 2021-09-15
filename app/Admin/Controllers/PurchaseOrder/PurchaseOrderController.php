@@ -82,9 +82,16 @@ class PurchaseOrderController extends AdminController
             if (! Admin::user()->isRole('customer')) {
                 $filter->column(1/4, function ($filter) use ($service) {
                     $filter->equal('supporter_id', 'Nhân viên kinh doanh')->select($service->GetListSaleEmployee());
+                    $options = $service->GetListOrderEmployee();
+                    $options[0] = 'Chưa gán';
 
-                    $order_ids = DB::table('admin_role_users')->where('role_id', 4)->get()->pluck('user_id');
-                    $filter->equal('supporter_order_id', 'Nhân viên đặt hàng')->select($service->GetListOrderEmployee());
+                    $filter->where(function ($query) {
+                        if ($this->input == 0) {
+                            $query->whereNull('supporter_order_id');
+                        } else {
+                            $query->where('supporter_order_id', $this->input);
+                        }
+                    }, 'Nhân viên đặt hàng', 'supporter_order_id')->select($options);
                     
                     $filter->equal('warehouse_id', 'Kho nhận hàng')->select($service->GetListWarehouse());
                 });
