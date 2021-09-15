@@ -409,5 +409,16 @@ class PurchaseOrderItemController extends AdminController
             });
 SCRIPT;
     }
+
+    public function showRebuild($transportCode) {
+        $orderIds = PurchaseOrder::select('transport_code', 'id')->where('transport_code','like', '%'.$transportCode.'%')->pluck('id');
+        $items = PurchaseOrderItem::whereIn('order_id', $orderIds)->get();
+
+        return response()->json([
+            'status'    =>  true,
+            'data'      =>  $items,
+            'html'      =>  view('admin.system.purchase_order.search_items', compact('items'))->render()
+        ]);
+    }
     
 }

@@ -44,6 +44,11 @@ class VietnamReceiveController extends AdminController
                 {
                     $column->append((new Box('Danh sách mã đã bắn', $this->grid()))); 
                 });
+
+                $row->column(12, function (Column $column)
+                {
+                    $column->append((new Box('Sản phẩm Order', $this->gridOrder()))); 
+                });
             });
     }
 
@@ -308,8 +313,9 @@ class VietnamReceiveController extends AdminController
                         }
                     });
 
+                    let transportCode = e.originalEvent.clipboardData.getData('text');
                     $.ajax({
-                        url: "vietnam_receives/search/" + e.originalEvent.clipboardData.getData('text'),
+                        url: "vietnam_receives/search/" + transportCode,
                         type: 'GET',
                         dataType: "JSON",
                         success: function (response)
@@ -332,6 +338,21 @@ class VietnamReceiveController extends AdminController
                                 $( ".has-many-vietnam-receive-form" ).last().find('.kg').focus();
                                 $( ".has-many-vietnam-receive-form" ).last().find('.kg').click();
                             }
+
+
+                            // load data order
+
+                            $.ajax({
+                                url: "search_items/" + transportCode,
+                                type: 'GET',
+                                dataType: "JSON",
+                                success: function (response)
+                                {
+                                    if (response.status && response.html != "") {
+                                        $(".content > .row > .col-md-12 table tbody").prepend(response.html); 
+                                    }
+                                }
+                            });
                         }
                     });
                 }
@@ -356,5 +377,13 @@ SCRIPT;
                 'message'   =>  'Mã vận đơn chưa bắn Trung Quốc nhận'
             ]);
         }
+    }
+
+    public function gridOrder() {
+        $headers = ['Mã đơn hàng', 'Mã vận đơn', 'Ảnh', 'Link SP', 'Kích thước', 'Màu', 'Đơn giá', 'Phí VCND', 'Tổng tiền SP', 'Trạng thái', 'Thao tác'];
+        $rows = [];
+        $table = new Table($headers, $rows);
+
+        return $table;
     }
 }

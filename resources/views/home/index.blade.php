@@ -97,8 +97,7 @@
                             <div class="card-body text-center">
                                 <i class="fas fa-map-marked-alt text-primary mb-2"></i>
                                 <h4 class="text-uppercase m-0">Địa chỉ</h4>
-                                <hr class="my-4 mx-auto" />
-                                <div class="small text-black-50">Số 521 Bạch Mai, Quận Hai Bà Trưng, TP Hà Nội</div>
+                                <div class="small text-black-50">Số 521 Minh Khai, Quận Hai Bà Trưng, TP Hà Nội</div>
                             </div>
                         </div>
                     </div>
@@ -107,7 +106,6 @@
                             <div class="card-body text-center">
                                 <i class="fas fa-envelope text-primary mb-2"></i>
                                 <h4 class="text-uppercase m-0">Email</h4>
-                                <hr class="my-4 mx-auto" />
                                 <div class="small text-black-50"><a href="#!">support@alilogi.vn</a></div>
                             </div>
                         </div>
@@ -117,7 +115,6 @@
                             <div class="card-body text-center">
                                 <i class="fas fa-mobile-alt text-primary mb-2"></i>
                                 <h4 class="text-uppercase m-0">Hotline</h4>
-                                <hr class="my-4 mx-auto" />
                                 <div class="small text-black-50">+84 971.226.601</div>
                             </div>
                         </div>
@@ -134,4 +131,13 @@
         <footer class="footer bg-black small text-center text-white-50"><div class="container px-4 px-lg-5">Copyright &copy; Alilogi.vn 2021</div></footer>
         <!-- Bootstrap core JS-->
     </body>
+
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        $("button.navbar-toggler").on('click', function () {
+            $('#navbarResponsive').toggle();
+        });
+    </script>
 </html>

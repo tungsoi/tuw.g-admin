@@ -26,8 +26,8 @@
                 <hr style="color: white;">
                 <br>
                 <p style="color: white;">CÔNG CỤ ĐẶT HÀNG</p> <br>
-                <a class="btn btn-warning btn-sm" href="https://chrome.google.com/webstore/detail/alilogi-logistics-%C4%91%E1%BA%B7t-h%C3%A0n/dbfdjaaohgcjfeldjpgbpbpbajdafkec">Cài đặt cho Google Chorme</a>
-                <a class="btn btn-success btn-sm" href="https://chrome.google.com/webstore/detail/alilogi-logistics-%C4%91%E1%BA%B7t-h%C3%A0n/dbfdjaaohgcjfeldjpgbpbpbajdafkec">Cài đặt cho Cốc cốc</a>
+                <a class="btn btn-warning btn-sm" href="https://chrome.google.com/webstore/detail/alilogi-logistics-%C4%91%E1%BA%B7t-h%C3%A0n/dbfdjaaohgcjfeldjpgbpbpbajdafkec" style="margin-top: 20px;">Cài đặt cho Google Chorme</a>
+                <a class="btn btn-success btn-sm" href="https://chrome.google.com/webstore/detail/alilogi-logistics-%C4%91%E1%BA%B7t-h%C3%A0n/dbfdjaaohgcjfeldjpgbpbpbajdafkec" style="margin-top: 20px;">Cài đặt cho Cốc cốc</a>
             </div>
         </div>
     </div>

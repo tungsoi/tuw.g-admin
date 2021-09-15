@@ -110,6 +110,7 @@ Route::group([
     $router->get('/carts/booking/{ids}', 'Customer\\CartController@booking')->name('carts.booking');
     $router->post('/carts/storeAdd1688', 'Customer\\CartController@storeAdd1688')->name('carts.storeAdd1688');
 
-
+    // purchase_order_items
+    $router->get('search_items/{transport_code}', 'PurchaseOrder\\PurchaseOrderItemController@showRebuild')->name('purchase_order_items.showRebuild');
 
 });

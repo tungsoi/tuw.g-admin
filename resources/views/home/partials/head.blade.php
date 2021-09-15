@@ -4,5 +4,4 @@
 <meta name="author" content="" />
 <title>{{ config('admin.name') }}</title>
 <link rel="icon" type="image/x-icon" href="{{ asset('home/images/favicon.png') }}" />
-{{-- <script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js" crossorigin="anonymous"></script> --}}
 <link href="{{ asset('home/css/styles.css') }}" rel="stylesheet" />
