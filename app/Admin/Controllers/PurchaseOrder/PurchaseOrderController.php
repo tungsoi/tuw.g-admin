@@ -338,11 +338,11 @@ class PurchaseOrderController extends AdminController
             $grid->final_payment('Tổng thanh toán')->editable()->style('text-align: right')->width(80);
         }
 
-        $grid->admin_note('Admin ghi chú');
-        $grid->customer_note('KH ghi chú');
+        $grid->admin_note('Admin ghi chú')->editable()->style('max-width: 100px');
+        $grid->customer_note('KH ghi chú')->editable()->style('max-width: 100px');
 
         if (! Admin::user()->isRole('customer')) {
-            $grid->internal_note('Ghi chú nội bộ');
+            $grid->internal_note('Ghi chú nội bộ')->editable()->style('max-width: 100px');
         }
         
         $grid->disableCreateButton();
