@@ -633,7 +633,7 @@ class PurchaseOrderController extends AdminController
                 $orderService = new OrderService();
                 // if ($order->items()->whereStatus($orderService->getItemStatus('in_order'))->count() > 0) {
                     $tools->append(new ConfirmOrderItem());
-                    $tools->append(new ConfirmVnReceiveItem());
+                    // $tools->append(new ConfirmVnReceiveItem());
                     $tools->append(new ConfirmOutstockItem());
                 // }
             }
