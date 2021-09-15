@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\System;
 
+use App\Admin\Controllers\TransportOrder\TransportCodeController;
 use App\Http\Controllers\Controller;
 use App\Models\Setting\RoleUser;
 use App\User;
@@ -30,9 +31,10 @@ class HomeController extends Controller
                 }
             })
             ->row(function (Row $row) { 
-                // if (Admin::user()->isRole('customer')) {
-                //     $row->column(12, "Box tra thông tin mã vận đơn");
-                // }
+                if (Admin::user()->isRole('customer')) {
+                    $grid = new TransportCodeController();
+                    $row->column(12, $grid->gridFilterPortal()->render());
+                }
             });
     }
 }
