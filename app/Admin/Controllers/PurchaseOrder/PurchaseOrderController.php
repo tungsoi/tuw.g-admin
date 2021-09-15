@@ -668,11 +668,9 @@ class PurchaseOrderController extends AdminController
             $form->currency('offer_vn', 'Chiết khẩu')->symbol('VND')->digits(0)->readonly()->style('width', '100%');
         }
 
-        $form->hidden('admin_note');
-        $form->hidden('customer_note');
-        $form->hidden('internal_note');
-
-
+        $form->text('customer_note', 'Khách hàng ghi chú');
+        $form->text('admin_note', 'Admin ghi chú');
+        $form->text('internal_note', 'Ghi chú nội bộ');
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
@@ -709,9 +707,12 @@ class PurchaseOrderController extends AdminController
             $order = PurchaseOrder::find($id);
             $amount = $order->amount();
 
-            $order->offer_cn = number_format($amount - $order->final_payment, 2);
-            $order->offer_vn = number_format(($amount - $order->final_payment) * $order->current_rate, 0);
-            $order->save();
+            if ($order->final_payment != 0) {
+                $order->offer_cn = number_format($amount - $order->final_payment, 2);
+                $order->offer_vn = number_format(($amount - $order->final_payment) * $order->current_rate, 0);
+                $order->save();
+    
+            }
 
             admin_toastr('Chỉnh sửa thành công', 'success');
             return redirect()->back();
