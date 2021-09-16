@@ -177,7 +177,7 @@ class PurchaseOrderController extends AdminController
                 'status'        =>  [
                     'is_label'  =>  true,
                     'color'     =>  $this->statusText->label,
-                    'text'      =>  $this->statusText->name . $this->countItemFollowStatus()
+                    'text'      =>  $this->statusText->name . $this->countItemFollowStatus() . ($this->status == 7 ? $this->countProductFollowStatus() : null)
                 ],
                 'timeline'        =>  [
                     'is_label'  =>  false,

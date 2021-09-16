@@ -194,4 +194,15 @@ class PurchaseOrder extends Model
                 return " (" . $this->items()->whereStatus(1)->count() . "/" . $this->items()->where('status', '!=', 4)->count() .")";
         }
     }
+
+    public function countProductFollowStatus() {
+        $service = new OrderService();
+        switch ($this->statusText->code) {
+            case "vn-recevice": 
+                $allItems = $this->items->where('status', '!=', $service->getItemStatus('out_stock'))->count();
+                $vnItems = $this->items->where('status', $service->getItemStatus('vn_received'))->count();
+
+                return " (".$vnItems."/".$allItems.")";
+        }
+    }
 }
