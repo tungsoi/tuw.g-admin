@@ -722,11 +722,10 @@ class PurchaseOrderController extends AdminController
                 $order->offer_cn = number_format($amount - $order->final_payment, 2);
                 $order->offer_vn = number_format(($amount - $order->final_payment) * $order->current_rate, 0);
                 $order->save();
-    
             }
 
             // admin_toastr('Chỉnh sửa thành công', 'success');
-            // return redirect()->back();
+            return redirect()->back();
         });
 
         return $form;

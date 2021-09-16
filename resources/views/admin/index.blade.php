@@ -80,6 +80,7 @@
 <script>
     function copyElementText(id) {
         var text = document.getElementById(id).innerText;
+        text = text.replace("MH-", "");
         var elem = document.createElement("textarea");
         document.body.appendChild(elem);
         elem.value = text;
