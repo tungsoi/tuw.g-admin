@@ -32,6 +32,7 @@ use Illuminate\Support\Str;
 use Encore\Admin\Layout\Row;
 use Encore\Admin\Layout\Column;
 use Encore\Admin\Widgets\Box;
+use Illuminate\Support\Facades\URL;
 
 class PurchaseOrderController extends AdminController
 {
@@ -724,7 +725,9 @@ class PurchaseOrderController extends AdminController
                 $order->save();
             }
 
-            if ($_SERVER['REQUEST_URI'] != route('admin.purchase_orders.index')) {
+            $req = request()->all();
+            
+            if (! isset($req['_editable'])) {
                 admin_toastr('Chỉnh sửa thành công', 'success');
                 return redirect()->back();
             }
