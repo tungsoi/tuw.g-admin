@@ -247,8 +247,16 @@ class PurchaseOrderItemController extends AdminController
         $grid->column('product_link', 'Link SP')->display(function () {
             return "<a href='$this->product_link' target='_blank'>Xem</a>";
         })->width(100);
-        $grid->product_size('Kích thước')->style('text-align: right; max-width: 100px;');
-        $grid->product_color('Màu')->style('text-align: right; max-width: 100px;');
+        
+        if (Admin::user()->isRole('order_manager')) {
+
+            $grid->product_size('Kích thước')->style('text-align: right; max-width: 100px;')->editable();
+            $grid->product_color('Màu')->style('text-align: right; max-width: 100px;')->editable();
+        } else {
+
+            $grid->product_size('Kích thước')->style('text-align: right; max-width: 100px;');
+            $grid->product_color('Màu')->style('text-align: right; max-width: 100px;');
+        }
 
         // trường hợp đang ở màn hình chi tiết đơn hàng mua hộ
         $flag_qty = false;
@@ -281,23 +289,27 @@ class PurchaseOrderItemController extends AdminController
             $grid->qty_reality('Số lượng thực đặt')->style('text-align: right; max-width: 100px;')->editable();
         }
         
-        $grid->price('Đơn giá')->display(function () {
-            try {
-                $price_rmb = (float) $this->price;
-                $price_rmb = number_format($price_rmb, 2, '.', '');
-                $price_vnd = str_replace(",", "", $price_rmb) * $this->order->current_rate;
-
-                $data = [
-                    'amount_rmb'   =>  [
-                        'is_label'   =>  false,
-                        'text'      =>  $price_rmb
-                    ]
-                ];            
-                return view('admin.system.core.list', compact('data'));
-            } catch (\Exception $e) {
-                return "<span style='color: red'> Lỗi $this->id</span>";
-            }
-        })->style('text-align: right; max-width: 150px;');
+        if (Admin::user()->isRole('order_manager')) {
+            $grid->price('Đơn giá')->editable();
+        } else {
+            $grid->price('Đơn giá')->display(function () {
+                try {
+                    $price_rmb = (float) $this->price;
+                    $price_rmb = number_format($price_rmb, 2, '.', '');
+                    $price_vnd = str_replace(",", "", $price_rmb) * $this->order->current_rate;
+    
+                    $data = [
+                        'amount_rmb'   =>  [
+                            'is_label'   =>  false,
+                            'text'      =>  $price_rmb
+                        ]
+                    ];            
+                    return view('admin.system.core.list', compact('data'));
+                } catch (\Exception $e) {
+                    return "<span style='color: red'> Lỗi $this->id</span>";
+                }
+            })->style('text-align: right; max-width: 150px;');
+        }
 
         $grid->purchase_cn_transport_fee('VC nội địa TQ')->editable()->style('text-align: right; max-width: 150px;');
         $grid->column('total_price', 'Tổng tiền sản phẩm')->display(function () {
@@ -417,6 +429,9 @@ class PurchaseOrderItemController extends AdminController
             $form->textarea('cn_order_number', 'Mã giao dịch');
             $form->textarea('cn_code', 'Mã vận đơn trên sản phẩm');
             $form->currency('purchase_cn_transport_fee', 'VC nội địa TQ')->digits(1)->symbol('');
+            $form->text('product_size', 'Kích thước');
+            $form->text('product_color', 'Màu sắc');
+            $form->currency('price', 'Đơn giá')->digits(2)->symbol('');
         }
 
         $form->tools(function (Form\Tools $tools) {
@@ -471,10 +486,16 @@ class PurchaseOrderItemController extends AdminController
                 $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
             });
 
-            $(document).on('click', '.editable-submit', function () {
-                setTimeout(function () {
-                    location.reload();
-                }, 1000);
+            $('.column-product_size a').each(function () {
+                $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
+            });
+
+            $('.column-product_color a').each(function () {
+                $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
+            });
+
+            $('.column-price a').each(function () {
+                $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
             });
 SCRIPT;
     }
