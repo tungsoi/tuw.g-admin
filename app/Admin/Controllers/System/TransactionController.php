@@ -58,6 +58,23 @@ class TransactionController extends AdminController
             $filter->column(1/3, function ($filter) {
                 $filter->between('created_at', 'Ngày tạo')->date();
             });
+
+            Admin::style('
+                #filter-box label {
+                    padding: 0px !important;
+                    padding-top: 10px;
+                    font-weight: 600;
+                    font-size: 12px;
+                }
+                #filter-box .col-sm-2 {
+                    width: 100% !important;
+                    text-align: left;
+                    padding: 0px 15px 3px 15px !important;
+                }
+                #filter-box .col-sm-8 {
+                    width: 100% !important;
+                }
+            ');
         });
 
         $grid->rows(function (Grid\Row $row) {
