@@ -96,6 +96,8 @@ class TransactionController extends AdminController
         $grid->type()->name('Chi tiết giao dịch');
         $grid->money('Số tiền')->display(function () {
             return number_format($this->money);
+        })->totalRow(function ($amount) {
+            return number_format($amount);
         });
         $grid->type_detail('Loại giao dịch')->display(function () {
             if (in_array($this->type_recharge, [0, 1, 2])) {
