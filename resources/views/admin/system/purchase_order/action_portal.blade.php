@@ -15,14 +15,14 @@
     data-pk="{{ $id}}"
     data-action="{{ route('admin.purchase_orders.confirm_ordered') }}">3. Chốt đã về Việt Nam</a>
 
-@if ($status != 9) 
+{{-- @if ($status != 9)  --}}
 <a class='btn-update-status btn btn-sm btn-success'
     target='_blank' 
     data-type="success" 
     data-title="Xác nhận chốt thành công" 
     data-pk="{{ $id}}"
     data-action="{{ route('admin.purchase_orders.confirm_ordered') }}">4. Chốt thành công</a>
-@endif
+{{-- @endif --}}
 
 @if ($payment_route == "#")
     <a class='btn btn-sm btn-danger' id="btn-payment-error">5. Thanh toán</a>
