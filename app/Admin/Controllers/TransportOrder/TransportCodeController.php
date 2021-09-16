@@ -75,10 +75,11 @@ class TransportCodeController extends AdminController
 
             $filter->column(1/4, function ($filter) {
                 $filter->between('china_recevie_at', 'Ngày về TQ')->date();
+                $filter->between('payment_at', 'Ngày thanh toán')->date();
             });
 
             $filter->column(1/4, function ($filter) {
-                $filter->between('vietnam_recevie_at', 'Ngày về VN')->date();
+                $filter->between('export_at', 'Ngày xuất kho')->date();
             });
 
             Admin::style('
@@ -183,6 +184,12 @@ class TransportCodeController extends AdminController
         $grid->vietnam_receive_at('Về kho VN')->display(function () {
             if ($this->vietnam_receive_at != null) {
                 return date('H:i d-m-Y', strtotime($this->vietnam_receive_at));
+            }
+        });
+
+        $grid->payment_at('Ngày thanh toán')->display(function () {
+            if ($this->payment_at != null) {
+                return date('H:i d-m-Y', strtotime($this->payment_at));
             }
         });
         $grid->status('Trạng thái')->display(function () {
