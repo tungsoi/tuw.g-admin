@@ -911,12 +911,20 @@ SCRIPT;
                 $amount_vnd = str_replace(",", "", $amount_rmb) * $order->current_rate;
                 $owed = $amount_vnd-$deposited;
 
+                if ($owed > 0) {
+                    $type = 3;
+                    $content = "Thanh toán đơn hàng mua hộ. Mã đơn hàng ".$order->order_number;
+                } else {
+                    $type = 2;
+                    $content = "Thanh toán đơn hàng mua hộ. Mã đơn hàng ".$order->order_number.". ( Dư tiền cọc).";
+                }
+
                 $job = new HandleCustomerWallet(
                     $order->customer_id,
                     1,
                     $owed,
-                    3,
-                    "Thanh toán đơn hàng mua hộ. Mã đơn hàng ".$order->order_number
+                    $type,
+                    $content
                 );
                 dispatch($job);
             }
