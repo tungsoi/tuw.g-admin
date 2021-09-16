@@ -91,16 +91,19 @@
 
                 @if (! isset($disableAction))
                     <td class="actions">
-                        @php
-                            $route = route('admin.customers.transactions', $customer->id) . "?mode=recharge&transaction_id=" . $transaction['id'];
-                        @endphp
-                        <a href="{{ $route }}" class="grid-row-edit btn btn-xs btn-warning" data-toggle="tooltip" title="" data-original-title="Chỉnh sửa">
-                            <i class="fa fa-edit"></i>
-                        </a>
 
-                        <a href="javascript:void(0);" data-url="{{ route('admin.transactions.destroy', $transaction['id']) }}" data-id="{{ $transaction['id'] }}" class="grid-row-custom-delete btn btn-xs btn-danger" data-toggle="tooltip" title="Xóa">
-                            <i class="fa fa-trash"></i>
-                        </a>
+                        @if (Admin::user()->isRole('ar_employee'))
+                            @php
+                                $route = route('admin.customers.transactions', $customer->id) . "?mode=recharge&transaction_id=" . $transaction['id'];
+                            @endphp
+                            <a href="{{ $route }}" class="grid-row-edit btn btn-xs btn-warning" data-toggle="tooltip" title="" data-original-title="Chỉnh sửa">
+                                <i class="fa fa-edit"></i>
+                            </a>
+
+                            <a href="javascript:void(0);" data-url="{{ route('admin.transactions.destroy', $transaction['id']) }}" data-id="{{ $transaction['id'] }}" class="grid-row-custom-delete btn btn-xs btn-danger" data-toggle="tooltip" title="Xóa">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        @endif
                     </td>
                 @endif
             </tr>
