@@ -47,13 +47,16 @@ class TransactionController extends AdminController
         $grid->filter(function($filter) {
             $filter->disableIdFilter();
 
-            $filter->column(1/2, function ($filter) {
+            $filter->column(1/3, function ($filter) {
                 $filter->like('content', 'Nội dung');
                 $filter->equal('user_id_created', 'Người thực hiện')->select($this->userService->GetListArEmployee());
             });
-            $filter->column(1/2, function ($filter) {
+            $filter->column(1/3, function ($filter) {
                 $filter->equal('customer_id', 'Mã khách hàng')->select($this->userService->GetListCustomer());
                 $filter->equal('type_recharge', 'Loại giao dịch')->select(TransactionType::pluck('name', 'id'));
+            });
+            $filter->column(1/3, function ($filter) {
+                $filter->between('created_at', 'Ngày tạo')->date();
             });
         });
 
