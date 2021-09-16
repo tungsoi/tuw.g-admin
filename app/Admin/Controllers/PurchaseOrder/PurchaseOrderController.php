@@ -724,7 +724,7 @@ class PurchaseOrderController extends AdminController
                 $order->save();
             }
 
-            if ($_SERVER['REQUEST_URI'] != env('APP_URL')."/admin/purchase_orders") {
+            if ($_SERVER['REQUEST_URI'] != route('admin.purchase_orders.index')) {
                 admin_toastr('Chỉnh sửa thành công', 'success');
                 return redirect()->back();
             }
