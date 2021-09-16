@@ -726,7 +726,7 @@ class PurchaseOrderController extends AdminController
             }
 
             $req = request()->all();
-            
+
             if (! isset($req['_editable'])) {
                 admin_toastr('Chỉnh sửa thành công', 'success');
                 return redirect()->back();
@@ -905,6 +905,20 @@ SCRIPT;
             } else if ($request->type == "success") {
                 $order->success_at = now();
                 $order->user_success_at = Admin::user()->id;
+
+                $deposited = $order->deposited;
+                $amount_rmb = $order->amount();
+                $amount_vnd = str_replace(",", "", $amount_rmb) * $order->current_rate;
+                $owed = $amount_vnd-$deposited;
+
+                $job = new HandleCustomerWallet(
+                    $order->customer_id,
+                    1,
+                    $owed,
+                    3,
+                    "Thanh toán đơn hàng mua hộ. Mã đơn hàng ".$order->order_number
+                );
+                dispatch($job);
             }
             
             $order->save();
