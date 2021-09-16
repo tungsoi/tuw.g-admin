@@ -1029,7 +1029,9 @@ SCRIPT;
             $payment_route = "#";
         }
 
-        return view('admin.system.purchase_order.action_portal', compact('id', 'payment_route', 'total', 'can_payment', 'tips'))->render();
+        $status = $order->status;
+
+        return view('admin.system.purchase_order.action_portal', compact('id', 'payment_route', 'total', 'can_payment', 'tips', 'status'))->render();
     }
 
     public function updateTransportCode(Request $request) {
