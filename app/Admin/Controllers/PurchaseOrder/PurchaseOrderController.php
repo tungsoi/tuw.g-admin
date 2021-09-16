@@ -984,12 +984,7 @@ SCRIPT;
 
     public function postEditData(Request $request) {
         $order = PurchaseOrder::find($request->order_id);
-        $res = $order->update($request->only([
-            'customer_note',
-            'admin_note',
-            'internal_note',
-            'purchase_order_service_fee'
-        ]));
+        $res = $order->update($request->all());
 
         admin_toastr('Chỉnh sửa thành công', 'success');
 
