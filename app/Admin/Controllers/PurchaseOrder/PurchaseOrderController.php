@@ -917,6 +917,7 @@ SCRIPT;
                 } else {
                     $type = 2;
                     $content = "Thanh toán đơn hàng mua hộ. Mã đơn hàng ".$order->order_number.". ( Dư tiền cọc).";
+                    $owed = abs($owed);
                 }
 
                 $job = new HandleCustomerWallet(

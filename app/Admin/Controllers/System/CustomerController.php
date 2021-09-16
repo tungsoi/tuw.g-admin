@@ -157,7 +157,7 @@ class CustomerController extends AdminController
             // $actions->append(new PurchaseOrder($actions->getKey()));
             // $actions->append(new TransportOrder($actions->getKey()));
 
-            if (Admin::user()->isRole('ar_emloyee')) {
+            if (Admin::user()->isRole('ar_emloyee') || Admin::user()->isRole('warehouse_employee')) {
                 $actions->append(new Recharge($actions->getKey()));
                 $actions->append(new WalletWeight($actions->getKey()));
             }
