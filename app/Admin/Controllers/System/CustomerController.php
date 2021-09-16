@@ -316,7 +316,7 @@ class CustomerController extends AdminController
 
         $form->setAction($route);
 
-        $form->select('type_recharge', 'Loại giao dịch')->options(TransactionType::pluck('name', 'id'))->default(0)->rules('required');
+        $form->select('type_recharge', 'Loại giao dịch')->options(TransactionType::pluck('name', 'id'))->default(1)->rules('required');
         $form->currency('money', 'Số tiền cần nạp')->rules('required|min:4')->symbol('VND')->digits(0);
         $form->text('content', 'Nội dung')->placeholder('Ghi rõ nội dung giao dịch');
         $form->hidden('user_id_created')->default(Admin::user()->id);
