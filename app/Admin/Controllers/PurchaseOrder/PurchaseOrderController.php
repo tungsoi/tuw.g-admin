@@ -724,8 +724,11 @@ class PurchaseOrderController extends AdminController
                 $order->save();
             }
 
-            // admin_toastr('Chỉnh sửa thành công', 'success');
-            return redirect()->back();
+            if ($_SERVER['REQUEST_URI'] != env('APP_URL')."/admin/purchase_orders") {
+                admin_toastr('Chỉnh sửa thành công', 'success');
+                return redirect()->back();
+            }
+            
         });
 
         return $form;
