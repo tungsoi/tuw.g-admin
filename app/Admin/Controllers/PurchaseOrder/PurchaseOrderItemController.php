@@ -81,7 +81,7 @@ class PurchaseOrderItemController extends AdminController
 
             });
             $filter->column(1/4, function ($filter) use ($orderService) {
-                $filter->equal('status', 'Trạng thái')
+                $filter->equal('status', 'Trạng thái sản phẩm')
                     ->select(
                         PurchaseOrderItemStatus::whereIn(
                             'code', 
@@ -133,6 +133,21 @@ class PurchaseOrderItemController extends AdminController
                         'product_not_add'   =>  'Sản phẩm chưa có MVD',
                         'order_not_add'     =>  'Đơn hàng chưa có MVD',
                     ]);
+
+                    $service = new UserService();
+                    $options = $service->GetListOrderEmployee();
+                    $options[0] = 'Chưa gán';
+
+                    $filter->where(function ($query) {
+                        if ($this->input == 0) {
+                            $orderIds = PurchaseOrder::select('id')->whereNull('supporter_order_id')->pluck('id');
+                            $query->whereIn('order_id', $orderIds);
+                        } else {
+                            $orderIds = PurchaseOrder::select('id')->where('supporter_order_id', $this->input)->pluck('id');
+                            $query->whereIn('order_id', $orderIds); 
+                        }
+                    }, 'Nhân viên đặt hàng', 'staff_order_id')->select($options);
+
                 }
                 
             });
