@@ -85,7 +85,7 @@ class PurchaseOrderItemController extends AdminController
                     ->select(
                         PurchaseOrderItemStatus::whereIn(
                             'code', 
-                            ['in_order', 'wait_order', 'out_stock']
+                            ['in_order', 'wait_order', 'vn_received', 'out_stock']
                         )
                         ->get()
                         ->pluck('name', 'id')

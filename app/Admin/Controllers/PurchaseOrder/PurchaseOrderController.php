@@ -490,7 +490,7 @@ class PurchaseOrderController extends AdminController
         $deposited_at = $order->deposted_at != null ? date('H:i | d-m-Y', strtotime($order->deposited_at)) : "";
         $rows = [
             [
-                "<b id='order_number' onclick='copyElementText(this.id)' style='cursor:pointer'>" . $order->order_number . " / " . $order->customer->symbol_name . " <a style='font-weight: 400;'> - Copy</a></b>", 
+                "<b id='order_number' onclick='copyElementText(this.id)' style='cursor:pointer'>" . $order->order_number . " / " . $order->customer->symbol_name . "</b>", 
                 "<span style='float: right'>". number_format($order->current_rate) . " (vnd) <br> Kho: ". ($order->warehouse ? $order->warehouse->name : null) . ""."</span>",
                 "<span style='float: right'>". $order->shop_name . "</span>"
             ],
