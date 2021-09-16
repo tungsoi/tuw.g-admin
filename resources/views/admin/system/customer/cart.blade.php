@@ -5,7 +5,9 @@
 </div>
 <table class="table table-bordered">
     <thead>
-        <th></th>
+        <th>
+            <input type="checkbox" class="choose-item-all" id="">
+        </th>
         <th>STT</th>
         <th>Ảnh sản phẩm</th>
         <th>Tên sản phẩm</th>
@@ -137,6 +139,22 @@
 
 <script>
     let exchange_rates = $('.exchange_rates').val();
+
+    $(document).on('click', '.choose-item-all', function () {
+
+        if ( $(this).is(':checked') ) {
+            // tick all
+
+            console.log('oke');
+
+            $('.choose-item:checked').click();
+            $('.choose-item').click();
+        } else {
+            // bo tick all
+            $('.choose-item:checked').click();
+        }
+    });
+
 
     $(document).on('click', '.choose-item', function () {
 
