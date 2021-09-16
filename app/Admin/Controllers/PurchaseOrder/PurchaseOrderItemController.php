@@ -122,9 +122,11 @@ class PurchaseOrderItemController extends AdminController
                                     break;
                                 case "product_not_add":
                                     $query->whereNull('cn_code');
+                                    break;
                                 case "order_not_add";
                                     $orderIds = PurchaseOrder::select('id')->whereNull('transport_code')->pluck('id');
                                     $query->whereIn('order_id', $orderIds);
+                                    break;
                             }
                         }
                     }, 'Trạng thái Mã vận đơn', 'status_transport_code')->select([
