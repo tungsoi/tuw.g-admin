@@ -488,9 +488,7 @@ class ComplaintController extends AdminController
 
         $form->select('order_id', 'Mã đơn hàng')
         ->options(
-            PurchaseOrder::whereIn('status', [$this->statusSuccess, $this->statusOrdered, $this->statusWarehouseVN])
-            ->orderBy('id', 'desc')
-            ->get()
+            PurchaseOrder::orderBy('id', 'desc')
             ->pluck('order_number', 'id')
         )->rules('required');
         $form->multipleImage('image', 'Ảnh sản phẩm');
