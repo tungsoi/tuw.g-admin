@@ -185,7 +185,8 @@ class PurchaseOrder extends Model
             case "vn-recevice": 
                 if ($this->transport_code != "") {
                     $arr = explode(',', $this->transport_code);
-                    $done = TransportCode::whereIn('transport_code', $arr)->where('status', '!=', 0)->count();
+                    $arr = array_filter($arr);
+                    $done = TransportCode::whereIn('transport_code', $arr)->whereNotNull('transport_code')->where('status', '!=', 0)->count();
                     return " (".$done."/".sizeof($arr).")";
                 } else {
                     return " (0/0)";

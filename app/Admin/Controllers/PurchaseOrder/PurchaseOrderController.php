@@ -568,15 +568,16 @@ class PurchaseOrderController extends AdminController
             
             if (sizeof($transport_code_arr) > 0) {
                 foreach ($transport_code_arr as $key => $code_row) {
-                    $code = TransportCode::where('transport_code', $code_row)->first();
+                    if ($code_row != "") {
+                        $code = TransportCode::where('transport_code', $code_row)->first();
 
-                    if ($code) {
-                        $amount = $code->kg * $code->price_service;
-                        $total_kg += $code->kg;
-                        $total_price += $amount;
+                        if ($code) {
+                            $amount = $code->kg * $code->price_service;
+                            $total_kg += $code->kg;
+                            $total_price += $amount;
     
-                        $tag = "<a style='color: green !important;' target='_blank' href=".route('admin.transport_codes.index')."?transport_code=".$code->transport_code.">".$code->transport_code."</a>";
-                        $rows[] = [
+                            $tag = "<a style='color: green !important;' target='_blank' href=".route('admin.transport_codes.index')."?transport_code=".$code->transport_code.">".$code->transport_code."</a>";
+                            $rows[] = [
                             "<span style='float: left; color: green !important;'>".$tag."</span>",
                             "<span style='float: right; color: green;'>".$code->kg."</span>",
                             "<span style='float: right; color: green;'>".$code->length." / ".$code->width." / ".$code->height."</span>",
@@ -584,8 +585,8 @@ class PurchaseOrderController extends AdminController
                             "<span style='float: right; color: green;'>".number_format($amount, 0)."</span>",
                             "<span style='float: right; color: green;'>".$code->getStatus()."</span>"
                         ];
-                    } else {
-                        $rows[] = [
+                        } else {
+                            $rows[] = [
                             $code_row,
                             'Chưa có dữ liệu',
                             '',
@@ -593,6 +594,7 @@ class PurchaseOrderController extends AdminController
                             '',
                             ''
                         ];
+                        }
                     }
                     
                 }
