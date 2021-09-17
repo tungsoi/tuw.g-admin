@@ -128,11 +128,12 @@ EOT
         $form->date('date', "Ngày về kho")->default(now());
         $form->text('title', "Ký hiệu");
         $form->select('transport_route', 'Line vận chuyển')
-        ->options(TransportLine::all()->pluck('title', 'id'))
+        ->options(TransportLine::all()->pluck('code', 'id'))
         ->default(1);
         $form->select('warehouse_id', 'Kho nhận hàng')
         ->options(Warehouse::all()->pluck('name', 'id'))
         ->default(2);
+
         $line = ReportWarehouse::LINE;
 
         $form->html(function () use ($line) {
