@@ -448,6 +448,7 @@ class CustomerController extends AdminController
         $form->hidden('customer_id')->default($id);
         $form->hidden('record_id')->default($recordId);
         $form->hidden('updated_user_id')->default(Admin::user()->id);
+        $form->hidden('type')->default(2);
 
         $form->confirm('Xác nhận thực hiện giao dịch ?');
 
