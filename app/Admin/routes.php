@@ -63,6 +63,12 @@ Route::group([
         'transport_codes'   =>  'TransportOrder\\TransportCodeController',
         'china_receives'    =>  'TransportOrder\\ChinaReceiveController',
         'vietnam_receives'    =>  'TransportOrder\\VietnamReceiveController',
+
+        // weight report
+
+        'report_warehouses'     =>  'ReportWarehouse\\DetailController',
+        'report_warehouse_portal'     =>  'ReportWarehouse\\PortalController',
+        'report_warehouse_daily'     =>  'ReportWarehouse\\DailyController',
     ]);
 
     // transport order
@@ -125,4 +131,9 @@ Route::group([
     
     $router->post('/complaints/adminConfirmSuccess', 'PurchaseOrder\\ComplaintController@storeAdminConfirmSuccess')->name('complaints.storeAdminConfirmSuccess');
     $router->post('/complaints/customerConfirmSuccess', 'PurchaseOrder\\ComplaintController@storeCustomerConfirmSuccess')->name('complaints.storeCustomerConfirmSuccess');
+
+    // weight report
+    $router->post('/report_warehouses/storeDetail', 'ReportWarehouse\\DetailController@storeDetail')->name('report_warehouses.storeDetail');
+    $router->put('/report_warehouses/{id}', 'ReportWarehouse\\DetailController@updateDetail')->name('report_warehouses.updateDetail');
+    
 });
