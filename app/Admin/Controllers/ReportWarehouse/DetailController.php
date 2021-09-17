@@ -57,7 +57,7 @@ class DetailController extends AdminController
             return str_replace('.0000','', $this->cublic_meter);
         })->editable()->totalRow();
         $grid->column('line', 'Quy cách đóng gói')->width(100)->editable('select', ReportWarehouse::LINE);
-        $grid->transport_route('Line vận chuyển')->editable('select', TransportLine::all()->pluck('name', 'id'));
+        $grid->transport_route('Line vận chuyển')->editable('select', TransportLine::all()->pluck('code', 'id'));
         $grid->warehouse()->name('Kho nhận hàng');
         $grid->note('Ghi chú')->editable();
         $grid->created_at(trans('admin.created_at'))->display(function () {
