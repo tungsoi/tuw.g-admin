@@ -24,7 +24,7 @@
         .main-header {
             display: none;
         }
-         @media only screen and (max-width: 900px) {
+        @media only screen and (max-width: 900px) {
             .main-header {
                 display: block;
             }

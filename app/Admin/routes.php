@@ -47,6 +47,7 @@ Route::group([
         'customers'         =>  'System\\CustomerController',
         'transactions'      =>  'System\\TransactionController',
         'weight_portals'    =>  'System\\WeightPortalController',
+        'team_sales'        =>  'System\\TeamSaleController',
 
         // customer
         'carts'                         =>  'Customer\\CartController',
@@ -56,11 +57,12 @@ Route::group([
         'purchase_orders'       =>  'PurchaseOrder\\PurchaseOrderController',
         'purchase_order_items'  =>  'PurchaseOrder\\PurchaseOrderItemController',
         'offers'                =>  'PurchaseOrder\\OfferController',
+        'complaints'            =>  'PurchaseOrder\\ComplaintController',
 
         // transport order
         'transport_codes'   =>  'TransportOrder\\TransportCodeController',
         'china_receives'    =>  'TransportOrder\\ChinaReceiveController',
-        'vietnam_receives'    =>  'TransportOrder\\VietnamReceiveController'
+        'vietnam_receives'    =>  'TransportOrder\\VietnamReceiveController',
     ]);
 
     // transport order
@@ -114,4 +116,13 @@ Route::group([
     $router->get('search_items/{transport_code}', 'PurchaseOrder\\PurchaseOrderItemController@showRebuild')->name('purchase_order_items.showRebuild');
     $router->post('vn_received', 'PurchaseOrder\\PurchaseOrderItemController@vnReceived')->name('purchase_order_items.vnReceived');
     $router->post('updateTransportCode', 'PurchaseOrder\\PurchaseOrderController@updateTransportCode')->name('purchase_orders.updateTransportCode');
+
+    // complaint
+
+    $router->get('/complaints/{complaint}', 'PurchaseOrder\\ComplaintController@showComplaint')->name('complaints.showComplaint');
+    $router->post('/complaints/addComment', 'PurchaseOrder\\ComplaintController@addComment')->name('complaints.addComment');
+    $router->get('/complaints/skipNotification/{id}', 'PurchaseOrder\\ComplaintController@skipNotification')->name('complaints.skipNotification');
+    
+    $router->post('/complaints/adminConfirmSuccess', 'PurchaseOrder\\ComplaintController@storeAdminConfirmSuccess')->name('complaints.storeAdminConfirmSuccess');
+    $router->post('/complaints/customerConfirmSuccess', 'PurchaseOrder\\ComplaintController@storeCustomerConfirmSuccess')->name('complaints.storeCustomerConfirmSuccess');
 });

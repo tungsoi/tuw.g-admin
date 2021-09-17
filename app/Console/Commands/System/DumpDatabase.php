@@ -38,13 +38,20 @@ class DumpDatabase extends Command
      */
     public function handle()
     {
-        $filename = "backup-" . Carbon::now()->format('Y-m-d') . ".gz";
+        $owed = -1232132323;
+        $owed = abs($owed);
+
+        dd($owed);
+        // $filename = "backup-" . Carbon::now()->format('Y-m-d') . ".gz";
   
-        $command = "mysqldump --user=" . env('DB_USERNAME') ." --password=" . env('DB_PASSWORD') . " --host=" . env('DB_HOST') . " " . env('DB_DATABASE') . "  | gzip > " . storage_path() . "/app/backup/" . $filename;
+        // $command = "mysqldump -h " . env('DB_HOST') .
+        // " -u "          . env('DB_USERNAME') .
+        // " -p\""         . env('DB_PASSWORD') . "\"" .
+        // " --databases " . env('DB_DATABASE');
+
+        // $returnVar = NULL;
+        // $output  = NULL;
   
-        $returnVar = NULL;
-        $output  = NULL;
-  
-        exec($command, $output, $returnVar);
+        // exec($command, $output, $returnVar);
     }
 }
