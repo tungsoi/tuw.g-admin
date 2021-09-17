@@ -49,7 +49,7 @@ class WeightPortalController extends AdminController
                 $row->column(2, new InfoBox("Tổng cân trên toàn thời gian", 'weight', 'aqua', '/admin/customers', WeightPortal::whereType(2)->sum('value')));
                 $row->column(2, new InfoBox("Cân tổng còn lại chưa chia", 'weight', 'red', '/admin/customers', WeightPortal::whereType(1)->sum('value')));
                 $row->column(2, new InfoBox("Tổng cân đã chia nhân viên", 'weight', 'primary', '/admin/customers', WeightPortal::whereType(3)->sum('value')));
-                $row->column(2, new InfoBox("Tổng cân đã chia khách hàng", 'weight', 'orange', '/admin/customers', TransactionWeight::sum('kg')));
+                $row->column(2, new InfoBox("Tổng cân đã chia khách hàng", 'weight', 'orange', '/admin/customers', TransactionWeight::whereType(2)->sum('kg')));
                 $row->column(2, new InfoBox("Tổng số cân nhân viên còn giữ", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::ADMIN)->sum('wallet_weight')));
                 $row->column(2, new InfoBox("Tổng cân khách hàng còn dư", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::CUSTOMER)->sum('wallet_weight')));
 
