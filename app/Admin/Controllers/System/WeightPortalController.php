@@ -74,7 +74,7 @@ class WeightPortalController extends AdminController
 
                 $row->column(12, function (Column $column)
                 {
-                    $column->append((new Box('Lịch sử ' . $this->used_customer, ""))); // $this->gridUsed()->render()
+                    $column->append((new Box('Lịch sử ' . $this->used_customer, $this->gridUsed()->render()))); // $this->gridUsed()->render()
                 });
             });
     }
@@ -318,7 +318,7 @@ SCRIPT;
     protected function gridCustomer()
     {
         $grid = new Grid(new TransactionWeight());
-        $grid->model()->orderBy('id', 'desc');
+        $grid->model()->whereType(2)->orderBy('id', 'desc');
 
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
@@ -368,22 +368,17 @@ SCRIPT;
      */
     protected function gridUsed()
     {
-        $grid = new Grid(new WeightPortal());
-        $grid->model()->whereType(5)->orderBy('id', 'desc');
+        $grid = new Grid(new TransactionWeight());
+        $grid->model()->whereType(1)->orderBy('id', 'desc');
 
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->userCreate()->name('Người tạo');
-        $grid->userReceive()->name('Nhân viên');
-        $grid->value('Cân nặng (KG)')->totalRow();
-        $grid->price('Giá cân ước tính (VND)')->display(function () {
-            return number_format($this->price);
+        $grid->customer_id('Khách hàng')->display(function () {
+            return $this->customer->symbol_name;
         });
-        $grid->amount('Tổng giá trị (VND)')->display(function () {
-            return number_format($this->value * $this->price);
-        });
+        $grid->kg('Cân nặng (KG)')->totalRow();
         $grid->content('Nội dung');
         
         $grid->column('created_at', "Ngày tạo")->display(function () {

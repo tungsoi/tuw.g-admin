@@ -218,6 +218,7 @@ class PaymentController extends AdminController
         return $form;
     }
 
+    // handle payment
     public function storeRebuild(Request $request) {
         $orderService = new OrderService();
 
@@ -255,10 +256,12 @@ class PaymentController extends AdminController
         // step 2: update transport code
         foreach ($request->transport_code_id as $index => $transport_code_id) {
             $status = "";
+            $export_at = "";
             if ($request->order_type == 'payment_not_export') {
                 $status = $orderService->getTransportCodeStatus('not-export');
             } else if ($request->order_type == 'payment_export') {
                 $status = $orderService->getTransportCodeStatus('payment');
+                $export_at = now();
             } else if ($request->order_type == 'payment_temp') {
                 $status = $orderService->getTransportCodeStatus('payment');
                 $purchase_orders = PurchaseOrder::find($request->purchase_order_id);
@@ -275,7 +278,8 @@ class PaymentController extends AdminController
                 'status'    =>  $status,
                 'payment_at'    =>  now(),
                 'payment_user_id'   =>  Admin::user()->id,
-                'payment_type'  =>  $request->payment_type[$index]
+                'payment_type'  =>  $request->payment_type[$index],
+                'export_at' =>  $export_at
             ]);
         }
 

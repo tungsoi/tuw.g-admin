@@ -14,7 +14,8 @@ class TransactionWeight extends Model
         'user_id_created',
         'content',
         'updated_user_id',
-        'kg'
+        'kg',
+        'type'
     ];
 
     public function userCreated() {
