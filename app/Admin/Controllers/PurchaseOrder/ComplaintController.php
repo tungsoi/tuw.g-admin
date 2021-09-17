@@ -18,6 +18,7 @@ use Encore\Admin\Widgets\Box;
 use Encore\Admin\Layout\Column;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Admin\Services\OrderService;
 
 class ComplaintController extends AdminController
 {
@@ -35,6 +36,11 @@ class ComplaintController extends AdminController
     public function __construct()
     {
         $this->title = 'Khiếu nại đơn hàng';
+
+        $orderService = new OrderService();
+        $this->statusSuccess = $orderService->getStatus('success');
+        $this->statusOrdered = $orderService->getStatus('ordered');
+        $this->statusWarehouseVN = $orderService->getStatus('vn-recevice');
     }
 
     /**
@@ -488,7 +494,8 @@ class ComplaintController extends AdminController
 
         $form->select('order_id', 'Mã đơn hàng')
         ->options(
-            PurchaseOrder::orderBy('id', 'desc')
+            PurchaseOrder::select('order_number', 'id')->where('status', 9)
+            ->orderBy('id', 'desc')
             ->pluck('order_number', 'id')
         )->rules('required');
         $form->multipleImage('image', 'Ảnh sản phẩm');
