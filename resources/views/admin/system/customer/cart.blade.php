@@ -66,7 +66,7 @@
                             {{ $item_ele->qty }}
                         </td>
                         @php
-                            $price = str_replace(",", ".", (float) $item_ele->price);
+                            $price = number_format($item_ele->price, 2, '.', '')
                         @endphp
                         <td style="width: 100px">
                             {{ $price }}
