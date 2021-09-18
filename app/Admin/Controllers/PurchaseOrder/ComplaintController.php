@@ -178,7 +178,7 @@ class ComplaintController extends AdminController
         $grid->column('order_staff', 'Nhân viên đặt hàng')->display(function () {
             return $this->order->orderEmployee->name ?? "";
         });
-        $grid->image('Ảnh sản phẩm')->lightbox(['width' => 100, 'height' => 100]);
+        $grid->image('Ảnh sản phẩm')->lightbox(['width' => 100, 'height' => 100])->width(300);
         $grid->item_name('Tên sản phẩm')->width(300);
         $grid->item_price('Giá sản phẩm');
         $grid->content('Nội dung Khiếu nại');
