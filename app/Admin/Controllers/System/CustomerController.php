@@ -24,6 +24,9 @@ use Illuminate\Support\Str;
 Use Encore\Admin\Widgets\Table;
 use Illuminate\Http\Request;
 use Encore\Admin\Admin as AdminSystem;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerController extends AdminController
 {
@@ -264,6 +267,7 @@ class CustomerController extends AdminController
             $empty = true;
             $service = new UserService();
             $data = $service->GetCustomerTransactionHistory($id);
+            // $data = $this->paginate($res);
 
             $mode = "";
             $form = "";
@@ -491,5 +495,14 @@ class CustomerController extends AdminController
             'message'   =>  '',
             'data'      =>  $customer
         ]);
+    }
+
+    public function paginate($items, $perPage = 20, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+
     }
 }

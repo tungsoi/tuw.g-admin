@@ -94,7 +94,9 @@ class UserService {
             'after_payment',
             'user_id_created',
             'updated_user_id',
-            'updated_at'
+            'updated_at',
+            'payment_order' => '',
+            'payment_order_id'  =>  ''
         ];
         $data = [];
 
@@ -125,7 +127,9 @@ class UserService {
                     'flag'  =>  $flag,
                     'user_id_created'   =>  $record->userCreated->name ?? "",
                     'updated_user_id'   =>  $record->userUpdated->name ?? "",
-                    'updated_at'    =>  $record->updated_at
+                    'updated_at'    =>  $record->updated_at,
+                    'payment_order' =>  $record->paymentOrder->order_number ?? "",
+                    'payment_order_id'  =>  $record->paymentOrder->id ?? "",
                 ];
             // } catch (\Exception $e) {
             //     dd($record);

@@ -69,7 +69,7 @@
         @endif
     </thead>
     <tbody>
-        @if (is_array($data) && sizeof($data) > 0)
+        @if ($data)
         @foreach ($data as $transaction)
             <tr
                 @if (isset($transactionId) && $transactionId != "" && $transactionId == $transaction['id'])
@@ -81,7 +81,11 @@
                 <td>{{ $transaction['user_id_created'] }}</td>
                 <td>{{ date('H:i | d-m-Y', strtotime($transaction['updated_at'])) }}</td>
                 <td>{{ $transaction['updated_user_id'] }}</td>
-                <td></td>
+                <td>
+                    @if ($transaction['payment_order_id'] != "")
+                        <a href="{{ route('admin.payments.showRebuild', $transaction['payment_order_id']) }}">{{ $transaction['payment_order'] }}</a>
+                    @endif
+                </td>
                 <td align="center">{{ $transaction['type_recharge'] }}</td>
                 <td>{{ $transaction['content'] }}</td>
                 <td align="right">{!! $transaction['before_payment'] !!}</td>
@@ -111,6 +115,8 @@
         @endif
     </tbody>
 </table>
+
+{{-- {{ $data->links() }} --}}
 
 <script>
     $('.grid-row-custom-delete').on('click', function () {

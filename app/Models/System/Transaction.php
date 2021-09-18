@@ -34,4 +34,8 @@ class Transaction extends Model
     public function type() {
         return $this->hasOne('App\Models\System\TransactionType', 'id', 'type_recharge');
     }
+
+    public function paymentOrder() {
+        return $this->hasOne('App\Models\PaymentOrder\PaymentOrder', 'transaction_note', 'content');
+    }
 }
