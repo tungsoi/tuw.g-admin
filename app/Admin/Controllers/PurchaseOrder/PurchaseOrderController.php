@@ -341,23 +341,29 @@ class PurchaseOrderController extends AdminController
         })->style('text-align: right;');
 
         $grid->transport_code('Mã vận đơn')->display(function () {
-            return explode(',', $this->transport_code);
+
             if ($this->transport_code != "") {
                 $arr = explode(',', $this->transport_code);
                 $html = "";
                 foreach ($arr as $code) {
+                    $flag = TransportCode::select('transport_code', 'status')->where('transport_code', $code)->first();
                     $class = 'default';
-                    if (TransportCode::where('transport_code', $code)->whereIn('status', [1, 4, 5])->count() > 0) {
-                        $class = 'primary';
-                    } else if (TransportCode::where('transport_code', $code)->whereIn('status', [3])->count() > 0) {
-                        $class = 'success';
+                    if (! $flag) {
+                        $class = 'default';
+                    } else {
+                        if (in_array($flag->status, [1, 4, 5])) {
+                            $class = 'primary';
+                        } else {
+                            $class = 'success';
+                        }
                     }
+
                     $html .= "<span class='label label-$class' style='margin-bottom: 5px !important;'>$code</span> &nbsp;";
                 }
 
                 return $html;
             }
-        })->width(150)->label('default');
+        })->width(150);
 
         if (! Admin::user()->isRole('customer') && Admin::user()->isRole('order_employee')) {
             $grid->final_payment('Tổng thanh toán')->editable()->style('text-align: right')->width(80);
