@@ -54,7 +54,7 @@ class PurchaseOrderController extends AdminController
         $grid = new Grid(new PurchaseOrder());
 
         $grid->model()->has('items')
-        ->where( 'updated_at', '>', Carbon::now()->subDays(150))
+        // ->where( 'updated_at', '>', Carbon::now()->subDays(150))
         ->orderBy('id', 'desc');
 
         // Khach hang
