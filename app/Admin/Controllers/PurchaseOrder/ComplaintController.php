@@ -289,6 +289,9 @@ class ComplaintController extends AdminController
             {
                 $row->column(6, function (Column $column) use ($id)
                 {
+                });
+                $row->column(6, function (Column $column) use ($id)
+                {
                     $column->append((new Box('', $this->formSubComment($id, 2))));
                 });
             }
