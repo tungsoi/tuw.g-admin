@@ -23,10 +23,11 @@ class CustomerPurchaseOrderController extends AdminController {
         }
 
         foreach ($shop as $shop_name => $row) {
-            $service = new OrderService();
-            $item_total_amount = $service->getItemTotalAmount($row);
+            if (is_array($row) && sizeof($row) > 0) {
+                $service = new OrderService();
+                $item_total_amount = $service->getItemTotalAmount($row);
             
-            $order = [
+                $order = [
                 'shop_name'     =>  $shop_name,
                 'order_number'  =>  $service->generateOrderNR(),
                 'customer_id'   =>  Admin::user()->id,
@@ -51,12 +52,13 @@ class CustomerPurchaseOrderController extends AdminController {
                 'user_success_at'   =>  null
             ];
 
-            $order_res = PurchaseOrder::firstOrCreate($order);
+                $order_res = PurchaseOrder::firstOrCreate($order);
 
-            PurchaseOrderItem::whereIn('id', $row)->update([
-                'order_id'  =>  $order_res->id,
-                'status'    =>  $service->getItemStatus('in_order')
-            ]);
+                PurchaseOrderItem::whereIn('id', $row)->update([
+                    'order_id'  =>  $order_res->id,
+                    'status'    =>  $service->getItemStatus('in_order')
+                ]);
+            }
         }
         
         admin_toastr('Tạo đơn hàng thành công', 'success');
