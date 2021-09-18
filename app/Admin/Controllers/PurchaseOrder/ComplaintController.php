@@ -272,7 +272,7 @@ class ComplaintController extends AdminController
                 });
             }
 
-            $row->column(12, function (Column $column) use ($id) 
+            $row->column(6, function (Column $column) use ($id) 
             {
                 $column->append((new Box('', $this->detail($id))));
             });
@@ -400,7 +400,7 @@ class ComplaintController extends AdminController
         });
         $grid->column('content', 'Bình luận')->display(function () {
             $html = "<b>".User::find($this->user_created_id)->name." (".date('H:i | d-m-Y', strtotime($this->created_at)).") </b>: ";
-            $html .= $this->content;
+            $html .= "<br><div class='content-comment'>".$this->content."</div>";
             return $html;
         });
         // $grid->user_created_id('Người tạo')->display(function () {
@@ -437,6 +437,9 @@ class ComplaintController extends AdminController
             }
             .box {
                 border: none !important;
+            }
+            .content-comment img {
+                width: 200px !important;
             }
 
         ');
@@ -532,7 +535,7 @@ class ComplaintController extends AdminController
         $form = new Form(new ComplaintComment());
 
         $form->setAction(route('admin.complaints.addComment'));
-        $form->text('content', 'Nội dung');
+        $form->summernote('content', 'Nội dung');
         $form->hidden('complaint_id')->default($id);
         $form->hidden('type')->default($type);
         

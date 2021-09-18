@@ -351,10 +351,10 @@ class PurchaseOrderItemController extends AdminController
         if (Admin::user()->isRole('customer')) {
             $grid->admin_note('Admin ghi chú')->style('max-width: 100px');
         } else {
-            $grid->admin_note('Admin ghi chú')->editable()->style('max-width: 100px');
+            $grid->admin_note('Admin ghi chú')->editable();
             $grid->order_cn_code('Mã vận đơn')->display(function () {
 
-                if ($this->order->transport_code != "") {
+                if ($this->order && $this->order->transport_code != "") {
                     $arr = explode(',', $this->order->transport_code);
                     $html = "";
                     foreach ($arr as $code) {
@@ -395,7 +395,9 @@ class PurchaseOrderItemController extends AdminController
             }
 
             if (! Admin::user()->isRole('customer')) {
-                $actions->append(new AddTransportCode($this->row->order_id));
+                if ($this->row->order_id != "") {
+                    $actions->append(new AddTransportCode($this->row->order_id));
+                }
             }
 
         });

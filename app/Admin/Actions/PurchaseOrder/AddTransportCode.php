@@ -31,7 +31,12 @@ class AddTransportCode
     {
         $order = PurchaseOrder::select('id', 'order_number', 'transport_code')->where('id', $this->id)->first();
 
-        return view('admin.system.purchase_order.add_transport_code_form_items', compact('order'))->render();
+        if ($order) {
+            return view('admin.system.purchase_order.add_transport_code_form_items', compact('order'))->render();
+        }
+
+        return view('admin.system.core.empty')->render();
+
     }
 
     public function __toString()
