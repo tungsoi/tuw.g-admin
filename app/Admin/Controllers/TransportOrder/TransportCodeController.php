@@ -143,7 +143,7 @@ class TransportCodeController extends AdminController
                     'is_link'   =>  true,
                     'route'     =>  route('admin.transport_codes.index'). "?customer_code_input=". $this->customer_code_input,
                     'text'      =>  $this->customer_code_input,
-                    'style'     =>  'color: black'
+                    'style'     =>  'color: black !important;'
                 ]
             ];
             return view('admin.system.core.list', compact('data'));
