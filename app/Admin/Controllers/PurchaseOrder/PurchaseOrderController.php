@@ -54,10 +54,10 @@ class PurchaseOrderController extends AdminController
         $grid = new Grid(new PurchaseOrder());
 
         $grid->model()->orderBy('id', 'desc');
-        $ids = PurchaseOrder::select('id')->whereIn('status', [2, 10])
-            ->doesntHave('items')->pluck('id');
+        // $ids = PurchaseOrder::select('id')->whereIn('status', [2, 10])
+        //     ->doesntHave('items')->pluck('id');
 
-        $grid->model()->whereNotIn('id', $ids);
+        // $grid->model()->whereNotIn('id', $ids);
 
         // Khach hang
         if (Admin::user()->isRole('customer')) {
