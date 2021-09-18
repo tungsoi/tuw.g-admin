@@ -11,6 +11,11 @@
 
     <link rel="shortcut icon" href="{{ asset('home/images/favicon.png') }}">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400&display=swap" rel="stylesheet">
+
+
     {!! Admin::css() !!}
 
     <script src="{{ Admin::jQuery() }}"></script>
@@ -22,11 +27,13 @@
 
      <style>
         .main-header {
+            height: 0px !important;
             display: none;
         }
         @media only screen and (max-width: 900px) {
             .main-header {
                 display: block;
+                height: auto !important;
             }
 
             .box-header, .box-body {

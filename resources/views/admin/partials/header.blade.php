@@ -1,6 +1,6 @@
 <style>
     .skin-red .main-header .navbar .sidebar-toggle:hover {
-        background: #ecf0f5 !important;
+        background: #222d32 !important;
     }
 </style>
 <!-- Main Header -->
@@ -14,9 +14,9 @@
     </a> --}}
 
     <!-- Header Navbar -->
-    <nav class="navbar navbar-static-top" role="navigation" style="background: #ecf0f5 !important;">
+    <nav class="navbar navbar-static-top" role="navigation" style="background: #222d32 !important;">
         <!-- Sidebar toggle button-->
-        <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button" style="color: #222d32;">
+        <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button" style="color: #white;">
             <span class="sr-only">Toggle navigation</span>
         </a>
         {{-- <ul class="nav navbar-nav hidden-sm visible-lg-block">

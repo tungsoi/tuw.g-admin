@@ -93,11 +93,12 @@ a.editable-empty {
     padding-top: 0px !important;
 }
 body {
-    font-family: "Tahoma" !important;
+    font-family: 'Open Sans', sans-serif !important;
     font-size: 13px !important;
+    color: black !important;
 }
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-    font-family: "Tahoma" !important;
+    font-family: 'Open Sans', sans-serif !important;
 }
 .sidebar-menu-bottom {
     position: absolute;
@@ -161,7 +162,7 @@ th {
     text-transform: uppercase;
     text-align: center;
     background-color: whitesmoke;
-    font-size: 11px;
+    font-size: 12px;
 }
 .box {
     border-radius: 3px !important;
@@ -204,4 +205,13 @@ th {
 }
 #toast-container > div {
     opacity:1 !important;
+}
+/* a {
+    color: #3c8dbc !important;
+} */
+.label {
+    font-size: 12px !important;
+    padding: 1px 4px !important;
+    margin-bottom: 2px !important;
+    line-height: 2;
 }

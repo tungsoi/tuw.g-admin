@@ -18,6 +18,7 @@ use App\Models\System\Alert;
 use App\Models\System\Warehouse;
 use App\Models\TransportOrder\TransportCode;
 use App\User;
+use Carbon\Carbon;
 use DateTime;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -51,7 +52,10 @@ class PurchaseOrderController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new PurchaseOrder());
-        $grid->model()->orderBy('id', 'desc');
+
+        $grid->model()->has('items')
+        ->where( 'updated_at', '>', Carbon::now()->subDays(150))
+        ->orderBy('id', 'desc');
 
         // Khach hang
         if (Admin::user()->isRole('customer')) {
@@ -162,61 +166,53 @@ class PurchaseOrderController extends AdminController
                 'current_rate'  =>  [
                     'is_label'  =>  false,
                     'color'     =>  'info',
-                    'text'      =>  "<i>TG: ".number_format($this->current_rate) . "</i>"
+                    'text'      =>  "TG: ".number_format($this->current_rate)
                 ],
                 'total_item'    =>  [
                     'is_label'  =>  false,
                     'text'      =>  "". $this->items->where('status', '!=', 4)->count()." link, ". $this->totalItems() . " sp"
+                ],
+                'created_at'    =>  [
+                    'is_label'  =>  false,
+                    'text'      =>  date('H:i | d-m-Y', strtotime($this->created_at))
                 ]
             ];
             return view('admin.system.core.list', compact('data'));
-        })->width(100);
+        })->width(150);
 
-        $grid->status('Trạng thái')->display(function () {
+        $grid->status('Trạng thái / Khách hàng')->display(function () {
             $data = [
                 'status'        =>  [
                     'is_label'  =>  true,
                     'color'     =>  $this->statusText->label,
                     'text'      =>  $this->statusText->name . $this->countItemFollowStatus() . ($this->status == 7 ? $this->countProductFollowStatus() : null)
                 ],
-                'timeline'        =>  [
+                'shop_name'        =>  [
                     'is_label'  =>  false,
-                    'text'      =>  "<i>" . $this->getStatusTimeline() . "</i>"
-                ],
-                'useraction'        =>  [
-                    'is_label'  =>  false,
-                    'text'      =>  "<i>" . $this->getUserAction() . "</i>"
+                    'text'      =>  "Shop: ".$this->shop_name
                 ]
             ];
+
+            if (! Admin::user()->isRole('customer')) {
+                $data[] = [
+                    'is_label'  =>  true,
+                    'color'     =>  'warning',
+                    'text'      =>  $this->customer->symbol_name
+                ];
+                $data[] = [
+                    'is_label'  =>  false,
+                    'color'     =>  'info',
+                    'is_link'   =>  true,
+                    'text'      =>  "Số dư: ".number_format($this->customer->wallet),
+                    'route'     =>  route('admin.customers.transactions', $this->customer_id)."?mode=recharge"
+                ];
+            }
+
             return view('admin.system.core.list', compact('data'));
-        });
+        })->style('max-width: 180px');
         
 
-        $grid->shop_name('Tên Shop')->style('max-width: 150px');
-
         if (! Admin::user()->isRole('customer')) {
-            $grid->customer_id('Khách hàng')->display(function () {
-                $data = [
-                    'customer_id'   =>  [
-                        'is_label'  =>  true,
-                        'color'     =>  'primary',
-                        'text'      =>  $this->customer->symbol_name
-                    ],
-                    'customer_wallet'  =>  [
-                        'is_label'  =>  false,
-                        'color'     =>  'info',
-                        'is_link'   =>  true,
-                        'text'      =>  number_format($this->customer->wallet),
-                        'route'     =>  route('admin.customers.transactions', $this->customer_id)."?mode=recharge"
-                    ],
-                    'zalo'      =>  [
-                        'is_link'   =>  true,
-                        'text'      =>  $this->customer->phone_number,
-                        'route'     =>  "https://zalo.me/" .  $this->customer->phone_number
-                    ]
-                ];
-                return view('admin.system.core.list', compact('data'));
-            });
 
             $grid->employee('Nhân viên')->display(function () {
                 $sale = $this->customer->saleEmployee ? $this->customer->saleEmployee->name : null;
@@ -262,7 +258,7 @@ class PurchaseOrderController extends AdminController
                 ],
                 'deposite'  =>  [
                     'is_label'  =>  false,
-                    'text'      =>  "<i style='color: red'>Tiền cần cọc: ". number_format($deposite) . "</i>"
+                    'text'      =>  "<i style='color: red'>Cần cọc: ". number_format($deposite) . "</i>"
                 ]
             ];            
             return view('admin.system.core.list', compact('data'));
@@ -324,7 +320,18 @@ class PurchaseOrderController extends AdminController
         })->style('text-align: right');
 
         $grid->deposited('Đã cọc')->display(function () {
-            return number_format($this->deposited);
+            $data = [
+                'amount_rmb'   =>  [
+                    'is_label'   =>  false,
+                    'text'      =>   number_format($this->deposited)
+                ],
+                'amount_vnd'  =>  [
+                    'is_label'  =>  false,
+                    'text'      =>  "<i>(".date('H:i | d-m-Y', strtotime($this->deposited_at)).")</i>"
+                ]
+            ];            
+            return view('admin.system.core.list', compact('data'));
+
         })->style('text-align: right;');
 
         $grid->transport_code('Mã vận đơn')->display(function () {
@@ -349,8 +356,8 @@ class PurchaseOrderController extends AdminController
             $grid->final_payment('Tổng thanh toán')->editable()->style('text-align: right')->width(80);
         }
 
+        $grid->customer_note('Khách hàng ghi chú')->editable()->style('max-width: 100px');
         $grid->admin_note('Admin ghi chú')->editable()->style('max-width: 100px');
-        $grid->customer_note('KH ghi chú')->editable()->style('max-width: 100px');
 
         if (! Admin::user()->isRole('customer')) {
             $grid->internal_note('Ghi chú nội bộ')->editable()->style('max-width: 100px');
