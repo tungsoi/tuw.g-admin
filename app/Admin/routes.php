@@ -65,10 +65,12 @@ Route::group([
         'vietnam_receives'    =>  'TransportOrder\\VietnamReceiveController',
 
         // weight report
-
         'report_warehouses'     =>  'ReportWarehouse\\DetailController',
         'report_warehouse_portal'     =>  'ReportWarehouse\\PortalController',
         'report_warehouse_daily'     =>  'ReportWarehouse\\DailyController',
+
+        // reports
+        'sale_reports'      =>  'Report\\SaleReportController'
     ]);
 
     // transport order
