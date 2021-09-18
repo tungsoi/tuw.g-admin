@@ -55,12 +55,13 @@ class PurchaseOrderController extends AdminController
 
         $grid->model()->orderBy('id', 'desc');
 
-        $oldestIds = PurchaseOrder::select('id', 'status', 'success_at')->where('status', 9)
+        $oldestIds = PurchaseOrder::select('id', 'status', 'success_at')
+                    ->where('status', 9)
                     ->where('success_at', '>', Carbon::now()->subDays('150'))
                     ->pluck('id');
 
         if (! Admin::user()->isRole('customer')) {
-            $grid->model()->whereNotIn('id', $oldestIds);
+            $grid->model()->whereNotIn('id', $oldestIds)->has('items');
         }
 
         // Khach hang
