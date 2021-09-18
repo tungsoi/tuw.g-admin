@@ -57,33 +57,22 @@
     </div>
     <hr>
     <div class="row" style="text-align: center;">
-        @foreach ($normal as $key => $user)
-            @php
-                $order = 2;
-                switch ($key) {
-                    case 0:
-                        $order = "top-two";
-                        break;
-                    case 1:
-                        $order = "top-one";
-                        break;
-                    case 2:
-                        $order = "top-three";
-                        break;
-                }
-    
-                $avatar = $user['avatar'] != "" ? $user['avatar'] : config('admin.default_avatar');
-            @endphp
-    
-            <div class="col-md-4">
-                <br>
-                <img src="{{ asset('images/ranked/top4.png') }}" alt="">
-                <h5>Top {{ ($key+3) }}. {{ $user['name'] }}</h5>
-                <br>
-            </div>  
-        @endforeach
+        @php
+            $limit = (int) round(sizeof($normal)/6);
 
-        @foreach ($bottom as $key => $user)
+            $res = [];
+            $begin = 3;
+            $limit_r = 5;
+            for ($index = 0; $index <= $limit_r; $index++) {
+                $res[
+                    'top'. ($begin+$index+1)
+                ] = array_slice($normal, $index*$limit_r, $limit_r);
+            }
+        @endphp
+        @php
+            $i = 4;
+        @endphp
+        @foreach ($res as $key_row => $row)
             @php
                 $order = 2;
                 switch ($key) {
@@ -100,16 +89,19 @@
     
                 $avatar = $user['avatar'] != "" ? $user['avatar'] : config('admin.default_avatar');
             @endphp
-    
-            <div class="col-md-4">
-                <br>
-                <img src="{{ asset('images/ranked/top5.png') }}" alt="">
-                <h5>Top {{ ( sizeof($normal) + $key + 3) }}. {{ $user['name'] }}</h5>
-                <br>
-            </div>  
+
+            @foreach ($row as $key_value => $value)
+                <div class="col-md-4">
+                    <br>
+                    <img src="{{ asset('images/ranked/'.$key_row.'.png') }}" alt="">
+                    <h5>{{ $value['name'] }}</h5>
+                    <br>
+                </div> 
+            @endforeach 
+
+            @php
+                $i++;
+            @endphp
         @endforeach
-    </div><hr>
-    <div class="row" style="text-align: center;">
-        
     </div>
 </div>
