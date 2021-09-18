@@ -322,18 +322,17 @@ SCRIPT;
                 }
                 
             });
-            // $filter->column(1/4, function ($filter) use ($orderService)  {
-            //     $filter->like('customer_code_input', 'Mã khách hàng');
-            //     $filter->equal('status', 'Trạng thái')->select(TransportCodeStatus::pluck('name', 'id'));
-            // });
+            $filter->column(1/4, function ($filter) use ($orderService)  {
+                $filter->like('customer_code_input', 'Mã khách hàng');
+            });
 
-            // $filter->column(1/4, function ($filter) {
-            //     $filter->between('china_recevie_at', 'Ngày về TQ')->date();
-            // });
+            $filter->column(1/4, function ($filter) {
+                $filter->between('china_recevie_at', 'Ngày về TQ')->date();
+            });
 
-            // $filter->column(1/4, function ($filter) {
-            //     $filter->between('vietnam_recevie_at', 'Ngày về VN')->date();
-            // });
+            $filter->column(1/4, function ($filter) {
+                $filter->between('vietnam_recevie_at', 'Ngày về VN')->date();
+            });
 
             Admin::style('
                 #filter-box label {

@@ -35,16 +35,11 @@ class VietnamReceiveController extends AdminController
             ->description($this->description['index'] ?? trans('admin.list'))
             ->row(function (Row $row)
             {   
-                $row->column(8, function (Column $column)
+                $row->column(12, function (Column $column)
                 {
                     $column->append((new Box('', $this->form()))); 
                 });
-
-                $row->column(4, function (Column $column)
-                {
-                    $column->append((new Box('Danh sách mã đã bắn', $this->grid()))); 
-                });
-
+                
                 $row->column(12, function (Column $column)
                 {
                     $column->append((new Box('Sản phẩm Order', $this->gridOrder()))); 
