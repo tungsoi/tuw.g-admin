@@ -53,10 +53,15 @@ class PurchaseOrderController extends AdminController
     {
         $grid = new Grid(new PurchaseOrder());
 
-        $grid->model()->where( 'updated_at', '>', Carbon::now()->subDays(150))->orderBy('id', 'desc');
-        // 
-        // 
-        
+        $grid->model()->orderBy('id', 'desc');
+
+        $oldestIds = PurchaseOrder::select('id', 'status', 'success_at')->where('status', 9)
+                    ->where('success_at', '>', Carbon::now()->subDays('150'))
+                    ->pluck('id');
+
+        if (! Admin::user()->isRole('customer')) {
+            $grid->model()->whereNotIn('id', $oldestIds);
+        }
 
         // Khach hang
         if (Admin::user()->isRole('customer')) {
@@ -336,6 +341,7 @@ class PurchaseOrderController extends AdminController
         })->style('text-align: right;');
 
         $grid->transport_code('Mã vận đơn')->display(function () {
+            return explode(',', $this->transport_code);
             if ($this->transport_code != "") {
                 $arr = explode(',', $this->transport_code);
                 $html = "";
@@ -351,7 +357,7 @@ class PurchaseOrderController extends AdminController
 
                 return $html;
             }
-        })->width(150);
+        })->width(150)->label('default');
 
         if (! Admin::user()->isRole('customer') && Admin::user()->isRole('order_employee')) {
             $grid->final_payment('Tổng thanh toán')->editable()->style('text-align: right')->width(80);
