@@ -34,8 +34,10 @@ class SaleReportController extends AdminController
             $users = User::select('id', 'name', 'avatar')->whereIn('id', $ids)->get()->toArray();
             $top = array_slice($users, 0, 3);
             $other = array_slice($users, 3, sizeof($users));
+            $normal = array_slice($users, 3, sizeof($users)-3);
+            $bottom = array_slice($users, sizeof($users)-3, sizeof($users));
 
-            return view('admin.system.report.sale_report', compact('users', 'top', 'other'))->render();
+            return view('admin.system.report.sale_report', compact('users', 'top', 'other', 'normal', 'bottom'))->render();
         }); 
 
         $grid->disableActions();
