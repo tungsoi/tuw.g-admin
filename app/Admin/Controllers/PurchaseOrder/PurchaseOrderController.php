@@ -53,9 +53,10 @@ class PurchaseOrderController extends AdminController
     {
         $grid = new Grid(new PurchaseOrder());
 
-        $grid->model()->has('items')
+        $grid->model()->orderBy('id', 'desc');
+        // ->has('items')
         // ->where( 'updated_at', '>', Carbon::now()->subDays(150))
-        ->orderBy('id', 'desc');
+        
 
         // Khach hang
         if (Admin::user()->isRole('customer')) {
