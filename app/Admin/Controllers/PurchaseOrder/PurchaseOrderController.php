@@ -325,7 +325,7 @@ class PurchaseOrderController extends AdminController
                 ],
                 'amount_vnd'  =>  [
                     'is_label'  =>  false,
-                    'text'      =>  "<i>(".date('H:i | d-m-Y', strtotime($this->deposited_at)).")</i>"
+                    'text'      =>  "<i>(". $this->deposited_at != "" ? date('H:i | d-m-Y', strtotime($this->deposited_at)) : "".")</i>"
                 ]
             ];            
             return view('admin.system.core.list', compact('data'));
