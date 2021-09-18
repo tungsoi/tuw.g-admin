@@ -272,14 +272,14 @@ class ComplaintController extends AdminController
                 });
             }
 
-            $row->column(4, function (Column $column) use ($id) 
+            $row->column(12, function (Column $column) use ($id) 
             {
                 $column->append((new Box('', $this->detail($id))));
             });
 
             if (! Admin::user()->isRole('customer'))
             {
-                $row->column(4, function (Column $column) use ($id) 
+                $row->column(6, function (Column $column) use ($id) 
                 {
                     $column->append((new Box("", $this->listCommentOrderSale($id)->render())));
                 });
@@ -287,7 +287,7 @@ class ComplaintController extends AdminController
             
             if (! Admin::user()->isRole('customer'))
             {
-                $row->column(4, function (Column $column) use ($id)
+                $row->column(6, function (Column $column) use ($id)
                 {
                     $column->append((new Box('', $this->formSubComment($id, 2))));
                 });
