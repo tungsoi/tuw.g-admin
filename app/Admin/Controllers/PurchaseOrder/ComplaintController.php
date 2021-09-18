@@ -400,7 +400,7 @@ class ComplaintController extends AdminController
         });
         $grid->column('content', 'Bình luận')->display(function () {
             $html = "<b>".User::find($this->user_created_id)->name." (".date('H:i | d-m-Y', strtotime($this->created_at)).") </b>: ";
-            $html .= "<br><div class='content-comment'>".$this->content."</div>";
+            $html .= "<br><br><div class='content-comment'>".$this->content."</div>";
             return $html;
         });
         // $grid->user_created_id('Người tạo')->display(function () {
