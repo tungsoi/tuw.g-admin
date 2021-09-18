@@ -198,7 +198,7 @@ class PurchaseOrderController extends AdminController
             if (! Admin::user()->isRole('customer')) {
                 $data[] = [
                     'is_label'  =>  true,
-                    'color'     =>  'warning',
+                    'color'     =>  'default',
                     'text'      =>  $this->customer->symbol_name
                 ];
                 $data[] = [

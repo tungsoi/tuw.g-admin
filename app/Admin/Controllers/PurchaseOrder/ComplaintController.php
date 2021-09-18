@@ -173,10 +173,10 @@ class ComplaintController extends AdminController
             return $order->customer->symbol_name ?? "";
         });
         $grid->column('sale_staff', 'Nhân viên Sale')->display(function () {
-            return $this->order->supporter->name ?? "";
+            return $this->order->customer->saleEmployee->name ?? "";
         });
         $grid->column('order_staff', 'Nhân viên đặt hàng')->display(function () {
-            return $this->order->supporterOrder->name ?? "";
+            return $this->order->orderEmployee->name ?? "";
         });
         $grid->image('Ảnh sản phẩm')->lightbox(['width' => 100, 'height' => 100]);
         $grid->item_name('Tên sản phẩm')->width(300);
