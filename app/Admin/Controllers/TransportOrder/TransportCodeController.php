@@ -327,7 +327,7 @@ SCRIPT;
             });
 
             $filter->column(1/4, function ($filter) {
-                $filter->between('china_recevie_at', 'Ngày về TQ')->date();
+                $filter->equal('status', 'Trạng thái')->select(TransportCodeStatus::pluck('name', 'id'));
             });
 
             $filter->column(1/4, function ($filter) {
