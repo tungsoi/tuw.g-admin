@@ -44,7 +44,7 @@
                             <td>
                                 <input value="{{ $item->shop_name != "" ? $item->shop_name : "Không tên" }}" type="text"
                                     name="shop_name[{{ $item->id }}]" value="" class="form-control shop_name"
-                                    placeholder="Nhập vào Tên shop">
+                                    placeholder="Nhập vào Tên shop" readonly>
                             </td>
                             <td>
                                 <input oninvalid="this.setCustomValidity('Vui lòng nhập nội dung')"

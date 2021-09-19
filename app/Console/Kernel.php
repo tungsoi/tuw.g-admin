@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        'App\Console\Commands\System\CreateReportWarehousePortal'
+        'App\Console\Commands\System\CreateReportWarehousePortal',
+        'App\Console\Commands\Test\DeleteOrderDoesntHaveItem'
     ];
 
     /**
@@ -25,6 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('report-warehouse:portal')->everyMinute();
+        $schedule->command('test:delete-non-item')->everyFiveMinutes();
     }
 
     /**
