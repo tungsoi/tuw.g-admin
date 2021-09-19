@@ -322,6 +322,7 @@ class PurchaseOrderController extends AdminController
         })->style('text-align: right');
 
         $grid->deposited('Đã cọc')->display(function () {
+            
             $data = [
                 'amount_rmb'   =>  [
                     'is_label'   =>  false,
@@ -329,7 +330,7 @@ class PurchaseOrderController extends AdminController
                 ],
                 'amount_vnd'  =>  [
                     'is_label'  =>  false,
-                    'text'      =>  "<i>(". $this->deposited_at != "" ? date('H:i | d-m-Y', strtotime($this->deposited_at)) : "".")</i>"
+                    'text'      =>  "<i>(". ($this->deposited_at != null) ? date('H:i | d-m-Y', strtotime($this->deposited_at)) : null .")</i>"
                 ]
             ];            
             return view('admin.system.core.list', compact('data'));
