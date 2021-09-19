@@ -38,10 +38,12 @@ class DumpDatabase extends Command
      */
     public function handle()
     {
-        $filename = "backup-" . Carbon::now()->format('Y-m-d') . ".gz";
-  
-        $command = "mysqldump --user=" . env('DB_USERNAME') ." --password=" . env('DB_PASSWORD') . " --host=" . env('DB_HOST') . " " . env('DB_DATABASE') . "  | gzip > " . storage_path() . "/app/backup/" . $filename;
-  
+        $env = config('database.connections.alilogi-portal');
+
+        $filename = "alilogi-portal-backup-" . Carbon::now()->format('Y-m-d') . ".sql";
+
+        $command = "mysqldump -u " . $env['username'] ." -p " . $env['password'] ." ". $env['database'] . " > " . storage_path() . "/app/backup/" . $filename;
+        
         $returnVar = NULL;
         $output  = NULL;
   
