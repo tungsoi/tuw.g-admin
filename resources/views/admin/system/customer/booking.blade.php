@@ -77,8 +77,16 @@
                                     placeholder="Nhập vào Size">
                             </td>
                             <td>
+                                @php
+                                    try {
+                                        $price = (float) str_replace(",", ".", $item->price);
+                                        $price = number_format($price, 2, '.', '');
+                                    } catch (\Exception $e) {
+                                        $price = "";
+                                    }
+                                @endphp
                                 <input oninvalid="this.setCustomValidity('Vui lòng nhập nội dung')"
-                                    oninput="setCustomValidity('')" required value="{{ $item->price }}"
+                                    oninput="setCustomValidity('')" required value="{{ $price }}"
                                     style="width: 120px; text-align: right;" type="text" name="price[{{ $item->id }}]"
                                     value="" class="form-control price" placeholder="Nhập vào Giá sản phẩm (Tệ)">
                             </td>
