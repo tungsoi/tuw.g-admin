@@ -40,7 +40,7 @@ class DumpDatabase extends Command
     {
         $env = config('database.connections.alilogi-portal');
 
-        $filename = "alilogi-portal-backup-" . Carbon::now()->format('Y-m-d') . ".sql";
+        $filename = "alilogi-portal-backup-" . Carbon::now()->format('YmdHis') . ".sql";
 
         $command = "mysqldump -u " . $env['username'] ." -p " . $env['password'] ." ". $env['database'] . " > " . storage_path() . "/app/backup/" . $filename;
         

@@ -86,10 +86,10 @@ class TeamSaleController extends AdminController
         $form->display('id', __('ID'));
         $form->text('name', 'Tên nhóm')->rules('required');
 
-        $sale_users = DB::connection('aloorder')->table('admin_role_users')->where('role_id',3)->get()->pluck('user_id');
-        $form->select('leader', 'Leader Team')->options(User::whereIn('id', $sale_users)->get()->pluck('name', 'id'));
+        $sale_users = DB::connection('aloorder')->table('admin_role_users')->where('role_id',3)->pluck('user_id');
+        $form->select('leader', 'Leader Team')->options(User::whereIn('id', $sale_users)->whereIsActive(1)->pluck('name', 'id'));
 
-        $members = User::whereIn('id', $sale_users)->pluck('name', 'id');
+        $members = User::whereIn('id', $sale_users)->whereIsActive(1)->pluck('name', 'id');
         $form->listbox('members', 'Thành viên')->options($members);
 
         $form->disableEditingCheck();
