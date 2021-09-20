@@ -69,7 +69,7 @@ class TransportCodeController extends AdminController
                 
             });
             $filter->column(1/4, function ($filter) use ($orderService)  {
-                $filter->equal('customer_code_input', 'Mã khách hàng');
+                $filter->like('customer_code_input', 'Mã khách hàng');
                 $filter->equal('status', 'Trạng thái')->select(TransportCodeStatus::pluck('name', 'id'));
             });
 
