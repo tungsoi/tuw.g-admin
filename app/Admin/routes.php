@@ -34,7 +34,7 @@ Route::group([
     'as'            => config('admin.route.prefix') . '.',
 ], function (Router $router) {
 
-    $router->get('', 'System\\HomeController@index')->name('home');
+    $router->get('home', 'System\\HomeController@index')->name('home');
     $router->resources([
 
         // system
