@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Test;
 
 use App\Models\PurchaseOrder\PurchaseOrder;
+use App\Models\System\ScheduleLog;
 use Illuminate\Console\Command;
 
 class DeleteOrderDoesntHaveItem extends Command
@@ -39,10 +40,17 @@ class DeleteOrderDoesntHaveItem extends Command
     public function handle()
     {
         $time = date('Y-m-d', strtotime(now()));
-        PurchaseOrder::select('id')
+        $orders = PurchaseOrder::select('id')
             ->whereIn('status', [2, 10])
             ->where('created_at', 'like', $time.'%')
             ->doesntHave('items')
-            ->delete();
+            ->get();
+        
+        ScheduleLog::create([
+            'name'  =>  $this->signature . "-" . $orders->count()
+        ]);
+
+
+        $orders->delete();
     }
 }

@@ -4,6 +4,7 @@ namespace App\Console\Commands\System;
 
 use App\Models\ReportWarehouse\ReportWarehouse;
 use App\Models\ReportWarehouse\ReportWarehousePortal;
+use App\Models\System\ScheduleLog;
 use Illuminate\Console\Command;
 
 class CreateReportWarehousePortal extends Command
@@ -44,6 +45,9 @@ class CreateReportWarehousePortal extends Command
 
             $report_warehouses = ReportWarehouse::select('title')->whereNotIn('title', $titles)->groupBy('title')->get();
 
+            ScheduleLog::create([
+                'name'  =>  $this->signature. " - ".$report_warehouses->count()
+            ]);
             $exist_titles = [];
             foreach ($report_warehouses as $report_warehouse) {
                 $exist_titles[$report_warehouse->title] = $report_warehouse->title;

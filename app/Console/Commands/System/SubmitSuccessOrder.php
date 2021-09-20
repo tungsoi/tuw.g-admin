@@ -5,6 +5,7 @@ namespace App\Console\Commands\System;
 use App\Admin\Services\OrderService;
 use App\Jobs\HandleSubmitSuccessOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
+use App\Models\System\ScheduleLog;
 use App\Models\TransportOrder\TransportCode;
 use Illuminate\Console\Command;
 
@@ -45,7 +46,7 @@ class SubmitSuccessOrder extends Command
         $orders = PurchaseOrder::whereStatus($service->getStatus('vn-recevice'))->get();
 
         echo $orders->count() . "\n";
-
+ 
         $key = 1;
         foreach ($orders as $order) {
             $all_items = $order->items->where('status', '!=', $service->getItemStatus('out_stock'))->count();
@@ -75,6 +76,10 @@ class SubmitSuccessOrder extends Command
                 }
             }
         }
+
+        ScheduleLog::create([
+            'name'  =>  $this->signature . " - " . $key
+        ]);
 
 
     }

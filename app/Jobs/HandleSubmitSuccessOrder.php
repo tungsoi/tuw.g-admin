@@ -59,28 +59,32 @@ class HandleSubmitSuccessOrder implements ShouldQueue
             $owed = abs($owed);
         }
 
-        $customer = User::find($order->customer_id);
-        $transactionType = TransactionType::find($type);
+        $flag = Transaction::where('content', $content)->first();
 
-        if ($transactionType->type == 'add') {
-            // cộng tiền
-            $customer->wallet += $owed;
-            $customer->save();
-        } else {
-            // trừ tiền
-            $customer->wallet -= $owed;
-            $customer->save();
+        if (! $flag) {
+            $customer = User::find($order->customer_id);
+            $transactionType = TransactionType::find($type);
+
+            if ($transactionType->type == 'add') {
+                // cộng tiền
+                $customer->wallet += $owed;
+                $customer->save();
+            } else {
+                // trừ tiền
+                $customer->wallet -= $owed;
+                $customer->save();
+            }
+
+            // create transaction
+            Transaction::create([
+                'customer_id'   =>  $order->customer_id,
+                'user_id_created'   =>  1,
+                'type_recharge' =>  $type,
+                'content'   =>  $content,
+                'money'     =>  $owed
+            ]);
         }
-
-        // create transaction
-        Transaction::create([
-            'customer_id'   =>  $order->customer_id,
-            'user_id_created'   =>  1,
-            'type_recharge' =>  $type,
-            'content'   =>  $content,
-            'money'     =>  $owed
-        ]);
-
+        
         return true;
     }
 }
