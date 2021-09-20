@@ -66,7 +66,21 @@
                             {{ $item_ele->qty }}
                         </td>
                         @php
-                            $price = number_format($item_ele->price, 2, '.', '')
+                            $price = $item_ele->price;
+                            if (strpos($price, ",") !== false && strpos($price, ".") !== false) {
+                                // tồn tại cả dấu , và dấu .
+                                $price = str_replace(",", "", $price);
+                            } else {
+                                if (strpos($price, ",") !== false) {
+                                    $price = str_replace(",", ".", $price);
+                                }
+                            }
+                            $price = (float) $price;
+                            try {
+                                $price = number_format($price, 2, '.', '');
+                            } catch (\Exception $e) {
+                                dd($price);
+                            }
                         @endphp
                         <td style="width: 100px">
                             {{ $price }}
