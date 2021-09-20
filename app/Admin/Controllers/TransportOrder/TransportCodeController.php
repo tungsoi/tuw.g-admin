@@ -19,6 +19,7 @@ use Encore\Admin\Form;
 use Illuminate\Http\Request;
 use App\Models\TransportOrder\TransportCode;
 use App\Models\TransportOrder\TransportCodeStatus;
+use App\User;
 use Encore\Admin\Grid;
 
 class TransportCodeController extends AdminController
@@ -44,6 +45,13 @@ class TransportCodeController extends AdminController
 
         if (isset($_GET['query_customer_code_input']) && $_GET['query_customer_code_input'] != "") {
             $grid->model()->where('customer_code_input', $_GET['customer_code_input']);
+        }
+
+        if (isset($_GET['pci']) && $_GET['pci'] != "") {
+            $grid->header(function () {
+                $customer = User::select('id', 'symbol_name', 'wallet')->where('id', $_GET['pci'])->first();
+                return view('admin.system.transport_order.popup_payment_customer', compact('customer'))->render();
+            });
         }
 
         $userService = new UserService();

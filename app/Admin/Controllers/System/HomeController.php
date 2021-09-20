@@ -16,6 +16,7 @@ class HomeController extends Controller
 {
     public function index(Content $content)
     {
+        return redirect()->route('admin.transport_codes.index', ['pci' => 1]);
         return $content
             ->title('Bảng điều khiển')
             ->row(function (Row $row) {
