@@ -9,6 +9,7 @@ use App\Admin\Actions\Customer\TransportOrder;
 use App\Admin\Actions\Customer\WalletWeight;
 use App\Admin\Actions\Customer\HistoryWalletWeight;
 use App\Admin\Services\UserService;
+use App\Models\System\TeamSale;
 use App\Models\System\Transaction as SystemTransaction;
 use App\Models\System\TransactionType;
 use App\Models\System\TransactionWeight;
@@ -56,7 +57,14 @@ class CustomerController extends AdminController
         // ->orderByRaw('length(wallet) desc');
 
         if (Admin::user()->isRole('sale_employee')) {
-            $grid->model()->where('staff_sale_id', Admin::user()->id);
+            $flag = TeamSale::whereLeader(Admin::user()->id)->first();
+            if ($flag) {
+                // is leader
+                $grid->model()->whereIn('staff_sale_id', $flag->members);
+            } else {
+                $grid->model()->where('staff_sale_id', Admin::user()->id);
+            }
+
         }
 
         $grid->header(function ($query) {

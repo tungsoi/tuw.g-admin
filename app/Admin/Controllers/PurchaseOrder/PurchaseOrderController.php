@@ -15,6 +15,7 @@ use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\PurchaseOrder\PurchaseOrderItem;
 use App\Models\PurchaseOrder\PurchaseOrderStatus;
 use App\Models\System\Alert;
+use App\Models\System\TeamSale;
 use App\Models\System\Warehouse;
 use App\Models\TransportOrder\TransportCode;
 use App\User;
@@ -54,17 +55,24 @@ class PurchaseOrderController extends AdminController
         $grid = new Grid(new PurchaseOrder());
 
         $grid->model()->orderBy('id', 'desc');
-        // $ids = PurchaseOrder::select('id')->whereIn('status', [2, 10])
-        //     ->doesntHave('items')->pluck('id');
-
-        // $grid->model()->whereNotIn('id', $ids);
 
         // Khach hang
         if (Admin::user()->isRole('customer')) {
             $grid->model()->whereCustomerId(Admin::user()->id);
         } else if (Admin::user()->isRole('sale_employee')) {
-            $customers = User::where('staff_sale_id', Admin::user()->id)->pluck('id');
-            $grid->model()->whereIn('customer_id', $customers);
+
+            // check is leader team
+
+            $flag = TeamSale::whereLeader(Admin::user()->id)->first();
+            if ($flag) {
+                // is leader
+                $customers = User::whereIn('staff_sale_id', $flag->members)->pluck('id');
+                $grid->model()->whereIn('customer_id', $customers);
+            } else {
+                $customers = User::where('staff_sale_id', Admin::user()->id)->pluck('id');
+                $grid->model()->whereIn('customer_id', $customers);
+            }
+            
         } else if (Admin::user()->isRole('order_manager')) {
             // $grid->model()->where('supporter_order_id', Admin::user()->id);
         } else if (Admin::user()->isRole('order_employee')) {

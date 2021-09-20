@@ -45,11 +45,6 @@ class TransportCodeController extends AdminController
         if (isset($_GET['query_customer_code_input']) && $_GET['query_customer_code_input'] != "") {
             $grid->model()->where('customer_code_input', $_GET['customer_code_input']);
         }
-        
-        // $grid->model()
-        // ->orderBy('updated_at', 'desc');
-        // ->orderBy('payment_at', 'asc')
-        // ->orderBy('customer_code_input', 'desc');
 
         $userService = new UserService();
         $orderService = new OrderService();
