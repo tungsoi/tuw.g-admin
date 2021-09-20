@@ -457,6 +457,26 @@ class PurchaseOrderItemController extends AdminController
                     'outstock_at'   =>  null
                 ]);
             }
+
+            if ($form->model()->cn_code != "" && $form->model()->order_id != "") {
+                $cn_code = $form->model()->cn_code;
+
+                $order = PurchaseOrder::find($form->model()->order_id);
+                if ($order->transport_code != "") {
+                    $arr = explode(",", $order->transport_code);
+                    $arr[] = $cn_code;
+
+                    $temp = [];
+                    foreach ($arr as $code) {
+                        $temp[$code] = $code;
+                    }
+
+                    $string = implode(",", $temp);
+
+                    $order->transport_code = $string;
+                    $order->save();
+                }
+            }
         });
 
         return $form;
