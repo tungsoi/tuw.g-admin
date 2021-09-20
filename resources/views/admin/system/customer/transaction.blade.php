@@ -69,7 +69,7 @@
         @endif
     </thead>
     <tbody>
-        @if ($data)
+        @if (is_array($data) && sizeof($data) > 0)
         @foreach ($data as $transaction)
             <tr
                 @if (isset($transactionId) && $transactionId != "" && $transactionId == $transaction['id'])
