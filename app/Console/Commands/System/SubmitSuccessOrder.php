@@ -47,7 +47,7 @@ class SubmitSuccessOrder extends Command
 
         echo $orders->count() . "\n";
  
-        $key = 1;
+        $key = 0;
         foreach ($orders as $order) {
             $all_items = $order->items->where('status', '!=', $service->getItemStatus('out_stock'))->count();
             $vn_items = $order->items->where('status', $service->getItemStatus('vn_received'))->count();
@@ -62,7 +62,7 @@ class SubmitSuccessOrder extends Command
                 if ($all_items == $vn_items && $all_trscs == $vn_trscs) {
                     $this->toString(
                         [
-                            $key,
+                            ($key+1),
                             $order->order_number,
                             "(".$vn_items."/".$all_items.")",
                             "(".$vn_trscs."/".$all_trscs.")",
