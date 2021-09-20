@@ -41,6 +41,10 @@ class TransportCodeController extends AdminController
             ->orderBy('payment_at', 'asc')
             ->orderBy('export_at', 'asc')
             ->orderBy('customer_code_input', 'desc');
+
+        if (isset($_GET['query_customer_code_input']) && $_GET['query_customer_code_input'] != "") {
+            $grid->model()->where('customer_code_input', $_GET['customer_code_input']);
+        }
         
         // $grid->model()
         // ->orderBy('updated_at', 'desc');
@@ -141,7 +145,7 @@ class TransportCodeController extends AdminController
             $data = [
                 'order_number'   =>  [
                     'is_link'   =>  true,
-                    'route'     =>  route('admin.transport_codes.index'). "?customer_code_input=". $this->customer_code_input,
+                    'route'     =>  route('admin.transport_codes.index'). "?customer_code_input=". $this->customer_code_input."&query_customer_code_input=equal",
                     'text'      =>  $this->customer_code_input,
                     'style'     =>  'color: black !important;'
                 ]
