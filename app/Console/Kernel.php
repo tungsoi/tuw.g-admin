@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         'App\Console\Commands\System\CreateReportWarehousePortal',
+        'App\Console\Commands\System\SubmitSuccessOrder',
         'App\Console\Commands\Test\DeleteOrderDoesntHaveItem'
     ];
 
@@ -27,6 +28,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('report-warehouse:portal')->everyFiveMinutes();
         $schedule->command('test:delete-non-item')->everyFiveMinutes();
+        $schedule->command('submit:success-order')->everyFiveMinutes();
     }
 
     /**

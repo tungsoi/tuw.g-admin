@@ -72,8 +72,6 @@ class SubmitSuccessOrder extends Command
 
                     $job = new HandleSubmitSuccessOrder($order->id);
                     dispatch($job);
-
-                    dd('oke');
                 }
             }
         }
