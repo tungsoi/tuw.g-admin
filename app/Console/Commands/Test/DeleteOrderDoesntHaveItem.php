@@ -47,7 +47,7 @@ class DeleteOrderDoesntHaveItem extends Command
             ->get();
         
         ScheduleLog::create([
-            'name'  =>  $this->signature . "-" . $orders->count()
+            'name'  =>  $this->signature . " - " . $orders->count()
         ]);
 
 
