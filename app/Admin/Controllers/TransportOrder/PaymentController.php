@@ -309,7 +309,7 @@ class PaymentController extends AdminController
         
         admin_toastr('Thanh toán thành công', 'success');
 
-        return redirect()->route('admin.transport_codes.index'); // return ve chi tiet don thanh toan
+        return redirect()->route('admin.transport_codes.index', ['pci' => $request->payment_user_id]);
     }
 
     public function script() {

@@ -1,5 +1,6 @@
 <?php
 
+use Encore\Admin\Facades\Admin;
 use Illuminate\Routing\Router;
 
 // Dashboard
@@ -107,7 +108,6 @@ Route::group([
     'middleware'    => config('admin.route.middleware'),
     'as'            => config('admin.route.prefix') . '.',
 ], function (Router $router) {
-
     $router->get('', 'System\\HomeController@blank')->name('blank');
     $router->get('home', 'System\\HomeController@index')->name('home');
     $router->resources([
