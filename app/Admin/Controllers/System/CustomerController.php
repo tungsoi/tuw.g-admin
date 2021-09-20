@@ -52,11 +52,20 @@ class CustomerController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new User());
-        $grid->model()->whereIsCustomer(User::CUSTOMER)->orderBy('id', 'desc');
+        $grid->model()->whereIsCustomer(User::CUSTOMER)->orderByRaw('CONVERT(wallet, SIGNED) asc');
+        // ->orderByRaw('length(wallet) desc');
 
-        // if (Admin::user()->isRole('sale_employee')) {
-        //     $grid->model()->where('staff_sale_id', Admin::user()->id);
-        // }
+        if (Admin::user()->isRole('sale_employee')) {
+            $grid->model()->where('staff_sale_id', Admin::user()->id);
+        }
+
+        $grid->header(function ($query) {
+
+            $owed = $query->where('wallet', '<', 0)->sum('wallet');
+            $color = $owed > 0 ? 'green' : 'red';
+
+            return '<h4>Công nợ khách hàng hiện tại: <span style="color:'.$color.'">'. number_format($owed) ."</span> (VND)</h4>";
+        });
 
         $grid->expandFilter();
         $grid->filter(function($filter) {
@@ -127,7 +136,7 @@ class CustomerController extends AdminController
             ];
         
             return new Table(['Thông tin', 'Nội dung'], $info);
-        })->style('max-width: 150px; text-align: center;');
+        })->style('width: 100px; text-align: center;');
 
         $grid->symbol_name('Mã khách hàng')->style('max-width: 150px;');
         $grid->wallet('Ví tiền')->display(function () {
@@ -140,12 +149,20 @@ class CustomerController extends AdminController
             'on'  => ['value' => User::ACTIVE, 'text' => 'Mở', 'color' => 'success'],
             'off' => ['value' => User::DEACTIVE, 'text' => 'Khoá', 'color' => 'danger'],
         ];
-        $grid->staff_sale_id('NV Sale')->editable('select', $this->userService->GetListSaleEmployee())->style('max-width: 150px;');
-        $grid->staff_order_id('NV Order')->editable('select', $this->userService->GetListOrderEmployee())->style('max-width: 150px;');
+
+        if (Admin::user()->isRole('ar_employee')) {
+            $grid->staff_sale_id('NV Sale')->editable('select', $this->userService->GetListSaleEmployee())->style('max-width: 150px;');
+            $grid->staff_order_id('NV Order')->editable('select', $this->userService->GetListOrderEmployee())->style('max-width: 150px;');
+        } else {
+            $grid->saleEmployee()->name('NV Sale');
+            $grid->orderEmployee()->name('NV Order');
+        }
+
+
         $grid->customer_percent_service('Phí dịch vụ')->editable('select', $this->userService->GetListPercentService())->style('max-width: 150px;');
         $grid->default_price_kg('Giá cân')->editable()->style('max-width: 150px;');
         $grid->default_price_m3('Giá khối')->editable()->style('max-width: 150px;');
-        $grid->ware_house_id('Kho nhận hàng')->style('text-align: center; width: 200px;')->editable('select', $this->userService->GetListWarehouse());
+        $grid->ware_house_id('Kho nhận hàng')->style('text-align: center; width: 100px;')->editable('select', $this->userService->GetListWarehouse());
         $grid->note('Ghi chú')->editable()->style('max-width: 150px;');
         $grid->column('is_active', 'Trạng thái')->switch($states)->style('text-align: center');
 
