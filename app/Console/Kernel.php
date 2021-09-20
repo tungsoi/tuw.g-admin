@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('report-warehouse:portal')->everyFiveMinutes();
+        $schedule->command('report-warehouse:portal')->everyFiveMinutes();
         $schedule->command('test:delete-non-item')->everyFiveMinutes();
     }
 

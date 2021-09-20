@@ -40,7 +40,9 @@ class CreateReportWarehousePortal extends Command
     public function handle()
     {
         try {
-            $report_warehouses = ReportWarehouse::select('title')->groupBy('title')->get();
+            $titles = ReportWarehousePortal::where('status', 2)->pluck('title');
+
+            $report_warehouses = ReportWarehouse::select('title')->whereNotIn('title', $titles)->groupBy('title')->get();
 
             $exist_titles = [];
             foreach ($report_warehouses as $report_warehouse) {
@@ -68,7 +70,7 @@ class CreateReportWarehousePortal extends Command
                 }
             }
 
-            $delete_rows = ReportWarehousePortal::whereNotIn('title', $exist_titles)->delete();
+            // $delete_rows = ReportWarehousePortal::whereNotIn('title', $exist_titles)->delete();
         }
         catch (\Exception $e) {
             dd($e->getMessage());

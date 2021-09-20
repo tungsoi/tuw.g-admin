@@ -38,8 +38,16 @@ class PortalController extends AdminController
             $filter->disableIdFilter();
             $filter->date('date', "Ngày đầu về kho")->date();
             $filter->like('title', "Ký hiệu");
+            $filter->equal('status', "Trạng thái")->select([
+                1   =>  'Chưa về đủ',
+                2   =>  'Đã xong'
+            ]);
+        });
+        $grid->rows(function (Grid\Row $row) {
+            $row->column('number', ($row->number+1));
         });
 
+        $grid->column('number', 'STT');
         $grid->column('date',"Ngày đầu về kho");
         $grid->column('title', "Ký hiệu");
         $grid->column('count', 'Thực nhận')->display(function () {
@@ -68,6 +76,14 @@ class PortalController extends AdminController
         })->totalRow();
         // $grid->column('line', 'Line');
         $grid->column('note', 'Ghi Chú')->editable();
+        
+        $states = [
+            'on'  => ['value' => 2, 'text' => 'Xong', 'color' => 'success'],
+            'off' => ['value' => 1, 'text' => 'Chưa đủ', 'color' => 'danger'],
+        ];
+
+        $grid->column('status', 'Trạng thái')->switch($states)->style('text-align: center');
+
         $grid->created_at(trans('admin.created_at'))->display(function () {
             return date('H:i | d-m-Y', strtotime($this->created_at));
         });
@@ -76,7 +92,7 @@ class PortalController extends AdminController
         });
 
         // setup
-        $grid->paginate(200);
+        $grid->paginate(20);
 
         // script
         Admin::script(
@@ -130,6 +146,11 @@ EOT
         $form->text('cublic_meter', 'Mét khối');
         $form->text('line', 'Line');
         $form->text('note', 'Ghi chú');
+        $states = [
+            'on'  => ['value' => 2, 'text' => 'Xong', 'color' => 'success'],
+            'off' => ['value' => 1, 'text' => 'Chưa đủ', 'color' => 'danger'],
+        ];
+        $form->switch('status', 'Trạng thái')->states($states)->default(1);
 
         $form->disableEditingCheck();
         $form->disableCreatingCheck();

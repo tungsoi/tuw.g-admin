@@ -26,5 +26,6 @@ class ReportWarehousePortal extends Model
         'offer_cublic_meter',
         'line',
         'note',
+        'status'
     ];
 }
