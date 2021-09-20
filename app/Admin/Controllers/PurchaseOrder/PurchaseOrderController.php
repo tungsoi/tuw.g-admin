@@ -219,7 +219,7 @@ class PurchaseOrderController extends AdminController
             }
 
             return view('admin.system.core.list', compact('data'));
-        })->style('max-width: 180px');
+        })->style('max-width: 200px');
         
 
         if (! Admin::user()->isRole('customer')) {
@@ -923,6 +923,7 @@ SCRIPT;
         return view('admin.system.purchase_order.confirm_ordered', compact('id'))->render();
     }
 
+    // chot trang thai don hang
     public function postConfirmOrdered(Request $request) {
         if ($request->ajax()) {
             $orderService = new OrderService();

@@ -24,11 +24,11 @@
     data-action="{{ route('admin.purchase_orders.confirm_ordered') }}">4. Chốt thành công</a>
 {{-- @endif --}}
 
-@if ($payment_route == "#")
+{{-- @if ($payment_route == "#")
     <a class='btn btn-sm btn-danger' id="btn-payment-error">5. Thanh toán</a>
 @else
     <a class='btn btn-sm btn-danger' target='_blank'  href="{{ $payment_route }}">5. Thanh toán - (Tiền {{ $tips }})</a>
-@endif
+@endif --}}
 
 <script>
     $('.btn-update-status').click(function (e) {
