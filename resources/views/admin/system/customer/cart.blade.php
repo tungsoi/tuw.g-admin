@@ -79,7 +79,7 @@
                             try {
                                 $price = number_format($price, 2, '.', '');
                             } catch (\Exception $e) {
-                                dd($price);
+                                $price = 0;
                             }
                         @endphp
                         <td style="width: 100px">
