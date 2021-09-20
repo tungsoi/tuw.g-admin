@@ -352,27 +352,27 @@ class PurchaseOrderItemController extends AdminController
             $grid->admin_note('Admin ghi chú')->style('max-width: 100px');
         } else {
             $grid->admin_note('Admin ghi chú')->editable();
-            $grid->order_cn_code('Mã vận đơn')->display(function () {
+            // $grid->order_cn_code('Mã vận đơn')->display(function () {
 
-                if ($this->order && $this->order->transport_code != "") {
-                    $arr = explode(',', $this->order->transport_code);
-                    $html = "";
-                    foreach ($arr as $code) {
-                        $class = 'default';
-                        if (TransportCode::where('transport_code', $code)->whereIn('status', [1, 4, 5])->count() > 0) {
-                            $class = 'primary';
-                        } else if (TransportCode::where('transport_code', $code)->whereIn('status', [3])->count() > 0) {
-                            $class = 'success';
-                        }
-                        $html .= "<span class='label label-$class' style='margin-bottom: 5px !important;'>$code</span> &nbsp;";
-                    }
+            //     if ($this->order && $this->order->transport_code != "") {
+            //         $arr = explode(',', $this->order->transport_code);
+            //         $html = "";
+            //         foreach ($arr as $code) {
+            //             $class = 'default';
+            //             if (TransportCode::where('transport_code', $code)->whereIn('status', [1, 4, 5])->count() > 0) {
+            //                 $class = 'primary';
+            //             } else if (TransportCode::where('transport_code', $code)->whereIn('status', [3])->count() > 0) {
+            //                 $class = 'success';
+            //             }
+            //             $html .= "<span class='label label-$class' style='margin-bottom: 5px !important;'>$code</span> &nbsp;";
+            //         }
     
-                    return $html;
-                }
+            //         return $html;
+            //     }
 
-                return null;
-            })->width(150);
-            $grid->cn_code('MVD trên sản phẩm')->editable();
+            //     return null;
+            // })->width(150);
+            $grid->cn_code('Mã vận đơn')->editable();
             $grid->cn_order_number('Mã giao dịch')->editable();
         }
 
@@ -472,10 +472,12 @@ class PurchaseOrderItemController extends AdminController
                     }
 
                     $string = implode(",", $temp);
-
-                    $order->transport_code = $string;
-                    $order->save();
+                } else {
+                    $string = $cn_code;
                 }
+
+                $order->transport_code = $string;
+                $order->save();
             }
         });
 
@@ -503,6 +505,10 @@ class PurchaseOrderItemController extends AdminController
             });
 
             $('.column-cn_order_number a').each(function () {
+                $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
+            });
+
+            $('.column-cn_code a').each(function () {
                 $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
             });
 

@@ -14,7 +14,7 @@ data-toggle="modal" data-target="#myModal-{{ $order->id }}"data-pk="{{ $order->i
         <div class="modal-content" style="text-align: left !important;">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">{{ $order->order_number }}</h4>
+            <h4 class="modal-title">Mã vận đơn trên đơn : {{ $order->order_number }}</h4>
         </div>
         <div class="modal-body">
             <input type="hidden" name="id" value="{{ $order->id }}">
