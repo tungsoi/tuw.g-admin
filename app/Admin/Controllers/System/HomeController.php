@@ -37,4 +37,8 @@ class HomeController extends Controller
                 }
             });
     }
+
+    public function blank() {
+        return redirect()->route('admin.home');
+    }
 }
