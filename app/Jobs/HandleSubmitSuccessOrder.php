@@ -39,6 +39,7 @@ class HandleSubmitSuccessOrder implements ShouldQueue
         $order = PurchaseOrder::find($this->orderId);
 
         // step 1: change status of order
+        $order->status = 9;
         $order->success_at = now();
         $order->user_success_at = 1;
         $order->save();
