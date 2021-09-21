@@ -39,7 +39,9 @@ class DeleteOrderDoesntHaveItem extends Command
      */
     public function handle()
     {
+        $time = date('Y-m-d', strtotime(now()));
         PurchaseOrder::select('id')
+            ->where('created_at', 'like', $time.'%')
             ->whereIn('status', [2, 10])
             ->doesntHave('items')
             ->delete();
