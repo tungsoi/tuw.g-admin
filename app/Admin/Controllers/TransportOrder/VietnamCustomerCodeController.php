@@ -155,7 +155,7 @@ class VietnamCustomerCodeController extends AdminController
             return "(".TransportCode::where('customer_code_input', $this->customer_code_input)->where('status', 1)->count().")";
         })->expand(function ($model) {
             $customer_code = $model->customer_code_input;
-            $header = ["MÃ ĐƠN HÀNG", "MÃ VẬN ĐƠN", "CÂN NẶNG (KG)", "DÀI (CM)", "RỘNG (CM)", "CAO (CM)", "V/6000", "M3", "ỨNG KÉO (TỆ)", "VỀ KHO TQ", "VỀ KHO VN", "TRẠNG THÁI", "KHO HÀNG"];
+            $header = ["MÃ ĐƠN HÀNG", "MÃ VẬN ĐƠN", "MKH", "CÂN NẶNG (KG)", "DÀI (CM)", "RỘNG (CM)", "CAO (CM)", "V/6000", "M3", "ỨNG KÉO (TỆ)", "VỀ KHO TQ", "VỀ KHO VN", "TRẠNG THÁI", "KHO HÀNG"];
             
             $codes = TransportCode::where('customer_code_input', $customer_code)->where('status', 1)->get();
 
@@ -164,6 +164,7 @@ class VietnamCustomerCodeController extends AdminController
                 $info[] = [
                     $code->paymentOrder->order_number ?? null,
                     $code->transport_code,
+                    $code->customer_code_input,
                     $code->kg,
                     $code->length,
                     $code->width,
