@@ -137,20 +137,11 @@ EOT
 
         $form->display('id', __('ID'));
         $form->date('date', "Ngày về kho")->default(now());
-        $form->text('order', "STT");
         $form->text('title', "Ký hiệu");
-        $form->text('weight', "Cân nặng");
-        $form->text('lenght', 'Dài (cm)');
-        $form->text('width', 'Rộng (cm)');
-        $form->text('height', 'Cao (cm)');
+        $form->text('count', 'Thực nhận');
+        $form->text('weight',"Cân nặng");
         $form->text('cublic_meter', 'Mét khối');
-        $form->text('line', 'Line');
-        $form->text('note', 'Ghi chú');
-        $states = [
-            'on'  => ['value' => 2, 'text' => 'Xong', 'color' => 'success'],
-            'off' => ['value' => 1, 'text' => 'Chưa đủ', 'color' => 'danger'],
-        ];
-        $form->switch('status', 'Trạng thái')->states($states)->default(1);
+        $form->text('note', 'Ghi Chú');
 
         $form->disableEditingCheck();
         $form->disableCreatingCheck();
