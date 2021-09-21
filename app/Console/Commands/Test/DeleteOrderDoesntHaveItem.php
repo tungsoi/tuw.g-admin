@@ -39,17 +39,13 @@ class DeleteOrderDoesntHaveItem extends Command
      */
     public function handle()
     {
-        $time = date('Y-m-d', strtotime(now()));
-        $orders = PurchaseOrder::select('id')
+        PurchaseOrder::select('id')
             ->whereIn('status', [2, 10])
             ->doesntHave('items')
-            ->get();
+            ->delete();
         
         ScheduleLog::create([
-            'name'  =>  $this->signature . " - " . $orders->count()
+            'name'  =>  $this->signature
         ]);
-
-
-        $orders->delete();
     }
 }
