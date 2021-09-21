@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\Test;
+namespace App\Console\Commands\System;
 
 use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\System\ScheduleLog;
@@ -13,7 +13,7 @@ class DeleteOrderDoesntHaveItem extends Command
      *
      * @var string
      */
-    protected $signature = 'test:delete-non-item';
+    protected $signature = 'purchase-order:delete-non-item';
 
     /**
      * The console command description.
