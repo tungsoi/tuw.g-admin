@@ -11,6 +11,7 @@ use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\PurchaseOrder\PurchaseOrderItem;
 use App\Models\PurchaseOrder\PurchaseOrderItemStatus;
 use App\Models\System\Alert;
+use App\Models\System\TeamSale;
 use App\Models\TransportOrder\TransportCode;
 use App\User;
 use DateTime;
@@ -54,9 +55,21 @@ class PurchaseOrderItemController extends AdminController
         if (Admin::user()->isRole('customer')) {
             $grid->model()->whereIn('order_id', $orderIds);
         } else if (Admin::user()->isRole('sale_employee') ) {
-            $customers = User::where('staff_sale_id', Admin::user()->id)->pluck('id');
-            $orders = PurchaseOrder::whereIn('customer_id', $customers)->pluck('id');
-            $grid->model()->whereIn('order_id', $orders);
+
+            $flag = TeamSale::whereLeader(Admin::user()->id)->first();
+            if ($flag) {
+                // is leader
+                $customers = User::whereIn('staff_sale_id', $flag->members)->pluck('id');
+                $orders = PurchaseOrder::whereIn('customer_id', $customers)->pluck('id');
+                $grid->model()->whereIn('order_id', $orders);
+            } else {
+                
+                $customers = User::where('staff_sale_id', Admin::user()->id)->pluck('id');
+                $orders = PurchaseOrder::whereIn('customer_id', $customers)->pluck('id');
+                $grid->model()->whereIn('order_id', $orders);   
+            }
+
+
         } else if (Admin::user()->isRole('order_manager')) {
             // $orders = PurchaseOrder::where('supporter_order_id', Admin::user()->id)->pluck('id');
             // $grid->model()->whereIn('order_id', $orders);
