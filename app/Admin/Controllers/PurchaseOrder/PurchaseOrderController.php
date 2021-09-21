@@ -807,7 +807,7 @@ SCRIPT;
 
                 $job = new HandleCustomerWallet(
                     Admin::user()->id,
-                    1, // system
+                    Admin::user()->id, // khach hang
                     $deposite,
                     3,
                     "Đặt cọc đơn hàng mua hộ $order->order_number"
@@ -907,7 +907,7 @@ SCRIPT;
 
         $job = new HandleCustomerWallet(
             $order->customer->id,
-            Admin::user()->id, // system
+            Admin::user()->id, // admin
             $request->deposited,
             3,
             "Đặt cọc đơn hàng mua hộ $order->order_number"
