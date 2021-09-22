@@ -65,7 +65,7 @@ class DetailController extends AdminController
         });
 
         // setup
-        $grid->paginate(200);
+        $grid->paginate(20);
         $grid->disableActions();
 
         $grid->disableCreateButton();

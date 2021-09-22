@@ -741,6 +741,9 @@ class PurchaseOrderController extends AdminController
                 padding-bottom: 0px;
                 border: none;
             }
+            .col-md* {
+                padding: 0px !important;
+            }
         ');
 
         Admin::script($this->offerOrderScript());
