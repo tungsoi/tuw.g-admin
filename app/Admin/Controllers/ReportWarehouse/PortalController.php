@@ -143,6 +143,12 @@ EOT
         $form->text('cublic_meter', 'Mét khối');
         $form->text('note', 'Ghi Chú');
 
+        $states = [
+            'on'  => ['value' => 2, 'text' => 'Xong', 'color' => 'success'],
+            'off' => ['value' => 1, 'text' => 'Chưa đủ', 'color' => 'danger'],
+        ];
+        $form->select('status', 'Trạng thái')->options($states);
+
         $form->disableEditingCheck();
         $form->disableCreatingCheck();
         $form->disableViewCheck();
