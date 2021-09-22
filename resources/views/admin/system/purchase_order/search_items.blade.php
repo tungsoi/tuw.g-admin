@@ -3,7 +3,7 @@
 
     <tr>
         <td>{{ $item->order->order_number }}</td>
-        <td style="width: 200px !important;">{{ $item->order->transport_code }}</td>
+        <td style="width: 200px !important;">{{ $item->cn_code }}</td>
         <td>
             @php
                 if (strpos($item->product_image, 'https://') !== false) {

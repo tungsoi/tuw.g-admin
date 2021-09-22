@@ -544,8 +544,7 @@ SCRIPT;
     }
 
     public function showRebuild($transportCode) {
-        $orderIds = PurchaseOrder::select('transport_code', 'id')->where('transport_code','like', '%'.$transportCode.'%')->pluck('id');
-        $items = PurchaseOrderItem::whereIn('order_id', $orderIds)->get();
+        $items = PurchaseOrderItem::where('cn_code', 'like', '%'.$transportCode.'%')->get();
 
         return response()->json([
             'status'    =>  true,

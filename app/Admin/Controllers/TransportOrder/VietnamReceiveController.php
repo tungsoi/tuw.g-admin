@@ -40,7 +40,7 @@ class VietnamReceiveController extends AdminController
                     $column->append((new Box('', $this->form()))); 
                 });
                 
-                $row->column(12, function (Column $column)
+                $row->column(11, function (Column $column)
                 {
                     $column->append((new Box('Sản phẩm Order', $this->gridOrder()))); 
                 });
@@ -332,7 +332,7 @@ class VietnamReceiveController extends AdminController
                             success: function (response)
                             {
                                 if (response.status && response.html != "") {
-                                    $(".content > .row > .col-md-12 table tbody").prepend(response.html); 
+                                    $(".content > .row > .col-md-11 table tbody").prepend(response.html); 
                                 }
                             }
                         });
