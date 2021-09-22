@@ -97,7 +97,7 @@ class TransportCode extends Model
             case self::CHINA_RECEIVE: 
                 return 'Đã về kho Trung Quốc';
             case self::VIETNAM_RECEIVE:
-                return 'Đã về kho Việt Nam (' . $this->warehouse->name . ')';
+                return 'Đã về kho Việt Nam (' . $this->warehouse->code . ')';
             case self::WAITTING_PAYMENT:
                 return 'Đã thanh toán tạm';
             case self::PAYMENT:

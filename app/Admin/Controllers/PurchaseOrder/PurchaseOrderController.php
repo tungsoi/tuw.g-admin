@@ -587,7 +587,7 @@ class PurchaseOrderController extends AdminController
 
     public function transportCode($id) {
         $transport_code_str = PurchaseOrder::find($id)->transport_code;
-        $headers = ['Mã vận đơn', 'Cân', 'Dài / Rộng / Cao', 'Giá', 'Tổng tiền', 'Trạng thái'];
+        $headers = ['Mã vận đơn', 'Cân', 'Dài / Rộng / Cao',  'Trạng thái']; //'Giá', 'Tổng tiền',
         $rows = [];
 
         $total_kg = 0;
@@ -610,8 +610,8 @@ class PurchaseOrderController extends AdminController
                             "<span style='float: left; color: green !important;'>".$tag."</span>",
                             "<span style='float: right; color: green;'>".$code->kg."</span>",
                             "<span style='float: right; color: green;'>".$code->length." / ".$code->width." / ".$code->height."</span>",
-                            "<span style='float: right; color: green;'>".number_format($code->price_service)."</span>",
-                            "<span style='float: right; color: green;'>".number_format($amount, 0)."</span>",
+                            // "<span style='float: right; color: green;'>".number_format($code->price_service)."</span>",
+                            // "<span style='float: right; color: green;'>".number_format($amount, 0)."</span>",
                             "<span style='float: right; color: green;'>".$code->getStatus()."</span>"
                         ];
                         } else {
@@ -619,8 +619,8 @@ class PurchaseOrderController extends AdminController
                             $code_row,
                             'Chưa có dữ liệu',
                             '',
-                            '',
-                            '',
+                            // '',
+                            // '',
                             ''
                         ];
                         }
@@ -632,8 +632,8 @@ class PurchaseOrderController extends AdminController
                     '',
                     "<span style='float: right'>".$total_kg."</span>",
                     '',
-                    '',
-                    "<span style='float: right'>".number_format($total_price, 0)."</span>",
+                    // '',
+                    // "<span style='float: right'>".number_format($total_price, 0)."</span>",
                     ''
                 ];
             } else {
@@ -641,8 +641,8 @@ class PurchaseOrderController extends AdminController
                     'Mã vận đơn sai',
                     '',
                     '',
-                    '',
-                    '',
+                    // '',
+                    // '',
                     ''
                 ];
             }
@@ -651,8 +651,8 @@ class PurchaseOrderController extends AdminController
                 'Trống',
                 '',
                 '',
-                '',
-                '',
+                // '',
+                // '',
                 ''
             ];
         }
