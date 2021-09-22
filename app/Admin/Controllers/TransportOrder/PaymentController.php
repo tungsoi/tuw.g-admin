@@ -424,7 +424,7 @@ SCRIPT;
             });
             $filter->column(1/4, function ($filter) use ($service)  {
                 if (! Admin::user()->isRole('customer') ) {
-                    $filter->equal('customer_payment_id', 'Khách hàng thanh toán')->select($service->GetListCustomer());
+                    $filter->equal('payment_customer_id', 'Khách hàng thanh toán')->select($service->GetListCustomer());
                 }
             }); 
             $filter->column(1/4, function ($filter) {
@@ -567,7 +567,7 @@ SCRIPT;
             }
 
             if (! Admin::user()->isRole('customer')) {
-                $actions->append(new Recharge($this->row->customer_payment_id));
+                $actions->append(new Recharge($this->row->payment_customer_id));
             }
         });
 
