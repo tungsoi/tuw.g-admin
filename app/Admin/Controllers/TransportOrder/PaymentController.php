@@ -246,10 +246,13 @@ class PaymentController extends AdminController
             'total_sub_wallet_weight'   =>  $request->payment_customer_wallet_weight_used,
             'current_rate'      =>  ExchangeRate::first()->vnd,
             'transaction_note'  =>  $content,
-            'export_at'         =>  $request->order_type == 'payment_export' ? now() : null,
             'owed_purchase_order'   =>  $request->owed_purchase_order ?? 0,
             'purchase_order_id' =>  $request->purchase_order_id ?? 0
         ];
+
+        if ($request->order_type == "payment_export") {
+            $paymentOrderData['export_at'] = now();
+        }
 
         $paymentOrder = PaymentOrder::firstOrCreate($paymentOrderData);
 
