@@ -227,7 +227,9 @@ class VietnamReceiveController extends AdminController
                     }
 
                     // chuyen trang thai da ve viet nam cua don hang mua ho
-                    PurchaseOrder::where('transport_code', 'like', '%'.$code['transport_code'].'%')->update([
+                    PurchaseOrder::where('transport_code', 'like', '%'.$code['transport_code'].'%')
+                    ->where('status', '!=', 9)
+                    ->update([
                         'status'                =>  $orderService->getStatus('vn-recevice'),
                         'vn_receive_at'         =>  now(),
                         'user_vn_receive_at'    =>  Admin::user()->id
