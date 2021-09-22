@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers\TransportOrder;
 
 use App\Admin\Actions\Core\BtnView;
+use App\Admin\Actions\Customer\Recharge;
 use App\Admin\Actions\PaymentOrder\ExportTransportCode;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
@@ -563,6 +564,10 @@ SCRIPT;
             if ($this->row->status == 'payment_not_export' && ! Admin::user()->isRole('customer')) {
                 $route = route('admin.payments.exportOrder'); // route export
                 $actions->append(new ExportTransportCode($this->row->id, $route));
+            }
+
+            if (! Admin::user()->isRole('customer')) {
+                $actions->append(new Recharge($this->row->customer_payment_id));
             }
         });
 
