@@ -330,7 +330,7 @@ SCRIPT;
                 
             });
             $filter->column(1/4, function ($filter) use ($orderService)  {
-                $filter->equal('customer_code_input', 'Mã khách hàng');
+                $filter->like('customer_code_input', 'Mã khách hàng');
             });
 
             $filter->column(1/4, function ($filter) {
