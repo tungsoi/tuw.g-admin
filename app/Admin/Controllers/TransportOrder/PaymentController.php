@@ -259,12 +259,10 @@ class PaymentController extends AdminController
         // step 2: update transport code
         foreach ($request->transport_code_id as $index => $transport_code_id) {
             $status = "";
-            $export_at = "";
             if ($request->order_type == 'payment_not_export') {
                 $status = $orderService->getTransportCodeStatus('not-export');
             } else if ($request->order_type == 'payment_export') {
                 $status = $orderService->getTransportCodeStatus('payment');
-                $export_at = now();
             } else if ($request->order_type == 'payment_temp') {
                 $status = $orderService->getTransportCodeStatus('payment');
                 $purchase_orders = PurchaseOrder::find($request->purchase_order_id);
@@ -276,14 +274,19 @@ class PaymentController extends AdminController
                 $content = "Thanh toán kết đơn $purchase_orders->order_number (vận chuyển + tiền mua hộ)";
             }
 
-            TransportCode::find($transport_code_id)->update([
+            $dataTransportCode = [
                 'order_id'  =>  $paymentOrder->id,
                 'status'    =>  $status,
                 'payment_at'    =>  now(),
                 'payment_user_id'   =>  Admin::user()->id,
-                'payment_type'  =>  $request->payment_type[$index],
-                'export_at' =>  $export_at
-            ]);
+                'payment_type'  =>  $request->payment_type[$index]
+            ];
+
+            if ($request->order_type == 'payment_export') {
+                $dataTransportCode['export_at'] = now();
+            }
+
+            TransportCode::find($transport_code_id)->update($dataTransportCode);
         }
 
         // step 3: create transaction to wallet user
