@@ -147,7 +147,7 @@ EOT
             'on'  => ['value' => 2, 'text' => 'Xong', 'color' => 'success'],
             'off' => ['value' => 1, 'text' => 'Chưa đủ', 'color' => 'danger'],
         ];
-        $form->select('status', 'Trạng thái')->options($states);
+        $form->switch('status', 'Trạng thái')->states($states)->default(1);
 
         $form->disableEditingCheck();
         $form->disableCreatingCheck();
