@@ -7,9 +7,11 @@ use App\Admin\Actions\PurchaseOrder\ConfirmOrderItem;
 use App\Admin\Actions\PurchaseOrder\ConfirmOutstockItem;
 use App\Admin\Actions\PurchaseOrder\ConfirmVnReceiveItem;
 use App\Admin\Actions\PurchaseOrder\Deposite;
+use App\Admin\Actions\PurchaseOrder\DepositeMultiple;
 use App\Admin\Actions\PurchaseOrder\Update;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
+use App\Jobs\HandleAdminDepositeMultiplePurchaseOrder;
 use App\Jobs\HandleCustomerWallet;
 use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\PurchaseOrder\PurchaseOrderItem;
@@ -387,9 +389,13 @@ class PurchaseOrderController extends AdminController
         
         $grid->disableCreateButton();
         $grid->disableExport();
-        $grid->disableBatchActions();
+
+        if (! Admin::user()->can('deposite_multiple_purchase_order')) {
+            $grid->disableBatchActions();
+        }
+
         $grid->disableColumnSelector();
-        $grid->paginate(10);
+        $grid->paginate(5);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             // if (Admin::user()->isRole('customer')) {
                 $actions->disableEdit();
@@ -409,8 +415,18 @@ class PurchaseOrderController extends AdminController
 
                 $actions->append(new Update($this->row->id));
                 $actions->append(new Recharge($this->row->customer_id));
+            }    
+
+            if (Admin::user()->can('deposite_multiple_purchase_order') && ! in_array($this->row->status, [$orderService->getStatus('new-order')])) {
+                Admin::script(
+                    <<<EOT
+                    $('input[data-id={$this->row->id}]').parent().parent().empty();
+EOT);
             }
-            
+        });
+        
+        $grid->tools(function (Grid\Tools $tools) {
+            $tools->append(new DepositeMultiple());
         });
 
         return $grid;
@@ -1084,6 +1100,27 @@ SCRIPT;
         admin_toastr('Cập nhật thành công', 'success');
 
         return back();
+    }
+
+    public function postAdminDepositeMultiple(Request $request) {
+        $data = $request->only(['percent', 'ids']);
+
+        $ids = explode(",", $data['ids']);
+        $order_numbers = PurchaseOrder::whereIn('id', $ids)->pluck('order_number')->toArray();
+
+        foreach ($ids as $order_id) {
+            $job = new HandleAdminDepositeMultiplePurchaseOrder(
+                $order_id,
+                $data['percent'],
+                Admin::user()->id
+            );
+            dispatch($job);
+        }
+
+        return response()->json([
+            'status'    =>  true,
+            'message'   =>  "Đang xử lý đặt cọc các đơn hàng: " . implode(', ', $order_numbers) .". Vui lòng kiểm tra lại sau khoảng ". sizeof ($ids) . " phút."
+        ]);
     }
     
 }
