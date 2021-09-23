@@ -426,7 +426,9 @@ EOT);
         });
         
         $grid->tools(function (Grid\Tools $tools) {
-            $tools->append(new DepositeMultiple());
+            if (Admin::user()->can('deposite_multiple_purchase_order')) {
+                $tools->append(new DepositeMultiple());
+            }
         });
 
         return $grid;
