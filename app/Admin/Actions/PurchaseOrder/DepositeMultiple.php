@@ -67,6 +67,8 @@ SCRIPT;
             modal_ele.find('.btn-primary').attr('id', 'btn-submit-deposite-multiple');
 
             $(document).on('click', '#btn-submit-deposite-multiple', function () {
+
+                $('.loading-overlay').toggle();
                 $.ajaxSetup({
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -84,6 +86,8 @@ SCRIPT;
                     success: function (response)
                     {
                         if (response.status) {
+                            $('.loading-overlay').toggle();
+
                             modal_ele.find('.modal-body').append("<span style='color: green; font-size: 14px; font-weight: bold;' id='notify-deposite-multiple'>"+response.message+"</span>");
 
                             $.admin.toastr.warning("Page tự động reload sau 10s", '', {positionClass: 'toast-top-center'});
@@ -95,7 +99,12 @@ SCRIPT;
                             setTimeout(function () {
                                 location.reload();
                             }, 10000);
+                        } else {
+
+                            $('.loading-overlay').hide();
+                            $.admin.toastr.error(response.message, '', {positionClass: 'toast-top-center'});
                         }
+
                     }
                 });
             });

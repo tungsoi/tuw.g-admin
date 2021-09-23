@@ -243,7 +243,7 @@ class TransactionController extends AdminController
             'status'    =>  'success',
             'message'   =>  'Xoá thành công',
             'isRedirect'    =>  true,
-            'url'   =>  route('admin.customers.transactions', $customer->id)
+            'url'   =>  route('admin.transactions.index')
         ]);
     }
 }
