@@ -476,7 +476,7 @@ SCRIPT;
             $data = [];
 
             if ($model->transportCode->count() > 0) {
-                foreach ($model->transportCode as $transportCode) {
+                foreach ($model->transportCode as $key => $transportCode) {
                     $payment_type = "";
                     if ($transportCode->payment_type == 1) {
                         $payment_type = "Khối lượng";
@@ -486,6 +486,7 @@ SCRIPT;
                         $payment_type = "V/6000";
                     }
                     $data[] = [
+                        $key+1,
                         $transportCode->transport_code,
                         $payment_type,
                         $transportCode->kg,
@@ -499,6 +500,7 @@ SCRIPT;
             }
         
             return new Table([
+                    'STT',
                     'Mã vận đơn',
                     'Loại thanh toán',
                     'KG',
