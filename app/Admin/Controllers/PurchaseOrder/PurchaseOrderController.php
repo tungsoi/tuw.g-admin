@@ -395,7 +395,7 @@ class PurchaseOrderController extends AdminController
         }
 
         $grid->disableColumnSelector();
-        $grid->paginate(5);
+        $grid->paginate(15);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             // if (Admin::user()->isRole('customer')) {
                 $actions->disableEdit();
