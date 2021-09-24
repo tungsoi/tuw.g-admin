@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands\Test;
 
+use App\Admin\Services\UserService;
 use App\Models\SyncData\AlilogiTransaction;
 use App\Models\SyncData\AlilogiUser;
 use App\Models\System\Transaction;
+use App\User;
 use Illuminate\Console\Command;
 
 class TestWalletUser extends Command
@@ -41,70 +43,105 @@ class TestWalletUser extends Command
     public function handle()
     {
 
-        $code = [
-            'KANGNAM',
-            'LHTHU95',
-            'UYEN230',
-            'TRANGXUAN',
-            'DUONG341',
-            'VYVY',
-            'KHONGTEN',
-            'NAM85',
-            'ALTKIEN',
-            'ALKIMANH',
-            'ALBQ95',
-            'ALNINA',
-            'ALTUAN2292',
-            'ALMRSTHAO',
-            'nguyet1808',
-            'Yumi',
-            'TXdothinga',
-            'MinhChang',
-            'HN.MEN',
-            'xuanthanhfb',
-            'MC95',
-            'TXhieuvu',
-            'Thuyvan96',
-            'GIANGMUN',
-            'HAU36',
-            'nguyenhien02',
-            'Huyen245',
-            'Thuhien48',
-            'Zangg',
-            'TXAROOM',
-            'TXvuan',
-            'TXbaongoc95',
-            'uyen264',
-            'hienpham87',
-            'Khanhly274',
-            'Havy97',
-            'KhLinh973',
-            'thu123',
-            'nga2003'
-        ];
+        $users = User::select('id', 'symbol_name', 'wallet')->whereIsCustomer(1)->get();
+        $ids = [];
+        foreach ($users as $user) {
+            echo $user->id." --- ";
+            $service = new UserService();
+            $data = $service->GetCustomerTransactionHistory($user->id, false);
 
-        $old_users = AlilogiUser::whereIsCustomer(1)->whereIn('symbol_name', $code)->get();
+            if ($data[0]['after_payment'] != $user->wallet) {
+                echo $user->id . " --- ";
+                echo $user->symbol_name . " --- ";
+                echo $user->wallet . " --- ";
+                echo $data[0]['after_payment'] ."\n";
 
-        $key = 1;
-        $temp = 0;
-
-        $all = [];
-        foreach ($old_users as $key => $user) {
-            // echo ($key+1) . ". ".$user->symbol_name . " --- Số dư hiện tại: " . number_format($user->wallet) . "\n";
-            $user_id = $user->id;
-            $old_transactions = AlilogiTransaction::whereCustomerId($user_id)->get();
-            $new_transactions = Transaction::whereCustomerId($user_id)->get();
-
-            $old_contents = $old_transactions->pluck('content', 'id');
-            $new_contents = $new_transactions->pluck('content', 'id');
-
-            $diff = array_diff($old_contents->toArray(),$new_contents->toArray());
-
-            if (sizeof($diff) > 0) {
-                foreach ($diff as $transaction_id => $transaction) {
-                    echo $transaction_id . " --- " . $transaction . "\n";
-                }
+                $ids[] = $user->id;
+            } else {
+                echo "done\n";
             }
+        }
+
+        dd($ids);
+        // $code = [
+        //     'KANGNAM',
+        //     'LHTHU95',
+        //     'UYEN230',
+        //     'TRANGXUAN',
+        //     'DUONG341',
+        //     'VYVY',
+        //     'KHONGTEN',
+        //     'NAM85',
+        //     'ALTKIEN',
+        //     'ALKIMANH',
+        //     'ALBQ95',
+        //     'ALNINA',
+        //     'ALTUAN2292',
+        //     'ALMRSTHAO',
+        //     'nguyet1808',
+        //     'Yumi',
+        //     'TXdothinga',
+        //     'MinhChang',
+        //     'HN.MEN',
+        //     'xuanthanhfb',
+        //     'MC95',
+        //     'TXhieuvu',
+        //     'Thuyvan96',
+        //     'GIANGMUN',
+        //     'HAU36',
+        //     'nguyenhien02',
+        //     'Huyen245',
+        //     'Thuhien48',
+        //     'Zangg',
+        //     'TXAROOM',
+        //     'TXvuan',
+        //     'TXbaongoc95',
+        //     'uyen264',
+        //     'hienpham87',
+        //     'Khanhly274',
+        //     'Havy97',
+        //     'KhLinh973',
+        //     'thu123',
+        //     'nga2003'
+        // ];
+
+        // $old_users = AlilogiUser::whereIsCustomer(1)->whereIn('symbol_name', $code)->get();
+
+        // $key = 1;
+        // $temp = 0;
+
+        // $all = [];
+        // foreach ($old_users as $key => $user) {
+        //     // echo ($key+1) . ". ".$user->symbol_name . " --- Số dư hiện tại: " . number_format($user->wallet) . "\n";
+        //     $user_id = $user->id;
+        //     $old_transactions = AlilogiTransaction::whereCustomerId($user_id)->get();
+        //     $new_transactions = Transaction::whereCustomerId($user_id)->get();
+
+        //     $old_contents = $old_transactions->pluck('content', 'id');
+        //     $new_contents = $new_transactions->pluck('content', 'id');
+
+        //     $diff = array_diff($old_contents->toArray(),$new_contents->toArray());
+
+        //     if (sizeof($diff) > 0) {
+        //         foreach ($diff as $transaction_id => $transaction) {
+        //             $flag = Transaction::where('content', $transaction)->first();
+
+        //             if ($flag) {
+        //                 echo "-- Đã tồn tại \n";
+
+        //                 echo $transaction_id . "-". $transaction;
+
+
+        //             } else {
+
+        //                 // echo "-- Chưa tồn tại \n";
+
+        //                 // $raw = AlilogiTransaction::find($transaction_id);
+
+        //                 // Transaction::create($raw->toArray());
+        //             }
+        //         }
+        //     }
             // foreach ($old_content)
 
 
@@ -142,7 +179,7 @@ class TestWalletUser extends Command
             // }
 
             // echo "------------------------\n";
-        }
+        
 
     }
 }
