@@ -390,6 +390,53 @@ class PurchaseOrderController extends AdminController
         if (! Admin::user()->isRole('customer')) {
             $grid->internal_note('Ghi chú nội bộ')->editable()->style('max-width: 100px');
         }
+
+        $grid->timeline('Timeline')->display(function () {
+            $data = [];
+
+            if ($this->created_at != null) {
+                $data[] = [
+                    'is_label'   =>  false,
+                    'text'      =>   "1. Ngày tạo: ". ($this->created_at != null ? date('H:i | d-m-Y', strtotime($this->created_at)) : "")
+                ];
+            }
+
+            if ($this->deposited_at != null) {
+                $data[] = [
+                    'is_label'   =>  false,
+                    'text'      =>   "2. Ngày cọc: ". ($this->deposited_at != null ? date('H:i | d-m-Y', strtotime($this->deposited_at)) : "")
+                ];
+            }
+
+            if ($this->order_at != null) {
+                $data[] = [
+                    'is_label'   =>  false,
+                    'text'      =>   "3. Ngày đặt hàng: ". ($this->order_at != null ? date('H:i | d-m-Y', strtotime($this->order_at)) : "")
+                ];
+            }
+
+            if ($this->vn_receive_at != null) {
+                $data[] = [
+                    'is_label'   =>  false,
+                    'text'      =>   "1. Ngày về VN: ". ($this->vn_receive_at != null ? date('H:i | d-m-Y', strtotime($this->vn_receive_at)) : "")
+                ];
+            }
+
+            if ($this->success_at != null) {
+                $data[] = [
+                    'is_label'   =>  false,
+                    'text'      =>   "1. Ngày thành công: ". ($this->success_at != null ? date('H:i | d-m-Y', strtotime($this->success_at)) : "")
+                ];
+            }
+            if ($this->cancle_at != null) {
+                $data[] = [
+                    'is_label'   =>  false,
+                    'text'      =>   "1. Ngày huỷ: ". ($this->cancle_at != null ? date('H:i | d-m-Y', strtotime($this->cancle_at)) : "")
+                ];
+            }
+            
+            return view('admin.system.core.list', compact('data'));
+        });
         
         $grid->disableCreateButton();
         $grid->disableExport();

@@ -86,6 +86,7 @@ class TransportCodeController extends AdminController
             });
 
             $filter->column(1/4, function ($filter) {
+                $filter->between('vietnam_receive_at', 'Ngày về VN')->date();
                 $filter->between('export_at', 'Ngày xuất kho')->date();
             });
 
