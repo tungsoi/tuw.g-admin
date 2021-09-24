@@ -187,10 +187,6 @@ class PurchaseOrderController extends AdminController
                 'total_item'    =>  [
                     'is_label'  =>  false,
                     'text'      =>  "". $this->items->where('status', '!=', 4)->count()." link, ". $this->totalItems() . " sp"
-                ],
-                'created_at'    =>  [
-                    'is_label'  =>  false,
-                    'text'      =>  date('H:i | d-m-Y', strtotime($this->created_at))
                 ]
             ];
             return view('admin.system.core.list', compact('data'));
@@ -345,10 +341,6 @@ class PurchaseOrderController extends AdminController
                 'amount_rmb'   =>  [
                     'is_label'   =>  false,
                     'text'      =>   number_format($this->deposited)
-                ],
-                'amount_vnd'  =>  [
-                    'is_label'  =>  false,
-                    'text'      =>  "<i>". $deposited_at ."</i>"
                 ]
             ];            
             return view('admin.system.core.list', compact('data'));
