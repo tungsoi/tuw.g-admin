@@ -129,7 +129,7 @@ class CustomerController extends AdminController
                 $filter->equal('customer_percent_service', 'Phí dịch vụ')->select($this->userService->GetListPercentService());
                 $filter->where(function ($query) {
                     if ($this->input == 0) {
-                        $ids = Transaction::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
+                        $ids = SystemTransaction::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
                         $query->whereNotIn('id', $ids);
                     } else if ($this->input == 1) {
                         $ids = PurchaseOrderPurchaseOrder::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
