@@ -21,6 +21,7 @@ use Encore\Admin\Show;
 use Illuminate\Support\Facades\Hash;
 use Encore\Admin\Controllers\AdminController;
 use App\User;
+use Carbon\Carbon;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use Illuminate\Support\Str;
@@ -128,25 +129,35 @@ class CustomerController extends AdminController
                 $filter->like('username', 'Email');
                 $filter->equal('customer_percent_service', 'Phí dịch vụ')->select($this->userService->GetListPercentService());
                 $filter->where(function ($query) {
+                    $day = 60;
+                    $time = Carbon::now()->subDays($day);
                     if ($this->input == 0) {
                         $ids = SystemTransaction::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
                         $query->whereNotIn('id', $ids);
                     } else if ($this->input == 1) {
-                        $ids = PurchaseOrderPurchaseOrder::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
+                        $ids = PurchaseOrderPurchaseOrder::select('customer_id')->groupBy('customer_id')
+                            ->where('created_at', '>', $time)
+                            ->pluck('customer_id');
                         $query->whereNotIn('id', $ids);
                     } else if ($this->input == 2) {
-                        $ids = PaymentOrder::select('payment_customer_id')->groupBy('payment_customer_id')->pluck('payment_customer_id');
+                        $ids = PaymentOrder::select('payment_customer_id')->groupBy('payment_customer_id')
+                            ->where('created_at', '>', $time )
+                            ->pluck('payment_customer_id');
                         $query->whereNotIn('id', $ids);
                     } else if ($this->input == 3) {
-                        $ids = PurchaseOrderPurchaseOrder::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
-                        $ids_2 = PaymentOrder::select('payment_customer_id')->groupBy('payment_customer_id')->pluck('payment_customer_id');
+                        $ids = PurchaseOrderPurchaseOrder::select('customer_id')->groupBy('customer_id')
+                            ->where('created_at', '>', $time )
+                            ->pluck('customer_id');
+                        $ids_2 = PaymentOrder::select('payment_customer_id')->groupBy('payment_customer_id')
+                            ->where('created_at', '>', $time )
+                            ->pluck('payment_customer_id');
                         $query->whereNotIn('id', $ids)->whereNotIn('id', $ids_2);
                     }
                 }, 'Trạng thái giao dịch', 'type_transaction')->select([
                     'Chưa có giao dịch nạp tiền',
-                    'Chưa có giao dịch Order',
-                    'Chưa có giao dịch vận chuyển',
-                    'Chưa có giao dịch Order + Vận chuyển'
+                    'Chưa có giao dịch Order (2 tháng)',
+                    'Chưa có giao dịch vận chuyển (2 tháng)',
+                    'Chưa có giao dịch Order + Vận chuyển (2 tháng)'
                 ]);
             });
             $filter->column(1/4, function ($filter) {
@@ -231,6 +242,23 @@ class CustomerController extends AdminController
         $grid->ware_house_id('Kho nhận hàng')->style('text-align: center; width: 100px;')->editable('select', $this->userService->GetListWarehouse());
         $grid->note('Ghi chú')->editable()->style('max-width: 150px;');
         $grid->column('is_active', 'Trạng thái')->switch($states)->style('text-align: center');
+        $grid->timeline('Giao dịch cuối')->display(function () {
+            $data = [
+                'order_number'   =>  [
+                    'is_label'  =>  false,
+                    'text'      =>  "1. Ví: ". ($this->transactions->last() ? date('d-m-Y', strtotime($this->transactions->last()->created_at)) : "")
+                ],
+                'current_rate'  =>  [
+                    'is_label'  =>  false,
+                    'text'      =>  "2. Order: ". ($this->purchaseOrders->last() ? date('d-m-Y', strtotime($this->purchaseOrders->last()->created_at)) : "")
+                ],
+                'total_item'    =>  [
+                    'is_label'  =>  false,
+                    'text'      =>  "3. VC: ". ($this->paymentOrders->last() ? date('d-m-Y', strtotime($this->paymentOrders->last()->created_at)) : "")
+                ]
+            ];
+            return view('admin.system.core.list', compact('data'));
+        })->width(150);
 
 
         $grid->disableCreateButton();

@@ -186,4 +186,16 @@ class User extends Model implements AuthenticatableContract
         $this->save();
         return true;
     }
+
+    public function transactions() {
+        return $this->hasMany('App\Models\System\Transaction', 'customer_id', 'id');
+    }
+
+    public function purchaseOrders() {
+        return $this->hasMany('App\Models\PurchaseOrder\PurchaseOrder', 'customer_id', 'id');
+    }
+
+    public function paymentOrders() {
+        return $this->hasMany('App\Models\PaymentOrder\PaymentOrder', 'payment_customer_id', 'id');
+    }
 }
