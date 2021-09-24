@@ -435,9 +435,9 @@ class PurchaseOrderController extends AdminController
         $grid->disableCreateButton();
         $grid->disableExport();
 
-        if (! Admin::user()->can('deposite_multiple_purchase_order')) {
+        // if (! Admin::user()->can('deposite_multiple_purchase_order')) {
             $grid->disableBatchActions();
-        }
+        // }
 
         $grid->disableColumnSelector();
         $grid->paginate(15);
