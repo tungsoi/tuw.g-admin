@@ -69,10 +69,15 @@ class CustomerController extends AdminController
 
         $grid->header(function ($query) {
 
-            $owed = $query->where('wallet', '<', 0)->sum('wallet');
+            $owed = User::select('wallet')->where('wallet', '<', 0)->sum('wallet');
             $color = $owed > 0 ? 'green' : 'red';
 
-            return '<h4>Công nợ khách hàng hiện tại: <span style="color:'.$color.'">'. number_format($owed) ."</span> (VND)</h4>";
+            $plus = User::select('wallet')->where('wallet', '>', 0)->sum('wallet');
+
+            $html = '<h4>Công nợ khách hàng hiện tại: <span style="color:'.$color.'">'. number_format($owed) ."</span> (VND)</h4>";
+            $html .= '<h4>Tiền dư khách hàng hiện tại: <span style="color: green">'. number_format($plus) ."</span> (VND)</h4>";
+
+            return $html;
         });
 
         $grid->expandFilter();

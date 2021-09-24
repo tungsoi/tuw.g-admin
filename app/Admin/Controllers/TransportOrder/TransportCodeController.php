@@ -71,7 +71,13 @@ class TransportCodeController extends AdminController
                 $filter->like('transport_code', 'Mã vận đơn');
 
                 if (! Admin::user()->isRole('customer')) {
-                    $filter->equal('customer_id', 'Khách hàng thanh toán')->select($userService->GetListCustomer());
+                    $filter->where(function ($query) {
+                        if ($this->input != "") {
+                            $ids = PaymentOrder::where('payment_customer_id', $this->input)->pluck('id');
+                            $query->whereIn('order_id', $ids);
+                        }
+                    }, 'Khách hàng thanh toán', 'payment_customer_id')->select($userService->GetListCustomer());
+
                 }
                 
             });
@@ -173,15 +179,25 @@ class TransportCodeController extends AdminController
         });
         $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
         $grid->price_service('Giá vận chuyển')->display(function () {
-            return number_format($this->price_service); 
+            if ($this->payment_type == 1) {
+                return number_format($this->paymentOrder->price_kg);
+            } else if ($this->payment_type == -1) {
+                return number_format($this->paymentOrder->price_service);
+            } else {
+                return 0;
+            } 
         })->style('max-width: 100px');
         $grid->payment_type('Loại thanh toán')->display(function () {
             return $this->paymentType();
         })->style('max-width: 100px');
         $grid->amount('Tổng tiền')->display(function ()  {
-            $amount = $this->amount();
-
-            return $amount == 0 ? "<span style='color: red'>0</span>" : number_format($amount);
+            if ($this->payment_type == 1) {
+                return number_format($this->paymentOrder->price_kg * $this->kg);
+            } else if ($this->payment_type == -1) {
+                return number_format($this->paymentOrder->price_service * $this->m3());
+            } else {
+                return 0;
+            } 
             
         })->style('max-width: 100px');
         $grid->china_receive_at('Về kho TQ')->display(function () {
