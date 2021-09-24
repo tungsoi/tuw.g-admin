@@ -287,9 +287,15 @@ class CustomerController extends AdminController
             $form->text('phone_number', 'Số điện thoại')->rules('required');
 
             $form->divider();
-            $form->select('staff_sale_id', 'Nhân viên Kinh doanh')->options($service->GetListSaleEmployee());
-            $form->select('staff_order_id', 'Nhân viên Đặt hàng')->options($service->GetListOrderEmployee());
-            $form->select('customer_percent_service', '% Phí dịch vụ')->options($service->GetListPercentService())->rules('required');
+            if (Admin::user()->isRole('sale_manager') || Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
+                $form->select('staff_sale_id', 'Nhân viên Kinh doanh')->options($service->GetListSaleEmployee());
+                $form->select('staff_order_id', 'Nhân viên Đặt hàng')->options($service->GetListOrderEmployee());
+                $form->select('customer_percent_service', '% Phí dịch vụ')->options($service->GetListPercentService())->rules('required');
+            } else {
+                $form->select('staff_sale_id', 'Nhân viên Kinh doanh')->options($service->GetListSaleEmployee())->readonly();
+                $form->select('staff_order_id', 'Nhân viên Đặt hàng')->options($service->GetListOrderEmployee())->readonly();
+                $form->select('customer_percent_service', '% Phí dịch vụ')->options($service->GetListPercentService())->rules('required')->readonly();
+            }
         });
         $form->column(1/2, function ($form) use ($service) {
             $form->select('ware_house_id', 'Kho hàng')->options($service->GetListWarehouse())->rules('required');
