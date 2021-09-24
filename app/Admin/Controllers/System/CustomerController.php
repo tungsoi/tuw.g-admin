@@ -9,6 +9,8 @@ use App\Admin\Actions\Customer\TransportOrder;
 use App\Admin\Actions\Customer\WalletWeight;
 use App\Admin\Actions\Customer\HistoryWalletWeight;
 use App\Admin\Services\UserService;
+use App\Models\PaymentOrder\PaymentOrder;
+use App\Models\PurchaseOrder\PurchaseOrder as PurchaseOrderPurchaseOrder;
 use App\Models\System\TeamSale;
 use App\Models\System\Transaction as SystemTransaction;
 use App\Models\System\TransactionType;
@@ -53,8 +55,13 @@ class CustomerController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new User());
-        $grid->model()->whereIsCustomer(User::CUSTOMER)->orderByRaw('CONVERT(wallet, SIGNED) asc');
-        // ->orderByRaw('length(wallet) desc');
+        $grid->model()->whereIsCustomer(User::CUSTOMER);
+
+        if (isset($_GET['type_wallet']) && $_GET['type_wallet'] == 0) {
+            $grid->model()->orderByRaw('CONVERT(wallet, SIGNED) desc');
+        } else {
+            $grid->model()->orderByRaw('CONVERT(wallet, SIGNED) asc');
+        }
 
         if (Admin::user()->isRole('sale_manager')) {
             // 
@@ -69,7 +76,7 @@ class CustomerController extends AdminController
             }
 
         } else {
-            
+
         }
 
         $grid->header(function ($query) {
@@ -79,8 +86,8 @@ class CustomerController extends AdminController
 
             $plus = User::select('wallet')->where('wallet', '>', 0)->sum('wallet');
 
-            $html = '<h4>Công nợ khách hàng hiện tại: <span style="color:'.$color.'">'. number_format($owed) ."</span> (VND)</h4>";
-            $html .= '<h4>Tiền dư khách hàng hiện tại: <span style="color: green">'. number_format($plus) ."</span> (VND)</h4>";
+            $html = '<h4>Công nợ khách hàng hiện tại: <a style="color:'.$color.'">'. number_format($owed) ."</a> (VND)</h4>";
+            $html .= '<h4>Tiền dư khách hàng hiện tại: <a style="color: green">'. number_format($plus) ."</a> (VND)</h4>";
 
             return $html;
         });
@@ -92,14 +99,55 @@ class CustomerController extends AdminController
             $filter->column(1/4, function ($filter) {
                 $filter->equal('id', 'Mã khách hàng')->select($this->userService->GetListCustomer());
                 $filter->equal('staff_sale_id', 'Nhân viên kinh doanh')->select($this->userService->GetListSaleEmployee());
+                $filter->where(function ($query) {
+                    if ($this->input == 0) { // vi duong
+                        $query->where('wallet', '>=', 0)->orderByRaw('CONVERT(wallet, SIGNED) desc');
+                    } else {
+                        $query->where('wallet', '<', 0);
+                    }
+                }, 'Trạng thái số dư', 'type_wallet')->select([
+                    'Ví dương', 'Ví âm'
+                ]);
             });
             $filter->column(1/4, function ($filter) {
                 $filter->like('name', 'Họ và tên');
                 $filter->equal('staff_order_id', 'Nhân viên đặt hàng')->select($this->userService->GetListOrderEmployee());
+                $filter->where(function ($query) {
+                    if ($this->input == 0) { // Order
+                        $ids = PurchaseOrderPurchaseOrder::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
+                        $query->whereIn('id', $ids);
+                    } else { // vận chuyển
+                        $ids = PaymentOrder::select('payment_customer_id')->groupBy('payment_customer_id')->pluck('payment_customer_id');
+                        $query->whereIn('id', $ids);
+                    }
+                }, 'Loại khách hàng', 'type_customer')->select([
+                    'Khách Order', 'Khách vận chuyển'
+                ]);
             });
             $filter->column(1/4, function ($filter) {
                 $filter->like('username', 'Email');
                 $filter->equal('customer_percent_service', 'Phí dịch vụ')->select($this->userService->GetListPercentService());
+                $filter->where(function ($query) {
+                    if ($this->input == 0) {
+                        $ids = Transaction::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
+                        $query->whereNotIn('id', $ids);
+                    } else if ($this->input == 1) {
+                        $ids = PurchaseOrderPurchaseOrder::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
+                        $query->whereNotIn('id', $ids);
+                    } else if ($this->input == 2) {
+                        $ids = PaymentOrder::select('payment_customer_id')->groupBy('payment_customer_id')->pluck('payment_customer_id');
+                        $query->whereNotIn('id', $ids);
+                    } else if ($this->input == 3) {
+                        $ids = PurchaseOrderPurchaseOrder::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
+                        $ids_2 = PaymentOrder::select('payment_customer_id')->groupBy('payment_customer_id')->pluck('payment_customer_id');
+                        $query->whereNotIn('id', $ids)->whereNotIn('id', $ids_2);
+                    }
+                }, 'Trạng thái giao dịch', 'type_transaction')->select([
+                    'Chưa có giao dịch nạp tiền',
+                    'Chưa có giao dịch Order',
+                    'Chưa có giao dịch vận chuyển',
+                    'Chưa có giao dịch Order + Vận chuyển'
+                ]);
             });
             $filter->column(1/4, function ($filter) {
                 $filter->like('phone_number', 'Số điện thoại');
