@@ -37,7 +37,7 @@ class TransactionController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Transaction());
-        $grid->model()->where('money', '!=', 0)->orderBy('id', 'desc');
+        $grid->model()->where('money', '!=', 0)->orderBy('created_at', 'desc');
 
         if ($this->userService->isFilter()) {
             $grid->expandFilter();
