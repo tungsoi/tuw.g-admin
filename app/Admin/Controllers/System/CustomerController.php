@@ -56,7 +56,10 @@ class CustomerController extends AdminController
         $grid->model()->whereIsCustomer(User::CUSTOMER)->orderByRaw('CONVERT(wallet, SIGNED) asc');
         // ->orderByRaw('length(wallet) desc');
 
-        if (Admin::user()->isRole('sale_employee')) {
+        if (Admin::user()->isRole('sale_manager')) {
+            // 
+        }
+        else if (Admin::user()->isRole('sale_employee')) {
             $flag = TeamSale::whereLeader(Admin::user()->id)->first();
             if ($flag) {
                 // is leader
@@ -65,6 +68,8 @@ class CustomerController extends AdminController
                 $grid->model()->where('staff_sale_id', Admin::user()->id);
             }
 
+        } else {
+            
         }
 
         $grid->header(function ($query) {

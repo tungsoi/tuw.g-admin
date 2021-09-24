@@ -101,9 +101,13 @@ class ComplaintController extends AdminController
 
         if (Admin::user()->isRole('sale_employee')) 
         {
-            $customers = User::select('id')->whereIsCustomer(1)->where('staff_sale_id', Admin::user()->id)->get()->pluck('id')->toArray();
-            $order_ids = PurchaseOrder::select('id')->whereIn('customer_id', $customers)->get()->pluck('id')->toArray();
-            $grid->model()->whereIn('order_id', $order_ids);
+            if (Admin::user()->isRole('sale_manager')) {
+                // all
+            } else {
+                $customers = User::select('id')->whereIsCustomer(1)->where('staff_sale_id', Admin::user()->id)->get()->pluck('id')->toArray();
+                $order_ids = PurchaseOrder::select('id')->whereIn('customer_id', $customers)->get()->pluck('id')->toArray();
+                $grid->model()->whereIn('order_id', $order_ids);
+            }
         }
         else if (Admin::user()->isRole('order_employee') && ! Admin::user()->isRole('head_order')) 
         {
