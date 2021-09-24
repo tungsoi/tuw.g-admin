@@ -42,29 +42,33 @@ class HandleCustomerWallet implements ShouldQueue
      */
     public function handle()
     {
-        // update wallet
-        $customer = User::find($this->customerId);
-        $transactionType = TransactionType::find($this->type);
+        $flag = Transaction::where('content', $this->content)->get();
 
-        if ($transactionType->type == 'add') {
-            // cộng tiền
-            $customer->wallet += $this->money;
-            $customer->save();
-        } else {
-            // trừ tiền
-            $customer->wallet -= $this->money;
-            $customer->save();
+        if ($flag->count() == 0) {
+            // update wallet
+            $customer = User::find($this->customerId);
+            $transactionType = TransactionType::find($this->type);
+
+            if ($transactionType->type == 'add') {
+                // cộng tiền
+                $customer->wallet += $this->money;
+                $customer->save();
+            } else {
+                // trừ tiền
+                $customer->wallet -= $this->money;
+                $customer->save();
+            }
+
+            // create transaction
+            Transaction::create([
+                'customer_id'   =>  $this->customerId,
+                'user_id_created'   =>  $this->userCreatedId,
+                'type_recharge' =>  $this->type,
+                'content'   =>  $this->content,
+                'money'     =>  $this->money
+            ]);
+
+            return true;
         }
-
-        // create transaction
-        Transaction::create([
-            'customer_id'   =>  $this->customerId,
-            'user_id_created'   =>  $this->userCreatedId,
-            'type_recharge' =>  $this->type,
-            'content'   =>  $this->content,
-            'money'     =>  $this->money
-        ]);
-
-        return true;
     }
 }
