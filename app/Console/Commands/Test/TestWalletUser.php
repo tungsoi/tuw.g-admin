@@ -50,7 +50,7 @@ class TestWalletUser extends Command
             $service = new UserService();
             $data = $service->GetCustomerTransactionHistory($user->id, false);
 
-            if ($data[0]['after_payment'] != $user->wallet) {
+            if (isset($data[0]) && $data[0]['after_payment'] != $user->wallet) {
                 echo $user->id . " --- ";
                 echo $user->symbol_name . " --- ";
                 echo $user->wallet . " --- ";
