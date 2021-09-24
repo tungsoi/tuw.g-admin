@@ -179,21 +179,25 @@ class TransportCodeController extends AdminController
         });
         $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
         $grid->price_service('Giá vận chuyển')->display(function () {
-            if ($this->payment_type == 1) {
-                return number_format($this->paymentOrder->price_kg);
-            } else if ($this->payment_type == -1) {
-                return number_format($this->paymentOrder->price_service);
-            } else {
-                return 0;
-            } 
+            try {
+                if ($this->payment_type == 1 && $this->paymentOrder) {
+                    return number_format($this->paymentOrder->price_kg);
+                } elseif ($this->payment_type == -1 && $this->paymentOrder) {
+                    return number_format($this->paymentOrder->price_service);
+                } else {
+                    return 0;
+                }
+            } catch (\Exception $e) {
+                dd($e);
+            }
         })->style('max-width: 100px');
         $grid->payment_type('Loại thanh toán')->display(function () {
             return $this->paymentType();
         })->style('max-width: 100px');
         $grid->amount('Tổng tiền')->display(function ()  {
-            if ($this->payment_type == 1) {
+            if ($this->payment_type == 1 && $this->paymentOrder) {
                 return number_format($this->paymentOrder->price_kg * $this->kg);
-            } else if ($this->payment_type == -1) {
+            } else if ($this->payment_type == -1 && $this->paymentOrder) {
                 return number_format($this->paymentOrder->price_service * $this->m3());
             } else {
                 return 0;
