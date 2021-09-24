@@ -79,7 +79,7 @@ class UserService {
         # code...
         $res = Transaction::where('money', ">", 0)
         ->where('customer_id', $customerId)
-        ->orderBy('id', 'desc')
+        ->orderBy('created_at', 'desc')
         ->get();
 
         $raw = [
