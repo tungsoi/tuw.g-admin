@@ -43,10 +43,17 @@ class TestWalletUser extends Command
     public function handle()
     {
 
+        // $transactions = Transaction::where('note', '--- miss transaction')->get();
+
+        // foreach ($transactions as $transaction) {
+        //     $old = AlilogiTransaction::where('content', $transaction->content)->first();
+
+        //     $transaction->created_at = $old->created_at;
+        //     $transaction->save();
+        // }
         $users = User::select('id', 'symbol_name', 'wallet')->whereIsCustomer(1)->get();
         $ids = [];
         foreach ($users as $user) {
-            echo $user->id." --- ";
             $service = new UserService();
             $data = $service->GetCustomerTransactionHistory($user->id, false);
 
@@ -56,13 +63,15 @@ class TestWalletUser extends Command
                 echo $user->wallet . " --- ";
                 echo $data[0]['after_payment'] ."\n";
 
-                $ids[] = $user->id;
+                $user->wallet = number_format($data[0]['after_payment'], 0, '.', '');
+                $user->save();
             } else {
-                echo "done\n";
+                echo $user->id. "-- done\n";
             }
+
         }
 
-        dd($ids);
+        // dd($ids);
         // $code = [
         //     'KANGNAM',
         //     'LHTHU95',
