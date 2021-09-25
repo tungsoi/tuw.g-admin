@@ -107,12 +107,7 @@ class PurchaseOrderItemController extends AdminController
 
                 
                 if (! Admin::user()->isRole('customer')) {
-                    $filter->where(function ($query) {
-                        if ($this->input != "") {
-                            $orderIds = PurchaseOrder::select('transport_code', 'id')->where('transport_code','like', '%'.$this->input.'%')->pluck('id');
-                            $query->whereIn('order_id', $orderIds);
-                        }
-                    }, 'Mã vận đơn', 'transport_code');
+                    $filter->like('cn_code', 'Mã vận đơn');
                 }
             });
 

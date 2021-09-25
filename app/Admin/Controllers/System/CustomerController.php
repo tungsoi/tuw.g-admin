@@ -136,9 +136,14 @@ class CustomerController extends AdminController
                         $ids = SystemTransaction::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
                         $query->whereNotIn('id', $ids);
                     } else if ($this->input == 1) {
+                        $payment_order_ids = PaymentOrder::select('payment_customer_id')->groupBy('payment_customer_id')
+                            ->pluck('payment_customer_id');
+
                         $ids = PurchaseOrderPurchaseOrder::select('customer_id')->groupBy('customer_id')
+                            ->whereNotIn('id', $payment_order_ids)
                             ->where('created_at', '>', $time)
                             ->pluck('customer_id');
+
                         $query->whereNotIn('id', $ids);
                     } else if ($this->input == 2) {
                         $ids = PaymentOrder::select('payment_customer_id')->groupBy('payment_customer_id')
@@ -156,9 +161,9 @@ class CustomerController extends AdminController
                     }
                 }, 'Trạng thái giao dịch', 'type_transaction')->select([
                     'Chưa có giao dịch nạp tiền',
-                    'Chưa có giao dịch Order (2 tháng)',
-                    'Chưa có giao dịch vận chuyển (2 tháng)',
-                    'Chưa có giao dịch Order + Vận chuyển (2 tháng)'
+                    'Chưa có giao dịch Order (< 2 tháng)',
+                    'Chưa có giao dịch vận chuyển (< 2 tháng)',
+                    'Chưa có giao dịch Order + Vận chuyển (< 2 tháng)'
                 ]);
             });
             $filter->column(1/4, function ($filter) {
