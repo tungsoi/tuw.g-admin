@@ -16,6 +16,7 @@ class UserService {
     const SALE_EMPLOYEE_ROLE = 3;
     const AR_EMPLOYEE_ROLE = 5;
     const ORDER_EMPLOYEE_ROLE = 4;
+    const WAREHOUSE_EMPLOYEE_ROLE = 11;
 
     public function GetListSaleEmployee()
     {
@@ -217,5 +218,22 @@ class UserService {
         ->whereIsActive(User::ACTIVE)
         ->orderBy('id', 'desc')
         ->pluck('name', 'id');
+    }
+
+    public function GetListWarehouseEmployee() {
+        $userIdsSaleRole = RoleUser::whereRoleId(self::WAREHOUSE_EMPLOYEE_ROLE)->pluck('user_id');
+        $users = User::whereIn('id', $userIdsSaleRole)
+                        ->whereIsCustomer(User::ADMIN)
+                        ->whereIsActive(User::ACTIVE)
+                        ->orderBy('id', 'desc')
+                        ->pluck('name', 'id');
+
+        // if ($users->count() > 0) {
+        //     foreach ($users as $key => $user) {
+        //         $users[$key] = Str::upper($user);
+        //     }
+        // }
+
+        return $users;
     }
 }

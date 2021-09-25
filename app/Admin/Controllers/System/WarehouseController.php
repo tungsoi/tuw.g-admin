@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\System;
 
+use App\Admin\Services\UserService;
 use App\Models\System\Warehouse;
 use App\User;
 use Encore\Admin\Controllers\AdminController;
@@ -40,10 +41,10 @@ class WarehouseController extends AdminController
         ];
 
         $isDefault = [
-            'off' => ['value' => 0, 'text' =>  'Kho phụ', 'color' => 'danger'],
-            'on'  => ['value' => 1, 'text' => 'Kho tổng', 'color' => 'success']
+            'off' => ['value' => 0, 'text' =>  'Phụ', 'color' => 'danger'],
+            'on'  => ['value' => 1, 'text' => 'Chính', 'color' => 'success']
         ];
-        $grid->column('is_default', 'Loại kho')->switch($isDefault)->style('text-align: center');
+        $grid->column('is_default', 'Loại kho')->switch($isDefault)->width(200);
         $grid->column('is_active', 'Tình trạng kho')->switch($states)->style('text-align: center');
         $grid->userLead()->name('Nhân viên quản lý')->style('text-align: center');
 
@@ -100,12 +101,14 @@ class WarehouseController extends AdminController
         $form->select('user_id', 'Nhân viên quản lý')->options(
             User::whereIsCustomer(User::ADMIN)->whereIsActive(User::ACTIVE)->pluck('name', 'id')
         )->rules(['required']);
-        $form->multipleSelect('employees', 'Nhân viên đang làm việc')->options(User::whereIsCustomer(User::ADMIN)->whereIsActive(User::ACTIVE)->pluck('name', 'id'));
+
+        $service = new UserService();
+        $form->multipleSelect('employees', 'Nhân viên đang làm việc')->options($service->GetListWarehouseEmployee());
 
 
         $isDefault = [
-            'off' => ['value' => 0, 'text' =>  'Kho phụ', 'color' => 'danger'],
-            'on'  => ['value' => 1, 'text' => 'Kho tổng', 'color' => 'success']
+            'off' => ['value' => 0, 'text' =>  'Phụ', 'color' => 'danger'],
+            'on'  => ['value' => 1, 'text' => 'Tổng', 'color' => 'success']
         ];
         $form->switch('is_default', 'Loại kho')->states($isDefault)->default(1);
         $form->tools(function (Form\Tools $tools) {

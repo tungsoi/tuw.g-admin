@@ -1,6 +1,6 @@
 <table class="table table-bordered" id="customer-info-payment">
     <thead>
-        <th colspan="4" style="text-align: left">Thông tin khách hàng</th>
+        <th colspan="5" style="text-align: left">Thông tin khách hàng</th>
     </thead>
     <tbody>
         <tr>
@@ -8,6 +8,7 @@
             <td>Ví cân</td>
             <td>Giá cân</td>
             <td>Giá khối</td>
+            <td>Ghi chú</td>
         </tr>
         <tr>
             <td>
@@ -21,6 +22,7 @@
             </td>
             <td><span id="price_kg">0</span></td>
             <td><span id="price_m3">0</span></td>
+            <td><span id="customer_note"></span></td>
         </tr>
     </tbody>
 </table>

@@ -592,7 +592,7 @@ SCRIPT;
                     $flag = false;
                     if ($order->status == 9) {
                         // thanh cong
-                        if (Admin::user()->isRole('ar_emloyee') || Admin::user()->isRole('administrator')) {
+                        if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
                             $flag = true;
                         }
                     } else {

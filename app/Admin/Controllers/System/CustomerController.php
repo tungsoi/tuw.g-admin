@@ -275,7 +275,7 @@ class CustomerController extends AdminController
             // $actions->append(new PurchaseOrder($actions->getKey()));
             // $actions->append(new TransportOrder($actions->getKey()));
 
-            if (Admin::user()->isRole('ar_emloyee') || Admin::user()->isRole('warehouse_employee')) {
+            if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('warehouse_employee')) {
                 $actions->append(new Recharge($actions->getKey()));
                 $actions->append(new WalletWeight($actions->getKey()));
             }
@@ -607,7 +607,7 @@ class CustomerController extends AdminController
     }
 
     public function find($id) {
-        $customer =  User::select('id', 'wallet', 'wallet_weight', 'default_price_kg', 'default_price_m3')->whereId($id)->first();
+        $customer =  User::select('id', 'wallet', 'wallet_weight', 'default_price_kg', 'default_price_m3', 'note')->whereId($id)->first();
         $customer->wallet = number_format($customer->wallet);
         $customer->default_price_kg = number_format(str_replace(",", "", $customer->default_price_kg));
         $customer->default_price_m3 = number_format(str_replace(",", "", $customer->default_price_m3));
