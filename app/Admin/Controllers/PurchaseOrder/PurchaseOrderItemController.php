@@ -363,6 +363,7 @@ class PurchaseOrderItemController extends AdminController
 
         if (Admin::user()->isRole('customer')) {
             $grid->admin_note('Admin ghi chú')->style('max-width: 100px');
+            $grid->cn_code('Mã vận đơn');
         } else {
             $grid->admin_note('Admin ghi chú')->editable();
             // $grid->order_cn_code('Mã vận đơn')->display(function () {
