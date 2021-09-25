@@ -587,9 +587,11 @@ SCRIPT;
 
 
             if (! Admin::user()->isRole('customer') && $order->status != 11) {
-                $row->column(12, function (Column $column) use ($id) 
+                $row->column(12, function (Column $column) use ($id, $order) 
                 {
-                    $column->append((new Box('Thao tác', $this->action($id))));
+                    if ($order->status == 9 && Admin::user()->isRole('ar_employee')) {
+                        $column->append((new Box('Thao tác', $this->action($id))));
+                    }
                 });   
             }
 
