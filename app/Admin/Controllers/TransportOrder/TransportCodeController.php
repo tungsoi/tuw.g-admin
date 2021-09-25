@@ -60,6 +60,13 @@ class TransportCodeController extends AdminController
         if (Admin::user()->isRole('customer')) {
             $orderIds = PaymentOrder::where('payment_customer_id', Admin::user()->id)->pluck('id')->toArray();
             $grid->model()->whereIn('order_id', $orderIds);
+        } else if (Admin::user()->isRole('warehouse_employee')) {
+            $warehouse = Warehouse::where('employees', 'like', '%'.Admin::user()->id.'%')->first();
+
+            if ($warehouse) {
+                $warehouse_id = $warehouse->id;
+                $grid->model()->where('ware_house_id', $warehouse_id);
+            }
         }
 
         $grid->expandFilter();
@@ -77,8 +84,9 @@ class TransportCodeController extends AdminController
                             $query->whereIn('order_id', $ids);
                         }
                     }, 'Khách hàng thanh toán', 'payment_customer_id')->select($userService->GetListCustomer());
-
                 }
+
+                $filter->equal('ware_house_id', 'Kho hàng')->select($userService->GetListWarehouse());
                 
             });
             $filter->column(1/4, function ($filter) use ($orderService)  {
