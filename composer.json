@@ -60,6 +60,9 @@
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "github-oauth": {
+            "github.com": "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"
+        }
     }
 }
