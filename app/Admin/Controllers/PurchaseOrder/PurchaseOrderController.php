@@ -151,7 +151,9 @@ class PurchaseOrderController extends AdminController
         });
 
         $grid->header(function () {
-            return "<h4>Tổng tiền cọc dự tính: <span id='estimate-deposited' style='color: red; font-weight: 700;'></span> (VND) </h4>";
+            $html = "<h4>Tổng tiền cọc dự tính: <span id='estimate-deposited' style='color: red; font-weight: 700;'></span> (VND) </h4>";
+            $html .= "<h4>Tổng tiền đơn dự tính: <span id='estimate-amount-rmb' style='color: green; font-weight: 700;'></span> (Tệ) </h4>";
+            return $html;
         });
         
         $grid->rows(function (Grid\Row $row) {
@@ -322,7 +324,7 @@ class PurchaseOrderController extends AdminController
             $data = [
                 'amount_rmb'   =>  [
                     'is_label'   =>  false,
-                    'text'      =>  $this->amount()
+                    'text'       =>  "<b class='default-amount'>". $this->amount() . "</b>"
                 ],
                 'amount_vnd'  =>  [
                     'is_label'  =>  false,
@@ -467,12 +469,12 @@ class PurchaseOrderController extends AdminController
                 $actions->append(new Recharge($this->row->customer_id));
             }    
 
-            if (Admin::user()->can('deposite_multiple_purchase_order') && ! in_array($this->row->status, [$orderService->getStatus('new-order')])) {
-                Admin::script(
-                    <<<EOT
-                    $('input[data-id={$this->row->id}]').parent().parent().empty();
-EOT);
-            }
+//             if (Admin::user()->can('deposite_multiple_purchase_order') && ! in_array($this->row->status, [$orderService->getStatus('new-order')])) {
+//                 Admin::script(
+//                     <<<EOT
+//                     $('input[data-id={$this->row->id}]').parent().parent().empty();
+// EOT);
+//             }
         });
         
         $grid->tools(function (Grid\Tools $tools) {
@@ -493,6 +495,7 @@ EOT);
         $("input.grid-row-checkbox").on("ifChanged", function () {
 
             let total_deposite = 0;
+            let total_amount = 0;
             var key = $.admin.grid.selected();
         
             if (key.length !== 0) {
@@ -505,13 +508,20 @@ EOT);
                     default_deposite = default_deposite.replace(/,/g, "");
                     default_deposite = parseInt(default_deposite);
 
+                    let default_amount = tr_ele.find('.default-amount').html();
+                    default_amount = default_amount.replace(/,/g, "");
+                    default_amount = parseFloat(default_amount);
+
                     total_deposite += default_deposite;
+                    total_amount += default_amount;
                 }
             }
 
             let total_deposite_formated = number_format(total_deposite);
+            let total_amount_formated = number_format(total_amount, 2);
 
             $('#estimate-deposited').html(total_deposite_formated);
+            $('#estimate-amount-rmb').html(total_amount_formated);
             
         });
 
