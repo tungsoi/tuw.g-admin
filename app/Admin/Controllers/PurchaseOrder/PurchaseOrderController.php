@@ -671,8 +671,13 @@ SCRIPT;
         $rows = [
             [
                 "<b id='order_number' onclick='copyElementText(this.id)' style='cursor:pointer'>" . $order->order_number . " / " . $order->customer->symbol_name . "</b>", 
-                "<span style='float: right'>". number_format($order->current_rate) . " (vnd) <br> Kho: ". ($order->warehouse ? $order->warehouse->name : null) . ""."</span>",
+                "<span style='float: right'>". number_format($order->current_rate) . " (vnd) </span>",
                 "<span style='float: right'>". $order->shop_name . "</span>"
+            ],
+            [
+                "<span style='float: left'>Kho: ". ($order->warehouse ? $order->warehouse->name : null) . "</span>",
+                "<span style='float: right'>NVDH: " .  ($order->customer->saleEmployee ? $order->customer->saleEmployee->name : null). "</span>",
+                "<span style='float: right'>NVKD: " . ($order->orderEmployee ? $order->orderEmployee->name : null) ."</span>",
             ],
             [
                 'Trạng thái',
