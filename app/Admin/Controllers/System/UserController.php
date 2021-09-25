@@ -98,7 +98,11 @@ class UserController extends AdminController
 
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
-        $grid->disableExport();
+
+        // if (! Admin::user()->isRole('ar_employee') || ! Admin::user()->isRole('administrator')) {
+        //     $grid->disableExport();
+        // }
+
         $grid->paginate(20);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             // $actions->disableDelete();

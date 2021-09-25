@@ -8,6 +8,7 @@ use App\Admin\Actions\Customer\Transaction;
 use App\Admin\Actions\Customer\TransportOrder;
 use App\Admin\Actions\Customer\WalletWeight;
 use App\Admin\Actions\Customer\HistoryWalletWeight;
+use App\Admin\Actions\Export\CustomersExporter;
 use App\Admin\Services\UserService;
 use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder as PurchaseOrderPurchaseOrder;
@@ -265,6 +266,9 @@ class CustomerController extends AdminController
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
         $grid->paginate(20);
+
+        $grid->exporter(new CustomersExporter());
+
         $grid->actions(function ($actions) {
             $actions->disableDelete();
             $actions->disableView();    
