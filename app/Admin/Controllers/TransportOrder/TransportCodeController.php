@@ -43,10 +43,10 @@ class TransportCodeController extends AdminController
 
         $grid->model()->where('transport_code', '!=', "")
             // ->orderBy('status', 'asc')
-            // ->orderBy('vietnam_receive_at', 'desc')
             // ->orderBy('payment_at', 'asc')
             // // ->orderBy('export_at', 'asc')
             ->orderByRaw("FIELD(status, $ids_ordered)")
+            ->orderBy('vietnam_receive_at', 'desc')
             ->orderBy('customer_code_input', 'desc');
 
         if (isset($_GET['query_customer_code_input']) && $_GET['query_customer_code_input'] != "") {
