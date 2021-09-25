@@ -589,9 +589,19 @@ SCRIPT;
             if (! Admin::user()->isRole('customer') && $order->status != 11) {
                 $row->column(12, function (Column $column) use ($id, $order) 
                 {
-                    // if ($order->status == 9 && Admin::user()->isRole('ar_employee')) {
+                    $flag = false;
+                    if ($order->status == 9) {
+                        // thanh cong
+                        if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
+                            $flag = true;
+                        }
+                    } else {
+                        $flag = true;
+                    }
+                    
+                    if ($flag) {
                         $column->append((new Box('Thao tác', $this->action($id))));
-                    // }
+                    }
                 });   
             }
 
