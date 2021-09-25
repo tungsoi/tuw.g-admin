@@ -120,15 +120,15 @@ class PurchaseOrderController extends AdminController
             }
             
             $filter->column(1/4, function ($filter) {
-                $filter->between('created_at', 'Ngày tạo')->date();
-                $filter->between('deposited_at', 'Ngày cọc')->date();
-                $filter->between('order_at', 'Ngày đặt hàng')->date();
+                $filter->between('created_at', 'Ngày tạo')->datetime();
+                $filter->between('deposited_at', 'Ngày cọc')->datetime();
+                $filter->between('order_at', 'Ngày đặt hàng')->datetime();
             });
 
             $filter->column(1/4, function ($filter) {
 
-                $filter->between('vn_receive_at', 'Ngày về Việt Nam')->date();
-                $filter->between('success_at', 'Ngày hoàn thành')->date();
+                $filter->between('vn_receive_at', 'Ngày về Việt Nam')->datetime();
+                $filter->between('success_at', 'Ngày hoàn thành')->datetime();
             }); 
             
 
