@@ -7,6 +7,8 @@
 
         @include('home.partials.menu')
         @include('home.partials.banner')
+
+        @include('home.partials.modal')
         
        
         <!-- About-->
@@ -132,12 +134,28 @@
         <!-- Bootstrap core JS-->
     </body>
 
-    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
 
     <script>
         $("button.navbar-toggler").on('click', function () {
             $('#navbarResponsive').toggle();
         });
     </script>
+
+    
+
+    @if (isset($alert) && $alert)
+
+        <script>
+            $(window).on('load', function() {
+                $('#alert-mdl').modal('show');
+            });
+        </script>
+
+    @endif
 </html>

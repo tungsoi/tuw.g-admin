@@ -41,9 +41,27 @@ class TestWalletUser extends Command
      * @return mixed
      */
     public function handle()
-    {
+    {   
+        $olds = AlilogiTransaction::where('created_at', 'like', '2021-09-13%')->get();
 
-        // $transactions = Transaction::where('note', '--- miss transaction')->get();
+        foreach ($olds as $transaction) {
+            $flag = Transaction::where('customer_id', $transaction->customer_id)
+                ->where('money', $transaction->money)
+                ->where('type_recharge', $transaction->type_recharge)
+                ->where('content', $transaction->content)
+                ->get();
+            
+            if (! $flag->count() > 0) {
+
+                echo $transaction->id . "\n";
+            }
+        }
+
+        dd($olds->count());
+
+        // $transactions = Transaction::where('content', 'like', '%ship%')
+        //     ->orWhere('content', 'like', '%SHIP%')
+        //     ->get();
 
         // foreach ($transactions as $transaction) {
         //     $old = AlilogiTransaction::where('content', $transaction->content)->first();
@@ -51,25 +69,25 @@ class TestWalletUser extends Command
         //     $transaction->created_at = $old->created_at;
         //     $transaction->save();
         // }
-        $users = User::select('id', 'symbol_name', 'wallet')->whereIsCustomer(1)->get();
-        $ids = [];
-        foreach ($users as $user) {
-            $service = new UserService();
-            $data = $service->GetCustomerTransactionHistory($user->id, false);
+        // $users = User::select('id', 'symbol_name', 'wallet')->whereIsCustomer(1)->get();
+        // $ids = [];
+        // foreach ($users as $user) {
+        //     $service = new UserService();
+        //     $data = $service->GetCustomerTransactionHistory($user->id, false);
 
-            if (isset($data[0]) && $data[0]['after_payment'] != $user->wallet) {
-                echo $user->id . " --- ";
-                echo $user->symbol_name . " --- ";
-                echo $user->wallet . " --- ";
-                echo $data[0]['after_payment'] ."\n";
+        //     if (isset($data[0]) && $data[0]['after_payment'] != $user->wallet) {
+        //         echo $user->id . " --- ";
+        //         echo $user->symbol_name . " --- ";
+        //         echo $user->wallet . " --- ";
+        //         echo $data[0]['after_payment'] ."\n";
 
-                $user->wallet = number_format($data[0]['after_payment'], 0, '.', '');
-                $user->save();
-            } else {
-                echo $user->id. "-- done\n";
-            }
+        //         $user->wallet = number_format($data[0]['after_payment'], 0, '.', '');
+        //         $user->save();
+        //     } else {
+        //         echo $user->id. "-- done\n";
+        //     }
 
-        }
+        // }
 
         // dd($ids);
         // $code = [

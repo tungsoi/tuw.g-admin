@@ -85,9 +85,8 @@ SCRIPT;
                     },
                     success: function (response)
                     {
+                        $('.loading-overlay').toggle();
                         if (response.status) {
-                            $('.loading-overlay').toggle();
-
                             modal_ele.find('.modal-body').append("<span style='color: green; font-size: 14px; font-weight: bold;' id='notify-deposite-multiple'>"+response.message+"</span>");
 
                             $.admin.toastr.warning("Page tự động reload sau 10s", '', {positionClass: 'toast-top-center'});
@@ -100,8 +99,6 @@ SCRIPT;
                                 location.reload();
                             }, 10000);
                         } else {
-
-                            $('.loading-overlay').hide();
                             $.admin.toastr.error(response.message, '', {positionClass: 'toast-top-center'});
                         }
 

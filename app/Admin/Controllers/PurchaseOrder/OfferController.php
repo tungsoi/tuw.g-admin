@@ -81,12 +81,12 @@ class OfferController extends AdminController
             $filter->column(1/4, function ($filter) {
                 $filter->between('created_at', 'Ngày tạo')->date();
                 $filter->between('deposited_at', 'Ngày cọc')->date();
-                $filter->between('order_at', 'Ngày đặt hàng');
+                $filter->between('order_at', 'Ngày đặt hàng')->date();
             });
             $filter->column(1/4, function ($filter) {
 
-                $filter->between('vn_receive_at', 'Ngày về Việt Nam');
-                $filter->between('success_at', 'Ngày hoàn thành');
+                $filter->between('vn_receive_at', 'Ngày về Việt Nam')->date();
+                $filter->between('success_at', 'Ngày hoàn thành')->date();
             }); 
             
 
@@ -248,11 +248,16 @@ class OfferController extends AdminController
             $order = PurchaseOrder::find($id);
             $amount = $order->amount();
 
-            $order->offer_cn = number_format($amount - $order->final_payment, 2);
-            $order->offer_vn = number_format(($amount - $order->final_payment) * $order->current_rate, 0);
-            $order->save();
+            if ($order->final_payment != 0) {
+                $amount = str_replace(",", "", $amount);
+                $final_payment = str_replace(",", "", $order->final_payment);
+                
+                $order->offer_cn = number_format($amount - $final_payment, 2);
+                $order->offer_vn = number_format(($amount - $final_payment) * $order->current_rate, 0);
+                $order->save();
+            }
 
-            admin_toastr('Chỉnh sửa thành công', 'success');
+            admin_toastr('Chỉnh sửa thành công oke', 'success');
             return redirect()->back();
         });
 

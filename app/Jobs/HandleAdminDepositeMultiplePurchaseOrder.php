@@ -44,28 +44,31 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
 
         $order = PurchaseOrder::find($this->order_id);
 
-        // amount item price
-        $totalItemPrice = str_replace(',', '', $order->sumItemPrice());
+        if ($order->status == $orderService->getStatus('new-order')) {
 
-        $percent = (int) $this->percent;
-        $depositedRmb = $totalItemPrice / 100 * $percent;
-        $depositedVnd = $depositedRmb * $order->current_rate;
-        $deposited = number_format($depositedVnd, 0, '.', '');
+            // amount item price
+            $totalItemPrice = str_replace(',', '', $order->sumItemPrice());
 
-        $order->status = $orderService->getStatus('deposited');
-        $order->deposited = $deposited;
-        $order->deposited_at = now();
-        $order->user_deposited_at = $this->user_created_id;
-        $order->save();
+            $percent = (int) $this->percent;
+            $depositedRmb = $totalItemPrice / 100 * $percent;
+            $depositedVnd = $depositedRmb * $order->current_rate;
+            $deposited = number_format($depositedVnd, 0, '.', '');
 
-        $job = new HandleCustomerWallet(
-            $order->customer->id,
-            $this->user_created_id, // admin
-            $deposited,
-            3,
-            "Đặt cọc đơn hàng mua hộ $order->order_number"
-        );
-        dispatch($job);
+            $order->status = $orderService->getStatus('deposited');
+            $order->deposited = $deposited;
+            $order->deposited_at = now();
+            $order->user_deposited_at = $this->user_created_id;
+            $order->save();
+
+            $job = new HandleCustomerWallet(
+                $order->customer->id,
+                $this->user_created_id, // admin
+                $deposited,
+                3,
+                "Đặt cọc đơn hàng mua hộ $order->order_number"
+            );
+            dispatch($job);
+        }
 
         return true;
     }

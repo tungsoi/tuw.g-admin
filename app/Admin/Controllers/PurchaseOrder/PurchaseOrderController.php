@@ -832,7 +832,7 @@ SCRIPT;
         $form->hidden('id');
         $form->tags('transport_code', "Mã vận đơn")->help('Mã đầu tiên được hiểu là MVD chính, các mã sau là MVD phụ.');
 
-        if (Admin::user()->isRole('order_employee')) {
+        if (Admin::user()->isRole('order_employee') || Admin::user()->isRole('administrator')) {
             $form->currency('final_payment', "Tệ thanh toán")->symbol('Tệ')->digits(2)->style('width', '100%');
 
             $form->currency('offer_cn', 'Chiết khẩu')->symbol('Tệ')->digits(2)->readonly()->style('width', '100%');
