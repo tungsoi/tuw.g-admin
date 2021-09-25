@@ -37,10 +37,16 @@ class TransportCodeController extends AdminController
     public function grid() 
     {
         $grid = new Grid(new TransportCode());
+
+        $ids = array(1,4,5,3,0);
+        $ids_ordered = implode(',', $ids);
+
         $grid->model()->where('transport_code', '!=', "")
-            ->orderBy('payment_at', 'asc')
-            ->orderBy('vietnam_receive_at', 'desc')
-            ->orderBy('export_at', 'asc')
+            // ->orderBy('status', 'asc')
+            // ->orderBy('vietnam_receive_at', 'desc')
+            // ->orderBy('payment_at', 'asc')
+            // // ->orderBy('export_at', 'asc')
+            ->orderByRaw("FIELD(status, $ids_ordered)")
             ->orderBy('customer_code_input', 'desc');
 
         if (isset($_GET['query_customer_code_input']) && $_GET['query_customer_code_input'] != "") {
@@ -65,7 +71,15 @@ class TransportCodeController extends AdminController
 
             if ($warehouse) {
                 $warehouse_id = $warehouse->id;
-                $grid->model()->where('ware_house_id', $warehouse_id);
+
+                if (isset($_GET['mode']) && $_GET['mode'] == "swap_warehouse") { 
+                    // mode luan chuyen kho -> chỉ hiện mã chờ xác nhận
+                    $grid->model()->where('status', 4)->where('ware_house_swap_id', $warehouse_id);
+                } else {
+                    // hiển thị mã chia theo kho
+                    $grid->model()->where('ware_house_id', $warehouse_id);
+                }
+                
             }
         }
 

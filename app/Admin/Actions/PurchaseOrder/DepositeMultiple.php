@@ -88,16 +88,13 @@ SCRIPT;
                         $('.loading-overlay').toggle();
                         if (response.status) {
                             modal_ele.find('.modal-body').append("<span style='color: green; font-size: 14px; font-weight: bold;' id='notify-deposite-multiple'>"+response.message+"</span>");
-
-                            $.admin.toastr.warning("Page tự động reload sau 10s", '', {positionClass: 'toast-top-center'});
-
                             setTimeout(function () {
                                 modal_ele.find('.modal-footer').remove();
                             }, 1000);
 
                             setTimeout(function () {
                                 location.reload();
-                            }, 10000);
+                            }, 5000);
                         } else {
                             $.admin.toastr.error(response.message, '', {positionClass: 'toast-top-center'});
                         }
