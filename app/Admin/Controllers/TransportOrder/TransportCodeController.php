@@ -42,9 +42,6 @@ class TransportCodeController extends AdminController
         $ids_ordered = implode(',', $ids);
 
         $grid->model()->where('transport_code', '!=', "")
-            // ->orderBy('status', 'asc')
-            // ->orderBy('payment_at', 'asc')
-            // // ->orderBy('export_at', 'asc')
             ->orderByRaw("FIELD(status, $ids_ordered)")
             ->orderBy('vietnam_receive_at', 'desc')
             ->orderBy('customer_code_input', 'desc');
