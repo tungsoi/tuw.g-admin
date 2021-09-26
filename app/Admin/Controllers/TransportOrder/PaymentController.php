@@ -469,7 +469,14 @@ SCRIPT;
         $grid->customer_input_name('Mã khách hàng')->display(function () {
             return $this->transportCode->first()->customer_code_input ?? "";
         });
-        $grid->paymentCustomer()->symbol_name('Khách hàng thanh toán');
+        $grid->symbol_name('KKhách hàng thanh toán')->display(function () {
+           $html = $this->paymentCustomer->symbol_name . "<br>";
+           $zalo = "https://zalo.me/" . $this->paymentCustomer->phone_number;
+           $asset = asset("images/logo-zalo.jpeg");
+           $html .= "<a href=".$zalo." target='_blank'><img src=".$asset." width=20/></a>";
+           
+           return $html;
+        });
         $grid->transport_code_number('Số mã vận đơn')->display(function (){
             return $this->transportCode->count();
         })->expand(function ($model) {
@@ -554,7 +561,7 @@ SCRIPT;
         $grid->disableExport();
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
-        $grid->paginate(20);
+        $grid->paginate(10);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableEdit();
             $actions->disableDelete();
