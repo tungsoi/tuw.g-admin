@@ -44,6 +44,7 @@ class TransportCodeController extends AdminController
         $grid->model()->where('transport_code', '!=', "")
             ->orderByRaw("FIELD(status, $ids_ordered)")
             ->orderBy('vietnam_receive_at', 'desc')
+            ->orderBy('china_receive_at', 'desc')
             ->orderBy('customer_code_input', 'desc');
 
         if (isset($_GET['query_customer_code_input']) && $_GET['query_customer_code_input'] != "") {
@@ -238,6 +239,10 @@ class TransportCodeController extends AdminController
                 'time'  =>  [
                     'is_label'  =>  false,
                     'text'      =>  $this->getTimeline()
+                ],
+                'user'  =>  [
+                    'is_label'  =>  false,
+                    'text'      =>  $this->getUserAction()
                 ]
             ];
             return view('admin.system.core.list', compact('data'));

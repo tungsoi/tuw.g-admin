@@ -149,4 +149,21 @@ class TransportCode extends Model
         
         return sizeof($orders) > 0 ? implode(", ", $orders) : null;
     }
+
+    public function chinaRevUser() {
+        return $this->hasOne('App\User', 'id', 'china_receive_user_id');
+    }
+
+    public function vietnamRevUser() {
+        return $this->hasOne('App\User', 'id', 'vietnam_receive_user_id');
+    }
+
+    public function getUserAction() {
+        switch ($this->status) {
+            case self::CHINA_RECEIVE: 
+                return $this->chinaRevUser->name ?? "";
+            case self::VIETNAM_RECEIVE:
+                return $this->vietnamRevUser->name ?? "";
+        }
+    }
 }
