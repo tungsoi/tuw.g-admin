@@ -412,6 +412,11 @@ SCRIPT;
                 if (! Admin::user()->isRole('customer') ) {
                     $filter->equal('user_created_id', 'Người tạo')->select($service->GetAllEmployee());
                 }
+
+                $filter->equal('status', 'Trạng thái')->select([
+                    'payment_export'    =>  'Thanh toán xuất kho',
+                    'payment_not_export'   =>   'Thanh toán chưa xuất kho'
+                ]);
             });
 
             $filter->column(1/4, function ($filter) {
