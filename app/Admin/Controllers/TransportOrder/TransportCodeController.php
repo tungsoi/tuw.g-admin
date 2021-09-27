@@ -57,6 +57,10 @@ class TransportCodeController extends AdminController
             });
         }
 
+        if (isset($_GET['mode']) && $_GET['mode'] == "swap_warehouse") {
+            $grid->model()->whereStatus(4);
+        }
+
         $userService = new UserService();
         $orderService = new OrderService();
 
