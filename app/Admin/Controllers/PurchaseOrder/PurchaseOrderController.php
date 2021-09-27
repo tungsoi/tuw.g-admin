@@ -478,7 +478,7 @@ EOT);
         });
         
         $grid->tools(function (Grid\Tools $tools) {
-            if (Admin::user()->can('deposite_multiple_purchase_order') || Admin::user()->isRole('customer')) {
+            if (Admin::user()->can('deposite_multiple_purchase_order')) {
                 $tools->append(new DepositeMultiple());
             }
         });
