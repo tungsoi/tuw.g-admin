@@ -60,7 +60,7 @@ class ChinaReceiveController extends AdminController
 
     protected function grid()
     {
-        $headers = ['Mã vận đơn', 'Cân', 'Kích thước', 'Ứng kéo'];
+        $headers = ['Mã vận đơn', 'Trạng thái'];
         $rows = [];
 
         $table = new Table($headers, $rows);
@@ -139,6 +139,10 @@ class ChinaReceiveController extends AdminController
             form .col-sm-2 {
                 display: none;
             } 
+
+            form table input:focus {
+                background: wheat !important;
+            }
         ');
 
         Admin::script($this->script());
@@ -187,50 +191,52 @@ class ChinaReceiveController extends AdminController
         $( document ).ready(function() {
             $('#has-many-china-receive .add').click();
 
-            $(document).bind("paste", function(e) {
-                $('#scan-alert').hide();
-                $('#scan-alert span').html("");
-
-                // call ajax submit
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-
-                $.ajax({
-                    url: "{$route}",
-                    type: 'POST',
-                    dataType: "JSON",
-                    data: {
-                        transport_code: e.originalEvent.clipboardData.getData('text')
-                    },
-                    success: function (response)
-                    {
-                        console.log(response);
-
-                        if (! response.status) {
-                            $('#scan-alert').show();
-                            $('#scan-alert span').html(response.message);
-                        } else {
-                            $.admin.toastr.success(response.message, '', {timeOut: 2000});
-
-                            $( ".has-many-china-receive-form" ).last().find('.transport_code').prop('disabled', true);
-                            $('#has-many-china-receive .add').click();
-                            $( '.col-md-4 tbody' ).append(
-                                "<tr> <td>"+response.data.transport_code+"</td> <td>0</td> <td>0 / 0 / 0</td> <td>0</td>  </tr>"
-                            );
+            $(document).on('keydown','.has-many-china-receive-form input', function(e) {
+                if (e.which == 13) 
+                {
+                    // call ajax submit
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         }
-                    }
-                });
+                    }); 
+                    
+                    let value = $( ".has-many-china-receive-form" ).last().find('.transport_code').val();
+
+                    $.ajax({
+                        url: "{$route}",
+                        type: 'POST',
+                        dataType: "JSON",
+                        data: {
+                            transport_code: value
+                        },
+                        success: function (response)
+                        {   
+                            console.log(value, "value");
+
+                            if (! response.status) {
+                                $.admin.toastr.error('Mã vận đơn đã được nhập.', '', {timeOut: 5000});
+                                $( ".has-many-china-receive-form" ).last().find('.transport_code').val("");
+                            } else {
+                                $.admin.toastr.success(response.message, '', {timeOut: 2000});
+
+                                $( ".has-many-china-receive-form" ).last().find('.transport_code').prop('disabled', true);
+                                $('#has-many-china-receive .add').click();
+                                $( '.col-md-4 tbody' ).append(
+                                    "<tr> <td>"+response.data.transport_code+"</td> <td style='color:green;'>Đã lưu</td>  </tr>"
+                                );
+                            }
+                        }
+                    });
 
 
-                // fail -> hien thi box error
-                // success -> next row -> disable dong hien tai
+                    // fail -> hien thi box error
+                    // success -> next row -> disable dong hien tai
 
-                setTimeout(function () {
-                    $( ".has-many-china-receive-form" ).last().find('.transport_code').focus();
-                }, 500);
+                    setTimeout(function () {
+                        $( ".has-many-china-receive-form" ).last().find('.transport_code').focus();
+                    }, 500);
+                }
             } );
         });
 SCRIPT;

@@ -6,14 +6,16 @@
         <td style="width: 200px !important;">{{ $item->cn_code }}</td>
         <td>
             @php
-                if (strpos($item->product_image, 'https://') !== false) {
+                if (strpos($item->product_image, 'images/') === false) {
                     $link = $item->product_image;
                 } else {
                     $link = asset("storage/admin/". $item->product_image);
                 }
             @endphp
 
-            <img src="{{ $link }}" alt="" width="50">
+            <a href="{{ $link }}" class="grid-popup-link">
+                <img src="{{ $link }}" style="max-width:40px;max-height:200px" class="img img-thumbnail">
+            </a>
         </td>
         <td>
             <a href="{{ $item->product_link }}">Link</a>
@@ -56,4 +58,6 @@
             }
         });
     });
+
+    $('.grid-popup-link').magnificPopup({"type":"image"});
 </script>
