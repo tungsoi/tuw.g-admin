@@ -367,7 +367,7 @@ class PurchaseOrderController extends AdminController
                     } else {
                         if (in_array($flag->status, [1, 4, 5])) {
                             $class = 'primary';
-                        } else {
+                        } else if ($flag->status == 3) {
                             $class = 'success';
                         }
                     }
