@@ -27,7 +27,7 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($order_id, $percent, $user_created_id, $is_round_money = false)
+    public function __construct($order_id, $percent, $user_created_id, $is_round_money)
     {
         $this->order_id = $order_id;
         $this->percent = $percent;
