@@ -1252,7 +1252,8 @@ SCRIPT;
             $job = new HandleAdminDepositeMultiplePurchaseOrder(
                 $order_id,
                 $data['percent'],
-                Admin::user()->id
+                Admin::user()->id,
+                true
             );
             dispatch($job);
         }
@@ -1296,7 +1297,8 @@ SCRIPT;
                 $job = new HandleAdminDepositeMultiplePurchaseOrder(
                     $order->id,
                     $data['percent'],
-                    Admin::user()->id
+                    Admin::user()->id,
+                    false
                 );
                 dispatch($job);
             }

@@ -42,22 +42,32 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
-        $olds = AlilogiTransaction::where('created_at', 'like', '2021-09-13%')->get();
+        $money = rand(1000, 13000000);
+        $money = 3450;
+        // if ()
+        echo $money . "\n";
+        $money = floor($money/1000);
+        $money *= 1000;
+        $money = (int) $money;
 
-        foreach ($olds as $transaction) {
-            $flag = Transaction::where('customer_id', $transaction->customer_id)
-                ->where('money', $transaction->money)
-                ->where('type_recharge', $transaction->type_recharge)
-                ->where('content', $transaction->content)
-                ->get();
+        dd($money);
+
+        // $olds = AlilogiTransaction::where('created_at', 'like', '2021-09-13%')->get();
+
+        // foreach ($olds as $transaction) {
+        //     $flag = Transaction::where('customer_id', $transaction->customer_id)
+        //         ->where('money', $transaction->money)
+        //         ->where('type_recharge', $transaction->type_recharge)
+        //         ->where('content', $transaction->content)
+        //         ->get();
             
-            if (! $flag->count() > 0) {
+        //     if (! $flag->count() > 0) {
 
-                echo $transaction->id . "\n";
-            }
-        }
+        //         echo $transaction->id . "\n";
+        //     }
+        // }
 
-        dd($olds->count());
+        // dd($olds->count());
 
         // $transactions = Transaction::where('content', 'like', '%ship%')
         //     ->orWhere('content', 'like', '%SHIP%')
