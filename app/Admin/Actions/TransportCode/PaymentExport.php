@@ -38,15 +38,23 @@ SCRIPT;
         $orderService = new OrderService();
 
         $ids = [];
+        $flag = true;
+        $customer_name = [];
         foreach ($collection as $model) {
             $ids[] = $model->id;
+            $customer_name[$model->customer_code_input] = $model->customer_code_input;
         }
 
-        $ids_route = implode(',', $ids);
+        if (sizeof($customer_name) > 1) {
+            // loi thanh toan 2 khach hang khac nhau
+            return $this->response()->error('Thanh toán 2 mã khách hàng khác nhau.');
+        } else {
+            $ids_route = implode(',', $ids);
 
-        $route = route('admin.payments.index', ['ids' => $ids_route]) . "?type=payment_export";
-
-        return $this->response()->redirect($route);
+            $route = route('admin.payments.index', ['ids' => $ids_route]) . "?type=payment_export";
+    
+            return $this->response()->redirect($route);
+        }   
     }
 
     public function form()
