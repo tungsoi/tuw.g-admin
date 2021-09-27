@@ -57,8 +57,20 @@ SCRIPT;
             '90'    =>  "90%",
             '100'    =>  "100%",
         ];
-        $this->select('percent_deposite', 'Tỉ lệ % cọc')->options($data)->default(70);
+        if (Admin::user()->isRole('customer')) {
+            $this->select('percent_deposite', 'Tỉ lệ % cọc')->options($data)->default(70)->readonly();
+        } else {
+            $this->select('percent_deposite', 'Tỉ lệ % cọc')->options($data)->default(70);
+        }
         $this->hidden('ids_deposite_multiple');
+        $this->text('estimate-deposited', 'Tổng tiền cọc dự tính')->readonly();
+
+        $route = "";
+        if (Admin::user()->isRole('customer')) {
+            $route = "purchase_orders/post_customer_deposite_multiple";
+        } else {
+            $route = "purchase_orders/post_admin_deposite_multiple";
+        }
 
         Admin::script(
             <<<EOT
@@ -76,7 +88,7 @@ SCRIPT;
                 });
 
                 $.ajax({
-                    url: "purchase_orders/post_admin_deposite_multiple",
+                    url: "{$route}",
                     type: 'POST',
                     dataType: "JSON",
                     data: {
@@ -94,7 +106,7 @@ SCRIPT;
 
                             setTimeout(function () {
                                 location.reload();
-                            }, 5000);
+                            }, 3000);
                         } else {
                             $.admin.toastr.error(response.message, '', {positionClass: 'toast-top-center'});
                         }

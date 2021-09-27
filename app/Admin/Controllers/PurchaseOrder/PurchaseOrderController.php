@@ -469,16 +469,16 @@ class PurchaseOrderController extends AdminController
                 $actions->append(new Recharge($this->row->customer_id));
             }    
 
-//             if (Admin::user()->can('deposite_multiple_purchase_order') && ! in_array($this->row->status, [$orderService->getStatus('new-order')])) {
-//                 Admin::script(
-//                     <<<EOT
-//                     $('input[data-id={$this->row->id}]').parent().parent().empty();
-// EOT);
-//             }
+            if (Admin::user()->isRole('customer') && ! in_array($this->row->status, [$orderService->getStatus('new-order')])) {
+                Admin::script(
+                    <<<EOT
+                    $('input[data-id={$this->row->id}]').parent().parent().empty();
+EOT);
+            }
         });
         
         $grid->tools(function (Grid\Tools $tools) {
-            if (Admin::user()->can('deposite_multiple_purchase_order')) {
+            if (Admin::user()->can('deposite_multiple_purchase_order') || Admin::user()->isRole('customer')) {
                 $tools->append(new DepositeMultiple());
             }
         });
@@ -523,6 +523,7 @@ class PurchaseOrderController extends AdminController
             $('#estimate-deposited').html(total_deposite_formated);
             $('#estimate-amount-rmb').html(total_amount_formated);
             
+            $('input#estimate-deposited').val(total_deposite_formated + " VND");
         });
 
         function number_format(number, decimals, dec_point, thousands_sep) {
@@ -1260,6 +1261,51 @@ SCRIPT;
             'status'    =>  true,
             'message'   =>  "Đang xử lý đặt cọc các đơn hàng: " . implode(', ', $order_numbers) .". Vui lòng kiểm tra lại sau khoảng ". sizeof ($ids) . " phút."
         ]);
+    }
+
+    public function postCustomerDepositeMultiple(Request $request) {
+        $data = $request->only(['percent', 'ids']);
+
+        $ids = explode(",", $data['ids']);
+
+        $orders = PurchaseOrder::whereIn('id', $ids)->where('status', 2)->get();
+
+        $total_deposited = 0;
+        foreach ($orders as $order) {
+            $itemPrice = $order->sumItemPrice(false);
+            $deposite = $itemPrice / 100 * 70;
+            $deposite_vnd = number_format($deposite * $order->current_rate, 0, '.', '');
+
+            $total_deposited += $deposite_vnd;
+        }
+
+        $user_wallet = (int) Admin::user()->wallet;
+
+        if ($user_wallet < 0) {
+            return response()->json([
+                'status'    =>  false,
+                'message'   =>  "Số dư ví của bạn không đủ để đặt cọc. Vui lòng nạp thêm vào tài khoản."
+            ]);
+        } else if ($user_wallet < $total_deposited) {
+            return response()->json([
+                'status'    =>  false,
+                'message'   =>  "Số dư ví của bạn không đủ để đặt cọc. Vui lòng nạp thêm vào tài khoản."
+            ]);
+        } else {
+            foreach ($orders as $order) {
+                $job = new HandleAdminDepositeMultiplePurchaseOrder(
+                    $order->id,
+                    $data['percent'],
+                    Admin::user()->id
+                );
+                dispatch($job);
+            }
+    
+            return response()->json([
+                'status'    =>  true,
+                'message'   =>  "Đã yêu cầu đặt cọc các đơn hàng vửa chọn thành công. Vui lòng kiểm tra lại sau khoảng 5 phút."
+            ]);
+        }
     }
     
 }
