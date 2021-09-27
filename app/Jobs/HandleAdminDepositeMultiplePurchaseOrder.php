@@ -42,46 +42,42 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
      */
     public function handle()
     {
-        try {
-            $orderService = new OrderService();
+        $orderService = new OrderService();
 
-            $order = PurchaseOrder::find($this->order_id);
+        $order = PurchaseOrder::find($this->order_id);
 
-            if ($order->status == $orderService->getStatus('new-order')) {
+        if ($order->status == $orderService->getStatus('new-order')) {
 
-            // amount item price
-                $totalItemPrice = str_replace(',', '', $order->sumItemPrice());
+        // amount item price
+            $totalItemPrice = str_replace(',', '', $order->sumItemPrice());
 
-                $percent = (int) $this->percent;
-                $depositedRmb = $totalItemPrice / 100 * $percent;
-                $depositedVnd = $depositedRmb * $order->current_rate;
-                $deposited = number_format($depositedVnd, 0, '.', '');
+            $percent = (int) $this->percent;
+            $depositedRmb = $totalItemPrice / 100 * $percent;
+            $depositedVnd = $depositedRmb * $order->current_rate;
+            $deposited = number_format($depositedVnd, 0, '.', '');
 
-                if ($this->is_round_money) {
-                    $deposited = floor($deposited/1000);
-                    $deposited *= 1000;
-                    $deposited = (int) $deposited;
-                }
-
-                $order->status = $orderService->getStatus('deposited');
-                $order->deposited = $deposited;
-                $order->deposited_at = now();
-                $order->user_deposited_at = $this->user_created_id;
-                $order->save();
-
-                $job = new HandleCustomerWallet(
-                    $order->customer->id,
-                    $this->user_created_id, // admin
-                $deposited,
-                    3,
-                    "Đặt cọc đơn hàng mua hộ $order->order_number"
-                );
-                dispatch($job);
+            if ($this->is_round_money) {
+                $deposited = floor($deposited/1000);
+                $deposited *= 1000;
+                $deposited = (int) $deposited;
             }
 
-            return true;
-        } catch (\Exception $e) {
-            dd($e->getMessage());
+            $order->status = $orderService->getStatus('deposited');
+            $order->deposited = $deposited;
+            $order->deposited_at = now();
+            $order->user_deposited_at = $this->user_created_id;
+            $order->save();
+
+            $job = new HandleCustomerWallet(
+                $order->customer->id,
+                $this->user_created_id, // admin
+            $deposited,
+                3,
+                "Đặt cọc đơn hàng mua hộ $order->order_number"
+            );
+            dispatch($job);
         }
+
+        return true;
     }
 }
