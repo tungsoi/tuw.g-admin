@@ -20,19 +20,17 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
     protected $order_id;
     protected $percent;
     protected $user_created_id;
-    protected $is_round_money;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($order_id, $percent, $user_created_id, $is_round_money)
+    public function __construct($order_id, $percent, $user_created_id)
     {
         $this->order_id = $order_id;
         $this->percent = $percent;
         $this->user_created_id = $user_created_id;
-        $this->is_round_money = $is_round_money;
     }
 
     /**
@@ -56,7 +54,8 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
             $depositedVnd = $depositedRmb * $order->current_rate;
             $deposited = number_format($depositedVnd, 0, '.', '');
 
-            if ($this->is_round_money) {
+            $user_create_flag = User::find($this->user_created_id);
+            if ($user_create_flag->is_customer == 0) {
                 $deposited = floor($deposited/1000);
                 $deposited *= 1000;
                 $deposited = (int) $deposited;
@@ -71,7 +70,7 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
             $job = new HandleCustomerWallet(
                 $order->customer->id,
                 $this->user_created_id, // admin
-            $deposited,
+                $deposited,
                 3,
                 "Đặt cọc đơn hàng mua hộ $order->order_number"
             );
