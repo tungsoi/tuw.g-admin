@@ -64,23 +64,6 @@ class TransportCodeController extends AdminController
             $orderIds = PaymentOrder::where('payment_customer_id', Admin::user()->id)->pluck('id')->toArray();
             $grid->model()->whereIn('order_id', $orderIds);
         } 
-        
-        // else if (Admin::user()->isRole('warehouse_employee')) {
-        //     $warehouse = Warehouse::where('employees', 'like', '%'.Admin::user()->id.'%')->first();
-
-        //     if ($warehouse) {
-        //         $warehouse_id = $warehouse->id;
-
-        //         if (isset($_GET['mode']) && $_GET['mode'] == "swap_warehouse") { 
-        //             // mode luan chuyen kho -> chỉ hiện mã chờ xác nhận
-        //             $grid->model()->where('status', 4)->where('ware_house_swap_id', $warehouse_id);
-        //         } else {
-        //             // hiển thị mã chia theo kho
-        //             $grid->model()->where('ware_house_id', $warehouse_id);
-        //         }
-                
-        //     }
-        // }
 
         $grid->expandFilter();
         $grid->filter(function($filter) use ($userService, $orderService) {
@@ -299,22 +282,26 @@ class TransportCodeController extends AdminController
             if (Admin::user()->isRole('warehouse_employee')) {
                 $warehouse = Warehouse::where('employees', 'like', '%'.Admin::user()->id.'%')->first();
 
-                if ($warehouse && $warehouse->id != $this->row->ware_house_id) {
+                // dd($warehouse->id, $this->row->ware_house_id, $this->row->ware_house_swap_id);
+                // dd((int) $warehouse->id != (int) $this->row->ware_house_id || (int) $warehouse->id != (int) $this->row->ware_house_swap_id);
+                if ($warehouse) {
+                    if ( (int) $warehouse->id != (int) $this->row->ware_house_id && (int) $warehouse->id != (int) $this->row->ware_house_swap_id) {
                     Admin::script(
                         <<<EOT
                             $('input[data-id={$this->row->id}]').parent().parent().empty();
 EOT);
+                    }
                 }
             }
             
-            if (
-                ! in_array($this->row->status, [$orderService->getTransportCodeStatus('vietnam-rev'), $orderService->getTransportCodeStatus('swap'), $orderService->getTransportCodeStatus('not-export')])
-            ) {
-                Admin::script(
-                    <<<EOT
-                    $('input[data-id={$this->row->id}]').parent().parent().empty();
-EOT);
-            }
+//             if (
+//                 ! in_array($this->row->status, [$orderService->getTransportCodeStatus('vietnam-rev'), $orderService->getTransportCodeStatus('swap'), $orderService->getTransportCodeStatus('not-export')])
+//             ) {
+//                 Admin::script(
+//                     <<<EOT
+//                     $('input[data-id={$this->row->id}]').parent().parent().empty();
+// EOT);
+//             }
         });
 
         return $grid;
