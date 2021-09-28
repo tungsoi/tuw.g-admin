@@ -3,7 +3,7 @@
 
     <tr>
         <td>
-            <span>{{ $item->order ? $item->order_number : "" }}</span> <br>
+            <span>{{ $item->order ? $item->order->order_number : "" }}</span> <br>
             <span>{{ $item->order ? $item->order->customer->symbol_name : "" }}</span>
         </td>
         <td style="width: 200px !important;">{{ $item->cn_code }}</td>
