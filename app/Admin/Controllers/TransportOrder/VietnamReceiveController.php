@@ -240,7 +240,7 @@ class VietnamReceiveController extends AdminController
 
             admin_toastr("Lưu thành công", 'success');
 
-            return redirect()->back();
+            return redirect()->route('admin.vietnam_receives.index');
         }
 
         admin_toastr("Xảy ra lỗi", 'error');

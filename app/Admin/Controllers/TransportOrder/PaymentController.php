@@ -546,7 +546,12 @@ SCRIPT;
         });
         $grid->total_m3('Số khối');
         $grid->price_m3('Giá khối')->display(function () {
-            return number_format($this->price_m3);
+            if ($this->price_m3 == "") {
+                return 0;
+            } else {
+                return number_format($this->price_m3);
+            }
+            
         });
         $grid->total_v('Số V/6000')->display(function () {
             return str_replace('.00', '', $this->total_v);
