@@ -98,7 +98,7 @@ class ChinaReceiveController extends AdminController
             $table->text('length', 'Dài (cm)')->default(0)->readonly();
             $table->text('width', 'Rộng (cm)')->default(0)->readonly();
             $table->text('height', 'Cao (cm)')->default(0)->readonly();
-            $table->text('advance_drag', 'Ứng kéo (cm)')->default(0)->readonly();
+            $table->text('advance_drag', 'Ứng kéo (cm)')->default(0);
         });
 
         $form->tools(function (Form\Tools $tools) {
@@ -152,33 +152,47 @@ class ChinaReceiveController extends AdminController
 
     public function storeRebuild(Request $request) {
         if ($request->ajax()) {
-            $transport_code = $request->transport_code;
 
-            if ($transport_code != "") {
-                if (TransportCode::whereTransportCode($transport_code)->first()) {
-                    return response()->json([
+            $mode = $request->mode;
+            if ($mode != "" && $mode == "update") {
+                $code = TransportCode::where('transport_code', $request->transport_code)->first();
+                $code->advance_drag = number_format($request->advance_drag, 2, '.', '') ?? 0;
+                $code->save();
+
+                return response()->json([
+                    'status'    =>  true,
+                    'message'   =>  'oke'
+                ]);
+
+            } else {
+                $transport_code = $request->transport_code;
+
+                if ($transport_code != "") {
+                    if (TransportCode::whereTransportCode($transport_code)->first()) {
+                        return response()->json([
                         'status'    =>  false,
                         'message'   =>  'Mã vận đơn đã tồn tại'
                     ]);
-                } else {
-                    $res = TransportCode::create([
+                    } else {
+                        $res = TransportCode::create([
                         'transport_code'    =>  trim($transport_code),
                         'status'            =>  TransportCode::CHINA_RECEIVE,
                         'china_receive_at'  =>  now(),
                         'china_receive_user_id' =>  Admin::user()->id
                     ]);
     
-                    return response()->json([
+                        return response()->json([
                         'status'    =>  true,
                         'message'   =>  'Lưu thành công',
                         'data'      =>  $res
                     ]);
-                }
-            } else {
-                return response()->json([
+                    }
+                } else {
+                    return response()->json([
                     'status'    =>  false,
                     'message'   =>  'Mã vận đơn không được để trống'
                 ]);
+                }
             }
             
         }
@@ -191,7 +205,7 @@ class ChinaReceiveController extends AdminController
         $( document ).ready(function() {
             $('#has-many-china-receive .add').click();
 
-            $(document).on('keydown','.has-many-china-receive-form input', function(e) {
+            $(document).on('keydown','.has-many-china-receive-form input.transport_code', function(e) {
                 if (e.which == 13) 
                 {
                     // call ajax submit
@@ -238,6 +252,36 @@ class ChinaReceiveController extends AdminController
                     }, 500);
                 }
             } );
+
+            $(document).on('keyup','.has-many-china-receive-form input.advance_drag', function(e) { 
+                let advance_drag = e.originalEvent.target.value;
+                let transport = $(this).closest('tr').find('input.transport_code').val();
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                }); 
+
+                $.ajax({
+                    url: "{$route}",
+                    type: 'POST',
+                    dataType: "JSON",
+                    data: {
+                        transport_code: transport,
+                        advance_drag: advance_drag,
+                        mode: "update"
+                    },
+                    success: function (response)
+                    {   
+                        console.log(value, "value");
+
+                        if (! response.status) {
+                            $.admin.toastr.error('Lỗi', '', {timeOut: 5000});
+                        }
+                    }
+                });
+            });
         });
 SCRIPT;
     }
