@@ -6,6 +6,7 @@ use App\Admin\Services\OrderService;
 use App\Jobs\HandleSubmitSuccessOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\System\ScheduleLog;
+use App\Models\System\Transaction;
 use App\Models\TransportOrder\TransportCode;
 use Illuminate\Console\Command;
 
@@ -57,9 +58,13 @@ class SubmitSuccessOrder extends Command
                 $arr = array_filter($arr);
 
                 $all_trscs = sizeof($arr);
-                $vn_trscs = TransportCode::whereIn('transport_code', $arr)->whereNotNull('transport_code')->where('status', '!=', 0)->count();
+                $vn_trscs = TransportCode::whereIn('transport_code', $arr)->where('status', 1)->count();
+
+                $text = "Thanh toán đơn hàng mua hộ. Mã đơn hàng " . $order->order_number;
+                $flag_transaction = Transaction::where('content', $text)->first();
                 
-                if ($all_items == $vn_items && $all_trscs == $vn_trscs) {
+                if ($all_items == $vn_items && $all_trscs == $vn_trscs && ! $flag_transaction) {
+
                     $this->toString(
                         [
                             ($key+1),
@@ -80,8 +85,6 @@ class SubmitSuccessOrder extends Command
         ScheduleLog::create([
             'name'  =>  $this->signature . " - " . $key
         ]);
-
-
     }
 
     public function toString($arr) {
