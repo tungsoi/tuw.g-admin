@@ -56,7 +56,8 @@ Route::group([
         'report_warehouses'     =>  'ReportWarehouse\\DetailController', // admin
         'report_warehouse_portal'     =>  'ReportWarehouse\\PortalController', // admin
         'report_warehouse_daily'     =>  'ReportWarehouse\\DailyController', // admin
-        'sale_reports'      =>  'Report\\SaleReportController', // admin,
+        'revenue_reports'      =>  'Report\\SaleReportController', // admin,
+        'revenue_report_fetchs'            =>  'Report\\FetchController',
         'vn_customer_code'     =>   'TransportOrder\\VietnamCustomerCodeController'
     ]);
 
