@@ -240,7 +240,7 @@ class VietnamReceiveController extends AdminController
 
             admin_toastr("Lưu thành công", 'success');
 
-            return redirect()->route('admin.vietnam_receives.index');
+            return redirect()->route('admin.vietnam_receives.index', ['mode'    =>  'reload']);
         }
 
         admin_toastr("Xảy ra lỗi", 'error');
@@ -248,6 +248,7 @@ class VietnamReceiveController extends AdminController
     }
 
     public function script() {
+        
         return <<<SCRIPT
         $( document ).ready(function() {
             $('#customer_code_input').prop('required',true);
@@ -347,6 +348,29 @@ class VietnamReceiveController extends AdminController
                     }
                 }
             });
+
+            var mode = getUrlParameter('mode');
+
+            if (mode != "" && mode == "reload") {
+                window.location.href = "vietnam_receives";
+            }
+
+
+            function getUrlParameter(sParam) {
+                var sPageURL = window.location.search.substring(1),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+            
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+            
+                    if (sParameterName[0] === sParam) {
+                        return typeof sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                    }
+                }
+                return false;
+            };
         });
 SCRIPT;
     }
