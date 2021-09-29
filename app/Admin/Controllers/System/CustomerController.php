@@ -221,7 +221,12 @@ class CustomerController extends AdminController
             return new Table(['Thông tin', 'Nội dung'], $info);
         })->style('width: 100px; text-align: center;');
 
-        $grid->symbol_name('Mã khách hàng')->style('max-width: 150px;');
+        $grid->symbol_name('Mã khách hàng')->display(function () {
+            $html = $this->symbol_name . "<br> <br>";
+            $asset = asset("images/logo-zalo.jpeg");
+            $html .= "<a href='https://zalo.me/$this->phone_number' target='_blank' id='zalo-contact'><img src=".$asset." width=20/></a>";
+            return $html;
+        })->style('max-width: 150px;');
         $grid->wallet('Ví tiền')->display(function () {
             $label = $this->wallet < 0 ? "red" : "green";
             return "<span style='color: {$label}'>".number_format($this->wallet)."</span>";
