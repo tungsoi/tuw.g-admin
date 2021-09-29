@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\System;
 
+use App\Models\Setting\RoleUser;
 use App\User;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
@@ -86,7 +87,7 @@ class TeamSaleController extends AdminController
         $form->display('id', __('ID'));
         $form->text('name', 'Tên nhóm')->rules('required');
 
-        $sale_users = DB::connection('aloorder')->table('admin_role_users')->where('role_id',3)->pluck('user_id');
+        $sale_users = RoleUser::where('role_id',3)->pluck('user_id');
         $form->select('leader', 'Leader Team')->options(User::whereIn('id', $sale_users)->whereIsActive(1)->pluck('name', 'id'));
 
         $members = User::whereIn('id', $sale_users)->whereIsActive(1)->pluck('name', 'id');
