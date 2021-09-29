@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Test;
 
 use App\Admin\Services\UserService;
+use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\SyncData\AlilogiTransaction;
 use App\Models\SyncData\AlilogiUser;
 use App\Models\System\Transaction;
@@ -42,15 +43,26 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
-        $money = rand(1000, 13000000);
-        $money = 3450;
-        // if ()
-        echo $money . "\n";
-        $money = floor($money/1000);
-        $money *= 1000;
-        $money = (int) $money;
+        
+        $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')->whereStatus(4)->orderBy('id', 'desc')->get();
+        $total_vnd = 0;
+        $deposited = $orders->sum('deposited');
 
-        dd($money);
+        foreach ($orders as $order){
+            $amount = (float) str_replace(",","", $order->sumItemPrice());
+            $total_vnd = $amount * $order->current_rate;
+            echo $order->id . "---" . number_format($total_vnd, 0) . "---" . number_format($order->deposited, 0) ."\n";
+        }
+        
+        // $money = rand(1000, 13000000);
+        // $money = 3450;
+        // // if ()
+        // echo $money . "\n";
+        // $money = floor($money/1000);
+        // $money *= 1000;
+        // $money = (int) $money;
+
+        // dd($money);
 
         // $olds = AlilogiTransaction::where('created_at', 'like', '2021-09-13%')->get();
 
