@@ -143,7 +143,7 @@ class PortalController extends AdminController
 
     public function calculatorEstimateAmountBooking() {
 
-            $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')->whereStatus(4)->orderBy('id', 'desc')->limit(1)->get();
+            $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')->whereStatus(4)->orderBy('id', 'desc')->get();
             $total_vnd = 0;
             $deposited = $orders->sum('deposited');
     
