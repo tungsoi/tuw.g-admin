@@ -143,8 +143,6 @@ class PortalController extends AdminController
 
     public function calculatorEstimateAmountBooking() {
 
-        $flag = session()->exists('estimate-amount-booking');
-        if (! $flag) {
             $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')->whereStatus(4)->orderBy('id', 'desc')->get();
             $total_vnd = 0;
             $deposited = $orders->sum('deposited');
@@ -155,13 +153,6 @@ class PortalController extends AdminController
             }
     
             $estimate = $total_vnd - $deposited;
-
-            session()->put('estimate-amount-booking', [
-                'number_orders' =>  $orders->count(),
-                'total_vnd' =>  number_format($total_vnd),
-                'total_deposited'   =>  number_format($deposited),
-                'total_estimate'    =>  number_format($estimate)
-            ]);
     
             return response()->json([
                 'status'    =>  true,
@@ -172,15 +163,6 @@ class PortalController extends AdminController
                     'total_deposited'   =>  number_format($deposited),
                     'total_estimate'    =>  number_format($estimate)
                 ]
-            ]);
-        } else {
-            $data = session()->get('estimate-amount-booking');
-
-            return response()->json([
-                'status'    =>  true,
-                'flag'      =>  'use session',
-                'data'      =>  $data
-            ]);
-        }
+            ]);∂∂∂
     }
 }
