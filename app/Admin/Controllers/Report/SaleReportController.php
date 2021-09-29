@@ -136,7 +136,7 @@ class SaleReportController extends AdminController
 
                 $flag = SystemTeamSale::where('leader', Admin::user()->id)->first();
 
-                if (Admin::user()->isRole('sale_staff')) {
+                if (Admin::user()->isRole('sale_employee')) {
                     if ($flag != "" && $flag->count() > 0)
                     {
                         $members = $flag->members;
