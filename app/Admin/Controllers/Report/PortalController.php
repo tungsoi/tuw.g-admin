@@ -163,6 +163,6 @@ class PortalController extends AdminController
                     'total_deposited'   =>  number_format($deposited),
                     'total_estimate'    =>  number_format($estimate)
                 ]
-            ]);∂∂∂
+            ]);
     }
 }
