@@ -6,6 +6,7 @@ namespace App\Admin\Controllers\Report;
 // use App\Models\ReportDetailBackup;
 
 use App\Admin\Services\UserService;
+use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\SaleReport\Report;
 use App\Models\SaleReport\ReportDetail;
@@ -66,7 +67,13 @@ class PortalController extends AdminController
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
-                    $column->append((new Box('Số liệu hàng tồn trong kho / ' . $this->today, "")));
+                    $column->append((new Box('Tiền dự trù đặt hàng', $this->estimateAmountBooking())));
+                });   
+            })
+            ->row(function (Row $row) {
+                $row->column(6, function (Column $column)
+                {
+                    $column->append((new Box('Số liệu hàng tồn trong kho', $this->inWarehouseOrder())));
                 });   
             })
             ->row(function (Row $row) {
@@ -79,12 +86,6 @@ class PortalController extends AdminController
                 $row->column(12, function (Column $column)
                 {
                     $column->append((new Box('Báo cáo phòng kinh doanh / ' . date('Y-m', strtotime(now())), "")));
-                });   
-            })
-            ->row(function (Row $row) {
-                $row->column(12, function (Column $column)
-                {
-                    $column->append((new Box('Tiền dự trù đặt hàng / ' . $this->today, $this->estimateAmountBooking())));
                 });   
             })
             ->row(function (Row $row) {
@@ -142,7 +143,7 @@ class PortalController extends AdminController
 
     public function calculatorEstimateAmountBooking() {
 
-            $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')->whereStatus(4)->orderBy('id', 'desc')->get();
+            $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')->whereStatus(4)->orderBy('id', 'desc')->limit(1)->get();
             $total_vnd = 0;
             $deposited = $orders->sum('deposited');
     
@@ -163,5 +164,10 @@ class PortalController extends AdminController
                     'total_estimate'    =>  number_format($estimate)
                 ]
             ]);
+    }
+
+    public function inWarehouseOrder() {
+        $orders = PaymentOrder::where('status', 'payment_not_export')->get();
+        return view('admin.system.report.in_warehouse_order', compact('orders'))->render();
     }
 }
