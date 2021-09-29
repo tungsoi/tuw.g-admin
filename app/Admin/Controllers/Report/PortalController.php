@@ -137,16 +137,6 @@ class PortalController extends AdminController
     }
 
     public function estimateAmountBooking() {
-
-        $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')->whereStatus(4)->orderBy('id', 'desc')->get();
-            $total_vnd = 0;
-            $deposited = $orders->sum('deposited');
-    
-            foreach ($orders as $order){
-                $amount = (float) $order->sumItemPrice();
-                $total_vnd += $amount * $order->current_rate;
-            }
-
         return view('admin.system.report.estimate_amount_booking')->render();
     }
 
