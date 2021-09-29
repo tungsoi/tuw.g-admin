@@ -71,7 +71,7 @@ class PortalController extends AdminController
                 });   
             })
             ->row(function (Row $row) {
-                $row->column(6, function (Column $column)
+                $row->column(12, function (Column $column)
                 {
                     $column->append((new Box('Số liệu hàng tồn trong kho', $this->inWarehouseOrder())));
                 });   
@@ -167,7 +167,21 @@ class PortalController extends AdminController
     }
 
     public function inWarehouseOrder() {
-        $orders = PaymentOrder::where('status', 'payment_not_export')->get();
-        return view('admin.system.report.in_warehouse_order', compact('orders'))->render();
+
+        $warehouses = Warehouse::all();
+        $revenue = [];
+
+        foreach ($warehouses as $warehouse) {
+            $members = $warehouse->employees;
+
+            $orders = PaymentOrder::where('status', 'payment_not_export')->whereIn('user_created_id', $members)->get();
+
+            $revenue[$warehouse->id] = [
+                'count'    =>  $orders->count(),
+                'money'    =>  $orders->sum('amount')
+            ];
+        }
+
+        return view('admin.system.report.in_warehouse_order', compact('revenue', 'warehouses'))->render();
     }
 }
