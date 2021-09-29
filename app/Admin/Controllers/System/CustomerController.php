@@ -612,7 +612,7 @@ class CustomerController extends AdminController
     }
 
     public function find($id) {
-        $customer =  User::select('id', 'wallet', 'wallet_weight', 'default_price_kg', 'default_price_m3', 'note')->whereId($id)->first();
+        $customer =  User::select('id', 'wallet', 'wallet_weight', 'default_price_kg', 'default_price_m3', 'note', 'phone_number')->whereId($id)->first();
         $customer->wallet = number_format($customer->wallet);
         $customer->default_price_kg = number_format(str_replace(",", "", $customer->default_price_kg));
         $customer->default_price_m3 = number_format(str_replace(",", "", $customer->default_price_m3));

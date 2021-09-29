@@ -112,6 +112,10 @@ class PaymentController extends AdminController
             $form->select('payment_user_id', 'KHÁCH HÀNG THANH TOÁN')
                 ->options(User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::CUSTOMER)->pluck('symbol_name', 'id'))
                 ->rules(['required']);
+
+            $asset = asset("images/logo-zalo.jpeg");
+            $html = "<a href='' target='_blank' id='zalo-contact'><img src=".$asset." width=20/> &nbsp;<b id='customer_phone_number'></b></a>";
+            $form->html($html);
         });
         $form->column(1, function ($form) {
 

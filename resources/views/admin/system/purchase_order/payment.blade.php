@@ -99,6 +99,8 @@
                     $('#customer-info-payment #price_m3').html(response.data.default_price_m3);
                     $('#customer-info-payment .payment_customer_wallet_weight').val(response.data.wallet_weight);
                     $('#customer-info-payment #customer_note').html(response.data.note);
+                    $('#customer_phone_number').html(response.data.phone_number);
+                    $('a#zalo-contact').attr('href', 'https://zalo.me/' + response.data.phone_number);
                 }
             });
         });
