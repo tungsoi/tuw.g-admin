@@ -58,8 +58,12 @@ Route::group([
         'report_warehouse_daily'     =>  'ReportWarehouse\\DailyController', // admin
         'revenue_reports'      =>  'Report\\SaleReportController', // admin,
         'revenue_report_fetchs'            =>  'Report\\FetchController',
-        'vn_customer_code'     =>   'TransportOrder\\VietnamCustomerCodeController'
+        'vn_customer_code'     =>   'TransportOrder\\VietnamCustomerCodeController',
+        'revenue_warehouses'    =>  'Report\\RevenueWarehouseController',
     ]);
+
+    $router->get('report_portals','Report\\PortalController@indexRebuild')->name('report_portals');
+    $router->get('report_portals/calculatorEstimateAmountBooking','Report\\PortalController@calculatorEstimateAmountBooking')->name('report_portals.calculatorEstimateAmountBooking');
 
     // transaction
     $router->get('transactions/duplicate', 'System\\TransactionController@detail')->name('transactions.duplicate');
