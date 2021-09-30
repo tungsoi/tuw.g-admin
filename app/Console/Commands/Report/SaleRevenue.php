@@ -77,12 +77,11 @@ class SaleRevenue extends Command
                 $customers = $sale_user->saleCustomers();
                 $total_customer = $customers->count();
 
+                $total_customer_wallet = $customers->where('wallet', '<', 0)->sum('wallet');
                 $customer_ids = $customers->pluck('id');
 
-                $temp = $customers;
-                $new_customers = $temp->where('created_at', '>=', $report->begin_date. " 00:00:01")->where('created_at', '<=', $report->finish_date." 23:59:59")->get();
+                $new_customers = $customers->where('created_at', '>=', $report->begin_date. " 00:00:01")->where('created_at', '<=', $report->finish_date." 23:59:59")->get();
                 $total_new_customers = $new_customers->count();
-                $total_customer_wallet = $customers->where('wallet', '<', 0)->sum('wallet');
 
                 if ($customers->count() > 0) {
 
