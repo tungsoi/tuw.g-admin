@@ -44,8 +44,9 @@ class TestWalletUser extends Command
     public function handle()
     {   
         
-        $orders = PurchaseOrder::whereNotIn('final_payment', ["", 0])->orderBy('id', 'desc')->get();
-
+        $orders = PurchaseOrder::whereNotIn('final_payment', ["", 0])->where('created_at', 'like', '2021-09%')
+            ->whereNotNull('final_payment')->orderBy('id', 'desc')->get();
+        dd($orders->count());
         foreach ($orders as $order ) {
             echo $order->order_number."\n";
 

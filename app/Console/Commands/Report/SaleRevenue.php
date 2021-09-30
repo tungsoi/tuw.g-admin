@@ -66,7 +66,7 @@ class SaleRevenue extends Command
 
             $sale_users = $service->GetListSaleEmployee();
             $sale_ids = array_keys($sale_users->toArray());
-            // $sale_ids = ['3919'];
+            // $sale_ids = ['2156'];
 
             ReportDetail::where('sale_report_id', $report->id)->delete();
             
@@ -86,7 +86,6 @@ class SaleRevenue extends Command
                 $total_new_customers = $new_customers->count();
 
                 if ($total_customer > 0) {
-
                     $payment_orders = PaymentOrder::whereIn('payment_customer_id', $customer_ids)
                                     ->where('created_at', '>=', $report->begin_date. " 00:00:01")->where('created_at', '<=', $report->finish_date." 23:59:59")
                                     ->get();
@@ -128,6 +127,8 @@ class SaleRevenue extends Command
                     $processing_order_new_customers = $processing_order->whereIn('customer_id', $new_customers->pluck('id'));
                     $processing_order_payment_new_customer = number_format($this->amount($processing_order_new_customers), 0, '.', '');
                     
+                    $total_transport_weight = TransportCode::whereIn('order_id', $payment_orders->pluck('id'))->sum('kg');
+                    $total_transport_weight_new_customer = TransportCode::whereIn('order_id', $payment_order_new_customer->pluck('id'))->sum('kg');
                     $data = [
                         'sale_report_id'    =>  $report->id,
                         'user_id'           =>  $sale_id,
@@ -144,8 +145,8 @@ class SaleRevenue extends Command
                         'processing_order_new_customers'  =>  $processing_order_new_customers->count(),
                         'processing_order_payment_new_customer'    =>  $processing_order_payment_new_customer,
                         'processing_order_service_fee' =>  $processing_order_service_fee,
-                        'total_transport_weight'    =>  TransportCode::whereIn('order_id', $payment_orders->pluck('id'))->sum('kg'),
-                        'total_transport_weight_new_customer'    =>  TransportCode::whereIn('order_id', $payment_order_new_customer->pluck('id'))->sum('kg'),
+                        'total_transport_weight'    =>  $total_transport_weight,
+                        'total_transport_weight_new_customer'    =>  $total_transport_weight_new_customer,
                         'total_transport_fee'   =>  $payment_orders->sum('amount'),
                         'total_transport_fee_new_customer'   =>  $payment_order_new_customer->sum('amount'),
                         'transport_order'   =>  $payment_orders->count(),

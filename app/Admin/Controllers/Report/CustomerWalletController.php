@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers\Report;
 
 use App\Admin\Services\UserService;
+use App\Models\System\Transaction;
 use App\User;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -39,6 +40,35 @@ class CustomerWalletController extends AdminController
             $filter->disableIdFilter();
             $filter->like('symbol_name');
         });
+
+        // $service = new UserService();
+        // $customers = $service->GetListCustomer();
+        // $customer_ids = array_keys($customers->toArray());
+
+        
+        $transaction_customer_ids = Transaction::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
+        // dd($transaction_customer_ids->toArray());
+        $customers = User::whereIn('id', $transaction_customer_ids->toArray())->get();
+
+        $ids = [];
+        foreach ($customers as $customer) {
+            $wallet = $customer->wallet;
+
+            $service = new UserService();
+
+            $data = $service->GetCustomerTransactionHistory($customer->id, false);
+            $lastMoney = $data[0]['after_payment'];
+
+            if ($lastMoney != $wallet) {
+                $ids[] = $customer->id;
+            }
+        }
+        dd($ids);
+        // $temp = [];
+        // foreach ($customer_ids as $customer_id) {
+            
+        // }
+        // dd(array_diff($customer_ids, $transaction_customer_ids->toArray()));
 
         $grid->symbol_name('Mã khách hàng')->display(function () {
             return "<a href='https://aloorder.vn/admin/customers/".$this->id."/recharge-history' target='_blank'>".$this->symbol_name."</a>";
