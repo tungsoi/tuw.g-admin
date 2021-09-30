@@ -4,6 +4,8 @@ namespace App\Admin\Controllers\Report;
 
 // use App\Admin\Actions\Exporter\SaleReportExporter;
 // use App\Models\ReportDetailBackup;
+
+use App\Admin\Services\UserService;
 use App\Models\SaleReport\Report;
 use App\Models\SaleReport\ReportDetail;
 use App\Models\System\TeamSale as SystemTeamSale;
@@ -101,12 +103,11 @@ class SaleReportController extends AdminController
             });
             
             $filter->column(1/2, function ($filter) {
-                $ids = DB::connection('aloorder')->table('admin_role_users')->where('role_id', 3)->get()->pluck('user_id');
-                $sales = User::whereIn('id', $ids)->whereIsActive(1)->get();
+                $service = new UserService();
     
                 $filter->where(function ($query) {
                     //
-                }, 'Nhân viên', 'user_id')->select($sales->pluck('name', 'id'));
+                }, 'Nhân viên', 'user_id')->select($service->GetListSaleEmployee());
             });
            
         });
