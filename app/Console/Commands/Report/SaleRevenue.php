@@ -66,6 +66,7 @@ class SaleRevenue extends Command
 
             $sale_users = $service->GetListSaleEmployee();
             $sale_ids = array_keys($sale_users->toArray());
+            // $sale_ids = ['2728'];
 
             ReportDetail::where('sale_report_id', $report->id)->delete();
             
@@ -75,28 +76,30 @@ class SaleRevenue extends Command
                 $sale_user = User::find($sale_id);
 
                 $customers = $sale_user->saleCustomers();
+                $customer_ids = $customers->pluck('id');
+                $temp_customers = $customers;
                 $total_customer = $customers->count();
 
                 $total_customer_wallet = $customers->where('wallet', '<', 0)->sum('wallet');
-                $customer_ids = $customers->pluck('id');
 
-                $new_customers = $customers->where('created_at', '>=', $report->begin_date. " 00:00:01")->where('created_at', '<=', $report->finish_date." 23:59:59")->get();
+
+                $new_customers = $sale_user->saleCustomers()->where('created_at', '>=', $report->begin_date. " 00:00:01")->where('created_at', '<=', $report->finish_date." 23:59:59")->get();
                 $total_new_customers = $new_customers->count();
 
-                if ($customers->count() > 0) {
+                if ($total_customer > 0) {
 
                     $purchase_orders = PurchaseOrder::whereIn('customer_id', $customer_ids);
-                    $temp = $purchase_orders;
 
                     $payment_orders = PaymentOrder::wherePaymentCustomerId($customer_ids)->get();
                     $payment_order_new_customer = PaymentOrder::wherePaymentCustomerId($customer_ids)->whereIn('payment_customer_id', $new_customers->pluck('id'))->get();
-                    $success_purchase_orders = $purchase_orders->where('status', 9)
+                    $success_purchase_orders = PurchaseOrder::whereIn('customer_id', $customer_ids)->where('status', 9)
                                                     ->where('deposited_at', '>=', $report->begin_date . " 00:00:01")
                                                     ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")
                                                     ->where('success_at', '>=', $report->begin_date . " 00:00:01")
                                                     ->where('success_at', '<=', $report->finish_date ." 23:59:59");
 
                     $success_order = $success_purchase_orders->count();
+
                     $success_order_payment = number_format($this->amount($success_purchase_orders->get()), 0, '.', '');
                     $success_order_service_fee = number_format($this->serviceFee($success_purchase_orders->get()), 0, '.', '');
                                                
