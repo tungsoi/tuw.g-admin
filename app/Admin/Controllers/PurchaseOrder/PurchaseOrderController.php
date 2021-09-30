@@ -905,7 +905,11 @@ SCRIPT;
         $form->saved(function (Form $form) {
             $id = $form->model()->id;
             $order = PurchaseOrder::find($id);
-            $amount = $order->amount();
+
+            $price_rmb = str_replace(",", "", $order->sumItemPrice());
+            $ship = $order->sumShipFee();
+
+            $amount = $price_rmb + $ship;
 
             if ($order->final_payment != 0) {
                 $amount = str_replace(",", "", $amount);

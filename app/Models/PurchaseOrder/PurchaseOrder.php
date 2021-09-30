@@ -38,7 +38,9 @@ class PurchaseOrder extends Model
         'user_cancle_at',
         'transport_code',
         'supporter_sale_id',
-        '_id'
+        '_id',
+        'purchase_total_items_price',
+        'purchase_order_transport_fee'
     ];
 
     public function customer() {

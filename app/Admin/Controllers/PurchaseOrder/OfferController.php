@@ -149,46 +149,54 @@ class OfferController extends AdminController
         
         $grid->orderEmployee()->name('Nhân viên Order');
 
-        $grid->sumItemPrice('Tiền thực đặt (Tệ) (1)')->display(function () {
+        $grid->purchase_total_items_price('Tiền thực đặt (Tệ) (1)')->display(function () {
             $price_rmb = $this->sumItemPrice();
-            $price_vnd = str_replace(",", "", $this->sumItemPrice()) * $this->current_rate;
-            $deposite = $price_vnd / 100 * 70;
-            $data = [
-                'amount_rmb'   =>  [
-                    'is_label'   =>  false,
-                    'text'      =>  $price_rmb
-                ]
-            ];            
-            return view('admin.system.core.list', compact('data'));
-        })->style('text-align: right; width: 100px;');
 
-        $grid->sumShipFee('Tổng phí VCNĐ (Tệ) (2)')->display(function () {
-            $data = [
-                'amount_rmb'   =>  [
-                    'is_label'   =>  false,
-                    'text'      =>  $this->sumShipFee()
-                ]
-            ];            
-            return view('admin.system.core.list', compact('data'));
-        })->style('text-align: right; width: 100px;');
+            return str_replace(",","", $price_rmb);
+        })->style('text-align: right; width: 100px;')->totalRow(function ($amount) {
+            return "<span id='purchase_total_items_price'></span>";
+        });
 
-        $grid->amount('Tổng tiền thực đặt (3) = (1) + (2)')->display(function () {
+        $grid->purchase_order_transport_fee('Tổng phí VCNĐ (Tệ) (2)')->display(function () {
+            return $this->sumShipFee();
+        })->style('text-align: right; width: 100px;')
+        ->totalRow(function ($amount) {
+            return "<span id='purchase_order_transport_fee'></span>";
+        });
+
+        $grid->purchase_order_service_fee('Tổng tiền thực đặt (3) = (1) + (2)')->display(function () {
             $price_rmb = str_replace(",", "", $this->sumItemPrice());
             $ship = $this->sumShipFee();
+            return $price_rmb + $ship;
+        })->style('text-align: right; width: 100px;')
+        ->totalRow(function ($amount) {
+            return "<span id='purchase_order_service_fee'></span>";
+        });
 
-            $data = [
-                'amount_rmb'   =>  [
-                    'is_label'   =>  false,
-                    'text'      =>  $price_rmb + $ship
-                ]
-            ];            
-            return view('admin.system.core.list', compact('data'));
-        })->style('text-align: right; width: 100px;');
+        $grid->final_payment('Tiền thanh toán (Tệ) (4)')
+        ->editable()->totalRow(function ($amount) {
+            return "<span id='final_payment'></span>";
+        });
 
-        $grid->final_payment('Tiền thanh toán (Tệ) (4)')->editable();
-
-        $grid->offer_cn('Chiết khấu (Tệ) (5) = (3) - (4)');
-        $grid->offer_vn('Chiết khấu (VND) (6) = (5) * Tỷ giá đơn');
+        $grid->offer_cn('Chiết khấu (Tệ) (5) = (3) - (4)')
+        ->totalRow(function ($amount) {
+            return "<span id='offer_cn'></span>";
+        });
+        $grid->offer_vn('Chiết khấu (VND) (6) = (5) * Tỷ giá đơn')
+        ->display(function () {
+            $money = 0;
+            if ($this->offer_vn == "") {
+                return $money;
+            }
+            try {
+                return number_format(str_replace(",", "", $this->offer_vn), 0, '.', '');
+            } catch (\Exception $e) {
+                dd($this->offer_vn);
+            }
+        })
+        ->totalRow(function ($amount) {
+            return "<span id='offer_vnd'></span>";
+        });
         $grid->internal_note('Ghi chú nội bộ')->editable();
         
         $grid->disableCreateButton();
@@ -246,7 +254,11 @@ class OfferController extends AdminController
         $form->saved(function (Form $form) {
             $id = $form->model()->id;
             $order = PurchaseOrder::find($id);
-            $amount = $order->amount();
+
+            $price_rmb = str_replace(",", "", $order->sumItemPrice());
+            $ship = $order->sumShipFee();
+
+            $amount = $price_rmb + $ship;
 
             if ($order->final_payment != 0) {
                 $amount = str_replace(",", "", $amount);
@@ -273,6 +285,95 @@ class OfferController extends AdminController
 
         $('.column-internal_note a').each(function () {
             $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
+        });
+
+        $( document ).ready(function() {
+                
+            // Tiền thực đặt sản phẩm (Tệ)
+                let purchase_total_items_price = $('tbody .column-purchase_total_items_price');
+
+                let tien_thuc_dat_san_pham = 0;
+                let tong_tien_thuc_dat = parseFloat(0.00);
+                purchase_total_items_price.each( function( i, el ) {
+                    var elem = $( el );
+                    let html = parseFloat($.trim(elem.html()));
+                    tien_thuc_dat_san_pham += html;
+                });
+                $('#purchase_total_items_price').html(tien_thuc_dat_san_pham.toFixed(2));
+            // End
+
+            // Tổng phí VCNĐ (Tệ)
+                let purchase_order_transport_fee = $('tbody .column-purchase_order_transport_fee');
+                let tien_ship = 0;
+                purchase_order_transport_fee.each( function( i, el ) {
+                    var elem = $( el );
+                    let html = parseFloat($.trim(elem.html()));
+                    tien_ship += html;
+                });
+                $('#purchase_order_transport_fee').html(tien_ship.toFixed(2));
+            // END
+
+            // Tổng tiền thực đặt
+                tong_tien_thuc_dat = tien_thuc_dat_san_pham + tien_ship;
+                $('#purchase_order_service_fee').html(tong_tien_thuc_dat.toFixed(2));
+
+
+            // Tổng tien thanh toan (Tệ)
+                let final_payment = $('tbody .column-final_payment');
+                let tien_thanh_toan = 0;
+                final_payment.each( function( i, el ) {
+                    var elem = $( el );
+                    var value = $(elem).children("a").data('value');
+                    let html = parseFloat($.trim(value));
+
+                    if (html == "0") 
+                    {
+                        console.log($(this));
+                        $(this).css('background', '#e05d5d');
+                        $(this).children("a").css('color', 'white');
+                    }
+                    tien_thanh_toan += html;
+                });
+                $('#final_payment').html(tien_thanh_toan.toFixed(2));
+            // END
+
+            // Tổng chiet khau (Tệ)
+                let offer_cn = $('tbody .column-offer_cn');
+                let tien_chiet_khau_te = 0;
+                offer_cn.each( function( i, el ) {
+                    var elem = $( el );
+                    let html = parseFloat($.trim(elem.html()));
+
+                    if (html == "0.00") 
+                    {
+                        console.log($(this));
+                        $(this).css('background', '#e05d5d');
+                        $(this).children("a").css('color', 'white');
+                    }
+
+                    tien_chiet_khau_te += html;
+                });
+                $('#offer_cn').html(tien_chiet_khau_te.toFixed(2));
+            // END
+
+            // Tổng chiet khau (VND)
+                let offer_vnd = $('tbody .column-offer_vn');
+                let tien_chiet_khau_vnd = 0;
+                offer_vnd.each( function( i, el ) {
+                    var elem = $( el );
+                    let html = parseFloat($.trim(elem.html()));
+
+                    if (html == "0.00") 
+                    {
+                        console.log($(this));
+                        $(this).css('background', '#e05d5d');
+                        $(this).children("a").css('color', 'white');
+                    }
+
+                    tien_chiet_khau_vnd += html;
+                });
+                $('#offer_vnd').html(tien_chiet_khau_vnd.toFixed(0));
+            // END
         });
 SCRIPT;
     }

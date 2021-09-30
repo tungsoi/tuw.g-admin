@@ -212,3 +212,8 @@ $('.sidebar-toggle').on('click', function (event) {
     }
     
 });
+
+
+$('tfoot').each(function () {
+    $(this).insertAfter($(this).siblings('thead'));
+});

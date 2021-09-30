@@ -108,10 +108,6 @@
     $(document).on('click', '#btn-print-this-page', function () {
         window.print();
     })
-
-    $('tfoot').each(function () {
-        $(this).insertAfter($(this).siblings('thead'));
-    });
 </script>
 </body>
 </html>

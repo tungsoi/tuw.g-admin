@@ -44,15 +44,30 @@ class TestWalletUser extends Command
     public function handle()
     {   
         
-        $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')->whereStatus(4)->orderBy('id', 'desc')->get();
-        $total_vnd = 0;
-        $deposited = $orders->sum('deposited');
+        $orders = PurchaseOrder::whereNotIn('final_payment', ["", 0])->orderBy('id', 'desc')->get();
 
-        foreach ($orders as $order){
-            $amount = (float) str_replace(",","", $order->sumItemPrice());
-            $total_vnd = $amount * $order->current_rate;
-            echo $order->id . "---" . number_format($total_vnd, 0) . "---" . number_format($order->deposited, 0) ."\n";
+        foreach ($orders as $order ) {
+            echo $order->order_number."\n";
+
+            $price_rmb = str_replace(",", "", $order->sumItemPrice());
+            $ship = $order->sumShipFee();
+
+            $amount = $price_rmb + $ship;
+
+            $final_payment = str_replace(",", "", $order->final_payment);
+                
+            $order->offer_cn = number_format($amount - $final_payment, 2);
+            $order->offer_vn = number_format(($amount - $final_payment) * $order->current_rate, 0);
+            $order->save();
         }
+        // $total_vnd = 0;
+        // $deposited = $orders->sum('deposited');
+
+        // foreach ($orders as $order){
+        //     $amount = (float) str_replace(",","", $order->sumItemPrice());
+        //     $total_vnd = $amount * $order->current_rate;
+        //     echo $order->id . "---" . number_format($total_vnd, 0) . "---" . number_format($order->deposited, 0) ."\n";
+        // }
         
         // $money = rand(1000, 13000000);
         // $money = 3450;
