@@ -130,6 +130,14 @@ class TransactionController extends AdminController
             $actions->append(new BtnDelete($actions->getKey(), $urlDelete));
         });
 
+        Admin::script(
+        <<<EOT
+        
+        $('tfoot').each(function () {
+            $(this).insertAfter($(this).siblings('thead'));
+        });
+EOT);
+
         return $grid;
     }
 
