@@ -160,7 +160,7 @@ class SaleReportController extends AdminController
             $grid->column('number', 'STT');
             $grid->user_id('NHÂN VIÊN KINH DOANH')->display(function () {
                 $html = User::find($this->user_id)->name;
-                $html .= "<br> " . date('d-m-Y', strtotime(User::find($this->user_id)->created_at));
+                $html .= "<br> " . date('Y-m-d', strtotime(User::find($this->user_id)->created_at));
 
                 return $html;
             });
