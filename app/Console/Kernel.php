@@ -31,10 +31,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('purchase-order:delete-non-item')->everyMinute();
         $schedule->command('submit:success-order')->everyTenMinutes();
 
-        $schedule->command('sale-report:update', ['2021-09-01', '2021-09-30'])->dailyAt("13:00");
-        $schedule->command('sale-report:update', ['2021-09-01', '2021-09-30'])->dailyAt("21:00");
+        $schedule->command('sale-revenue-report:update', ['2021-09-01', '2021-09-30'])->dailyAt("13:00");
+        $schedule->command('sale-revenue-report:update', ['2021-09-01', '2021-09-30'])->dailyAt("21:00");
 
-        $schedule->command('sale-report:update', ['2020-10-01', '2021-12-31'])->dailyAt("03:00");
+        $schedule->command('sale-revenue-report:update', ['2020-10-01', '2021-12-31'])->dailyAt("03:00");
     }
 
     /**
