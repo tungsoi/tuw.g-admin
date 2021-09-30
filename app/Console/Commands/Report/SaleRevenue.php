@@ -66,7 +66,7 @@ class SaleRevenue extends Command
 
             $sale_users = $service->GetListSaleEmployee();
             $sale_ids = array_keys($sale_users->toArray());
-            // $sale_ids = ['2728'];
+            // $sale_ids = ['3919'];
 
             ReportDetail::where('sale_report_id', $report->id)->delete();
             
@@ -87,8 +87,14 @@ class SaleRevenue extends Command
 
                 if ($total_customer > 0) {
 
-                    $payment_orders = PaymentOrder::whereIn('payment_customer_id', $customer_ids)->get();
-                    $payment_order_new_customer = PaymentOrder::whereIn('payment_customer_id', $customer_ids)->whereIn('payment_customer_id', $new_customers->pluck('id'))->get();
+                    $payment_orders = PaymentOrder::whereIn('payment_customer_id', $customer_ids)
+                                    ->where('created_at', '>=', $report->begin_date. " 00:00:01")->where('created_at', '<=', $report->finish_date." 23:59:59")
+                                    ->get();
+
+                    $payment_order_new_customer = PaymentOrder::whereIn('payment_customer_id', $customer_ids)
+                                    ->whereIn('payment_customer_id', $new_customers->pluck('id'))
+                                    ->where('created_at', '>=', $report->begin_date. " 00:00:01")->where('created_at', '<=', $report->finish_date." 23:59:59")
+                                    ->get();
                     $success_purchase_orders = PurchaseOrder::whereIn('customer_id', $customer_ids)->where('status', 9)
                                                     ->where('deposited_at', '>=', $report->begin_date . " 00:00:01")
                                                     ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")
