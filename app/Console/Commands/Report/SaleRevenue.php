@@ -75,12 +75,13 @@ class SaleRevenue extends Command
                 $sale_user = User::find($sale_id);
 
                 $customers = $sale_user->saleCustomers();
+                $total_customer = $customers->count();
 
                 $customer_ids = $customers->pluck('id');
 
                 $temp = $customers;
                 $new_customers = $temp->where('created_at', '>=', $report->begin_date. " 00:00:01")->where('created_at', '<=', $report->finish_date." 23:59:59")->get();
-
+                $total_new_customers = $new_customers->count();
                 $total_customer_wallet = $customers->where('wallet', '<', 0)->sum('wallet');
 
                 if ($customers->count() > 0) {
@@ -125,8 +126,8 @@ class SaleRevenue extends Command
                     $data = [
                         'sale_report_id'    =>  $report->id,
                         'user_id'           =>  $sale_id,
-                        'total_customer'    =>  $customers->count(),
-                        'new_customer'      =>  $new_customers->count(),
+                        'total_customer'    =>  $total_customer,
+                        'new_customer'      =>  $total_new_customers,
                         'total_customer_wallet' =>  number_format($total_customer_wallet, 0, '.', ''),
                         'success_order'     =>  $success_order,
                         'success_order_payment' =>  $success_order_payment,
