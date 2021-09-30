@@ -77,7 +77,6 @@ class SaleRevenue extends Command
 
                 $customers = $sale_user->saleCustomers();
                 $customer_ids = $customers->pluck('id');
-                $temp_customers = $customers;
                 $total_customer = $customers->count();
 
                 $total_customer_wallet = $customers->where('wallet', '<', 0)->sum('wallet');
@@ -88,10 +87,8 @@ class SaleRevenue extends Command
 
                 if ($total_customer > 0) {
 
-                    $purchase_orders = PurchaseOrder::whereIn('customer_id', $customer_ids);
-
-                    $payment_orders = PaymentOrder::wherePaymentCustomerId($customer_ids)->get();
-                    $payment_order_new_customer = PaymentOrder::wherePaymentCustomerId($customer_ids)->whereIn('payment_customer_id', $new_customers->pluck('id'))->get();
+                    $payment_orders = PaymentOrder::whereIn('payment_customer_id', $customer_ids)->get();
+                    $payment_order_new_customer = PaymentOrder::whereIn('payment_customer_id', $customer_ids)->whereIn('payment_customer_id', $new_customers->pluck('id'))->get();
                     $success_purchase_orders = PurchaseOrder::whereIn('customer_id', $customer_ids)->where('status', 9)
                                                     ->where('deposited_at', '>=', $report->begin_date . " 00:00:01")
                                                     ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")

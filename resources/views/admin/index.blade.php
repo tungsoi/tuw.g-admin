@@ -40,6 +40,13 @@
                 overflow: scroll;
             }
         }
+
+        tfoot {
+            display: table-row-group !important;
+            background: #27a65a !important;
+            color: white !important;
+            font-weight: bold !important;
+        }
      </style>
 </head>
 
@@ -101,6 +108,10 @@
     $(document).on('click', '#btn-print-this-page', function () {
         window.print();
     })
+
+    $('tfoot').each(function () {
+        $(this).insertAfter($(this).siblings('thead'));
+    });
 </script>
 </body>
 </html>
