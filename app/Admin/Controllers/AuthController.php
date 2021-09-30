@@ -170,6 +170,17 @@ class AuthController extends Controller
                 ->default(function ($form) {
                     return $form->model()->password;
                 });
+            $form->divider();
+            $form->html('Vui lòng cho chúng tôi biết bạn là khách hàng gì ?');
+
+            if (! Admin::user()->isRole('customer')) {
+                $form->select('type_customer', 'Loại khách hàng')->options([
+                    '',
+                    'Khách hàng Vận chuyển',
+                    'Khách hàng Order',
+                    'Cả 2'
+                ])->rules('required');
+            }
         });
        
 

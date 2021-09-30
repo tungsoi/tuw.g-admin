@@ -114,16 +114,10 @@ class CustomerController extends AdminController
             $filter->column(1/4, function ($filter) {
                 $filter->like('name', 'Họ và tên');
                 $filter->equal('staff_order_id', 'Nhân viên đặt hàng')->select($this->userService->GetListOrderEmployee());
-                $filter->where(function ($query) {
-                    if ($this->input == 0) { // Order
-                        $ids = PurchaseOrderPurchaseOrder::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
-                        $query->whereIn('id', $ids);
-                    } else { // vận chuyển
-                        $ids = PaymentOrder::select('payment_customer_id')->groupBy('payment_customer_id')->pluck('payment_customer_id');
-                        $query->whereIn('id', $ids);
-                    }
-                }, 'Loại khách hàng', 'type_customer')->select([
-                    'Khách Order', 'Khách vận chuyển'
+                $filter->equal('type_customer', 'Loại khách hàng')->select([
+                    'Khách hàng Vận chuyển',
+                    'Khách hàng Order',
+                    'Cả 2'
                 ]);
             });
             $filter->column(1/4, function ($filter) {
