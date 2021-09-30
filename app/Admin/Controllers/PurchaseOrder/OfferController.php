@@ -287,6 +287,10 @@ class OfferController extends AdminController
             $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
         });
 
+        $('tfoot').each(function () {
+            $(this).insertAfter($(this).siblings('thead'));
+        });
+
         $( document ).ready(function() {
                 
             // Tiền thực đặt sản phẩm (Tệ)
