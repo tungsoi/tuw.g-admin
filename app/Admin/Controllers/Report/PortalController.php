@@ -6,6 +6,7 @@ namespace App\Admin\Controllers\Report;
 // use App\Models\ReportDetailBackup;
 
 use App\Admin\Services\UserService;
+use App\Console\Commands\SyncData\Users;
 use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\SaleReport\Report;
@@ -85,7 +86,7 @@ class PortalController extends AdminController
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
-                    $column->append((new Box('Báo cáo phòng kinh doanh / ' . date('Y-m', strtotime(now())), "")));
+                    $column->append((new Box('Báo cáo phòng kinh doanh / ' . date('Y-m', strtotime(now())), $this->saleRevenue())));
                 });   
             })
             ->row(function (Row $row) {
@@ -183,5 +184,21 @@ class PortalController extends AdminController
         }
 
         return view('admin.system.report.in_warehouse_order', compact('revenue', 'warehouses'))->render();
+    }
+
+    public function saleRevenue() {
+        $month = date('Y-m', strtotime(now()));
+
+        $report = Report::where('begin_date', 'like', $month.'%')->where('finish_date', 'like', $month.'%')->first();
+        $detail = $report->reportDetail();
+
+        $order = new UserService();
+        $sales = $order->GetListSaleEmployee();
+
+        $process = $detail->sum('processing_order_payment');
+        $success = $detail->sum('success_order_payment');
+
+        $total = $process + $success;
+        return view('admin.system.report.sale_revenue', compact('detail', 'sales', 'success', 'process', 'total'))->render();
     }
 }
