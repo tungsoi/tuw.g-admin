@@ -151,9 +151,7 @@ class PurchaseOrderController extends AdminController
         });
 
         $grid->header(function () {
-            $html = "<h4>Tổng tiền cọc dự tính: <span id='estimate-deposited' style='color: red; font-weight: 700;'></span> (VND) </h4>";
-            $html .= "<h4>Tổng tiền đơn dự tính: <span id='estimate-amount-rmb' style='color: green; font-weight: 700;'></span> (Tệ) </h4>";
-            return $html;
+            return view('admin.system.purchase_order.header')->render();
         });
         
         $grid->rows(function (Grid\Row $row) {

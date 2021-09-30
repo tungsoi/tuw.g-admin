@@ -1,7 +1,7 @@
 <div id="estimate_amount_booking">
 
     <style>
-        .col-md-3 {
+        #estimate_amount_booking .col-md-3 {
             display: none;
         }
     </style>

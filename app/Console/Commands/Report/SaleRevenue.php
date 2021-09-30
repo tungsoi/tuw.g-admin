@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands\Report;
 
-use App\Admin\Services\SaleService;
+use App\Admin\Services\UserService;
+use App\Models\PaymentOrder\PaymentOrder;
+use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\SaleReport\Report;
 use App\Models\SaleReport\ReportDetail;
+use App\Models\System\ScheduleLog;
+use App\Models\TransportOrder\TransportCode;
 use App\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class SaleRevenue extends Command
 {
@@ -59,69 +62,126 @@ class SaleRevenue extends Command
             $report->updated_at = date('Y-m-d H:i:s', strtotime(now()));
             $report->save();
 
-            $ids = DB::connection('aloorder')
-            ->table('admin_role_users')
-            ->where('role_id', 3)
-            ->get()->pluck('user_id');
+            $service = new UserService();
 
-            $sale_ids = User::select('id')->whereIn('id', $ids)->whereIsActive(1)->get()->pluck('id');
+            $sale_users = $service->GetListSaleEmployee();
+            $sale_ids = array_keys($sale_users->toArray());
 
             ReportDetail::where('sale_report_id', $report->id)->delete();
             
             foreach ($sale_ids as $sale_id)
             {
-                $service = new SaleService($sale_id, $report->begin_date, $report->finish_date);
-                echo $service->username() . "\n";
-                echo "\nbegin: ".date('H:i', strtotime(now()));
+                echo $sale_id . "\n";
+                $sale_user = User::find($sale_id);
 
-                $customers = $service->customers();
-                $newCustomers = $customers->where('created_at', '>=', $report->begin_date. " 00:00:01")->where('created_at', '<=', $report->finish_date." 23:59:59");
-                $successOrder = $service->successOrder();
-                $successOrderNewCustomers =  $successOrder->whereIn('customer_id', $newCustomers->pluck('id'));
-                $processingOrder = $service->processingOrder();
-                $processingOrderNewCustomers = $processingOrder->whereIn('customer_id', $newCustomers->pluck('id'));
-                $transportOrder = $service->transportOrder($customers->pluck('id'));
-                $transportOrderNewCustomer = $transportOrder->whereIn('payment_customer_id', $newCustomers->pluck('id'));
+                $customers = $sale_user->saleCustomers();
 
-                $data = [
-                    'sale_report_id'    =>  $report->id,
-                    'user_id'           =>  $sale_id,
-                    'total_customer'    =>  $customers->count(),
-                    'new_customer'      =>  $newCustomers->count(),
-                    'total_customer_wallet' =>  $customers->where('wallet', '<', 0)->sum('wallet'),
-                    'success_order'     =>  $successOrder->count(),
-                    'success_order_payment' =>  $service->payment([], $successOrder),
-                    'success_order_new_customer'   =>  $successOrderNewCustomers->count(),
-                    'success_order_payment_new_customer'   =>  $service->payment($newCustomers->pluck('id'), $successOrder),
-                    'success_order_service_fee' =>  $service->serviceFee($successOrder),
-                    'processing_order'  =>  $processingOrder->count(),
-                    'processing_order_payment'  =>  $service->payment([], $processingOrder),
-                    'processing_order_new_customers'  =>  $processingOrderNewCustomers->count(),
-                    'processing_order_payment_new_customer'    =>  $service->payment($newCustomers->pluck('id'), $processingOrder),
-                    'processing_order_service_fee' =>  $service->serviceFee($processingOrder),
-                    'total_transport_weight'    =>  $service->weight($transportOrder),
-                    'total_transport_weight_new_customer'    =>  $service->weight($transportOrderNewCustomer),
-                    'total_transport_fee'   =>  $service->transportFee($transportOrder),
-                    'total_transport_fee_new_customer'   =>  $service->transportFee($transportOrderNewCustomer),
-                    'transport_order'   =>  $transportOrder->count(),
-                    'transport_order_new_customer'   =>  $transportOrderNewCustomer->count()
-                ];
+                $customer_ids = $customers->pluck('id');
 
-                $data['owed_processing_order_payment'] = $service->owed(
-                    $data['processing_order_payment'],
-                    $processingOrder
-                );
+                $temp = $customers;
+                $new_customers = $temp->where('created_at', '>=', $report->begin_date. " 00:00:01")->where('created_at', '<=', $report->finish_date." 23:59:59")->get();
 
+                $total_customer_wallet = $customers->where('wallet', '<', 0)->sum('wallet');
 
-                ReportDetail::firstOrCreate($data);
+                if ($customers->count() > 0) {
 
-                echo "\nend: ".date('H:i', strtotime(now())) . "\n";
+                    $purchase_orders = PurchaseOrder::whereIn('customer_id', $customer_ids);
+                    $temp = $purchase_orders;
+
+                    $payment_orders = PaymentOrder::wherePaymentCustomerId($customer_ids)->get();
+                    $payment_order_new_customer = PaymentOrder::wherePaymentCustomerId($customer_ids)->whereIn('payment_customer_id', $new_customers->pluck('id'))->get();
+                    $success_purchase_orders = $purchase_orders->where('status', 9)
+                                                    ->where('deposited_at', '>=', $report->begin_date . " 00:00:01")
+                                                    ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")
+                                                    ->where('success_at', '>=', $report->begin_date . " 00:00:01")
+                                                    ->where('success_at', '<=', $report->finish_date ." 23:59:59");
+
+                    $success_order = $success_purchase_orders->count();
+                    $success_order_payment = number_format($this->amount($success_purchase_orders->get()), 0, '.', '');
+                    $success_order_service_fee = number_format($this->serviceFee($success_purchase_orders->get()), 0, '.', '');
+                                               
+                    $success_purchase_orders_new_customer = $success_purchase_orders->whereIn('customer_id', $new_customers->pluck('id'))->get();
+
+                    $ordering_orders = PurchaseOrder::whereIn('customer_id', $customer_ids)->where('status', 4)
+                    ->where('deposited_at', '>=', $report->begin_date . " 00:00:01")
+                    ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")
+                    ->get();
+            
+                    $ordered_orders = PurchaseOrder::whereIn('customer_id', $customer_ids)->whereIn('status', [5, 7])
+                    ->where('deposited_at', '>=', $report->begin_date . " 00:00:01")
+                    ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")
+                    ->where('order_at', '>=', $report->begin_date . " 00:00:01")
+                    ->where('order_at', '<=', $report->finish_date ." 23:59:59")
+                    ->get();
+            
+                    $processing_order =  $ordering_orders->merge($ordered_orders);
+                    $processing_order_payment = number_format($this->amount($processing_order), 0, '.', '');
+                    $owed_processing_order_payment = number_format($this->amount($processing_order, false), 0, '.', '');
+                    $processing_order_service_fee = number_format($this->serviceFee($processing_order), 0, '.', '');
+
+                    $processing_order_new_customers = $processing_order->whereIn('customer_id', $new_customers->pluck('id'));
+                    $processing_order_payment_new_customer = number_format($this->amount($processing_order_new_customers), 0, '.', '');
+                    
+                    $data = [
+                        'sale_report_id'    =>  $report->id,
+                        'user_id'           =>  $sale_id,
+                        'total_customer'    =>  $customers->count(),
+                        'new_customer'      =>  $new_customers->count(),
+                        'total_customer_wallet' =>  number_format($total_customer_wallet, 0, '.', ''),
+                        'success_order'     =>  $success_order,
+                        'success_order_payment' =>  $success_order_payment,
+                        'success_order_new_customer'   =>  $success_purchase_orders_new_customer->count(),
+                        'success_order_payment_new_customer'   =>  number_format($this->amount($success_purchase_orders_new_customer), 0, '.', ''),
+                        'success_order_service_fee' =>  $success_order_service_fee,
+                        'processing_order'  =>  $processing_order->count(),
+                        'processing_order_payment'  =>  $processing_order_payment,
+                        'processing_order_new_customers'  =>  $processing_order_new_customers->count(),
+                        'processing_order_payment_new_customer'    =>  $processing_order_payment_new_customer,
+                        'processing_order_service_fee' =>  $processing_order_service_fee,
+                        'total_transport_weight'    =>  TransportCode::whereIn('order_id', $payment_orders->pluck('id'))->sum('kg'),
+                        'total_transport_weight_new_customer'    =>  TransportCode::whereIn('order_id', $payment_order_new_customer->pluck('id'))->sum('kg'),
+                        'total_transport_fee'   =>  $payment_orders->sum('amount'),
+                        'total_transport_fee_new_customer'   =>  $payment_order_new_customer->sum('amount'),
+                        'transport_order'   =>  $payment_orders->count(),
+                        'transport_order_new_customer'   =>  $payment_order_new_customer->count(),
+                        'owed_processing_order_payment' =>  $owed_processing_order_payment
+                    ];
+
+                    ReportDetail::firstOrCreate($data);
+
+                    echo "\nend: ".date('H:i', strtotime(now())) . "\n";
+                }
+                
             }
     
-            // ScheduleLog::create([
-            //     'code'  =>  'update sale report ' . $begin_date . ' -> '.$finish_date
-            // ]);
+            ScheduleLog::create([
+                'name'  =>  'update sale report ' . $begin_date . ' -> '.$finish_date
+            ]);
         }
         
+    }
+
+    public function amount($orders, $type = true) {
+        $total = 0;
+        $owed = 0;
+
+        foreach ($orders as $order) {
+            $amount = (float) str_replace(",","", $order->amount());
+            $amount_vnd = ($amount * $order->current_rate);
+            $total += $amount_vnd;
+            $owed += $amount_vnd - $order->deposited;
+        }
+
+        return $type ? $total : $owed;
+    }
+
+    public function serviceFee($orders) {
+        $total = 0;
+
+        foreach ($orders as $order) {
+            $total += (str_replace(",", "", $order->purchase_order_service_fee) * $order->current_rate);
+        }
+
+        return $total;
     }
 }
