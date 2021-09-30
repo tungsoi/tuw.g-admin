@@ -173,7 +173,7 @@ class AuthController extends Controller
             $form->divider();
             $form->html('Vui lòng cho chúng tôi biết bạn là khách hàng gì ?');
 
-            if (! Admin::user()->isRole('customer')) {
+            if (Admin::user()->isRole('customer')) {
                 $form->select('type_customer', 'Loại khách hàng')->options([
                     '',
                     'Khách hàng Vận chuyển',
