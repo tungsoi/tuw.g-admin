@@ -98,7 +98,7 @@
             @endphp
             <tr>
                 <td>{{ $key+1 }}</td>
-                <td><b style="text-transform: uppercase; font-size: 10px">{{ $row->user->name }}</b> <br> {{ date('m-d-Y', strtotime($row->user->created_at)) }}</td>
+                <td><b style="text-transform: uppercase; font-size: 10px">{{ $row->user->name }}</b> <br> {{ date('Y-m-d', strtotime($row->user->created_at)) }}</td>
                 <td>
                     @php
                         if ($portal == "false")
