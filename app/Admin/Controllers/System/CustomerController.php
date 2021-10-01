@@ -276,12 +276,10 @@ class CustomerController extends AdminController
         $grid->actions(function ($actions) {
             $actions->disableDelete();
             $actions->disableView();    
-            // $actions->append(new PurchaseOrder($actions->getKey()));
-            // $actions->append(new TransportOrder($actions->getKey()));
 
+            $actions->append(new WalletWeight($actions->getKey()));
             if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('warehouse_employee')) {
                 $actions->append(new Recharge($actions->getKey()));
-                $actions->append(new WalletWeight($actions->getKey()));
             }
             $actions->append(new Transaction($actions->getKey()));
             $actions->append(new HistoryWalletWeight($actions->getKey()));
