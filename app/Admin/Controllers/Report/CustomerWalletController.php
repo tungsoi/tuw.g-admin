@@ -94,7 +94,7 @@ class CustomerWalletController extends AdminController
                                     $('#calculator-wallet-{$id}').css('color', 'red');
                                 } else {
                                     $('#calculator-wallet-{$id}').css('color', 'green');
-                                    $('#calculator-wallet-{$id}').parent().parent().remove();
+                                    // $('#calculator-wallet-{$id}').parent().parent().remove();
                                 }
                             }
                         }
@@ -136,7 +136,7 @@ EOT
 
             // if ($this->row->wallet != User::totalRecharge($this->row->id)) {
                 $actions->append('
-                    <a class="grid-row-edit btn btn-sm btn-success btn-sync-wallet" data-id="'.$this->getKey().'">
+                    <a class="grid-row-edit btn btn-md btn-success btn-sync-wallet" data-id="'.$this->getKey().'">
                         Làm chuẩn 
                     </a>
                 ');
