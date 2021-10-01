@@ -641,20 +641,30 @@ class CustomerController extends AdminController
 
         $total = 0;
 
-        foreach ($transactions as $transaction) {
-            if (in_array($transaction->type_recharge, [0, 1, 2])) {
-                $total += $transaction->money;
-            } else {
-                $total -= $transaction->money;
+        if ($transactions->count() > 0) {
+
+            foreach ($transactions as $transaction) {
+                if (in_array($transaction->type_recharge, [0, 1, 2])) {
+                    $total += $transaction->money;
+                } else {
+                    $total -= $transaction->money;
+                }
             }
+    
+            $total = number_format($total, 0, '.', '');
+    
+            return response()->json([
+                'status'    =>  true, 
+                'message'   =>  $total,
+                'flag'      =>  $total != $user_wallet ? false: true
+            ]);
+        } else {
+            return response()->json([
+                'status'    =>  true, 
+                'message'   =>  0,
+                'flag'      =>  true
+            ]);
         }
 
-        $total = number_format($total, 0, '.', '');
-
-        return response()->json([
-            'status'    =>  true, 
-            'message'   =>  $total,
-            'flag'      =>  $total != $user_wallet ? false: true
-        ]);
     }
 }
