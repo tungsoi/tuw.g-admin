@@ -675,8 +675,8 @@ SCRIPT;
             ],
             [
                 "<span style='float: left'>Kho: ". ($order->warehouse ? $order->warehouse->name : null) . "</span>",
-                "<span style='float: right'>NVDH: " .  ($order->customer->saleEmployee ? $order->customer->saleEmployee->name : null). "</span>",
-                "<span style='float: right'>NVKD: " . ($order->orderEmployee ? $order->orderEmployee->name : null) ."</span>",
+                "<span style='float: right'>NVKD: " .  ($order->customer->saleEmployee ? $order->customer->saleEmployee->name : null). "</span>",
+                "<span style='float: right'>NVDH: " . ($order->orderEmployee ? $order->orderEmployee->name : null) ."</span>",
             ],
             [
                 'Trạng thái',
