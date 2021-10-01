@@ -271,7 +271,9 @@ class VietnamReceiveController extends AdminController
 
                     if (e.originalEvent.target.className != "form-control vietnam-receive transport_code") 
                     {
-                        // none
+                        $('#has-many-vietnam-receive .add').click();
+                        $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').focus();
+                        $( ".has-many-vietnam-receive-form" ).last().find('.STT').val( $('tr.has-many-vietnam-receive-form').length );
                     } else {
 
                         let value = $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').val();
@@ -342,12 +344,6 @@ class VietnamReceiveController extends AdminController
                                 
                                 }
                             });
-
-                            let check_value = $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').val();
-                            if (check_value != "") {
-                                $('#has-many-vietnam-receive .add').click();
-                                $( ".has-many-vietnam-receive-form" ).last().find('.STT').val( $('tr.has-many-vietnam-receive-form').length );
-                            }
                         }
                     }
                 }
