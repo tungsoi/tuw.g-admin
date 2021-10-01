@@ -667,4 +667,37 @@ class CustomerController extends AdminController
         }
 
     }
+
+    public function update_wallet(Request $request) {
+        $id = $request->only(['id']);
+
+        $transactions = SystemTransaction::select('money', 'type_recharge')->where('money', ">", 0)
+        ->where('customer_id', $id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        $total = 0;
+
+        if ($transactions->count() > 0) {
+
+            foreach ($transactions as $transaction) {
+                if (in_array($transaction->type_recharge, [0, 1, 2])) {
+                    $total += $transaction->money;
+                } else {
+                    $total -= $transaction->money;
+                }
+            }
+    
+            $total = number_format($total, 0, '.', '');
+        }
+
+        $user = User::find($id);
+        $user->wallet = $total;
+        $user->save();
+
+        return response()->json([
+            'status'    =>  true, 
+            'message'   =>  'oke'
+        ]);
+    }
 }

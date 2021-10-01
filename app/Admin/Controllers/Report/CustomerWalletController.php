@@ -41,35 +41,9 @@ class CustomerWalletController extends AdminController
             $filter->like('symbol_name');
         });
 
-        // $service = new UserService();
-        // $customers = $service->GetListCustomer();
-        // $customer_ids = array_keys($customers->toArray());
-
-        
         $transaction_customer_ids = Transaction::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
         $grid->model()->whereIn('id', $transaction_customer_ids);
-        // dd($transaction_customer_ids->toArray());
-        // $customers = User::whereIn('id', $transaction_customer_ids->toArray())->get();
 
-        // $ids = [];
-        // foreach ($customers as $customer) {
-        //     $wallet = $customer->wallet;
-
-        //     $service = new UserService();
-
-        //     $data = $service->GetCustomerTransactionHistory($customer->id, false);
-        //     $lastMoney = $data[0]['after_payment'];
-
-        //     if ($lastMoney != $wallet) {
-        //         $ids[] = $customer->id;
-        //     }
-        // }
-        // dd($ids);
-        // $temp = [];
-        // foreach ($customer_ids as $customer_id) {
-            
-        // }
-        // dd(array_diff($customer_ids, $transaction_customer_ids->toArray()));
             $grid->symbol_name('Mã khách hàng');
             $grid->wallet('Ví tiền')->display(function () {
                 return number_format($this->wallet, 0, '.', '');
@@ -94,7 +68,7 @@ class CustomerWalletController extends AdminController
                                     $('#calculator-wallet-{$id}').css('color', 'red');
                                 } else {
                                     $('#calculator-wallet-{$id}').css('color', 'green');
-                                    // $('#calculator-wallet-{$id}').parent().parent().remove();
+                                    $('#calculator-wallet-{$id}').parent().parent().remove();
                                 }
                             }
                         }
@@ -104,27 +78,6 @@ EOT
 );
                 return "<span id='calculator-wallet-$id'></span>";
             });
-        // $grid->symbol_name('Mã khách hàng')->display(function () {
-        //     return "<a href='https://aloorder.vn/admin/customers/".$this->id."/recharge-history' target='_blank'>".$this->symbol_name."</a>";
-        // });
-        // $grid->wallet('Tiền trong ví')->display(function () {
-        //     return round($this->wallet);
-        // });
-        // $grid->wallet_payment('Tiền tính theo lịch sử giao dịch')->display(function () use ($service) {
-        //     $payment = $service->GetCustomerTransactionHistory($this->id, false);
-
-        //     if (is_array($payment) && sizeof($payment) > 0) {
-        //         return $payment[0]['after_payment'];
-        //     }
-        //     // $payment = round($this->totalRecharge($this->id));
-        //     // if ($payment != round($this->wallet)) {
-        //     //     return "<span class='label label-danger'>".$payment."</span>";
-        //     // }
-
-        //     // return $payment;
-
-        //     return null;
-        // });
 
         $grid->paginate(200);
 
@@ -134,15 +87,43 @@ EOT
             $actions->disableDelete();
             $actions->disableEdit();
 
-            // if ($this->row->wallet != User::totalRecharge($this->row->id)) {
-                $actions->append('
-                    <a class="grid-row-edit btn btn-md btn-success btn-sync-wallet" data-id="'.$this->getKey().'">
-                        Làm chuẩn 
-                    </a>
-                ');
-            // }
-           
+                $actions->append(
+                    '<a class="btn-sync-wallet btn btn-xs btn-danger" data-toggle="tooltip" title="Làm chuẩn" data-key="'.$this->row->id.'">
+                <i class="fa fa-check"></i>
+            </a>'
+                );
         });
+
+        Admin::script(
+            <<<EOT
+            $( document ).ready(function() {
+                $('.btn-sync-wallet').on('click', function () {
+                    let id = $(this).data('key');
+
+                    $.admin.toastr.success(id, '', {timeOut: 500});
+
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+
+                    $.ajax({
+                        url: "customers/update_wallet",
+                        type: 'POST',
+                        dataType: "JSON",
+                        data: {
+                            id: id
+                        },
+                        success: function (response)
+                        {
+                            $.admin.toastr.success(id, '', {timeOut: 500});
+                        }
+                    });
+                });
+            }); 
+EOT
+);
 
         return $grid;
     }
