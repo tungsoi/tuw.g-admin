@@ -82,14 +82,15 @@ class CustomerController extends AdminController
         }
 
         $grid->header(function ($query) {
+            $temp = $query;
 
-            $owed = User::select('wallet')->where('wallet', '<', 0)->sum('wallet');
+            $owed = $query->where('wallet', '<', 0)->sum('wallet');
             $color = $owed > 0 ? 'green' : 'red';
 
-            $plus = User::select('wallet')->where('wallet', '>', 0)->sum('wallet');
+            // $plus = $temp->where('wallet', '>', 0)->sum('wallet');
 
             $html = '<h4>Công nợ khách hàng hiện tại: <a style="color:'.$color.'">'. number_format($owed) ."</a> (VND)</h4>";
-            $html .= '<h4>Tiền dư khách hàng hiện tại: <a style="color: green">'. number_format($plus) ."</a> (VND)</h4>";
+            // $html .= '<h4>Tiền dư khách hàng hiện tại: <a style="color: green">'. number_format($plus) ."</a> (VND)</h4>";
 
             return $html;
         });
@@ -115,6 +116,7 @@ class CustomerController extends AdminController
                 $filter->like('name', 'Họ và tên');
                 $filter->equal('staff_order_id', 'Nhân viên đặt hàng')->select($this->userService->GetListOrderEmployee());
                 $filter->equal('type_customer', 'Loại khách hàng')->select([
+                    0 => 'Chưa chọn',
                     1 => 'Khách hàng Vận chuyển',
                     2 => 'Khách hàng Order',
                     3 => 'Cả 2'
@@ -246,6 +248,14 @@ class CustomerController extends AdminController
         $grid->default_price_m3('Giá khối')->editable()->style('max-width: 150px;');
         $grid->ware_house_id('Kho nhận hàng')->style('text-align: center; width: 100px;')->editable('select', $this->userService->GetListWarehouse());
         $grid->note('Ghi chú')->editable()->style('max-width: 150px;');
+
+        $grid->type_customer('Loại khách hàng')
+        ->editable('select', [
+            0 => 'Chưa chọn',
+            1 => 'Khách hàng Vận chuyển',
+            2 => 'Khách hàng Order',
+            3 => 'Order + Vận chuyển'
+        ]);
         $grid->column('is_active', 'Trạng thái')->switch($states)->style('text-align: center');
         $grid->timeline('Giao dịch cuối')->display(function () {
             $data = [
@@ -347,6 +357,13 @@ class CustomerController extends AdminController
             $form->divider();
             $form->currency('default_price_kg', 'Giá cân')->symbol('VND')->digits(0);
             $form->currency('default_price_m3', 'Giá khối')->symbol('VND')->digits(0);
+            $form->divider();
+            $form->select('type_customer', 'Loại khách hàng')->options([
+                '',
+                'Khách hàng Vận chuyển',
+                'Khách hàng Order',
+                'Cả 2'
+            ])->rules('required');
         });
 
         $form->ignore(['password_confirmation']);
