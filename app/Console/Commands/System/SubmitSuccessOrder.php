@@ -58,21 +58,19 @@ class SubmitSuccessOrder extends Command
                 $arr = array_filter($arr);
 
                 $all_trscs = sizeof($arr);
-                $vn_trscs = TransportCode::whereIn('transport_code', $arr)->where('status', 1)->count();
-
-                $text = "Thanh toán đơn hàng mua hộ. Mã đơn hàng " . $order->order_number;
-                $flag_transaction = Transaction::where('content', $text)->first();
+                $vn_trscs = TransportCode::whereIn('transport_code', $arr)->whereIn('status', [1, 3, 5])->count();
                 
-                if ($all_items == $vn_items && $all_trscs == $vn_trscs && ! $flag_transaction) {
-
-                    $this->toString(
-                        [
-                            ($key+1),
-                            $order->order_number,
-                            "(".$vn_items."/".$all_items.")",
-                            "(".$vn_trscs."/".$all_trscs.")",
-                        ]
-                    );
+                if ($all_items == $vn_items && $all_trscs == $vn_trscs) {
+                    echo ($key+1). "-".$order->order_number . "\n";
+                    // dd('oke');
+                    // $this->toString(
+                    //     [
+                    //         ($key+1),
+                    //         $order->order_number,
+                    //         "(".$vn_items."/".$all_items.")",
+                    //         "(".$vn_items."/".$all_trscs.")",
+                    //     ]
+                    // );
 
                     $key++;
 
