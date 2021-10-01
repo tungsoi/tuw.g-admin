@@ -126,7 +126,7 @@ EOT
         //     return null;
         // });
 
-        $grid->paginate(1000);
+        $grid->paginate(200);
 
         $grid->setActionClass(\Encore\Admin\Grid\Displayers\Actions::class);
         $grid->actions(function ($actions) {
