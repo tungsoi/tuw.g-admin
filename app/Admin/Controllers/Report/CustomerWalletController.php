@@ -33,7 +33,7 @@ class CustomerWalletController extends AdminController
         $service = new UserService();
 
         $grid = new Grid(new User());
-        $grid->model()->whereIsCustomer(1);
+        $grid->model()->select('symbol_name', 'id', 'wallet')->whereIsCustomer(1);
 
         $grid->filter(function($filter) {
             $filter->expand();
@@ -47,52 +47,84 @@ class CustomerWalletController extends AdminController
 
         
         $transaction_customer_ids = Transaction::select('customer_id')->groupBy('customer_id')->pluck('customer_id');
+        $grid->model()->whereIn('id', $transaction_customer_ids);
         // dd($transaction_customer_ids->toArray());
-        $customers = User::whereIn('id', $transaction_customer_ids->toArray())->get();
+        // $customers = User::whereIn('id', $transaction_customer_ids->toArray())->get();
 
-        $ids = [];
-        foreach ($customers as $customer) {
-            $wallet = $customer->wallet;
+        // $ids = [];
+        // foreach ($customers as $customer) {
+        //     $wallet = $customer->wallet;
 
-            $service = new UserService();
+        //     $service = new UserService();
 
-            $data = $service->GetCustomerTransactionHistory($customer->id, false);
-            $lastMoney = $data[0]['after_payment'];
+        //     $data = $service->GetCustomerTransactionHistory($customer->id, false);
+        //     $lastMoney = $data[0]['after_payment'];
 
-            if ($lastMoney != $wallet) {
-                $ids[] = $customer->id;
-            }
-        }
-        dd($ids);
+        //     if ($lastMoney != $wallet) {
+        //         $ids[] = $customer->id;
+        //     }
+        // }
+        // dd($ids);
         // $temp = [];
         // foreach ($customer_ids as $customer_id) {
             
         // }
         // dd(array_diff($customer_ids, $transaction_customer_ids->toArray()));
+            $grid->symbol_name('Mã khách hàng');
+            $grid->wallet('Ví tiền');
 
-        $grid->symbol_name('Mã khách hàng')->display(function () {
-            return "<a href='https://aloorder.vn/admin/customers/".$this->id."/recharge-history' target='_blank'>".$this->symbol_name."</a>";
-        });
-        $grid->wallet('Tiền trong ví')->display(function () {
-            return round($this->wallet);
-        });
-        $grid->wallet_payment('Tiền tính theo lịch sử giao dịch')->display(function () use ($service) {
-            $payment = $service->GetCustomerTransactionHistory($this->id, false);
+            $grid->id('Tiền ví theo giao dịch')->display(function () {
 
-            if (is_array($payment) && sizeof($payment) > 0) {
-                return $payment[0]['after_payment'];
-            }
-            // $payment = round($this->totalRecharge($this->id));
-            // if ($payment != round($this->wallet)) {
-            //     return "<span class='label label-danger'>".$payment."</span>";
-            // }
+                $id = $this->id;
+                Admin::script(
+                <<<EOT
+                $( document ).ready(function() {
+                    $.ajax({
+                        url: "customers/" + $id + "/calculator_wallet",
+                        type: 'GET',
+                        dataType: "JSON",
+                        success: function (response)
+                        {
+                            if (response.status) {
+                                $('#calculator-wallet-{$id}').html(response.message);
 
-            // return $payment;
+                                if (! response.flag) {
+                                    $('#calculator-wallet-{$id}').css('color', 'red');
+                                } else {
+                                    $('#calculator-wallet-{$id}').css('color', 'green');
+                                    $('tr').attr('key', {$id}).remove();
+                                }
+                            }
+                        }
+                    });
+                }); 
+EOT
+);
+                return "<span id='calculator-wallet-$id'></span>";
+            });
+        // $grid->symbol_name('Mã khách hàng')->display(function () {
+        //     return "<a href='https://aloorder.vn/admin/customers/".$this->id."/recharge-history' target='_blank'>".$this->symbol_name."</a>";
+        // });
+        // $grid->wallet('Tiền trong ví')->display(function () {
+        //     return round($this->wallet);
+        // });
+        // $grid->wallet_payment('Tiền tính theo lịch sử giao dịch')->display(function () use ($service) {
+        //     $payment = $service->GetCustomerTransactionHistory($this->id, false);
 
-            return null;
-        });
+        //     if (is_array($payment) && sizeof($payment) > 0) {
+        //         return $payment[0]['after_payment'];
+        //     }
+        //     // $payment = round($this->totalRecharge($this->id));
+        //     // if ($payment != round($this->wallet)) {
+        //     //     return "<span class='label label-danger'>".$payment."</span>";
+        //     // }
 
-        $grid->paginate(1);
+        //     // return $payment;
+
+        //     return null;
+        // });
+
+        $grid->paginate(200);
 
         $grid->setActionClass(\Encore\Admin\Grid\Displayers\Actions::class);
         $grid->actions(function ($actions) {
@@ -109,33 +141,6 @@ class CustomerWalletController extends AdminController
             // }
            
         });
-
-        Admin::script(
-            <<<EOT
-            
-            $(document).on('click', '.btn-sync-wallet', function () {
-                let t_this = $(this);
-                let t_log = $(this).parent().prev();
-                let t_wallet = $(this).parent().prev().prev();
-  
-                $.ajax({
-                    type: 'POST',
-                    url: '/api/sync-wallet-customer',
-                    data: {
-                        id: $(this).data('id')
-                    },
-                    success: function(response) {
-                        if (response.error == false) {
-                            toastr.success('Lưu thành công.');
-                            t_log.html(response.wallet);
-                            t_wallet.html(response.wallet);   
-                            t_this.remove();
-                        }
-                    }
-                });
-            });
-EOT
-    );
 
         return $grid;
     }

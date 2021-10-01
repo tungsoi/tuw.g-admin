@@ -630,4 +630,29 @@ class CustomerController extends AdminController
         return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
 
     }
+
+    public function calculator_wallet($id) {
+        $user_wallet = User::find($id)->wallet;
+        $transactions = SystemTransaction::select('money', 'type_recharge')->where('money', ">", 0)
+        ->where('customer_id', $id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        $total = 0;
+
+        foreach ($transactions as $transaction) {
+            if (in_array($transaction->type_recharge, [0, 1, 2])) {
+                $total += $transaction->money;
+            } else {
+                $total -= $transaction->money;
+            }
+        }
+
+
+        return response()->json([
+            'status'    =>  true, 
+            'message'   =>  $total,
+            'flag'      =>  $total != $user_wallet ? false: true
+        ]);
+    }
 }

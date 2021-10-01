@@ -75,8 +75,8 @@ Route::group([
     $router->get('customers/{id}/walletWeight', 'System\\CustomerController@walletWeight')->name('customers.walletWeight');
     $router->post('customers/storeRechargeWeight', 'System\\CustomerController@storeRechargeWeight')->name('customers.storeRechargeWeight');
     $router->post('customers/updateRechargeWeght', 'System\\CustomerController@updateRechargeWeght')->name('customers.updateRechargeWeght');
-    $router->get('customers/{id}/find', 'System\\CustomerController@find')->name('customers.find');
-
+    $router->get('customers/{id}/find', 'System\\CustomerController@find')->name('customers.find');  
+    $router->get('customers/{id}/calculator_wallet', 'System\\CustomerController@calculator_wallet')->name('customers.calculator_wallet');
 
     $router->get('china_receives', 'TransportOrder\\ChinaReceiveController@indexRebuild')->name('china_receives.index');
     $router->post('china_receives', 'TransportOrder\\ChinaReceiveController@storeRebuild')->name('china_receives.store');
