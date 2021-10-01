@@ -92,7 +92,6 @@ class CustomerWalletController extends AdminController
                                     $('#calculator-wallet-{$id}').css('color', 'red');
                                 } else {
                                     $('#calculator-wallet-{$id}').css('color', 'green');
-                                    $('tr').attr('key', {$id}).remove();
                                 }
                             }
                         }
