@@ -691,9 +691,9 @@ class CustomerController extends AdminController
             $total = number_format($total, 0, '.', '');
         }
 
-        $user = User::find($id);
-        $user->wallet = $total;
-        $user->save();
+        User::where('id', $id)->first()->update([
+            'wallet'    =>  $total
+        ]);
 
         return response()->json([
             'status'    =>  true, 
