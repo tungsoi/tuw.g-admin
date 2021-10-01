@@ -71,7 +71,9 @@ class CustomerWalletController extends AdminController
         // }
         // dd(array_diff($customer_ids, $transaction_customer_ids->toArray()));
             $grid->symbol_name('Mã khách hàng');
-            $grid->wallet('Ví tiền');
+            $grid->wallet('Ví tiền')->display(function () {
+                return number_format($this->wallet, 0, '.', '');
+            });
 
             $grid->id('Tiền ví theo giao dịch')->display(function () {
 

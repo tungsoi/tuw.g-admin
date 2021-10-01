@@ -633,6 +633,7 @@ class CustomerController extends AdminController
 
     public function calculator_wallet($id) {
         $user_wallet = User::find($id)->wallet;
+        $user_wallet = number_format($user_wallet, 0, '.', '');
         $transactions = SystemTransaction::select('money', 'type_recharge')->where('money', ">", 0)
         ->where('customer_id', $id)
         ->orderBy('created_at', 'desc')
@@ -648,6 +649,7 @@ class CustomerController extends AdminController
             }
         }
 
+        $total = number_format($total, 0, '.', '');
 
         return response()->json([
             'status'    =>  true, 
