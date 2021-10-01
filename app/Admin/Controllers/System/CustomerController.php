@@ -115,9 +115,9 @@ class CustomerController extends AdminController
                 $filter->like('name', 'Họ và tên');
                 $filter->equal('staff_order_id', 'Nhân viên đặt hàng')->select($this->userService->GetListOrderEmployee());
                 $filter->equal('type_customer', 'Loại khách hàng')->select([
-                    'Khách hàng Vận chuyển',
-                    'Khách hàng Order',
-                    'Cả 2'
+                    1 => 'Khách hàng Vận chuyển',
+                    2 => 'Khách hàng Order',
+                    3 => 'Cả 2'
                 ]);
             });
             $filter->column(1/4, function ($filter) {
