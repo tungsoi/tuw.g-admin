@@ -255,6 +255,8 @@
 
         if (check_checked.length == 0) {
             $.admin.toastr.error('Vui lòng chọn sản phẩm !', '', {positionClass: 'toast-top-center'});
+        } else if (check_checked.length > 30) {
+            $.admin.toastr.error('Vui lòng chọn tối đa 30 link sản phẩm !', '', {positionClass: 'toast-top-center'});
         } else {
 
             let ids = [];
