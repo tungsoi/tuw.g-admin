@@ -25,9 +25,19 @@ class CustomersExporter extends AbstractExporter
                             $item->symbol_name,
                             $item->username,
                             $item->phone_number,
-                            $item->address,
                             number_format($item->wallet),
-                            $item->saleStaff->name ?? ""
+                            $item->address,
+                            $item->warehouse->name ?? "",
+                            $item->saleEmployee->name ?? "",
+                            $item->orderEmployee->name ?? "",
+                            $item->percentService->name ?? "",
+                            $this->typeCustomer($item->type_customer),
+                            $item->wallet_weight,
+                            $item->default_price_kg,
+                            $item->default_price_m3,
+                            $item->transactions->last() ? date('d-m-Y', strtotime($item->transactions->last()->created_at)) : "",
+                            $item->purchaseOrders->last() ? date('d-m-Y', strtotime($item->purchaseOrders->last()->created_at)) : "",
+                            $item->paymentOrders->last() ? date('d-m-Y', strtotime($item->paymentOrders->last()->created_at)) : ""
                         ];
 
                         $flag++;
@@ -51,10 +61,31 @@ class CustomersExporter extends AbstractExporter
             'STT', 
             'Mã khách hàng', 
             'Email', 
-            'Số điện thoại', 
-            'Địa chỉ',
-            'Số dư ví',
-            'Nhân viên Sale'
+            'Số điện thoại',
+            'Ví tiền',
+            "Địa chỉ",
+            "Kho hàng",
+            "Nhân viên kinh doanh",
+            "Nhân viên đặt hàng",
+            "Phí dịch vụ",
+            "Loại khách hàng",
+            "Ví cân",
+            "Giá cân",
+            "Giá khối",
+            "Giao dịch gần nhất",
+            "Đơn Order gần nhất",
+            "Đơn vận chuyển gần nhất"
         ];
+    }
+
+    public function typeCustomer($type) {
+        $data = [
+            0 => 'Chưa chọn',
+            1 => 'Khách hàng Vận chuyển',
+            2 => 'Khách hàng Order',
+            3 => 'Order + Vận chuyển'
+        ];
+
+        return $data[$type] ?? "";
     }
 }
