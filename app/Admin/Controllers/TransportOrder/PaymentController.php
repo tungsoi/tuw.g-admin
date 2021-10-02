@@ -289,9 +289,8 @@ class PaymentController extends AdminController
             dispatch($job);
         }
 
-        //step 4: update customer wallet weight and create transaction weight
-        if ($payment_order_data['total_sub_wallet_weight'] != 0) {
-
+        //step 4: Thanh toán tiền cân, trừ luôn nếu là đơn hàng xuất kho
+        if ($payment_order_data['status'] == 'payment_export' && $payment_order_data['total_sub_wallet_weight'] != 0) {
             $job_weight = new SubWalletWeightCustomer(
                 $payment_order_data['payment_customer_id'],
                 $payment_order_data['total_sub_wallet_weight'],
@@ -615,6 +614,17 @@ SCRIPT;
                 "Thanh toán đơn hàng vận chuyển " . $paymentOrder->order_number
             );
             dispatch($job);
+
+            if ($paymentOrder->total_sub_wallet_weight != 0) {
+                $job_weight = new SubWalletWeightCustomer(
+                    $paymentOrder->payment_customer_id,
+                    $paymentOrder->total_sub_wallet_weight,
+                    Admin::user()->id,
+                    "Thanh toán đơn hàng vận chuyển " . $paymentOrder->order_number
+                );
+                dispatch($job_weight);
+            }
+            
         }
 
         return response()->json([
