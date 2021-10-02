@@ -200,6 +200,10 @@ class WeightPortalController extends AdminController
     public function offerOrderScript() {
         return <<<SCRIPT
             $('.btn-success').parent().prev().remove();
+
+            $('tfoot').each(function () {
+                $(this).insertAfter($(this).siblings('thead'));
+            });
 SCRIPT;
     }
 

@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Test;
 
 use App\Admin\Services\UserService;
+use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\SyncData\AlilogiTransaction;
 use App\Models\SyncData\AlilogiUser;
@@ -43,24 +44,30 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
-        
-        $orders = PurchaseOrder::whereNotIn('final_payment', ["", 0])->where('created_at', 'like', '2021-09%')
-            ->whereNotNull('final_payment')->orderBy('id', 'desc')->get();
-        dd($orders->count());
-        foreach ($orders as $order ) {
-            echo $order->order_number."\n";
+        $orders = PaymentOrder::whereStatus('cancel')->whereNotNull('transaction_note')->get();
 
-            $price_rmb = str_replace(",", "", $order->sumItemPrice());
-            $ship = $order->sumShipFee();
+        $notes = $orders->pluck('transaction_note');
 
-            $amount = $price_rmb + $ship;
+        Transaction::whereIn('content', $notes)->delete();
+        // dd($transaction->count());
+        dd('oke');
+        // $orders = PurchaseOrder::whereNotIn('final_payment', ["", 0])->where('created_at', 'like', '2021-09%')
+        //     ->whereNotNull('final_payment')->orderBy('id', 'desc')->get();
+        // dd($orders->count());
+        // foreach ($orders as $order ) {
+        //     echo $order->order_number."\n";
 
-            $final_payment = str_replace(",", "", $order->final_payment);
+        //     $price_rmb = str_replace(",", "", $order->sumItemPrice());
+        //     $ship = $order->sumShipFee();
+
+        //     $amount = $price_rmb + $ship;
+
+        //     $final_payment = str_replace(",", "", $order->final_payment);
                 
-            $order->offer_cn = number_format($amount - $final_payment, 2);
-            $order->offer_vn = number_format(($amount - $final_payment) * $order->current_rate, 0);
-            $order->save();
-        }
+        //     $order->offer_cn = number_format($amount - $final_payment, 2);
+        //     $order->offer_vn = number_format(($amount - $final_payment) * $order->current_rate, 0);
+        //     $order->save();
+        // }
         // $total_vnd = 0;
         // $deposited = $orders->sum('deposited');
 
