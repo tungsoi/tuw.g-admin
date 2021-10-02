@@ -26,7 +26,11 @@
             </table>
         </div>
         <div class="modal-footer">
-          <a href="{{ route('admin.transport_codes.index') }}" type="button" class="btn btn-danger btn-sm" >Đóng</a>
+          @if (isset($url) && $url != "")
+            <a href="{{ $url }}" type="button" class="btn btn-danger btn-sm" >Đóng</a>
+          @else
+            <a href="{{ route('admin.transport_codes.index') }}" type="button" class="btn btn-danger btn-sm" >Đóng</a>
+          @endif
         </div>
       </div>
   

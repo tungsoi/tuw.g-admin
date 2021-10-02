@@ -313,6 +313,14 @@ EOT);
             }
         });
 
+        Admin::script(
+            <<<EOT
+            $('tfoot').each(function () {
+                $(this).insertAfter($(this).siblings('thead'));
+            });
+EOT);
+       
+
         return $grid;
     }
 
@@ -334,6 +342,9 @@ EOT);
         $form->number('height', "Cao (cm)")->rules(['required']);
         $form->currency('advance_drag', "Ứng kéo")->rules(['required'])->symbol('Tệ');
         $form->text('admin_note', 'Admin ghi chú');
+
+        $service = new UserService();
+        $form->select('ware_house_id', 'Kho hàng')->options($service->GetListWarehouse());
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();

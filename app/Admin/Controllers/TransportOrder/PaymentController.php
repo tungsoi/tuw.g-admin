@@ -8,6 +8,7 @@ use App\Admin\Actions\PaymentOrder\ExportTransportCode;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
 use App\Jobs\HandleCustomerWallet;
+use App\Jobs\SubWalletWeightCustomer;
 use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\PurchaseOrder\PurchaseOrderItem;
@@ -91,7 +92,7 @@ class PaymentController extends AdminController
         $form->column(3, function ($form) use ($payment_type) {
             $help = "";
             if ($payment_type == 'payment_not_export') {
-                $help = "Thanh toán các mã vận đơn đã chọn, tự động trừ tiền ví khách hàng. Trạng thái của mã vận chuyển thành chưa xuất kho.";
+                $help = "Thanh toán các mã vận đơn đã chọn. Trạng thái của mã vận chuyển thành chưa xuất kho. Không trừ tiền ví khách hàng.";
             } else if ($payment_type == 'payment_export') {
                 $help = "Thanh toán các mã vận đơn đã chọn, tự động trừ tiền ví khách hàng. Trạng thái của mã vận chuyển thành đã xuất kho.";
             } else if ($payment_type == 'payment_temp') {
@@ -225,102 +226,84 @@ class PaymentController extends AdminController
 
     // handle payment
     public function storeRebuild(Request $request) {
-        $orderService = new OrderService();
+        $order_service = new OrderService();
 
-        $listTransportCode = TransportCode::whereIn('id', $request->transport_code_id)->pluck('transport_code')->toArray();
-        $content = "Thanh toán tổ hợp mã vận đơn " . (sizeof($listTransportCode) > 0 ? "(".implode(", ", $listTransportCode).")" : null);
+        $arr_transport_code = $request->transport_code_id;
 
-        // step 1: create payment order
-        $paymentOrderData = [
-            'order_number'  =>  $orderService->generatePaymentOrderNumber(),
+        // step 1: Tạo đơn hàng thanh toán
+        $payment_order_data = [
+            'order_number'  =>  $order_service->generatePaymentOrderNumber(),
             'status'        =>  $request->order_type,
-            'amount'        =>  $request->total_money,
-            'total_kg'      =>  $request->count_kg,
-            'total_m3'      =>  $request->count_cublic_meter,
-            'total_v'       =>  $request->count_volumn,
-            'total_advance_drag'    =>  $request->advan_vnd,
+            'amount'        =>  (int) $request->total_money,
+            'total_kg'      =>  (float) $request->count_kg,
+            'total_m3'      =>  (float) $request->count_cublic_meter,
+            'total_v'       =>  (float) $request->count_volumn,
+            'total_advance_drag'    => (float) $request->advan_vnd,
             'user_created_id'   =>  Admin::user()->id,
-            'payment_customer_id'   =>  $request->payment_user_id,
+            'payment_customer_id'   => (int) $request->payment_user_id,
             'internal_note'     =>  $request->internal_note,
-            'discount_value'    =>  $request->discount_value,
-            'discount_type'     =>  $request->discount_type,
-            'price_kg'          =>  str_replace(",", "", $request->sum_kg),
-            'price_m3'          =>  str_replace(",", "", $request->sum_cublic_meter),
-            'price_v'           =>  str_replace(",", "", $request->sum_volumn),
-            'is_sub_customer_wallet_weight' =>  $request->wallet_weight,
-            'total_sub_wallet_weight'   =>  $request->payment_customer_wallet_weight_used,
-            'current_rate'      =>  ExchangeRate::first()->vnd,
-            'transaction_note'  =>  $content,
-            'owed_purchase_order'   =>  $request->owed_purchase_order ?? 0,
-            'purchase_order_id' =>  $request->purchase_order_id ?? 0
+            'discount_value'    =>  (float) $request->discount_value,
+            'discount_type'     =>  (int) $request->discount_type,
+            'price_kg'          =>  (int) str_replace(",", "", $request->sum_kg),
+            'price_m3'          =>  (int) str_replace(",", "", $request->sum_cublic_meter),
+            'price_v'           =>  (int) str_replace(",", "", $request->sum_volumn),
+            'is_sub_customer_wallet_weight' =>  (int) $request->wallet_weight,
+            'total_sub_wallet_weight'   => $request->payment_customer_wallet_weight_used,
+            'current_rate'      =>  (int) ExchangeRate::first()->vnd
         ];
 
-        if ($request->order_type == "payment_export") {
-            $paymentOrderData['export_at'] = now();
+        $order = PaymentOrder::firstOrCreate($payment_order_data);
+
+        // step 2: Update danh sách mã vận đơn
+        $status_update = $payment_order_data['status'] == "payment_export" 
+                    ? $order_service->getTransportCodeStatus('payment')
+                    : $order_service->getTransportCodeStatus('not-export');
+
+        $transport_code_data_update = [
+            'order_id'  =>  $order->id,
+            'status'    =>  $status_update,
+            'payment_at'    =>  now(),
+            'payment_user_id'   =>  Admin::user()->id
+        ];
+
+        if ($payment_order_data['status'] == "payment_export") {
+            $transport_code_data_update['export_at'] = now();
         }
 
-        $paymentOrder = PaymentOrder::firstOrCreate($paymentOrderData);
+        $payment_type = $request->payment_type;
+        foreach ($arr_transport_code as $index => $transport_code_id) {
+            $transport_code_data_update['payment_type'] = $payment_type[$index];
 
-        // step 2: update transport code
-        foreach ($request->transport_code_id as $index => $transport_code_id) {
-            $status = "";
-            if ($request->order_type == 'payment_not_export') {
-                $status = $orderService->getTransportCodeStatus('not-export');
-            } else if ($request->order_type == 'payment_export') {
-                $status = $orderService->getTransportCodeStatus('payment');
-            } else if ($request->order_type == 'payment_temp') {
-                $status = $orderService->getTransportCodeStatus('payment');
-                $purchase_orders = PurchaseOrder::find($request->purchase_order_id);
-
-                $purchase_orders->status = 9;
-                $purchase_orders->user_success_at = Admin::user()->id;
-                $purchase_orders->save();
-                
-                $content = "Thanh toán kết đơn $purchase_orders->order_number (vận chuyển + tiền mua hộ)";
-            }
-
-            $dataTransportCode = [
-                'order_id'  =>  $paymentOrder->id,
-                'status'    =>  $status,
-                'payment_at'    =>  now(),
-                'payment_user_id'   =>  Admin::user()->id,
-                'payment_type'  =>  $request->payment_type[$index]
-            ];
-
-            if ($request->order_type == 'payment_export') {
-                $dataTransportCode['export_at'] = now();
-            }
-
-            TransportCode::find($transport_code_id)->update($dataTransportCode);
+            TransportCode::find($transport_code_id)->update($transport_code_data_update);
         }
 
-        // step 3: create transaction to wallet user
-        $job = new HandleCustomerWallet(
-            $request->payment_user_id,
-            Admin::user()->id,
-            $request->total_money,
-            3,
-            $content
-        );
-        dispatch($job);
+        // step 3: Trừ tiền ví khách hàng với đơn hàng thanh toán xuất kho
+        if ($payment_order_data['status'] == 'payment_export') {
+            $job = new HandleCustomerWallet(
+                $payment_order_data['payment_customer_id'],
+                Admin::user()->id,
+                $payment_order_data['amount'],
+                3,
+                "Thanh toán đơn hàng vận chuyển " . $payment_order_data['order_number']
+            );
+            dispatch($job);
+        }
 
         //step 4: update customer wallet weight and create transaction weight
-        if ($request->wallet_weight == 1 && $request->payment_customer_wallet_weight_used > 0) {
-            $customer = User::find($request->payment_user_id);
-            $customer->wallet_weight -= $request->payment_customer_wallet_weight_used;
-            $customer->save();
-    
-            TransactionWeight::create([
-                'customer_id'   => (int) $request->payment_user_id,
-                'user_id_created'   =>  Admin::user()->id,
-                'content'   =>  $content,
-                'kg'    =>  $request->payment_customer_wallet_weight_used
-            ]);
+        if ($payment_order_data['total_sub_wallet_weight'] != 0) {
+
+            $job_weight = new SubWalletWeightCustomer(
+                $payment_order_data['payment_customer_id'],
+                $payment_order_data['total_sub_wallet_weight'],
+                Admin::user()->id,
+                "Thanh toán đơn hàng vận chuyển " . $payment_order_data['order_number']
+            );
+            dispatch($job_weight);
         }
         
         admin_toastr('Thanh toán thành công', 'success');
 
-        return redirect()->route('admin.transport_codes.index', ['pci' => $request->payment_user_id]);
+        return redirect()->route('admin.transport_codes.index', ['pci' => $payment_order_data['payment_customer_id']]);
     }
 
     public function script() {
@@ -460,6 +443,14 @@ SCRIPT;
                 }
             ');
         });
+
+        if (isset($_GET['pci']) && $_GET['pci'] != "") {
+            $grid->header(function () {
+                $customer = User::select('id', 'symbol_name', 'wallet')->where('id', $_GET['pci'])->first();
+                $url = route('admin.payments.all');
+                return view('admin.system.transport_order.popup_payment_customer', compact('customer', 'url'))->render();
+            });
+        }
 
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
@@ -613,12 +604,24 @@ SCRIPT;
                     $transport_code->save();
                 }
             }
+
+            // trừ tiền khách hàng
+
+            $job = new HandleCustomerWallet(
+                $paymentOrder->payment_customer_id,
+                Admin::user()->id,
+                $paymentOrder->amount,
+                3,
+                "Thanh toán đơn hàng vận chuyển " . $paymentOrder->order_number
+            );
+            dispatch($job);
         }
 
         return response()->json([
             'status'    =>  true,
             'message'   =>  'Xuất kho thành công',
-            'isRedirect'    =>  false
+            'isRedirect'    =>  true,
+            'url'       =>  route('admin.payments.all', ['pci'  =>  $paymentOrder->payment_customer_id])
         ]);
     }
 

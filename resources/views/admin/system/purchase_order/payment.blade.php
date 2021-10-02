@@ -196,12 +196,15 @@
                 customer_wallet_weight = parseFloat(customer_wallet_weight).toFixed(1);
 
                 if (customer_wallet_weight > amount_kg) {
-                    // du vi can de tru
+                    // du vi can de tru = amount_kg
                     $('#payment_customer_wallet_weight').html(customer_wallet_weight + " - " + amount_kg.toFixed(1) );
                     $('#payment_customer_wallet_weight').css('color', 'red');
 
+                    $('.payment_customer_wallet_weight_used').val(amount_kg);
+
                     amount_kg = parseFloat(0);
                 } else {
+                    // customer_wallet_weight
                     $('#payment_customer_wallet_weight').html(customer_wallet_weight + " - " + amount_kg.toFixed(1) );
                     $('#payment_customer_wallet_weight').css('color', 'red');
 

@@ -43,7 +43,7 @@
 
         tfoot {
             display: table-row-group !important;
-            background: #27a65a !important;
+            background: #3c763d !important;
             color: white !important;
             font-weight: bold !important;
         }

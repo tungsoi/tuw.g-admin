@@ -3,6 +3,7 @@
 namespace App\Admin\Services;
 
 use App\Jobs\HandleCustomerWallet;
+use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
 use App\Models\PurchaseOrder\PurchaseOrderItem;
 use App\Models\PurchaseOrder\PurchaseOrderItemStatus;
@@ -22,7 +23,7 @@ class OrderService {
 
     public function generatePaymentOrderNumber() {
         $letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'X', 'Y', 'W', 'J', 'Z'];
-        $orderObj = DB::table('payment_orders')->whereRaw('LENGTH(order_number) < 7')->select('order_number')->latest('id')->first();
+        $orderObj = PaymentOrder::select('order_number')->latest('id')->first();
         if ($orderObj) {
             $orderNumber = $orderObj->order_number;
             $firstOrderNumber = $orderNumber[0];
