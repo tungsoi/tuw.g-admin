@@ -109,6 +109,8 @@ Route::group([
     $router->get('/compare_customer_wallet', 'Report\\CustomerWalletController@index')->name('report.compare_customer_wallet');
 
     $router->post('payment_orders/cancel', 'TransportOrder\\PaymentController@cancel')->name('payments.cancel');
+    $router->get('purchase_orders/get-list-customer-new-order', 'PurchaseOrder\\PurchaseOrderController@getListCustomerNewOrder')->name('purchase_orders.geListCustomerNewOrder');
+    $router->get('purchase_orders/get-list-customer-depositting-order', 'PurchaseOrder\\PurchaseOrderController@getListCustomerDeposittingOrder')->name('purchase_orders.geListCustomerNewOrder');
 
 });
 

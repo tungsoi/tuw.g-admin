@@ -195,7 +195,7 @@ class PurchaseOrderController extends AdminController
                 ]
             ];
             return view('admin.system.core.list', compact('data'));
-        })->width(150);
+        });
 
         $grid->status('Trạng thái / Khách hàng')->display(function () {
             $data = [
@@ -445,7 +445,7 @@ class PurchaseOrderController extends AdminController
         // }
 
         $grid->disableColumnSelector();
-        $grid->paginate(15);
+        $grid->paginate(10);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             // if (Admin::user()->isRole('customer')) {
                 $actions->disableEdit();
@@ -1310,4 +1310,28 @@ SCRIPT;
         }
     }
     
+    public function getListCustomerNewOrder() {
+        $customers = PurchaseOrder::select('customer_id', DB::raw('count(*) as total'))->whereStatus(2)->groupBy('customer_id')->with('customer')->get();
+        $status = 2;
+        $title = "Danh sách khách hàng có đơn hàng mới";
+        $html = view('admin.system.purchase_order.customer_has_new_order', compact('customers', 'status', 'title'))->render();
+        return response()->json([
+            'status'        =>  true,
+            'message'       =>  $customers,
+            'html'      =>  $html
+        ]);
+    }
+
+    
+    public function getListCustomerDeposittingOrder() {
+        $customers = PurchaseOrder::select('customer_id', DB::raw('count(*) as total'))->whereStatus(4)->groupBy('customer_id')->with('customer')->get();
+        $status = 4;
+        $title = "Danh sách khách hàng có đơn hàng đã cọc - đang đặt";
+        $html = view('admin.system.purchase_order.customer_has_new_order', compact('customers', 'status', 'title'))->render();
+        return response()->json([
+            'status'        =>  true,
+            'message'       =>  $customers,
+            'html'      =>  $html
+        ]);
+    }
 }
