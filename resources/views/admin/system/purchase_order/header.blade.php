@@ -3,7 +3,7 @@
     <h4>Tổng tiền đơn dự tính: <span id='estimate-amount-rmb' style='color: green; font-weight: 700;'></span> (Tệ) </h4>
 </div>
 
-@if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator'))
+@if (! Admin::user()->isRole('customer'))
 <div class="col-md-12">
     <hr>
     <button class="btn btn-sm btn-success" id="btn-get-list-customer">
