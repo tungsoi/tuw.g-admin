@@ -1311,9 +1311,13 @@ SCRIPT;
     }
     
     public function getListCustomerNewOrder() {
-        $customers = PurchaseOrder::select('customer_id', DB::raw('count(*) as total'))->whereStatus(2)->groupBy('customer_id')->with('customer')->get();
+        $res = PurchaseOrder::select('customer_id', DB::raw('count(*) as total'))->whereStatus(2)->groupBy('customer_id')->with('customer');
+
+        if (Admin::user()->isRole('order_employee')) {
+            $customers = $res->where('supporter_order_id', Admin::user()->id)->get();
+        }
         $status = 2;
-        $title = "Danh sách khách hàng có đơn hàng mới";
+        $title = "Danh sách khách hàng có đơn hàng mới (".$customers->sum('total')." đơn)";
         $html = view('admin.system.purchase_order.customer_has_new_order', compact('customers', 'status', 'title'))->render();
         return response()->json([
             'status'        =>  true,
@@ -1324,9 +1328,14 @@ SCRIPT;
 
     
     public function getListCustomerDeposittingOrder() {
-        $customers = PurchaseOrder::select('customer_id', DB::raw('count(*) as total'))->whereStatus(4)->groupBy('customer_id')->with('customer')->get();
+        $res = PurchaseOrder::select('customer_id', DB::raw('count(*) as total'))->whereStatus(4)->groupBy('customer_id')->with('customer');
+        
+        if (Admin::user()->isRole('order_employee')) {
+            $customers = $res->where('supporter_order_id', Admin::user()->id)->get();
+        }
+
         $status = 4;
-        $title = "Danh sách khách hàng có đơn hàng đã cọc - đang đặt";
+        $title = "Danh sách khách hàng có đơn hàng đã cọc - đang đặt (".$customers->sum('total')." đơn)";
         $html = view('admin.system.purchase_order.customer_has_new_order', compact('customers', 'status', 'title'))->render();
         return response()->json([
             'status'        =>  true,
