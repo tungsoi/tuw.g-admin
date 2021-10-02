@@ -1315,6 +1315,10 @@ SCRIPT;
 
         if (Admin::user()->isRole('order_employee')) {
             $customers = $res->where('supporter_order_id', Admin::user()->id)->get();
+        } else if (Admin::user()->isRole('sale_employee')) {
+            $customers = $res->where('supporter_sale_id', Admin::user()->id)->get();
+        } else {
+            $customers = $res->get();
         }
         $status = 2;
         $title = "Danh sách khách hàng có đơn hàng mới (".$customers->sum('total')." đơn)";
@@ -1332,6 +1336,10 @@ SCRIPT;
         
         if (Admin::user()->isRole('order_employee')) {
             $customers = $res->where('supporter_order_id', Admin::user()->id)->get();
+        } else if (Admin::user()->isRole('sale_employee')) {
+            $customers = $res->where('supporter_sale_id', Admin::user()->id)->get();
+        } else {
+            $customers = $res->get();
         }
 
         $status = 4;
