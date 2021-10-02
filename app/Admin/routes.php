@@ -107,6 +107,9 @@ Route::group([
     $router->put('/report_warehouses/{id}', 'ReportWarehouse\\DetailController@updateDetail')->name('report_warehouses.updateDetail');
 
     $router->get('/compare_customer_wallet', 'Report\\CustomerWalletController@index')->name('report.compare_customer_wallet');
+
+    $router->post('payment_orders/cancel', 'TransportOrder\\PaymentController@cancel')->name('payments.cancel');
+
 });
 
 Route::group([

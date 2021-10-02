@@ -34,7 +34,9 @@ class PaymentOrder extends Model
         'user_export_id',
         'owed_purchase_order',
         'purchase_order_id',
-        '_id'
+        '_id',
+        'user_cancel_id',
+        'cancel_at'
     ];
 
     public function paymentCustomer() {
@@ -57,6 +59,8 @@ class PaymentOrder extends Model
                 return "Thanh toán chưa xuất kho";
             case "payment_temp":
                 return "Thanh toán tạm";
+            case "cancel":
+                return "Huỷ";
         }
     }
 
@@ -68,6 +72,8 @@ class PaymentOrder extends Model
                 return "warning";
             case "payment_temp":
                 return "primary";
+            case "cancel":
+                return "danger";
         }
     }
 

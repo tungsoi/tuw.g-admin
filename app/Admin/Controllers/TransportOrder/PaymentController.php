@@ -4,6 +4,7 @@ namespace App\Admin\Controllers\TransportOrder;
 
 use App\Admin\Actions\Core\BtnView;
 use App\Admin\Actions\Customer\Recharge;
+use App\Admin\Actions\PaymentOrder\Cancel;
 use App\Admin\Actions\PaymentOrder\ExportTransportCode;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
@@ -582,6 +583,11 @@ SCRIPT;
 
             if (! Admin::user()->isRole('customer')) {
                 $actions->append(new Recharge($this->row->payment_customer_id));
+
+                if ($this->row->status == "payment_not_export") {
+                    $actions->append(new Cancel($this->row->id));
+                }
+                
             }
         });
 
@@ -955,5 +961,46 @@ SCRIPT;
         $table = new Table($headers, $rows, ['td-50']);
 
         return $table;
+    }
+
+    public function cancel(Request $request) {
+
+        if ($request->ajax()) {
+            $id = $request->only(['order_id']);
+
+            $transport_codes = TransportCode::whereOrderId($id)->get();
+
+            $note = "";
+            if ($transport_codes->count() > 0) {
+                $note = $transport_codes->pluck('transport_code');
+
+                // update trang thai don hang
+
+                $data = [
+                    'status'    =>  "cancel",
+                    'user_cancel_id'    =>  Admin::user()->id,
+                    'cancel_at' =>  now(),
+                    'internal_note' =>  $note
+                ];
+                PaymentOrder::where('id', $id)->first()->update($data);
+
+                // update trang thai ma van don
+                TransportCode::whereOrderId($id)->update([
+                    'order_id'  =>  null,
+                    'status'    =>  1,
+                    'payment_at'    =>  null,
+                    'payment_user_id'   =>  null,
+                    'payment_type'  =>  null,
+                    'export_at' =>  null,
+                    'user_export_id'    =>  null
+                ]);
+            }
+
+            return response()->json([
+                'status'    =>  true,
+                'message'   =>  'Huỷ đơn thành công'
+            ]);
+        }
+        
     }
 }
