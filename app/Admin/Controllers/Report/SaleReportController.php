@@ -124,27 +124,27 @@ class SaleReportController extends AdminController
                 ];
                 $detail = ReportDetail::where('sale_report_id', $report->id)->orderBy(DB::raw("`success_order_payment` + `processing_order_payment`"), 'desc');
 
-                if (isset($_GET['team_sale']) && $_GET['team_sale'] != "")
-                {
-                    $ids = SystemTeamSale::find($_GET['team_sale'])->members;
-                    $detail->whereIn('user_id', $ids);
-                }
+                if (Admin::user()->isRole('sale_manager')) {
 
-                if (isset($_GET['user_id']) && $_GET['user_id'] != "")
-                {
-                    $detail->where('user_id', $_GET['user_id']);
-                }
-
-                $flag = SystemTeamSale::where('leader', Admin::user()->id)->first();
-
-                if (Admin::user()->isRole('sale_employee')) {
-                    if ($flag != "" && $flag->count() > 0)
-                    {
-                        $members = $flag->members;
-                        $detail->whereIn('user_id', $members);
+                } else {
+                    if (isset($_GET['team_sale']) && $_GET['team_sale'] != "") {
+                        $ids = SystemTeamSale::find($_GET['team_sale'])->members;
+                        $detail->whereIn('user_id', $ids);
                     }
-                    else {
-                        $detail->where('user_id', Admin::user()->id);
+
+                    if (isset($_GET['user_id']) && $_GET['user_id'] != "") {
+                        $detail->where('user_id', $_GET['user_id']);
+                    }
+
+                    $flag = SystemTeamSale::where('leader', Admin::user()->id)->first();
+
+                    if (Admin::user()->isRole('sale_employee')) {
+                        if ($flag != "" && $flag->count() > 0) {
+                            $members = $flag->members;
+                            $detail->whereIn('user_id', $members);
+                        } else {
+                            $detail->where('user_id', Admin::user()->id);
+                        }
                     }
                 }
 
