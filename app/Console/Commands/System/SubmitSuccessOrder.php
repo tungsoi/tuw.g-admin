@@ -63,24 +63,22 @@ class SubmitSuccessOrder extends Command
                 $text = "Thanh toán đơn hàng mua hộ. Mã đơn hàng " . $order->order_number;
                 $flag_transaction = Transaction::where('content', $text)->first();
 
-                $flag_transaction = true;
-                
-                if ($all_items == $vn_items && $all_trscs == $vn_trscs) {
+                if ($all_items == $vn_items && $all_trscs == $vn_trscs && ! $flag_transaction) {
 
                     echo $key . "-" . $order->order_number. "\n";
-                    // $this->toString(
-                    //     [
-                    //         ($key+1),
-                    //         $order->order_number,
-                    //         "(".$vn_items."/".$all_items.")",
-                    //         "(".$vn_trscs."/".$all_trscs.")",
-                    //     ]
-                    // );
+                    $this->toString(
+                        [
+                            ($key+1),
+                            $order->order_number,
+                            "(".$vn_items."/".$all_items.")",
+                            "(".$vn_trscs."/".$all_trscs.")",
+                        ]
+                    );
 
-                    // $key++;
+                    $key++;
 
-                    // $job = new HandleSubmitSuccessOrder($order->id);
-                    // dispatch($job);
+                    $job = new HandleSubmitSuccessOrder($order->id);
+                    dispatch($job);
                 }
             }
         }
