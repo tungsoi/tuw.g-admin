@@ -201,7 +201,6 @@ class PortalController extends AdminController
             $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')
                 ->whereStatus(4)
                 ->orderBy('id', 'desc')
-                ->limit(1)
                 ->get();
             $total_vnd = 0;
             $deposited = $orders->sum('deposited');
