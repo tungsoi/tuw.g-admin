@@ -75,13 +75,13 @@ class SubmitSuccessOrder extends Command
                     //     ]
                     // );
 
-                    $order->status = 9;
-                    $order->save();
+                    // $order->status = 9;
+                    // $order->save();
 
                     $key++;
 
-                    // $job = new HandleSubmitSuccessOrder($order->id);
-                    // dispatch($job);
+                    $job = new HandleSubmitSuccessOrder($order->id);
+                    dispatch($job);
                 }
             }
         }
