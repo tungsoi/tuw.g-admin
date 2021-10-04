@@ -29,18 +29,9 @@ class ComplaintController extends AdminController
      */
     protected $title;
 
-    protected $statusSuccess;
-    protected $statusOrdered;
-    protected $statusWarehouseVN;
-
     public function __construct()
     {
         $this->title = 'Khiếu nại đơn hàng';
-
-        $orderService = new OrderService();
-        $this->statusSuccess = $orderService->getStatus('success');
-        $this->statusOrdered = $orderService->getStatus('ordered');
-        $this->statusWarehouseVN = $orderService->getStatus('vn-recevice');
     }
 
     /**
@@ -60,15 +51,15 @@ class ComplaintController extends AdminController
             $order_ids = [];
             if (Admin::user()->isRole('sale_employee'))
             {
-                $order_ids = PurchaseOrder::whereIn('status', [$this->statusSuccess, $this->statusOrdered, $this->statusWarehouseVN])
+                $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
                 ->where('supporter_sale_id', Admin::user()->id)->orderBy('id', 'desc')->get()->pluck('order_number', 'id');
             }
             else if (Admin::user()->isRole('order_employee')){
-                $order_ids = PurchaseOrder::whereIn('status', [$this->statusSuccess, $this->statusOrdered, $this->statusWarehouseVN])
+                $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
                 ->where('supporter_order_id', Admin::user()->id)->orderBy('id', 'desc')->get()->pluck('order_number', 'id');
             }
             else {
-                $order_ids = PurchaseOrder::whereIn('status', [$this->statusSuccess, $this->statusOrdered, $this->statusWarehouseVN])
+                $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
                             ->orderBy('id', 'desc')->get()->pluck('order_number', 'id');
             }
             $filter->equal('order_id', 'Mã đơn hàng')->select($order_ids);
@@ -78,7 +69,7 @@ class ComplaintController extends AdminController
 
             $filter->where(function ($query) {
                 $sale_id = $this->input;
-                $order_ids = PurchaseOrder::whereIn('status', [$this->statusSuccess, $this->statusOrdered, $this->statusWarehouseVN])
+                $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
                             ->where('supporter_sale_id', $sale_id)
                             ->get()->pluck('id');
 
@@ -89,7 +80,7 @@ class ComplaintController extends AdminController
             $orderStaff = User::whereIn('id', $orders)->whereIsActive(1)->get()->pluck('name', 'id');
             $filter->where(function ($query) {
                 $order_id = $this->input;
-                $order_ids = PurchaseOrder::whereIn('status', [$this->statusSuccess, $this->statusOrdered, $this->statusWarehouseVN])
+                $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
                             ->where('supporter_order_id', $order_id)
                             ->get()->pluck('id');
 
