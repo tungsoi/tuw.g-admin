@@ -109,7 +109,7 @@ class ComplaintController extends AdminController
                 $grid->model()->whereIn('order_id', $order_ids);
             }
         }
-        else if (Admin::user()->isRole('order_employee') && ! Admin::user()->isRole('head_order')) 
+        else if (Admin::user()->isRole('order_employee') && ! Admin::user()->isRole('order_manager')) 
         {
             $orders = PurchaseOrder::where('supporter_order_id', Admin::user()->id)->get()->pluck('id');
             $grid->model()->whereIn('order_id', $orders);
