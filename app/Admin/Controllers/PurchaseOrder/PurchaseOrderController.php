@@ -911,7 +911,7 @@ SCRIPT;
 
             $amount = $price_rmb + $ship;
 
-            if ($order->final_payment != 0) {
+            if ($order->final_payment != "") {
                 $amount = str_replace(",", "", $amount);
                 $final_payment = str_replace(",", "", $order->final_payment);
                 
