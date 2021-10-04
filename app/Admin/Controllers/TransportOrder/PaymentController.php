@@ -397,7 +397,7 @@ SCRIPT;
                 $filter->like('order_number', 'Mã đơn hàng');
 
                 if (! Admin::user()->isRole('customer') ) {
-                    $filter->equal('user_created_id', 'Người tạo')->select($service->GetAllEmployee());
+                    $filter->in('user_created_id', 'Người tạo')->multipleSelect($service->GetListWarehouseEmployee());
                 }
             });
 
@@ -556,7 +556,9 @@ SCRIPT;
         });
         $grid->amount('Tổng tiền')->display(function () {
             return number_format($this->amount);
-        })->label('success');
+        })->label('success')->totalRow(function ($amount) {
+            return number_format($amount);
+        });
         $grid->userCreated()->name('Người tạo');
         $grid->column('created_at', "Ngày tạo")->display(function () {
             return date('H:i | d-m-Y', strtotime($this->created_at));
@@ -590,6 +592,13 @@ SCRIPT;
                 
             }
         });
+
+        Admin::script(
+            <<<EOT
+            $('tfoot').each(function () {
+                $(this).insertAfter($(this).siblings('thead'));
+            });
+EOT);
 
         return $grid;
     }

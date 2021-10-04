@@ -1,5 +1,4 @@
-
-
+<div>
     <div class="col-md-3">
         <div class="alert alert-info">
             <h4>Số nhân viên kinh doanh</h4>
@@ -32,4 +31,11 @@
             <h4>* <span class="pull-right">{{ number_format($process + $success) }} VND</span></h4>
         </div>
     </div>
+</div>
+<div>
+    <hr>
+    <a href="{{ $route }}" style="text-decoration: none !important;">
+        <i class="fa fa-eye" aria-hidden="true"></i> &nbsp; 
+        <b> Chi tiết</b>
+    </a>
 </div>

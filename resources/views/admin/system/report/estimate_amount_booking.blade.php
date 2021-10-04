@@ -44,6 +44,14 @@
     </div>
 </div>
 
+<div>
+    <hr>
+    <a href="{{ $route }}" style="text-decoration: none !important;">
+        <i class="fa fa-eye" aria-hidden="true"></i> &nbsp; 
+        <b> Chi tiết</b>
+    </a>
+</div>
+
 <script>
     $( document ).ready(function() {
    

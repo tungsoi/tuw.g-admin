@@ -43,17 +43,26 @@ class TransactionController extends AdminController
             $grid->expandFilter();
         }
 
+        // if (isset($_GET['user_id_created']) && $_GET['user_id_created'] != "") {
+        //     dd($_GET['user_id_created']);
+        // }
+
         $grid->expandFilter();
         $grid->filter(function($filter) {
             $filter->disableIdFilter();
 
             $filter->column(1/3, function ($filter) {
                 $filter->like('content', 'Nội dung');
-                $filter->equal('user_id_created', 'Người thực hiện')->select($this->userService->GetListArEmployee());
+                $ar = $this->userService->GetListArEmployee();
+                $wh =  $this->userService->GetListWarehouseEmployee();
+
+                $fil =$ar->toArray() + $wh->toArray();
+
+                $filter->in('user_id_created', 'Người thực hiện')->multipleSelect($fil);
             });
             $filter->column(1/3, function ($filter) {
-                $filter->equal('customer_id', 'Mã khách hàng')->select($this->userService->GetListCustomer());
-                $filter->equal('type_recharge', 'Loại giao dịch')->select(TransactionType::pluck('name', 'id'));
+                $filter->in('customer_id', 'Mã khách hàng')->select($this->userService->GetListCustomer());
+                $filter->in('type_recharge', 'Loại giao dịch')->multipleSelect(TransactionType::pluck('name', 'id'));
             });
             $filter->column(1/3, function ($filter) {
                 $filter->between('created_at', 'Ngày tạo')->date();

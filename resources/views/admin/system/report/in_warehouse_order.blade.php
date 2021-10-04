@@ -16,6 +16,11 @@
         <hr>
         <h4><b>Số đơn hàng: <span class="pull-right">{{ $revenue[$warehouse->id]['count'] }}</span></b></h4>
         <h4><b>Tổng tiền: <span class="pull-right">{{ number_format($revenue[$warehouse->id]['money']) }} VND</span></b></h4>
+        <hr>
+        <a href="{{ $revenue[$warehouse->id]['route'] }}" style="text-decoration: none !important;">
+            <i class="fa fa-eye" aria-hidden="true"></i> &nbsp; 
+            <b> Chi tiết</b>
+        </a>
     </div>
 </div>
 
@@ -28,5 +33,10 @@
         <hr>
         <h4><b>Số đơn hàng: <span class="pull-right">{{ $total_count }}</span></b></h4>
         <h4><b>Tổng tiền: <span class="pull-right">{{ number_format($total_money) }} VND</span></b></h4>
+        <hr>
+        <a href="{{ route('admin.payments.all') . "?status=payment_not_export" }}" style="text-decoration: none !important;">
+            <i class="fa fa-eye" aria-hidden="true"></i> &nbsp; 
+            <b> Chi tiết</b>
+        </a>
     </div>
 </div>

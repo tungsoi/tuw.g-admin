@@ -22,6 +22,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use App\User;
+use Carbon\Carbon;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use Illuminate\Support\Facades\DB;
@@ -59,13 +60,19 @@ class PortalController extends AdminController
             ->row(function (Row $row) {
                 $row->column(8, function (Column $column)
                 {
-                    $column->append((new Box('Doanh thu kho / ' . $this->today, $this->revenueWarehouse())));
+                    $column->append((new Box('Doanh thu nạp tiền kho / ' . $this->today, $this->revenueWarehouse())));
                 });
 
                 $row->column(4, function (Column $column)
                 {
-                    $column->append((new Box('Doanh thu kế toán / ' . $this->today, $this->revenueAr())));
+                    $column->append((new Box('Doanh thu nạp tiền kế toán / ' . $this->today, $this->revenueAr())));
                 });   
+            })
+            ->row(function (Row $row) {
+                $row->column(12, function (Column $column)
+                {
+                    $column->append((new Box('Doanh thu vận chuyển kho / ' . $this->today, $this->revenueOrderWarehouse())));
+                });
             })
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
@@ -86,30 +93,35 @@ class PortalController extends AdminController
                 });   
             })
             ->row(function (Row $row) {
-                // $row->column(12, function (Column $column)
-                // {
-                    // $row->column((new Box('Ví cân tổng hợp', $this->weightPortal())));
-                    $row->column(2, new InfoBox("Tổng cân trên toàn thời gian", 'weight', 'aqua', '/admin/customers', WeightPortal::whereType(2)->sum('value')));
-                    $row->column(2, new InfoBox("Cân tổng còn lại chưa chia", 'weight', 'red', '/admin/customers', WeightPortal::whereType(1)->sum('value')));
-                    // $row->column(2, new InfoBox("Tổng cân đã chia nhân viên", 'weight', 'primary', '/admin/customers', WeightPortal::whereType(3)->sum('value')));
-                    // $row->column(2, new InfoBox("Tổng cân đã chia khách hàng", 'weight', 'orange', '/admin/customers', TransactionWeight::whereType(2)->sum('kg')));
-                    // $row->column(2, new InfoBox("Tổng số cân nhân viên còn giữ", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::ADMIN)->sum('wallet_weight')));
-                    // $row->column(2, new InfoBox("Tổng cân khách hàng còn dư", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::CUSTOMER)->sum('wallet_weight')));
-    
-                // });   
-            })
-            ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
                     $column->append((new Box('Báo cáo phòng kinh doanh / ' . date('Y-m', strtotime(now())), $this->saleRevenue())));
                 });   
             });
-            // ->row(function (Row $row) {
-            //     $row->column(12, function (Column $column)
-            //     {
-            //         $column->append(null);
-            //     });   
-            // });
+    }
+
+    public function revenueOrderWarehouse() {
+        $warehouses = Warehouse::all();
+        $revenue = [];
+
+        foreach ($warehouses as $warehouse) {
+            $members = $warehouse->employees;
+            $orders = PaymentOrder::select('amount')->whereIn('user_created_id', $members)
+                        ->where('status', 'payment_export')
+                        ->where('created_at', 'like', $this->today.'%')    
+                        ->get();
+
+            $revenue[$warehouse->id] = [
+                'cash_money'    =>  $orders->sum('amount'),
+                'count'         =>  $orders->count(),
+                'route'         =>  route('admin.payments.all')
+                                    . "?status=payment_export"
+                                    . "&user_created_id%5B%5D="
+                                    . implode("&user_created_id%5B%5D=", $members)
+                                    . "&created_at%5Bstart%5D=".date('Y-m-d', strtotime(now()))."&created_at%5Bend%5D=".date('Y-m-d', strtotime(Carbon::now()->addDays(1)))
+            ];
+        }
+        return view('admin.system.report.revenue_order_warehouse', compact('warehouses', 'revenue'))->render();
     }
 
     public function weightPortal() {
@@ -121,9 +133,10 @@ class PortalController extends AdminController
 
     public function receiveToday() {
         $codes = TransportCode::where('vietnam_receive_at', 'like', date('Y-m-d', strtotime(now()))."%")->get();
-        // $codes = TransportCode::where('vietnam_receive_at', 'like', '2021-10-03%')->get();
+        $route = route('admin.transport_codes.index') . "?status=1"
+                    . "&vietnam_receive_at%5Bstart%5D=".date('Y-m-d', strtotime(now()))."&vietnam_receive_at%5Bend%5D=".date('Y-m-d', strtotime(Carbon::now()->addDays(1)));
 
-        return view('admin.system.report.receive_today', compact('codes'))->render();
+        return view('admin.system.report.receive_today', compact('codes', 'route'))->render();
     }
 
     protected function revenueWarehouse()
@@ -135,14 +148,20 @@ class PortalController extends AdminController
             $members = $warehouse->employees;
             $transactions = Transaction::select('money', 'type_recharge')
                 ->where('money', '!=', 0)
+                ->whereIn('type_recharge', [0, 1])
                 ->where('created_at', 'like', $this->today.'%')
                 ->whereIn('user_id_created', $members)
                 ->get();
-
+                
             $revenue[$warehouse->id] = [
                 'cash_money'    =>  $transactions->where('type_recharge', 0)->sum('money'),
                 'cash_banking'  =>  $transactions->where('type_recharge', 1)->sum('money'),
-                'count'         =>  $transactions->count()
+                'count'         =>  $transactions->count(),
+                'route'     =>  route('admin.transactions.index') ."?content=&"
+                    . "type_recharge%5B%5D=0&type_recharge%5B%5D=1"
+                    . "&user_id_created%5B%5D="
+                    . implode("&user_id_created%5B%5D=", $members)
+                    . "&created_at%5Bstart%5D=".date('Y-m-d', strtotime(now()))."&created_at%5Bend%5D=".date('Y-m-d', strtotime(Carbon::now()->addDays(1)))
             ];
         }
         return view('admin.system.report.revenue_warehouse', compact('warehouses', 'revenue'))->render();
@@ -161,19 +180,29 @@ class PortalController extends AdminController
         $revenue = [
             'cash_money'    =>  $transactions->where('type_recharge', 0)->sum('money'),
             'cash_banking'  =>  $transactions->where('type_recharge', 1)->sum('money'),
-            'count'         =>  $transactions->count()
+            'count'         =>  $transactions->count(),
+            'route'     =>  route('admin.transactions.index') ."?content=&"
+                    . "type_recharge%5B%5D=0&type_recharge%5B%5D=1"
+                    . "&user_id_created%5B%5D="
+                    . implode("&user_id_created%5B%5D=", $userIdsArRole->toArray())
+                    . "&created_at%5Bstart%5D=".date('Y-m-d', strtotime(now()))."&created_at%5Bend%5D=".date('Y-m-d', strtotime(Carbon::now()->addDays(1)))
         ];
 
         return view('admin.system.report.revenue_ar', compact('revenue'))->render();
     }
 
     public function estimateAmountBooking() {
-        return view('admin.system.report.estimate_amount_booking')->render();
+        $route = route('admin.purchase_orders.index') . "?status=4";
+        return view('admin.system.report.estimate_amount_booking', compact('route'))->render();
     }
 
     public function calculatorEstimateAmountBooking() {
 
-            $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')->whereStatus(4)->orderBy('id', 'desc')->get();
+            $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')
+                ->whereStatus(4)
+                ->orderBy('id', 'desc')
+                ->limit(1)
+                ->get();
             $total_vnd = 0;
             $deposited = $orders->sum('deposited');
     
@@ -208,7 +237,11 @@ class PortalController extends AdminController
 
             $revenue[$warehouse->id] = [
                 'count'    =>  $orders->count(),
-                'money'    =>  $orders->sum('amount')
+                'money'    =>  $orders->sum('amount'),
+                'route'         =>  route('admin.payments.all')
+                                    . "?status=payment_not_export"
+                                    . "&user_created_id%5B%5D="
+                                    . implode("&user_created_id%5B%5D=", $members)
             ];
         }
 
@@ -228,6 +261,7 @@ class PortalController extends AdminController
         $success = $detail->sum('success_order_payment');
 
         $total = $process + $success;
-        return view('admin.system.report.sale_revenue', compact('detail', 'sales', 'success', 'process', 'total'))->render();
+        $route = route('admin.revenue_reports.show', $report->id) . "?mode=new&portal=false";
+        return view('admin.system.report.sale_revenue', compact('detail', 'sales', 'success', 'process', 'total', 'route'))->render();
     }
 }
