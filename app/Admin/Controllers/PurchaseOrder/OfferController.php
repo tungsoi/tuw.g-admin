@@ -205,6 +205,7 @@ class OfferController extends AdminController
         $grid->disableColumnSelector();
         $grid->paginate(20);
         $grid->disableActions();
+        $grid->perPages([20, 100, 500, 1000]);
 
         Admin::script($this->offerOrderScript());
 
@@ -346,14 +347,17 @@ class OfferController extends AdminController
                 let tien_chiet_khau_te = 0;
                 offer_cn.each( function( i, el ) {
                     var elem = $( el );
-                    let html = parseFloat($.trim(elem.html()));
+                    let html = $.trim(elem.html());
 
-                    if (html == "0.00") 
+                    console.log(html.indexOf("-"));
+                    if (html.indexOf("-") != -1) 
                     {
                         console.log($(this));
                         $(this).css('background', '#e05d5d');
                         $(this).children("a").css('color', 'white');
                     }
+
+                    html = parseFloat($.trim(elem.html()));
 
                     tien_chiet_khau_te += html;
                 });
@@ -365,14 +369,16 @@ class OfferController extends AdminController
                 let tien_chiet_khau_vnd = 0;
                 offer_vnd.each( function( i, el ) {
                     var elem = $( el );
-                    let html = parseFloat($.trim(elem.html()));
+                    let html = $.trim(elem.html());
 
-                    if (html == "0.00") 
+                    if (html.indexOf("-") != -1) 
                     {
                         console.log($(this));
                         $(this).css('background', '#e05d5d');
                         $(this).children("a").css('color', 'white');
                     }
+
+                    html = parseFloat($.trim(elem.html()));
 
                     tien_chiet_khau_vnd += html;
                 });

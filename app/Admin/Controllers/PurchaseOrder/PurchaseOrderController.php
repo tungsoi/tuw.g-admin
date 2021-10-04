@@ -1313,7 +1313,7 @@ SCRIPT;
     public function getListCustomerNewOrder() {
         $res = PurchaseOrder::select('customer_id', DB::raw('count(*) as total'))->whereStatus(2)->groupBy('customer_id')->with('customer');
 
-        if (Admin::user()->isRole('order_employee')) {
+        if (Admin::user()->isRole('order_employee') && ! Admin::user()->isRole('order_manager')) {
             $customers = $res->where('supporter_order_id', Admin::user()->id)->get();
         } else if (Admin::user()->isRole('sale_employee')) {
             $customers = $res->where('supporter_sale_id', Admin::user()->id)->get();
@@ -1334,7 +1334,7 @@ SCRIPT;
     public function getListCustomerDeposittingOrder() {
         $res = PurchaseOrder::select('customer_id', DB::raw('count(*) as total'))->whereStatus(4)->groupBy('customer_id')->with('customer');
         
-        if (Admin::user()->isRole('order_employee')) {
+        if (Admin::user()->isRole('order_employee') && ! Admin::user()->isRole('order_manager')) {
             $customers = $res->where('supporter_order_id', Admin::user()->id)->get();
         } else if (Admin::user()->isRole('sale_employee')) {
             $customers = $res->where('supporter_sale_id', Admin::user()->id)->get();

@@ -15,6 +15,8 @@ use App\Models\Setting\RoleUser;
 use App\Models\System\TeamSale as SystemTeamSale;
 use App\Models\System\Transaction;
 use App\Models\System\Warehouse;
+use App\Models\System\WeightPortal;
+use App\Models\TransportOrder\TransportCode;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -80,21 +82,48 @@ class PortalController extends AdminController
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
-                    $column->append((new Box('Hàng về trong ngày / ' . $this->today, "")));
+                    $column->append((new Box('Hàng về trong ngày / ' . $this->today, $this->receiveToday())));
                 });   
+            })
+            ->row(function (Row $row) {
+                // $row->column(12, function (Column $column)
+                // {
+                    // $row->column((new Box('Ví cân tổng hợp', $this->weightPortal())));
+                    $row->column(2, new InfoBox("Tổng cân trên toàn thời gian", 'weight', 'aqua', '/admin/customers', WeightPortal::whereType(2)->sum('value')));
+                    $row->column(2, new InfoBox("Cân tổng còn lại chưa chia", 'weight', 'red', '/admin/customers', WeightPortal::whereType(1)->sum('value')));
+                    // $row->column(2, new InfoBox("Tổng cân đã chia nhân viên", 'weight', 'primary', '/admin/customers', WeightPortal::whereType(3)->sum('value')));
+                    // $row->column(2, new InfoBox("Tổng cân đã chia khách hàng", 'weight', 'orange', '/admin/customers', TransactionWeight::whereType(2)->sum('kg')));
+                    // $row->column(2, new InfoBox("Tổng số cân nhân viên còn giữ", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::ADMIN)->sum('wallet_weight')));
+                    // $row->column(2, new InfoBox("Tổng cân khách hàng còn dư", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::CUSTOMER)->sum('wallet_weight')));
+    
+                // });   
             })
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
                     $column->append((new Box('Báo cáo phòng kinh doanh / ' . date('Y-m', strtotime(now())), $this->saleRevenue())));
                 });   
-            })
-            ->row(function (Row $row) {
-                $row->column(12, function (Column $column)
-                {
-                    $column->append((new Box('Ví cân tổng hợp', "")));
-                });   
             });
+            // ->row(function (Row $row) {
+            //     $row->column(12, function (Column $column)
+            //     {
+            //         $column->append(null);
+            //     });   
+            // });
+    }
+
+    public function weightPortal() {
+        $codes = TransportCode::where('vietnam_receive_at', 'like', date('Y-m-d', strtotime(now()))."%")->get();
+
+        return view('admin.system.report.wallet_weight', compact('codes'))->render();
+
+    }
+
+    public function receiveToday() {
+        $codes = TransportCode::where('vietnam_receive_at', 'like', date('Y-m-d', strtotime(now()))."%")->get();
+        // $codes = TransportCode::where('vietnam_receive_at', 'like', '2021-10-03%')->get();
+
+        return view('admin.system.report.receive_today', compact('codes'))->render();
     }
 
     protected function revenueWarehouse()
