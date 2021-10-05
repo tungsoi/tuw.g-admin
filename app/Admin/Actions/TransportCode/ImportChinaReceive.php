@@ -20,7 +20,7 @@ class ImportChinaReceive extends Action
         ini_set('precision', 50);
         $data = Excel::load($file, function($reader) {
             $reader->setHeaderRow(0);
-        }, 'UTF-8')->get();
+        })->get();
 
         $job = new ImportTransportCode(
             $data->toArray(),
