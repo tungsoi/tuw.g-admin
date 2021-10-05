@@ -48,22 +48,23 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
 
         if ($order->status == $orderService->getStatus('new-order')) {
 
-        // amount item price
+            // amount item price
             $totalItemPrice = str_replace(',', '', $order->sumItemPrice());
 
             $percent = (int) $this->percent;
             $depositedRmb = $totalItemPrice / 100 * $percent;
             $depositedVnd = $depositedRmb * $order->current_rate;
-            $deposited = number_format($depositedVnd, 0, '.', '');
+            $deposited = (int) number_format($depositedVnd, 0, '.', '');
 
             $deposited_final = (int) floor($deposited /1000);
             $deposited_final *= 1000;
 
-            $order->status = $orderService->getStatus('deposited');
-            $order->deposited = $deposited_final;
-            $order->deposited_at = now();
-            $order->user_deposited_at = $this->user_created_id;
-            $order->save();
+            PurchaseOrder::find($this->order_id)->update([
+                'status'    =>  $orderService->getStatus('deposited'),
+                'deposited' =>  $deposited_final,
+                'deposited_at'  =>  now(),
+                'user_deposited_at' =>  $this->user_created_id
+            ]);
 
             $job = new HandleCustomerWallet(
                 $order->customer->id,
