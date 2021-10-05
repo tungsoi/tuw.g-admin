@@ -40,8 +40,10 @@ class DeleteErrorTransportCodeChina extends Command
     public function handle()
     {
         TransportCode::where('status', 0)
-            ->where('internal_note', '!=', 'import')
-            ->delete();
+        ->where('internal_note', '!=', 'import')
+        ->update([
+            'status'   =>   -1
+        ]);
 
         ScheduleLog::create([
             'name'  =>  $this->signature

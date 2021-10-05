@@ -40,22 +40,16 @@ class ImportTransportCode implements ShouldQueue
             if (is_array($row) && sizeof($row) >= 1) {
 
                 $item = array_values($row);
-                $temp = [
-                    'transport_code' => (string) $item[0],
-                    'advance_drag'   => $item[1] ?? 0,
-                    'china_receive_at'  =>  $this->date. " 00:00:01",
-                    'kg'    =>  0,
-                    'length' =>  0,
-                    'width' =>  0,
-                    'height' =>  0,
-                    'china_receive_user_id' =>  $this->user_created_id,
-                    'internal_note' =>  'import',
-                    'status'    =>  0
-                ];
+                if (isset($item[0]) && $item[0] != null) {
+                    $temp = [
+                        'transport_code' => (string) $item[0],
+                        'advance_drag'   => $item[1] ?? 0,
+                        'china_receive_at'  =>  $this->date. " 00:00:01",
+                        'china_receive_user_id' =>  $this->user_created_id,
+                        'internal_note' =>  'import',
+                        'status'    =>  0
+                    ];
 
-                $flag = TransportCode::whereTransportCode($temp['transport_code'])->get();
-
-                if ($flag->count() == 0) {
                     TransportCode::firstOrCreate($temp);
                 }
             }
