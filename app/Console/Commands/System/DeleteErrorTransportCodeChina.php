@@ -2,16 +2,18 @@
 
 namespace App\Console\Commands\System;
 
+use App\Models\System\ScheduleLog;
+use App\Models\TransportOrder\TransportCode;
 use Illuminate\Console\Command;
 
-class ImportTransportCode extends Command
+class DeleteErrorTransportCodeChina extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'import:transport_code';
+    protected $signature = 'delete:error-transport-code-china';
 
     /**
      * The console command description.
@@ -37,6 +39,12 @@ class ImportTransportCode extends Command
      */
     public function handle()
     {
-        //
+        TransportCode::where('status', 0)
+            ->where('internal_note', '!=', 'import')
+            ->delete();
+
+        ScheduleLog::create([
+            'name'  =>  $this->signature
+        ]);
     }
 }

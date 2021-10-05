@@ -2,6 +2,7 @@
 
 namespace App\Admin\Actions\TransportCode;
 
+use App\Jobs\ImportTransportCode;
 use App\Models\TransportOrder\TransportCode;
 use Encore\Admin\Actions\Action;
 use Encore\Admin\Facades\Admin;
@@ -21,33 +22,12 @@ class ImportChinaReceive extends Action
             $reader->setHeaderRow(0);
         }, 'UTF-8')->get();
 
-        foreach ($data->toArray() as $key => $row) {
-            $date = $request->create_at;
-            
-
-            if (is_array($row) && sizeof($row) >= 1) {
-
-                $item = array_values($row);
-                $temp = [
-                    'transport_code' => (string) $item[0],
-                    'advance_drag'   => $item[1] ?? 0,
-                    'china_receive_at'  =>  $date. " 00:00:01",
-                    'kg'    =>  0,
-                    'length' =>  0,
-                    'width' =>  0,
-                    'height' =>  0,
-                    'china_receive_user_id' =>  Admin::user()->id,
-                    'internal_note' =>  'import',
-                    'status'    =>  0
-                ];
-
-                $flag = TransportCode::whereTransportCode($temp['transport_code'])->get();
-
-                if ($flag->count() == 0) {
-                    TransportCode::firstOrCreate($temp);
-                }
-            }
-        }
+        $job = new ImportTransportCode(
+            $data->toArray(),
+            $request->create_at,
+            Admin::user()->id
+        );
+        dispatch($job);
 
         return $this->response()->success('Import thành công')->refresh();
     }
