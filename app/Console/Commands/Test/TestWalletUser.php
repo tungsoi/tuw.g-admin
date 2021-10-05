@@ -44,25 +44,29 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
+        $deposited
+        $deposited_final = floor($deposited/1000);
+            $deposited_final *= 1000;
+            $deposited_final = (int) $deposited_final;
         // $orderService = new OrderService();
 
-        $order = PurchaseOrder::find(21152);
+        // $order = PurchaseOrder::find(21152);
 
-        // if ($order->status == $orderService->getStatus('new-order')) {
+        // // if ($order->status == $orderService->getStatus('new-order')) {
 
-        // amount item price
-            $totalItemPrice = str_replace(',', '', $order->sumItemPrice());
+        // // amount item price
+        //     $totalItemPrice = str_replace(',', '', $order->sumItemPrice());
 
-            $percent = 70;
-            $depositedRmb = $totalItemPrice / 100 * $percent;
-            $depositedVnd = $depositedRmb * $order->current_rate;
-            $deposited = number_format($depositedVnd, 0, '.', '');
+        //     $percent = 70;
+        //     $depositedRmb = $totalItemPrice / 100 * $percent;
+        //     $depositedVnd = $depositedRmb * $order->current_rate;
+        //     $deposited = number_format($depositedVnd, 0, '.', '');
 
-            $deposited = floor($deposited/1000);
-            $deposited *= 1000;
-            $deposited = (int) $deposited;
+        //     $deposited = floor($deposited/1000);
+        //     $deposited *= 1000;
+        //     $deposited = (int) $deposited;
 
-            dd($deposited);
+        //     dd($deposited);
 
         //     $order->status = $orderService->getStatus('deposited');
         //     $order->deposited = $deposited;

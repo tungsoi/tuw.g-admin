@@ -58,7 +58,7 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
 
             $deposited_final = floor($deposited/1000);
             $deposited_final *= 1000;
-            $deposited_final = (int) $deposited;
+            $deposited_final = (int) $deposited_final;
 
             $order->status = $orderService->getStatus('deposited');
             $order->deposited = $deposited_final;
