@@ -87,6 +87,7 @@ class ComplaintController extends AdminController
                 $query->whereIn('order_id', $order_ids);
             }, 'Nhân viên đặt hàng', 'supporter_order_id')->select($orderStaff);
             $filter->between('created_at', "Ngày tạo khiếu nại")->date();
+            $filter->equal('status', 'Trạng thái')->select(Complaint::STATUS);
 
         });
 
