@@ -56,12 +56,12 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
             $depositedVnd = $depositedRmb * $order->current_rate;
             $deposited = number_format($depositedVnd, 0, '.', '');
 
-            $deposited = floor($deposited/1000);
-            $deposited *= 1000;
-            $deposited = (int) $deposited;
+            $deposited_final = floor($deposited/1000);
+            $deposited_final *= 1000;
+            $deposited_final = (int) $deposited;
 
             $order->status = $orderService->getStatus('deposited');
-            $order->deposited = $deposited;
+            $order->deposited = $deposited_final;
             $order->deposited_at = now();
             $order->user_deposited_at = $this->user_created_id;
             $order->save();
@@ -69,7 +69,7 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
             $job = new HandleCustomerWallet(
                 $order->customer->id,
                 $this->user_created_id, // admin
-                $deposited,
+                $deposited_final,
                 3,
                 "Đặt cọc đơn hàng mua hộ $order->order_number"
             );

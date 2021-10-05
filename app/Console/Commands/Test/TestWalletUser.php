@@ -44,13 +44,50 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
-        $orders = PaymentOrder::whereStatus('cancel')->whereNotNull('transaction_note')->get();
+        // $orderService = new OrderService();
 
-        $notes = $orders->pluck('transaction_note');
+        $order = PurchaseOrder::find(21152);
 
-        Transaction::whereIn('content', $notes)->delete();
-        // dd($transaction->count());
-        dd('oke');
+        // if ($order->status == $orderService->getStatus('new-order')) {
+
+        // amount item price
+            $totalItemPrice = str_replace(',', '', $order->sumItemPrice());
+
+            $percent = 70;
+            $depositedRmb = $totalItemPrice / 100 * $percent;
+            $depositedVnd = $depositedRmb * $order->current_rate;
+            $deposited = number_format($depositedVnd, 0, '.', '');
+
+            $deposited = floor($deposited/1000);
+            $deposited *= 1000;
+            $deposited = (int) $deposited;
+
+            dd($deposited);
+
+        //     $order->status = $orderService->getStatus('deposited');
+        //     $order->deposited = $deposited;
+        //     $order->deposited_at = now();
+        //     $order->user_deposited_at = $this->user_created_id;
+        //     $order->save();
+
+        //     $job = new HandleCustomerWallet(
+        //         $order->customer->id,
+        //         $this->user_created_id, // admin
+        //         $deposited,
+        //         3,
+        //         "Đặt cọc đơn hàng mua hộ $order->order_number"
+        //     );
+        //     dispatch($job);
+        // }
+
+
+        // $orders = PaymentOrder::whereStatus('cancel')->whereNotNull('transaction_note')->get();
+
+        // $notes = $orders->pluck('transaction_note');
+
+        // Transaction::whereIn('content', $notes)->delete();
+        // // dd($transaction->count());
+        // dd('oke');
         // $orders = PurchaseOrder::whereNotIn('final_payment', ["", 0])->where('created_at', 'like', '2021-09%')
         //     ->whereNotNull('final_payment')->orderBy('id', 'desc')->get();
         // dd($orders->count());
