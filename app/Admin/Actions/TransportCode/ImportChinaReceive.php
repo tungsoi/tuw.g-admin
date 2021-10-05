@@ -17,7 +17,7 @@ class ImportChinaReceive extends Action
     public function handle(Request $request)
     {
         $file = $request->file('file');
-        ini_set('precision', 200);
+        ini_set('precision', 50);
         $data = Excel::load($file, function($reader) {
             $reader->setHeaderRow(0);
         }, 'UTF-8')->get();
