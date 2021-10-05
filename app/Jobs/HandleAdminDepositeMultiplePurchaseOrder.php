@@ -56,11 +56,9 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
             $depositedVnd = $depositedRmb * $order->current_rate;
             $deposited = number_format($depositedVnd, 0, '.', '');
 
-            if ($this->flag) {
-                $deposited = floor($deposited/1000);
-                $deposited *= 1000;
-                $deposited = (int) $deposited;
-            }
+            $deposited = floor($deposited/1000);
+            $deposited *= 1000;
+            $deposited = (int) $deposited;
 
             $order->status = $orderService->getStatus('deposited');
             $order->deposited = $deposited;
