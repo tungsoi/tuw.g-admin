@@ -50,7 +50,11 @@ class ImportTransportCode implements ShouldQueue
                         'status'    =>  0
                     ];
 
-                    TransportCode::firstOrCreate($temp);
+                    $flag = TransportCode::whereTransportCode($temp['transport_code'])->count();
+
+                    if ($flag == 0) {
+                        TransportCode::firstOrCreate($temp);
+                    }
                 }
             }
         }
