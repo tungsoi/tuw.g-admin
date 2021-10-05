@@ -44,10 +44,11 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
-        $deposited
-        $deposited_final = floor($deposited/1000);
+        $deposited = "245949";
+        $deposited_final = (int) floor($deposited /1000);
+
             $deposited_final *= 1000;
-            $deposited_final = (int) $deposited_final;
+            dd($deposited_final);
         // $orderService = new OrderService();
 
         // $order = PurchaseOrder::find(21152);
