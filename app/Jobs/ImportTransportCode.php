@@ -42,7 +42,7 @@ class ImportTransportCode implements ShouldQueue
                 $item = array_values($row);
                 if (isset($item[0]) && $item[0] != null) {
                     $temp = [
-                        'transport_code' => $item[0],
+                        'transport_code' => (string) $item[0],
                         'advance_drag'   => $item[1] ?? 0,
                         'china_receive_at'  =>  $this->date. " 00:00:01",
                         'china_receive_user_id' =>  $this->user_created_id,
