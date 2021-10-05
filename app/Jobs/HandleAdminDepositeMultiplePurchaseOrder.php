@@ -19,6 +19,7 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
 
     protected $order_id;
     protected $percent;
+    protected $flag;
     protected $user_created_id;
 
     /**
@@ -26,10 +27,11 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($order_id, $percent, $user_created_id)
+    public function __construct($order_id, $percent, $flag, $user_created_id)
     {
         $this->order_id = $order_id;
         $this->percent = $percent;
+        $this->flag = $flag;
         $this->user_created_id = $user_created_id;
     }
 
@@ -54,8 +56,7 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
             $depositedVnd = $depositedRmb * $order->current_rate;
             $deposited = number_format($depositedVnd, 0, '.', '');
 
-            $user_create_flag = User::find($this->user_created_id);
-            if ($user_create_flag->is_customer == 0) {
+            if ($this->flag) {
                 $deposited = floor($deposited/1000);
                 $deposited *= 1000;
                 $deposited = (int) $deposited;
