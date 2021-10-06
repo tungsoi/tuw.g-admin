@@ -108,7 +108,7 @@ class PortalController extends AdminController
             $members = $warehouse->employees;
             $orders = PaymentOrder::select('amount')->whereIn('user_created_id', $members)
                         ->where('status', 'payment_export')
-                        ->where('created_at', 'like', $this->today.'%')    
+                        ->where('created_at', 'like', date('Y-m', strtotime(now())).'%')    
                         ->get();
 
             $revenue[$warehouse->id] = [
@@ -118,7 +118,7 @@ class PortalController extends AdminController
                                     . "?status=payment_export"
                                     . "&user_created_id%5B%5D="
                                     . implode("&user_created_id%5B%5D=", $members)
-                                    . "&created_at%5Bstart%5D=".date('Y-m-d', strtotime(now()))."&created_at%5Bend%5D=".date('Y-m-d', strtotime(Carbon::now()->addDays(1)))
+                                    . "&created_at%5Bstart%5D=".date('Y-m-', strtotime(now()))."01&created_at%5Bend%5D=".date('Y-m-', strtotime(now())).cal_days_in_month(CAL_GREGORIAN, date('m', strtotime(now())), date('Y', strtotime(now())))
             ];
         }
         return view('admin.system.report.revenue_order_warehouse', compact('warehouses', 'revenue'))->render();
