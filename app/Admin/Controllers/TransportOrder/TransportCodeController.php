@@ -97,7 +97,7 @@ class TransportCodeController extends AdminController
             });
 
             $filter->column(1/4, function ($filter) {
-                $filter->between('china_recevie_at', 'Ngày về TQ')->date();
+                $filter->between('china_receive_at', 'Ngày về TQ')->date();
                 $filter->between('payment_at', 'Ngày thanh toán')->date();
             });
 
