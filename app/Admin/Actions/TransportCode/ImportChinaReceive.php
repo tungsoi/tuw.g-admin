@@ -16,18 +16,24 @@ class ImportChinaReceive extends Action
 
     public function handle(Request $request)
     {
-        $file = $request->file('file');
-        ini_set('precision', 50);
-        $data = Excel::load($file, function($reader) {
-            $reader->setHeaderRow(0);
-        })->get();
+        ini_set('precision', 20);
+        $path = $request->file('file')->getRealPath();
+        $data = Excel::load($path)->get();
+        
+        if ($data->count()) {
+            foreach ($data as $key => $value) {
+                $arr[] = [
+                    'transport_code' => strval($value->ma_van_don),
+                    'advance_drag'   => $value->ung_te,
+                    'china_receive_at'  =>  $request->create_at. " 00:00:01",
+                    'china_receive_user_id' =>  Admin::user()->id,
+                    'internal_note' =>  'import',
+                    'status'    =>  0
+                ];
+            }
 
-        $job = new ImportTransportCode(
-            $data->toArray(),
-            $request->create_at,
-            Admin::user()->id
-        );
-        dispatch($job);
+            TransportCode::insert($arr);
+        }
 
         return $this->response()->success('Import thành công')->refresh();
     }
