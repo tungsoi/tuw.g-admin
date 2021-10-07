@@ -129,13 +129,18 @@ class TransportCodeController extends AdminController
                 $actions->disableDelete();
             });
             if (! Admin::user()->isRole('customer')) {
-                $tools->append(new SwapWarehouse());
-                $tools->append(new ConfirmSwapWarehouse());
-                // $tools->append(new Payment());
-                $tools->append(new PaymentNotExport());
-                $tools->append(new PaymentExport());
-                $tools->append(new Export());
-                $tools->append(new ImportChinaReceive());
+
+                if (Admin::user()->isRole('warehouse_employee')) {
+                    $tools->append(new SwapWarehouse());
+                    $tools->append(new ConfirmSwapWarehouse());
+                    $tools->append(new PaymentNotExport());
+                    $tools->append(new PaymentExport());
+                    $tools->append(new Export());
+                }
+                
+                if (Admin::user()->isRole('warehouse_employee') || Admin::user()->isRole('ar_employee')) {
+                    $tools->append(new ImportChinaReceive());
+                }
             }
             
         });
