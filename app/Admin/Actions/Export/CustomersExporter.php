@@ -22,6 +22,7 @@ class CustomersExporter extends AbstractExporter
 
                         $res = [
                             $flag,
+                            $item->name,
                             $item->symbol_name,
                             $item->username,
                             $item->phone_number,
@@ -59,6 +60,7 @@ class CustomersExporter extends AbstractExporter
     {
         return [
             'STT', 
+            'Tên khách hàng',
             'Mã khách hàng', 
             'Email', 
             'Số điện thoại',
