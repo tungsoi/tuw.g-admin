@@ -45,7 +45,7 @@
 </div>
 <br>
 
-@if (isset($mode) && $mode == 'recharge' && $form != "")
+@if (Admin::user()->isRole('ar_employee') && isset($mode) && $mode == 'recharge' && $form != "")
     {!! $form !!}
 @endif
 
