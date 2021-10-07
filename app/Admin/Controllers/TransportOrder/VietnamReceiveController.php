@@ -213,6 +213,7 @@ class VietnamReceiveController extends AdminController
                     $orderService = new OrderService();
                     $code['status'] = $orderService->getTransportCodeStatus('vietnam-rev');
                     $code['vietnam_receive_user_id'] = Admin::user()->id;
+                    $code['admin_note'] = $code['internal_note'];
                     $code['internal_note']  = json_encode(PurchaseOrder::where('transport_code', 'like', '%'.$code['transport_code'].'%')->pluck('order_number')) ?? "";
     
                     $flag = TransportCode::whereTransportCode(trim($code['transport_code']))->first();
