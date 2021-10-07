@@ -281,10 +281,14 @@ class PurchaseOrderItemController extends AdminController
                     $flag_qty = true;
                 }
 
-                // if ($status == $orderService->getStatus('ordered')) {
-                //     $is_edit_qty_reality = false;
-                // }
+                if ($status == $orderService->getStatus('success')) {
+                    $is_edit_qty_reality = false;
+                }
             }
+        }
+
+        if (Admin::user()->isRole('ar_employee')) {
+            $is_edit_qty_reality = true;
         }
 
         if ($flag_qty) {
@@ -321,7 +325,11 @@ class PurchaseOrderItemController extends AdminController
             })->style('text-align: right; max-width: 150px;');
         }
 
-        $grid->purchase_cn_transport_fee('VC nội địa TQ')->editable()->style('text-align: right; max-width: 150px;');
+        if (Admin::user()->isRole('customer') || ! $is_edit_qty_reality) {
+            $grid->purchase_cn_transport_fee('VC nội địa TQ')->style('text-align: right; max-width: 150px;');
+        } else {
+            $grid->purchase_cn_transport_fee('VC nội địa TQ')->editable()->style('text-align: right; max-width: 150px;');
+        }
         $grid->column('total_price', 'Tổng tiền sản phẩm')->display(function () {
 
             try {
