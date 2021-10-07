@@ -1,5 +1,5 @@
 @php
-    $color = ['info', 'success', 'warning'];
+    $color = ['info', 'success', 'warning', 'info'];
     $total_count = 0;
     $total_money = 0;
 @endphp

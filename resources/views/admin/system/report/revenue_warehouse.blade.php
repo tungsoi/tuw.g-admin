@@ -1,9 +1,9 @@
 @php
-    $color = ['info', 'success', 'warning'];
+    $color = ['info', 'success', 'warning', 'info'];
 @endphp
 @foreach ($warehouses as $key => $warehouse)
 
-<div class="col-md-4">
+<div class="col-md-3">
     <div class="alert alert-{{ $color[$key] }}">
         <h4>{{ $warehouse->name }}</h4>
         <hr>

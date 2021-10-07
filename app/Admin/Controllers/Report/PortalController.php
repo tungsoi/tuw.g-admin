@@ -58,12 +58,12 @@ class PortalController extends AdminController
         return $content
             ->title($this->title)
             ->row(function (Row $row) {
-                $row->column(8, function (Column $column)
+                $row->column(12, function (Column $column)
                 {
                     $column->append((new Box('Doanh thu nạp tiền kho / ' . $this->today, $this->revenueWarehouse())));
                 });
 
-                $row->column(4, function (Column $column)
+                $row->column(3, function (Column $column)
                 {
                     $column->append((new Box('Doanh thu nạp tiền kế toán / ' . $this->today, $this->revenueAr())));
                 });   
@@ -164,6 +164,7 @@ class PortalController extends AdminController
                     . "&created_at%5Bstart%5D=".date('Y-m-d', strtotime(now()))."&created_at%5Bend%5D=".date('Y-m-d', strtotime(Carbon::now()->addDays(1)))
             ];
         }
+
         return view('admin.system.report.revenue_warehouse', compact('warehouses', 'revenue'))->render();
     }
 
