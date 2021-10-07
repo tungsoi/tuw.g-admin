@@ -63,7 +63,7 @@ class PortalController extends AdminController
                     $column->append((new Box('Doanh thu nạp tiền kho / ' . $this->today, $this->revenueWarehouse())));
                 });
 
-                $row->column(3, function (Column $column)
+                $row->column(6, function (Column $column)
                 {
                     $column->append((new Box('Doanh thu nạp tiền kế toán / ' . $this->today, $this->revenueAr())));
                 });   
