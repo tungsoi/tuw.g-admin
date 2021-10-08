@@ -179,20 +179,31 @@ class OfferController extends AdminController
         });
 
         $grid->offer_cn('Chiết khấu (Tệ) (5) = (3) - (4)')
+        ->display(function () {
+            $order = false;
+            if ($this->final_payment != "" && ($this->offer_cn == 0 || $this->offer_vn == 0)){
+                $price_rmb = str_replace(",", "", $this->sumItemPrice());
+                $ship = $this->sumShipFee();
+                $total = $price_rmb + $ship;
+                $offer_cn = $total - $this->final_payment;
+                $offer_vn = number_format($offer_cn * $this->current_rate, 0, '.', '');
+
+                $order = PurchaseOrder::select('id', 'offer_cn', 'offer_vn')->where('id', $this->id)->first();
+                $order->offer_cn = $offer_cn;
+                $order->offer_vn = $offer_vn;
+                $order->save();
+            }
+
+            $money = $order ? $offer_cn : $this->offer_cn;
+            return number_format($money, 2, '.', '');
+        })
         ->totalRow(function ($amount) {
             return "<span id='offer_cn'></span>";
         });
         $grid->offer_vn('Chiết khấu (VND) (6) = (5) * Tỷ giá đơn')
         ->display(function () {
-            $money = 0;
-            if ($this->offer_vn == "") {
-                return $money;
-            }
-            try {
-                return number_format(str_replace(",", "", $this->offer_vn), 0, '.', '');
-            } catch (\Exception $e) {
-                dd($this->offer_vn);
-            }
+            $order = PurchaseOrder::select('id', 'offer_cn', 'offer_vn')->where('id', $this->id)->first();
+            return number_format(str_replace(",", "", $order->offer_vn), 0, '.', '');
         })
         ->totalRow(function ($amount) {
             return "<span id='offer_vnd'></span>";
