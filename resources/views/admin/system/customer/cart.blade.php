@@ -138,6 +138,12 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <input type="radio" id="order_type_1688" name="order_type" value="1688, Taobao" checked>
+                    <label for="order_type_1688"> &nbsp; 1688, Taobao</label><br>
+                    <input type="radio" id="order_type_pindoudou" name="order_type" value="Pindoudou">
+                    <label for="order_type_pindoudou"> &nbsp; Pindoudou</label><br>
+                </div>
+                <div class="form-group">
                     <input type="hidden" name="ids" id="ids" value="">
                 </div>
                 <div class="form-group">
