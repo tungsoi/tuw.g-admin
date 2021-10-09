@@ -471,7 +471,7 @@ SCRIPT;
             if ($this->status == "cancel") {
                 $data[] = [
                     'is_label'  =>  false,
-                    'text'  =>  User::find($this->user_cancel_id)->name
+                    'text'  =>  $this->user_cancel_id != null ? User::find($this->user_cancel_id)->name : ""
                 ];
 
                 $data[] = [
