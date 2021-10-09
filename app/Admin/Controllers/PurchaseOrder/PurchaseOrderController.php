@@ -194,7 +194,8 @@ class PurchaseOrderController extends AdminController
                     'text'      =>  "". $this->items->where('status', '!=', 4)->count()." link, ". $this->totalItems() . " sp"
                 ],
                 'order_type'    =>  [
-                    'is_label'  =>  false,
+                    'is_label'  =>  true,
+                    'color'     =>  'default',
                     'text'      =>  $this->order_type
                 ]
             ];
