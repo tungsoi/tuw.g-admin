@@ -128,7 +128,7 @@
           <h4 class="modal-title">Tạo đơn hàng</h4>
         </div>
         <div class="modal-body">
-          <form action="{{ route('admin.customer_purchase_orders.storeFromCart') }}" method="post">
+          <form action="{{ route('admin.customer_purchase_orders.storeFromCart') }}" method="post" id="frm-cart">
                 {{ @csrf_field() }}
                 <div class="form-group">
                     <select class="form-control" name="warehouse_id">
@@ -138,7 +138,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <input type="radio" id="order_type_1688" name="order_type" value="1688, Taobao" checked>
+                    <input type="radio" id="order_type_1688" name="order_type" value="Taobao-1688" checked>
                     <label for="order_type_1688"> &nbsp; 1688, Taobao</label><br>
                     <input type="radio" id="order_type_pindoudou" name="order_type" value="Pindoudou">
                     <label for="order_type_pindoudou"> &nbsp; Pindoudou</label><br>
@@ -274,5 +274,9 @@
             $("#myModal-storeOrderFromCart").modal('show');
 
         }
+    });
+    
+    $('#frm-cart').on('submit', function () {
+        $('.loading-overlay').show();
     });
 </script>
