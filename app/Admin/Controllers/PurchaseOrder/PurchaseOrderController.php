@@ -1153,6 +1153,7 @@ SCRIPT;
 
     public function formEditPortal($id) {
         $form = new Form(new PurchaseOrder());
+
         $userService = new UserService();
 
         $order = PurchaseOrder::find($id);
@@ -1177,13 +1178,11 @@ SCRIPT;
             $form->select('supporter_sale_id', 'Nhân viên kinh doanh')->options($userService->GetListSaleEmployee())->default($order->supporter_sale_id);
             $form->select('supporter_order_id', 'Nhân viên đặt hàng')->options($userService->GetListOrderEmployee())->default($order->supporter_order_id);
             $form->select('warehouse_id', 'Kho hàng')->options($userService->GetListWarehouse())->default($order->warehouse_id);
-            $form->select('order_type', 'Loại đơn hàng')->options(
-                [
-                    "Taobao-1688"   =>  "Taobao-1688",
-                    "Pindoudou"     =>  "Pindoudou",
-                    "Wechat"        =>  "Wechat"
-                ]
-            );
+            $form->select('order_type', 'Loại đơn hàng')->options([
+                "Taobao-1688"   =>  "Taobao-1688",
+                "Pindoudou"     =>  "Pindoudou",
+                "Wechat"        =>  "Wechat"
+            ])->default($order->order_type);
         });
 
         $form->tools(function (Form\Tools $tools) {
