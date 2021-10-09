@@ -126,9 +126,12 @@ class PurchaseOrderController extends AdminController
             });
 
             $filter->column(1/4, function ($filter) {
-
                 $filter->between('vn_receive_at', 'Ngày về Việt Nam')->datetime();
                 $filter->between('success_at', 'Ngày hoàn thành')->datetime();
+                $filter->equal('order_type', 'Loại đơn hàng')->select([
+                    "Taobao-1688"   =>  "Taobao-1688",
+                    "Pindoudou"     =>  "Pindoudou"
+                ]);
             }); 
             
 
