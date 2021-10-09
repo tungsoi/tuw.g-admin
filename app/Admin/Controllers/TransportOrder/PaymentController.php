@@ -467,6 +467,18 @@ SCRIPT;
                     'text'      =>  $this->statusText()
                 ]
             ];
+
+            if ($this->status == "cancel") {
+                $data[] = [
+                    'is_label'  =>  false,
+                    'text'  =>  User::find($this->user_cancel_id)->name
+                ];
+
+                $data[] = [
+                    'is_label'  =>  false,
+                    'text'  =>  $this->cancel_at
+                ];
+            }
             return view('admin.system.core.list', compact('data'));
         });
         $grid->customer_input_name('Mã khách hàng')->display(function () {
