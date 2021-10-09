@@ -45,26 +45,25 @@ class TestWalletUser extends Command
     public function handle()
     {   
         $orders = PaymentOrder::whereStatus('payment_export')
-            ->whereBetween('export_at', ['2021-09-01', '2021-10-01'])
-            // ->whereColumn('created_at','!=', 'updated_at')
-            // ->whereNotNull('export_at')
+            ->whereNull('export_at')
             ->get();
 
-        $temp = $orders->pluck('id')->toArray();
+            dd($orders->count());
+        // $temp = $orders->pluck('id')->toArray();
 
-        $orders = PaymentOrder::whereStatus('payment_export')
-            ->whereBetween('created_at', ['2021-09-01', '2021-10-01'])
-            // ->whereColumn('created_at','!=', 'updated_at')
-            // ->whereNotNull('export_at')
-            ->get();
+        // $orders = PaymentOrder::whereStatus('payment_export')
+        //     ->whereBetween('created_at', ['2021-09-01', '2021-10-01'])
+        //     // ->whereColumn('created_at','!=', 'updated_at')
+        //     // ->whereNotNull('export_at')
+        //     ->get();
 
-            $temp2 = $orders->pluck('id')->toArray();
-        // foreach ($orders as $order) {
-        //     dd($order);
-        // }
-        dd(array_diff($temp2, $temp));
-        dd($orders->count());
-        dd($orders->sum('amount'));
+        //     $temp2 = $orders->pluck('id')->toArray();
+        // // foreach ($orders as $order) {
+        // //     dd($order);
+        // // }
+        // dd(array_diff($temp2, $temp));
+        // dd($orders->count());
+        // dd($orders->sum('amount'));
         // $deposited = "245949";
         // $deposited_final = (int) floor($deposited /1000);
 

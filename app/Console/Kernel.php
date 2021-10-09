@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\System\SubmitSuccessOrder',
         'App\Console\Commands\System\DeleteOrderDoesntHaveItem',
         'App\Console\Commands\System\DeleteErrorTransportCodeChina',
+        'App\Console\Commands\System\FillExportAtPaymentOrder',
         'App\Console\Commands\Report\SaleRevenue'
     ];
 
@@ -32,6 +33,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('purchase-order:delete-non-item')->everyMinute();
         $schedule->command('submit:success-order')->everyFiveMinutes();
         $schedule->command('delete:error-transport-code-china')->everyFiveMinutes();
+        $schedule->command('payment_order:fill_export_at')->hourly();
 
         $schedule->command('sale-revenue-report:update', ['2021-10-01', '2021-10-31'])->dailyAt("13:00");
         $schedule->command('sale-revenue-report:update', ['2021-10-01', '2021-10-31'])->dailyAt("21:00");
