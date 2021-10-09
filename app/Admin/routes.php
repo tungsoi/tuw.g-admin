@@ -157,6 +157,8 @@ Route::group([
     $router->post('purchase_orders/store_edit_data', 'PurchaseOrder\\PurchaseOrderController@postEditData')->name('purchase_orders.store_edit_data');
     $router->post('purchase_orders/post_admin_deposite_multiple', 'PurchaseOrder\\PurchaseOrderController@postAdminDepositeMultiple')->name('purchase_orders.post_admin_deposite_multiple');
     $router->post('purchase_orders/post_customer_deposite_multiple', 'PurchaseOrder\\PurchaseOrderController@postCustomerDepositeMultiple')->name('purchase_orders.post_admin_deposite_multiple');
+    $router->get('purchase_orders/admin_deposite_multiple/{ids}', 'PurchaseOrder\\PurchaseOrderController@getAdminDepositeMultiple')->name('purchase_orders.admin_deposite_multiple');
+    $router->post('purchase_orders/submit_admin_deposite_multiple', 'PurchaseOrder\\PurchaseOrderController@submitAdminDepositeMultiple')->name('purchase_orders.submit_admin_deposite_multiple');
 
     // carts
     $router->get('/carts/booking/{ids}', 'Customer\\CartController@booking')->name('carts.booking');

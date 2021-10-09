@@ -1353,4 +1353,72 @@ SCRIPT;
             'html'      =>  $html
         ]);
     }
+
+    public function getAdminDepositeMultiple($ids, Content $content) {
+
+        return $content
+        ->title("Đặt cọc đơn hàng mua hộ")
+        ->description($this->description['create'] ?? trans('admin.create'))
+        ->body($this->formAdminDepositeMultiple($ids));
+    }
+
+    public function formAdminDepositeMultiple($id) {
+        $form = new Form(new PurchaseOrder);
+
+        $ids = explode(",", $id);
+        $orders = PurchaseOrder::whereIn('id', $ids)->get();
+
+        $form->setTitle('Đặt cọc đơn hàng mua hộ');
+        $form->setAction(route('admin.purchase_orders.submit_admin_deposite_multiple'));
+        $form->html(view('admin.system.purchase_order.admin_deposite_multiple', compact('orders'))->render());
+
+        $form->confirm('Xác nhận đặt cọc ?');
+        Admin::style('
+            form .col-sm-2, form .col-sm-8 {
+                width: 100%;
+                text-align: left !important;
+                padding: 0px !important;
+            }
+            .box {
+                border: none !important;
+            }
+        ');
+
+        $form->tools(function (Form\Tools $tools) {
+            $tools->disableDelete();
+            $tools->disableView();
+            $tools->disableList();
+        });
+
+        return $form;
+    }
+
+    public function submitAdminDepositeMultiple(Request $request) {
+        $data = $request->all();
+        $ids = $request->id;
+        $depositeds = $request->deposited;
+
+        foreach ($ids as $key => $order_id) {
+            $order = PurchaseOrder::find($order_id);
+            $money = str_replace(',', '', $depositeds[$key]);
+            $order->update([
+                'deposited' => $money,
+                'status'    =>  4,
+                'deposited_at'  =>  now(),
+                'user_deposited_at' =>  Admin::user()->id
+            ]);
+
+            $job = new HandleCustomerWallet(
+                $order->customer->id,
+                Admin::user()->id, // admin
+                $money,
+                3,
+                "Đặt cọc đơn hàng mua hộ $order->order_number"
+            );
+            dispatch($job);
+        }
+
+        admin_toastr('Đặt cọc thành công', 'success');
+        return redirect()->route('admin.purchase_orders.index');
+    }
 }
