@@ -412,7 +412,8 @@ SCRIPT;
 
                 $filter->equal('status', 'Trạng thái')->select([
                     'payment_export'    =>  'Thanh toán xuất kho',
-                    'payment_not_export'   =>   'Thanh toán chưa xuất kho'
+                    'payment_not_export'   =>   'Thanh toán chưa xuất kho',
+                    'cancel'    =>  'Huỷ'
                 ]);
             });
             $filter->column(1/4, function ($filter) use ($service)  {
