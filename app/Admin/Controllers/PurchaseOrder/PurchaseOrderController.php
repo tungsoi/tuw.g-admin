@@ -1419,6 +1419,6 @@ SCRIPT;
         }
 
         admin_toastr('Đặt cọc thành công', 'success');
-        return redirect()->route('admin.purchase_orders.index');
+        return redirect()->route('admin.transactions.index');
     }
 }
