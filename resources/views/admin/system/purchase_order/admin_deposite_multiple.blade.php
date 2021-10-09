@@ -17,8 +17,8 @@
                 <td>
                     {{ number_format($order->customer->wallet) }}
                 </td>
-                <td>{{ number_format($order->sumItemPrice() * $order->current_rate) }}</td>
-                <td>{{ number_format($order->amount() * $order->current_rate) }}</td>
+                <td>{{ number_format(str_replace(",", "", $order->sumItemPrice()) * $order->current_rate) }}</td>
+                <td>{{ number_format(str_replace(",", "", $order->amount()) * $order->current_rate) }}</td>
                 <td>
                     <input type="hidden" name="id[]" value="{{ $order->id }}">
                     <input name="deposited[]" type="text" class="form-control deposited" value="{{ $order->depositeAmountCal() }}">
