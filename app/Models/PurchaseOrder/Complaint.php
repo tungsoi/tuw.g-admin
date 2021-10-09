@@ -29,15 +29,17 @@ class Complaint extends Model
         'status',
         'begin_handled_at',
         'admin_finished_at',
-        'succesed_at'
+        'succesed_at',
+        'transport_code',
+        'payment_code'
     ];
 
     const STATUS = [
         self::NEW   =>  self::NEW_TEXT,
         self::PROCESS_NORMAL   =>  self::PROCESS_NORMAL_TEXT,
-        self::PROCESS_AGENT    =>  self::PROCESS_AGENT_TEXT,
+        // self::PROCESS_AGENT    =>  self::PROCESS_AGENT_TEXT,
         self::ADMIN_CONFIRM_SUCCESS =>  self::ADMIN_CONFIRM_SUCCESS_TEXT,
-        self::CUSTOMER_CONFIRM_SUCCESS =>  self::CUSTOMER_CONFIRM_SUCCESS_TEXT,
+        // self::CUSTOMER_CONFIRM_SUCCESS =>  self::CUSTOMER_CONFIRM_SUCCESS_TEXT,
         self::DONE  =>  self::DONE_TEXT
     ];
 
@@ -63,10 +65,10 @@ class Complaint extends Model
     const PROCESS_AGENT_TEXT = "Đang xử lý (Gấp)";
 
     const ADMIN_CONFIRM_SUCCESS = 3;
-    const ADMIN_CONFIRM_SUCCESS_TEXT = "Nhân viên đặt hàng xác nhận xử lý Khiếu nại thành công";
+    const ADMIN_CONFIRM_SUCCESS_TEXT = "Order xác nhận thành công";
 
     const CUSTOMER_CONFIRM_SUCCESS = 4;
-    const CUSTOMER_CONFIRM_SUCCESS_TEXT = "Nhân viên kinh doanh xác nhận xử lý Khiếu nại thành công";
+    const CUSTOMER_CONFIRM_SUCCESS_TEXT = "Sale xác nhận thành công";
 
     const DONE = 5;
     const DONE_TEXT = "Hoàn thành";

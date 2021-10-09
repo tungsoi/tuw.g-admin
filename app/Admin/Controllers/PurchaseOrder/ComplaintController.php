@@ -19,6 +19,7 @@ use Encore\Admin\Layout\Column;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Admin\Services\OrderService;
+use App\Admin\Services\UserService;
 
 class ComplaintController extends AdminController
 {
@@ -62,33 +63,53 @@ class ComplaintController extends AdminController
                 $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
                             ->orderBy('id', 'desc')->get()->pluck('order_number', 'id');
             }
-            $filter->equal('order_id', 'Mã đơn hàng')->select($order_ids);
+            $filter->column(1/4, function ($filter) use ($order_ids) {
+                $filter->equal('order_id', 'Mã đơn hàng')->select($order_ids);
+                $filter->equal('status', 'Trạng thái')->select(Complaint::STATUS);
+            });
 
-            $sales = DB::table('admin_role_users')->where('role_id', 3)->get()->pluck('user_id');
-            $saleStaff = User::whereIn('id', $sales)->whereIsActive(1)->get()->pluck('name', 'id');
+            $service = new UserService();
+            $filter->column(1/4, function ($filter) use ($service) {
+                
+                $filter->where(function ($query) use ($service) {
+                    $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
+                                ->where('supporter_sale_id', $this->input)
+                                ->get()->pluck('id');
 
-            $filter->where(function ($query) {
-                $sale_id = $this->input;
-                $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
-                            ->where('supporter_sale_id', $sale_id)
-                            ->get()->pluck('id');
+                    $query->whereIn('order_id', $order_ids);
+                }, 'Nhân viên kinh doanh', 'supporter_sale_id')->select($service->GetListSaleEmployee());
+            });
 
-                $query->whereIn('order_id', $order_ids);
-            }, 'Nhân viên kinh doanh', 'supporter_sale_id')->select($saleStaff);
+            $filter->column(1/4, function ($filter) use ($service) {
+                $filter->where(function ($query) {
+                    $order_id = $this->input;
+                    $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
+                                ->where('supporter_order_id', $order_id)
+                                ->get()->pluck('id');
 
-            $orders = DB::table('admin_role_users')->where('role_id', 4)->get()->pluck('user_id');
-            $orderStaff = User::whereIn('id', $orders)->whereIsActive(1)->get()->pluck('name', 'id');
-            $filter->where(function ($query) {
-                $order_id = $this->input;
-                $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
-                            ->where('supporter_order_id', $order_id)
-                            ->get()->pluck('id');
-
-                $query->whereIn('order_id', $order_ids);
-            }, 'Nhân viên đặt hàng', 'supporter_order_id')->select($orderStaff);
-            $filter->between('created_at', "Ngày tạo khiếu nại")->date();
-            $filter->equal('status', 'Trạng thái')->select(Complaint::STATUS);
-
+                    $query->whereIn('order_id', $order_ids);
+                }, 'Nhân viên đặt hàng', 'supporter_order_id')->select($service->GetListOrderEmployee());
+            });
+            $filter->column(1/4, function ($filter) use ($service) {
+                $filter->between('created_at', "Ngày tạo khiếu nại")->date();
+            });
+            
+            Admin::style('
+                #filter-box label {
+                    padding: 0px !important;
+                    padding-top: 10px;
+                    font-weight: 600;
+                    font-size: 12px;
+                }
+                #filter-box .col-sm-2 {
+                    width: 100% !important;
+                    text-align: left;
+                    padding: 0px 15px 3px 15px !important;
+                }
+                #filter-box .col-sm-8 {
+                    width: 100% !important;
+                }
+            ');
         });
 
         if (Admin::user()->isRole('sale_employee')) 
@@ -160,70 +181,105 @@ class ComplaintController extends AdminController
         });
         $grid->column('number', 'STT');
         $grid->order_id('Mã đơn hàng')->display(function () {
-            return $this->order->order_number ?? "";
-        });
-
-        $grid->symbol_name('Mã khách hàng')->display(function () {
+            // return $this->order->order_number ?? "";
             $order = PurchaseOrder::find($this->order_id);
+            $data = [
+                'order'   =>  [
+                    'is_label'   =>  true,
+                    'color'     =>  'primary',
+                    'text'      =>  $this->order->order_number ?? ""
+                ],
+                'customer'  =>  [
+                    'is_label'  =>  true,
+                    'color' =>  'default',
+                    'text'  =>  $order->customer->symbol_name ?? ""
+                ]
+            ];            
+            return view('admin.system.core.list', compact('data'));
+        });
 
-            return $order->customer->symbol_name ?? "";
-        });
-        $grid->column('sale_staff', 'Nhân viên Sale')->display(function () {
-            return $this->order->customer->saleEmployee->name ?? "";
-        });
-        $grid->column('order_staff', 'Nhân viên đặt hàng')->display(function () {
-            return $this->order->orderEmployee->name ?? "";
-        });
+        $grid->column('sale_staff', 'Nhân viên')->display(function () {
+            $data = [
+                'order'   =>  [
+                    'is_label'   =>  false,
+                    'text'      =>  "- Sale: " . $this->order->customer->saleEmployee->name ?? ""
+                ],
+                'customer'  =>  [
+                    'is_label'  =>  false,
+                    'text'  => "- Order: ". $this->order->orderEmployee->name ?? ""
+                ],
+                'time'  =>  [
+                    'is_label'  =>  false,
+                    'text'  =>  "- Ngày tạo: ". date('H:i | d-m-Y', strtotime($this->created_at))
+                ]
+            ];            
+            return view('admin.system.core.list', compact('data'));
+        })->width(230);
+
         $grid->image('Ảnh sản phẩm')->lightbox(['width' => 100, 'height' => 100])->width(300);
-        $grid->item_name('Tên sản phẩm')->width(300);
-        $grid->item_price('Giá sản phẩm');
-        $grid->content('Nội dung Khiếu nại');
-        $grid->comment('Số trao đổi')->display(function () {
-            return ComplaintComment::where('complaint_id', $this->id)->count();
+        $grid->item_name('Tên sản phẩm')->width(250)->display(function () {
+            $data = [
+                'order'   =>  [
+                    'is_label'   =>  false,
+                    'text'      =>  "- Tên SP: " . "<b>".$this->item_name."</b>"
+                ],
+                'transport_code'  =>  [
+                    'is_label'  =>  false,
+                    'text'  => "- MVD: ". $this->transport_code
+                ],
+                'payment_code'  =>  [
+                    'is_label'  =>  false,
+                    'text'  =>  "- MGD: ". $this->payment_code
+                ]
+            ];            
+            return view('admin.system.core.list', compact('data'));
         });
+        $grid->item_price('Giá');
+        $grid->content('Nội dung Khiếu nại');
+        // $grid->comment('Số trao đổi')->display(function () {
+        //     return ComplaintComment::where('complaint_id', $this->id)->count();
+        // });
         $grid->status('Trạng thái')->display(function () {
             $html = Complaint::STATUS[$this->status];
-            $date = "";
+            $time = "";
 
             switch ($this->status)
             {
                 case Complaint::NEW:
-                    $html .= " (".$this->created_at.")";
+                    $time = " (".$this->created_at.")";
                     break;
                 case Complaint::PROCESS_NORMAL:
-                    $html .= " (".$this->begin_handled_at.")";
+                    $time = " (".$this->begin_handled_at.")";
                     break;
                 case Complaint::ADMIN_CONFIRM_SUCCESS:
-                    $html .= " (".$this->admin_finished_at.")";
+                    $time = " (".$this->admin_finished_at.")";
                     break;
                 case Complaint::DONE:
-                    $html .= " (".$this->succesed_at.")";
+                    $time = " (".$this->succesed_at.")";
                     break;
                 default: 
-                    $html .= null;
+                    $time = null;
                     break;
             }
 
-            return "<span class='label label-".Complaint::LABEL[$this->status]."'>".$html."</span>";
+            $data = [
+                'amount_rmb'   =>  [
+                    'is_label'   =>  true,
+                    'color'     =>  Complaint::LABEL[$this->status],
+                    'text'      =>  Complaint::STATUS[$this->status]
+                ],
+                'time'  =>  [
+                    'is_label'  =>  true,
+                    'color'     =>  'default',
+                    'text'  =>  $time
+                ]
+            ];            
+            return view('admin.system.core.list', compact('data'));
         });
 
-        $grid->created_at(trans('admin.created_at'))->display(function () {
-            return date('H:i | d-m-Y', strtotime($this->created_at));
-        });
-
-        // // $grid->setActionClass(\Encore\Admin\Grid\Displayers\Actions::class);
-        // $grid->actions(function ($actions) {
-        //     if (! Admin::user()->can('delete-complaint'))
-        //     {
-        //         $actions->disableDelete();
-        //     }
-
-        //     if (! Admin::user()->can('edit-complaint'))
-        //     {
-        //         $actions->disableEdit();
-        //     }
-        // });
-
+        $grid->disableColumnSelector();
+        $grid->disableBatchActions();
+        $grid->disableExport();
         $grid->paginate(10);
 
         return $grid;
@@ -501,6 +557,8 @@ class ComplaintController extends AdminController
         $form->text('item_name', 'Tên sản phẩm')->rules('required');
         $form->text('item_price', 'Giá sản phẩm')->rules('required');
         $form->textarea('content', 'Nội dung Khiếu nại')->rules('required');
+        $form->text('transport_code', 'Mã vận đơn')->rules('required');
+        $form->text('payment_code', 'Mã giao dịch')->rules('required');
 
         $form->disableEditingCheck();
         $form->disableCreatingCheck();
