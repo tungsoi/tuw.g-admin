@@ -421,7 +421,8 @@ SCRIPT;
                 }
             }); 
             $filter->column(1/4, function ($filter) {
-                $filter->between('created_at', 'Ngày thanh toán')->date();
+                $filter->between('created_at', 'Ngày tạo')->date();
+                $filter->between('export_at', 'Ngày thanh toán')->date();
 
             });
             
@@ -562,6 +563,9 @@ SCRIPT;
         $grid->userCreated()->name('Người tạo');
         $grid->column('created_at', "Ngày tạo")->display(function () {
             return date('H:i | d-m-Y', strtotime($this->created_at));
+        })->style('text-align: center');
+        $grid->column('export_at', "Ngày thanh toán")->display(function () {
+            return date('H:i | d-m-Y', strtotime($this->export_at));
         })->style('text-align: center');
         $grid->inernal_note('Ghi chú');
 
