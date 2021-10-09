@@ -565,6 +565,9 @@ SCRIPT;
             return date('H:i | d-m-Y', strtotime($this->created_at));
         })->style('text-align: center');
         $grid->column('export_at', "Ngày thanh toán")->display(function () {
+            if ($this->export_at == "") {
+                return null;
+            }
             return date('H:i | d-m-Y', strtotime($this->export_at));
         })->style('text-align: center');
         $grid->inernal_note('Ghi chú');

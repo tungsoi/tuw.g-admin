@@ -44,7 +44,15 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
-        
+        $orders = PaymentOrder::whereStatus('payment_export')
+            ->where('created_at', 'like', '2021-09%')
+            ->whereColumn('created_at','!=', 'updated_at')
+            ->get();
+
+        foreach ($orders as $order) {
+            dd($order);
+        }
+        dd($orders->count());
         // $deposited = "245949";
         // $deposited_final = (int) floor($deposited /1000);
 
