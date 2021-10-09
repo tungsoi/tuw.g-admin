@@ -183,7 +183,7 @@ EOT);
         $grid->setTitle('Giao dịch Duplicate');
 
         $referrals =  Transaction::select('content')->selectRaw('count(content)')
-        ->groupBy('content', 'money')
+        ->groupBy('content')
         ->where('type_recharge', 3)
         ->where('content', 'like', 'Thanh toán%')
         ->orWhere('content', 'like', 'Đặt cọc%')
