@@ -47,7 +47,8 @@ class TransportCode extends Model
         'internal_note',
         'payment_note',
         'export_at',
-        'user_export_id'
+        'user_export_id',
+        'm3'
     ];
 
     public function paymentOrder()

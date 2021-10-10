@@ -128,6 +128,7 @@ class VietnamReceiveController extends AdminController
                 $table->currency('height', 'Cao (cm)')->digits(0)->default(0);
                 $table->currency('advance_drag', 'Ứng kéo (cm)')->digits(1)->default(0);
                 $table->text('internal_note', 'Ghi chú');
+                $table->currency('m3', 'Thể tích')->digits(2)->default(0);
             });
         });
 
@@ -338,7 +339,7 @@ class VietnamReceiveController extends AdminController
                                         $( ".has-many-vietnam-receive-form" ).last().find('.width').val(response.data.width);
                                         $( ".has-many-vietnam-receive-form" ).last().find('.height').val(response.data.height);
                                         $( ".has-many-vietnam-receive-form" ).last().find('.advance_drag').val(response.data.advance_drag);
-                                        $( ".has-many-vietnam-receive-form" ).last().find('.internal_note').val("Da ban TQ nhan");
+                                        $( ".has-many-vietnam-receive-form" ).last().find('.internal_note').val("");
                                         $( ".has-many-vietnam-receive-form" ).last().find('.kg').focus();
                                         $( ".has-many-vietnam-receive-form" ).last().find('.kg').click();
                                     }

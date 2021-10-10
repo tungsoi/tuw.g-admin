@@ -60,6 +60,7 @@ Route::group([
         'revenue_report_fetchs'            =>  'Report\\FetchController',
         'vn_customer_code'     =>   'TransportOrder\\VietnamCustomerCodeController',
         'revenue_warehouses'    =>  'Report\\RevenueWarehouseController',
+        'banks'     =>  'System\\BankController'
     ]);
 
     $router->get('report_portals','Report\\PortalController@indexRebuild')->name('report_portals');

@@ -130,7 +130,7 @@ class TransportCodeController extends AdminController
             });
             if (! Admin::user()->isRole('customer')) {
 
-                if (Admin::user()->isRole('warehouse_employee')) {
+                if (Admin::user()->isRole('warehouse_employee') || Admin::user()->isRole('administrator')) {
                     $tools->append(new SwapWarehouse());
                     $tools->append(new ConfirmSwapWarehouse());
                     $tools->append(new PaymentNotExport());
@@ -191,7 +191,7 @@ class TransportCodeController extends AdminController
             return $this->v();
         });
         $grid->m3('M3')->display(function () {
-            return $this->m3();
+            return ($this->m3 == "") ? $this->m3() : $this->m3;
         });
         $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
         $grid->price_service('Giá vận chuyển')->display(function () {

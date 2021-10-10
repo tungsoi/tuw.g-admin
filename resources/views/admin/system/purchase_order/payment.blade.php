@@ -41,7 +41,7 @@
                 <td align="right">{{ $code->length }}</td>
                 <td align="right">{{ $code->width }}</td>
                 <td align="right">{{ $code->height }}</td>
-                <td align="right">{{ $code->m3() }}</td>
+                <td align="right">{{ $code->m3 == "" ? $code->m3() : $code->m3 }}</td>
                 <td align="right">{{ str_replace(".00", "", $code->v()) }}</td>
                 <td align="right">{{ $code->advance_drag }}</td>
             </tr>
