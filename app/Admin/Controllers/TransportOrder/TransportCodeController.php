@@ -296,12 +296,12 @@ class TransportCodeController extends AdminController
 
             // neu la nv kho  -> remove check tat ca cac mvd o kho khac
             if (Admin::user()->isRole('warehouse_employee')) {
-                $warehouse = Warehouse::where('employees', 'like', '%'.Admin::user()->id.'%')->first();
-
+                $warehouse = Warehouse::where('employees', 'like', '%'.Admin::user()->id.'%')->get();
+                $warehouse_id_access = $warehouse->pluck('id')->toArray();
                 // dd($warehouse->id, $this->row->ware_house_id, $this->row->ware_house_swap_id);
                 // dd((int) $warehouse->id != (int) $this->row->ware_house_id || (int) $warehouse->id != (int) $this->row->ware_house_swap_id);
                 if ($warehouse) {
-                    if ( (int) $warehouse->id != (int) $this->row->ware_house_id && (int) $warehouse->id != (int) $this->row->ware_house_swap_id) {
+                    if ( ! in_array($this->row->ware_house_id, $warehouse_id_access) && ! in_array($this->row->ware_house_swap_id, $warehouse_id_access)) {
                     Admin::script(
                         <<<EOT
                             $('input[data-id={$this->row->id}]').parent().parent().empty();
