@@ -191,7 +191,7 @@ class TransportCodeController extends AdminController
             return $this->v();
         });
         $grid->m3('M3')->display(function () {
-            return ($this->m3 == "") ? $this->m3() : $this->m3;
+            return ($this->m3 == "" || $this->m3 == "0.00") ? $this->m3() : $this->m3;
         });
         $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
         $grid->price_service('Giá vận chuyển')->display(function () {
