@@ -31,7 +31,11 @@
                 <td style="width: 300px;">{{ $code->transport_code }}</td>
                 <td>{{ $code->customer_code_input }}</td>
                 <td>
-                    <select class="payment_type form-control" style="width: 100%;" name="payment_type[]" data-kg="{{ $code->kg }}" data-m3="{{ $code->m3() }}" data-v="{{ $code->v() }}">
+                    <select class="payment_type form-control" 
+                    style="width: 100%;" name="payment_type[]" 
+                    data-kg="{{ $code->kg }}" 
+                    data-m3="{{ ($code->m3 == "") ? $code->m3() : $code->m3 }}" 
+                    data-v="{{ $code->v() }}">
                         <option value="1" selected="">Khối lượng</option>
                         <option value="-1">M3</option>
                         <option value="0">V/6000</option>
