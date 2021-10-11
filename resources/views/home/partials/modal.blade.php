@@ -1,7 +1,7 @@
 <!-- Modal -->
 @if (isset($alert) && $alert)
 <div id="alert-mdl" class="modal" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
   
       <!-- Modal content-->
       <div class="modal-content">
