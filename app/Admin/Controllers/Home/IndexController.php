@@ -10,7 +10,7 @@ class IndexController extends Controller
 {
     public function index()
     {
-        $alert = Alert::first();
+        $alert = Alert::whereStatus(1)->first();
         return view('home.index', compact('alert'));
     }
 }
