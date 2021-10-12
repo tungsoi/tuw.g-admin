@@ -558,7 +558,7 @@ class ComplaintController extends AdminController
         $form->text('item_price', 'Giá sản phẩm')->rules('required');
         $form->textarea('content', 'Nội dung Khiếu nại')->rules('required');
         $form->text('transport_code', 'Mã vận đơn')->rules('required');
-        $form->text('payment_code', 'Mã giao dịch')->rules('required');
+        $form->text('payment_code', 'Mã giao dịch');
 
         $form->disableEditingCheck();
         $form->disableCreatingCheck();
