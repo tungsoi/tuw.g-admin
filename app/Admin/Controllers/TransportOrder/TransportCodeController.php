@@ -347,7 +347,7 @@ EOT);
         $form->number('length', "Dài (cm)")->rules(['required']);
         $form->number('width', "Rộng (cm)")->rules(['required']);
         $form->number('height', "Cao (cm)")->rules(['required']);
-        $form->currency('advance_drag', "Ứng kéo")->rules(['required'])->symbol('Tệ');
+        $form->currency('advance_drag', "Ứng kéo")->symbol('Tệ');
         $form->text('admin_note', 'Admin ghi chú');
 
         $service = new UserService();
