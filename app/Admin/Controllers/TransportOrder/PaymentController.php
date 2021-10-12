@@ -254,6 +254,9 @@ class PaymentController extends AdminController
         ];
 
         $order = PaymentOrder::firstOrCreate($payment_order_data);
+        PaymentOrder::find($order->id)->update([
+            'order_number'  =>  "C".$order->id
+        ]);
 
         // step 2: Update danh sách mã vận đơn
         $status_update = $payment_order_data['status'] == "payment_export" 
@@ -285,7 +288,7 @@ class PaymentController extends AdminController
                 Admin::user()->id,
                 $payment_order_data['amount'],
                 3,
-                "Thanh toán đơn hàng vận chuyển " . $payment_order_data['order_number']
+                "Thanh toán đơn hàng vận chuyển " . "C".$order->id
             );
             dispatch($job);
         }
@@ -296,7 +299,7 @@ class PaymentController extends AdminController
                 $payment_order_data['payment_customer_id'],
                 $payment_order_data['total_sub_wallet_weight'],
                 Admin::user()->id,
-                "Thanh toán đơn hàng vận chuyển " . $payment_order_data['order_number']
+                "Thanh toán đơn hàng vận chuyển " . "C".$order->id
             );
             dispatch($job_weight);
         }
