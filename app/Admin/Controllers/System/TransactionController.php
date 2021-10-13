@@ -102,7 +102,13 @@ class TransactionController extends AdminController
         $grid->userUpdated()->name('Người chỉnh sửa');
         $grid->customer()->symbol_name('Mã khách hàng');
         $grid->content('Nội dung giao dịch');
-        $grid->type()->name('Chi tiết giao dịch');
+        $grid->type()->name('Chi tiết giao dịch')->display(function () {
+            $html = $this->type->name ?? "";
+            if ($this->type_recharge ==  1) {
+                $html .= "<p style='color: red'>".($this->bank->bank_name ?? "")."</p>";
+            }
+            return $html;
+        });
         $grid->money('Số tiền')->display(function () {
             return number_format($this->money);
         })->totalRow(function ($amount) {
