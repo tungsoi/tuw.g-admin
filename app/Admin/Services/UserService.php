@@ -3,6 +3,7 @@
 namespace App\Admin\Services;
 
 use App\Models\Setting\RoleUser;
+use App\Models\System\Bank;
 use App\Models\System\CustomerPercentService;
 use App\Models\System\District;
 use App\Models\System\Province;
@@ -97,7 +98,8 @@ class UserService {
             'updated_user_id',
             'updated_at',
             'payment_order' => '',
-            'payment_order_id'  =>  ''
+            'payment_order_id'  =>  '',
+            'bank'  =>  ''
         ];
         $data = [];
 
@@ -112,7 +114,7 @@ class UserService {
                 $up = null;
                 $flag = 'down';
             }
-
+            
             // try {
                 $data[] = [
                     'id'    =>  $record->id,
@@ -131,6 +133,7 @@ class UserService {
                     'updated_at'    =>  $record->updated_at,
                     'payment_order' =>  $record->paymentOrder->order_number ?? "",
                     'payment_order_id'  =>  $record->paymentOrder->id ?? "",
+                    'bank'  =>  $record->bank->bank_name ?? ""
                 ];
             // } catch (\Exception $e) {
             //     dd($record);
@@ -235,5 +238,17 @@ class UserService {
         // }
 
         return $users;
+    }
+
+    public function GetListBankAccount() {
+        $banks = Bank::all();
+
+        $temp = [];
+
+        foreach ($banks as $bank) {
+            $temp[$bank->id] = $bank->bank_name . " - " . $bank->account_number . " - " . $bank->card_holder;
+        }
+
+        return $temp;
     }
 }

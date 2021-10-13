@@ -34,8 +34,8 @@ class BankController extends AdminController
         $grid->column('number', 'STT');
 
         $grid->column('bank_name', "Tên ngân hàng");
-        $grid->column('account_number', "Tên chủ tài khoản");
-        $grid->column('card_holder', "Số tài khoản");
+        $grid->column('card_holder', "Tên chủ tài khoản");
+        $grid->column('account_number', "Số tài khoản");
         
         $grid->disableExport();
         $grid->disableFilter();
@@ -61,8 +61,8 @@ class BankController extends AdminController
         $form = new Form(new Bank);
 
         $form->text('bank_name', "Tên ngân hàng")->rules(['required']);
-        $form->text('account_number', "Tên chủ tài khoản")->rules(['required']);
-        $form->text('card_holder', "Số tài khoản")->rules(['required']);
+        $form->text('card_holder', "Tên chủ tài khoản")->rules(['required']);
+        $form->text('account_number', "Số tài khoản")->rules(['required']);
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();

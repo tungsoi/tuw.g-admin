@@ -17,6 +17,9 @@ use App\User;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerTransactionController extends AdminController
 {
@@ -49,7 +52,9 @@ class CustomerTransactionController extends AdminController
             $customer = User::select('id', 'symbol_name', 'wallet')->whereId($id)->first();
             $empty = true;
             $service = new UserService();
-            $data = $service->GetCustomerTransactionHistory($id);
+            $res = $service->GetCustomerTransactionHistory($id);
+            $number = sizeof($res);
+            $data = $this->paginateArray($res);
 
             $mode = "";
             $form = "";
@@ -72,7 +77,7 @@ class CustomerTransactionController extends AdminController
             }
 
             $disableAction = true;
-            return view('admin.system.customer.transaction', compact('customer', 'empty', 'data', 'mode', 'form', 'transactionId', 'disableAction'))->render();
+            return view('admin.system.customer.transaction', compact('customer', 'number', 'empty', 'data', 'mode', 'form', 'transactionId', 'disableAction'))->render();
 
         });
         
@@ -86,5 +91,15 @@ class CustomerTransactionController extends AdminController
         $grid->disablePagination();
 
         return $grid;
+    }
+
+
+    public function paginateArray($items, $perPage = 10, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+
     }
 }

@@ -16,7 +16,8 @@ class Transaction extends Model
         'order_type',
         'note',
         'updated_user_id',
-        'money'
+        'money',
+        'bank_id'
     ];
 
     public function userCreated() {
@@ -37,5 +38,9 @@ class Transaction extends Model
 
     public function paymentOrder() {
         return $this->hasOne('App\Models\PaymentOrder\PaymentOrder', 'transaction_note', 'content');
+    }
+
+    public function bank() {
+        return $this->hasOne('App\Models\System\Bank', 'id', 'bank_id');
     }
 }

@@ -406,8 +406,9 @@ class CustomerController extends AdminController
             $customer = User::select('id', 'symbol_name', 'wallet')->whereId($id)->first();
             $empty = true;
             $service = new UserService();
-            $data = $service->GetCustomerTransactionHistory($id);
-            // $data = $this->paginate($res);
+            $res = $service->GetCustomerTransactionHistory($id);
+            $number = sizeof($res);
+            $data = $this->paginateArray($res);
 
             $mode = "";
             $form = "";
@@ -428,7 +429,7 @@ class CustomerController extends AdminController
                     $form = $this->formRecharge($id, "")->render();
                 }
             }
-            return view('admin.system.customer.transaction', compact('customer', 'empty', 'data', 'mode', 'form', 'transactionId'))->render();
+            return view('admin.system.customer.transaction', compact('customer','number', 'empty', 'data', 'mode', 'form', 'transactionId'))->render();
 
         });
         
@@ -466,6 +467,11 @@ class CustomerController extends AdminController
         $form->select('type_recharge', 'Loại giao dịch')->options(TransactionType::pluck('name', 'id'))->default(1)->rules('required');
         $form->currency('money', 'Số tiền cần nạp')->rules('required|min:4')->symbol('VND')->digits(0);
         $form->text('content', 'Nội dung')->placeholder('Ghi rõ nội dung giao dịch');
+
+        $service = new UserService();
+        $form->radio('bank_id', 'Ngân hàng nhận')->options($service->GetListBankAccount())->rules('required')->stacked();
+
+
         $form->hidden('user_id_created')->default(Admin::user()->id);
         $form->hidden('customer_id')->default($id);
         $form->hidden('record_id')->default($recordId);
@@ -637,7 +643,7 @@ class CustomerController extends AdminController
         ]);
     }
 
-    public function paginate($items, $perPage = 20, $page = null, $options = [])
+    public function paginateArray($items, $perPage = 10, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
         $items = $items instanceof Collection ? $items : Collection::make($items);

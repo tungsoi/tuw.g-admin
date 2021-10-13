@@ -5,6 +5,7 @@ namespace App;
 use App\Admin\Services\UserService;
 use App\Models\System\District;
 use App\Models\System\Province;
+use App\Models\System\Transaction;
 use Encore\Admin\Traits\AdminBuilder;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -179,10 +180,27 @@ class User extends Model implements AuthenticatableContract
     }
 
     public function updateWalletByHistory() {
-        $service = new UserService();
-        $data = $service->GetCustomerTransactionHistory($this->id, false);
-        $lastMoney = $data[0]['after_payment'];
-        $this->wallet = $lastMoney;
+        $transactions = Transaction::select('money', 'type_recharge')->where('money', ">", 0)
+        ->where('customer_id', $this->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        $total = 0;
+
+        if ($transactions->count() > 0) {
+
+            foreach ($transactions as $transaction) {
+                if (in_array($transaction->type_recharge, [0, 1, 2])) {
+                    $total += $transaction->money;
+                } else {
+                    $total -= $transaction->money;
+                }
+            }
+    
+            $total = number_format($total, 0, '.', '');
+        }
+
+        $this->wallet = $total;
         $this->save();
         return true;
     }

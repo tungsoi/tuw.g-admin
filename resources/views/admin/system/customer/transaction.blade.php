@@ -22,11 +22,12 @@
         <div class="alert alert-success">
             <h4>Số giao dịch</h4>
             <b>
-                @if (is_array($data) && sizeof($data) > 0)
+                {{-- @if (is_array($data) && sizeof($data) > 0)
                     {{ sizeof($data) }}
                 @else
                     0
-                @endif
+                @endif --}}
+                {{ $number ?? 0 }}
             </b>
         </div>
     </div>
@@ -69,7 +70,7 @@
         @endif
     </thead>
     <tbody>
-        @if (is_array($data) && sizeof($data) > 0)
+        {{-- @if (is_array($data) && sizeof($data) > 0) --}}
         @foreach ($data as $transaction)
             <tr
                 @if (isset($transactionId) && $transactionId != "" && $transactionId == $transaction['id'])
@@ -86,7 +87,11 @@
                         <a href="{{ route('admin.payments.showRebuild', $transaction['payment_order_id']) }}">{{ $transaction['payment_order'] }}</a>
                     @endif
                 </td>
-                <td align="center">{{ $transaction['type_recharge'] }}</td>
+                <td align="center">{{ $transaction['type_recharge'] }}
+                    @if ($transaction['type_recharge'] == "Nạp tiền chuyển khoản")
+                        <span style="color: red">{{ $transaction['bank'] }}</span>
+                    @endif
+                </td>
                 <td>{{ $transaction['content'] }}</td>
                 <td align="right">{!! $transaction['before_payment'] !!}</td>
                 <td align="right">{!! $transaction['down'] !!}</td>
@@ -112,56 +117,84 @@
                 @endif
             </tr>
         @endforeach
-        @endif
+        {{-- @endif --}}
     </tbody>
 </table>
+
+{{ $data->links() }}
 
 {{-- {{ $data->links() }} --}}
 
 <script>
     $('.grid-row-custom-delete').on('click', function () {
 
-    let url = $(this).data('url');
-    let id = $(this).data('id');
+        let url = $(this).data('url');
+        let id = $(this).data('id');
 
-    Swal.fire({
-        title: 'Bạn có chắc chắn muốn xoá?',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Đồng ý',
-        cancelButtonText: 'Huỷ bỏ'
-    }).then((result) => {
-        if (result.value == true && result.dismiss == undefined) {
+        Swal.fire({
+            title: 'Bạn có chắc chắn muốn xoá?',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Huỷ bỏ'
+        }).then((result) => {
+            if (result.value == true && result.dismiss == undefined) {
 
-            $('.loading-overlay').show();
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            $.ajax(
-            {
-                url: url,
-                type: 'delete', // replaced from put
-                dataType: "JSON",
-                success: function (response)
-                {
-                    if (response.isRedirect) {
-                        setTimeout(function () {
-                            window.location.href = response.url;
-                        }, 1000);
-                    } else {
-                        setTimeout(function () {
-                            window.location.reload();
-                        }, 1000);
+                $('.loading-overlay').show();
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
-                    
-                }
-            });
-        }
-    })
+                });
 
+                $.ajax(
+                {
+                    url: url,
+                    type: 'delete', // replaced from put
+                    dataType: "JSON",
+                    success: function (response)
+                    {
+                        if (response.isRedirect) {
+                            setTimeout(function () {
+                                window.location.href = response.url;
+                            }, 1000);
+                        } else {
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 1000);
+                        }
+                        
+                    }
+                });
+            }
+        })
+
+    });
+
+    $( document ).ready(function() {
+
+        let ul_pagination = $('ul.pagination');
+        ul_pagination.find('li').first().remove();
+        ul_pagination.find('li').last().remove();
+
+        let li_element = ul_pagination.find('li');
+
+        li_element.each(function (e) {
+            if (! li_element.eq(e).hasClass('active')) {
+                let link = li_element.eq(e).find('a');
+                let page = link.html();
+
+                let full_url = document.URL
+                let url = "";
+                if (full_url.indexOf("?") !== -1) {
+                    url = document.URL + "&page=" + page;
+                } else {
+                    url = document.URL + "?page=" + page;
+                }
+               
+                link.attr('href', url);
+            }
+        });
     });
 </script>
