@@ -124,18 +124,19 @@ class SaleReportController extends AdminController
                 ];
                 $detail = ReportDetail::where('sale_report_id', $report->id)->orderBy(DB::raw("`success_order_payment` + `processing_order_payment`"), 'desc');
 
+                if (isset($_GET['team_sale']) && $_GET['team_sale'] != "") {
+                    $ids = SystemTeamSale::find($_GET['team_sale'])->members;
+                    $detail->whereIn('user_id', $ids);
+                }
+
+                if (isset($_GET['user_id']) && $_GET['user_id'] != "") {
+                    $detail->where('user_id', $_GET['user_id']);
+                }
+
                 if (Admin::user()->isRole('sale_manager')) {
 
                 } else {
-                    if (isset($_GET['team_sale']) && $_GET['team_sale'] != "") {
-                        $ids = SystemTeamSale::find($_GET['team_sale'])->members;
-                        $detail->whereIn('user_id', $ids);
-                    }
-
-                    if (isset($_GET['user_id']) && $_GET['user_id'] != "") {
-                        $detail->where('user_id', $_GET['user_id']);
-                    }
-
+                
                     $flag = SystemTeamSale::where('leader', Admin::user()->id)->first();
 
                     if (Admin::user()->isRole('sale_employee')) {
