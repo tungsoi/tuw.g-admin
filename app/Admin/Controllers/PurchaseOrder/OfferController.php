@@ -193,9 +193,8 @@ class OfferController extends AdminController
                 $order->offer_vn = $offer_vn;
                 $order->save();
             }
-
             $money = $order ? $offer_cn : $this->offer_cn;
-            return number_format($money, 2, '.', '');
+            return number_format(str_replace(",", "", $money), 2, '.', '');
         })
         ->totalRow(function ($amount) {
             return "<span id='offer_cn'></span>";
