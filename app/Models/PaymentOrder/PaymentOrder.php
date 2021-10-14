@@ -51,6 +51,10 @@ class PaymentOrder extends Model
         return $this->hasMany(TransportCode::class, 'order_id', 'id');
     }
 
+    public function transportCodeByWarehouseId($ware_house_id) {
+        return $this->transportCode()->where('ware_house_id', $ware_house_id);
+    }
+
     public function statusText() {
         switch ($this->status) {
             case "payment_export": 

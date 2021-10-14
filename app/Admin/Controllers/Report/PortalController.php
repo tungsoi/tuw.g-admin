@@ -104,11 +104,19 @@ class PortalController extends AdminController
         $warehouses = Warehouse::all();
         $revenue = [];
 
+        $all_orders = PaymentOrder::where('status', 'payment_export')
+                ->where('created_at', 'like', date('Y-m', strtotime(now())).'%')    
+                ->pluck('id');
+
         foreach ($warehouses as $warehouse) {
-            $members = $warehouse->employees;
-            $orders = PaymentOrder::select('amount')->whereIn('user_created_id', $members)
-                        ->where('status', 'payment_export')
-                        ->where('created_at', 'like', date('Y-m', strtotime(now())).'%')    
+            $order_ids = TransportCode::whereIn('order_id', $all_orders)
+                ->where('ware_house_id', $warehouse->id)
+                ->get()
+                ->unique('order_id')
+                ->pluck('order_id');
+
+            $orders = PaymentOrder::select('amount')
+                        ->whereIn('id', $order_ids)
                         ->get();
 
             $revenue[$warehouse->id] = [
@@ -116,8 +124,7 @@ class PortalController extends AdminController
                 'count'         =>  $orders->count(),
                 'route'         =>  route('admin.payments.all')
                                     . "?status=payment_export"
-                                    . "&user_created_id%5B%5D="
-                                    . implode("&user_created_id%5B%5D=", $members)
+                                    . "&ware_house_id=" . $warehouse->id
                                     . "&created_at%5Bstart%5D=".date('Y-m-', strtotime(now()))."01&created_at%5Bend%5D=".date('Y-m-', strtotime(now())).cal_days_in_month(CAL_GREGORIAN, date('m', strtotime(now())), date('Y', strtotime(now())))
             ];
         }

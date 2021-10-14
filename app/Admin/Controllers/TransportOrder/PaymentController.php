@@ -422,6 +422,17 @@ SCRIPT;
             $filter->column(1/4, function ($filter) use ($service)  {
                 if (! Admin::user()->isRole('customer') ) {
                     $filter->equal('payment_customer_id', 'Khách hàng thanh toán')->select($service->GetListCustomer());
+                    $filter->where(function ($query) {
+                        $ware_house_id = $this->input;
+
+                        $orderIds = TransportCode::whereNotNull('order_id')
+                        ->where('ware_house_id', $ware_house_id)
+                        ->get()
+                        ->unique('order_id')
+                        ->pluck('order_id');
+
+                        $query->whereIn('id', $orderIds);
+                    }, 'Kho hàng thanh toán', 'ware_house_id')->select($service->GetListWarehouse());
                 }
             }); 
             $filter->column(1/4, function ($filter) {
