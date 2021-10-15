@@ -470,7 +470,7 @@ class CustomerController extends AdminController
 
         $service = new UserService();
         $form->radio('bank_id', 'Ngân hàng nhận')->options($service->GetListBankAccount())->rules('required')->stacked();
-
+        $form->datetime('created_at', 'Ngày tạo')->rules('required');
 
         $form->hidden('user_id_created')->default(Admin::user()->id);
         $form->hidden('customer_id')->default($id);
