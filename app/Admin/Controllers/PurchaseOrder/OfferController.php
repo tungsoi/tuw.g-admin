@@ -136,7 +136,11 @@ class OfferController extends AdminController
             });
         }
 
-        $grid->order_number('Mã đơn hàng');
+        $grid->order_number('Mã đơn hàng')->display(function () {
+            $html = $this->order_number;
+            $html .= "<br><br><span style='color: red'>".$this->order_type."</span>";
+            return $html;
+        });
         $grid->current_rate('Tỷ giá');
         $grid->customer()->symbol_name('Mã khách hàng');
 
