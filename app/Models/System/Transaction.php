@@ -17,7 +17,8 @@ class Transaction extends Model
         'note',
         'updated_user_id',
         'money',
-        'bank_id'
+        'bank_id',
+        'created_at'
     ];
 
     public function userCreated() {
