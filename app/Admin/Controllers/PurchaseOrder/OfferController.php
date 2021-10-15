@@ -87,6 +87,11 @@ class OfferController extends AdminController
 
                 $filter->between('vn_receive_at', 'Ngày về Việt Nam')->date();
                 $filter->between('success_at', 'Ngày hoàn thành')->date();
+                $filter->equal('order_type', 'Loại đơn hàng')->select([
+                    "Taobao-1688"   =>  "Taobao-1688",
+                    "Pindoudou"     =>  "Pindoudou",
+                    "Wechat"        =>  "Wechat"
+                ]);
             }); 
             
 
