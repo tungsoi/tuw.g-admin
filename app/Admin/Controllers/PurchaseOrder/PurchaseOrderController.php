@@ -6,6 +6,7 @@ use App\Admin\Actions\Customer\Recharge;
 use App\Admin\Actions\PurchaseOrder\ConfirmOrderItem;
 use App\Admin\Actions\PurchaseOrder\ConfirmOutstockItem;
 use App\Admin\Actions\PurchaseOrder\ConfirmVnReceiveItem;
+use App\Admin\Actions\PurchaseOrder\DeleteMultipleNewOrder;
 use App\Admin\Actions\PurchaseOrder\Deposite;
 use App\Admin\Actions\PurchaseOrder\DepositeMultiple;
 use App\Admin\Actions\PurchaseOrder\Update;
@@ -487,6 +488,10 @@ EOT);
         $grid->tools(function (Grid\Tools $tools) {
             if (Admin::user()->can('deposite_multiple_purchase_order')) {
                 $tools->append(new DepositeMultiple());
+            }
+
+            if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
+                $tools->append(new DeleteMultipleNewOrder());
             }
         });
 
