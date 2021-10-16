@@ -107,7 +107,7 @@ Route::group([
 
     // weight report
     $router->post('/report_warehouses/storeDetail', 'ReportWarehouse\\DetailController@storeDetail')->name('report_warehouses.storeDetail');
-    $router->put('/report_warehouses/{id}', 'ReportWarehouse\\DetailController@updateDetail')->name('report_warehouses.updateDetail');
+    $router->put('/report_warehouses/{report_warehouse}', 'ReportWarehouse\\DetailController@updateDetail')->name('report_warehouses.updateDetail');
 
     $router->get('/compare_customer_wallet', 'Report\\CustomerWalletController@index')->name('report.compare_customer_wallet');
 

@@ -192,7 +192,7 @@ EOT
         return redirect()->route('report_warehouses.index');
     }
 
-    public function updateDetail($id, Request $request) {
+    public function updateDetail(Request $request) {
         ReportWarehouse::find($request->pk)->update([
             $request->name  =>  $request->value
         ]);
@@ -208,4 +208,6 @@ EOT
         ]);
 
     }
+
+
 }
