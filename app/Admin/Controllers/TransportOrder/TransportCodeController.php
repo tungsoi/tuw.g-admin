@@ -131,11 +131,16 @@ class TransportCodeController extends AdminController
             if (! Admin::user()->isRole('customer')) {
 
                 if (Admin::user()->isRole('warehouse_employee') || Admin::user()->isRole('administrator')) {
+                    
                     $tools->append(new SwapWarehouse());
                     $tools->append(new ConfirmSwapWarehouse());
-                    $tools->append(new PaymentNotExport());
-                    $tools->append(new PaymentExport());
-                    $tools->append(new Export());
+                    if (Admin::user()->can('payment_transport_code'))
+                    {
+                        $tools->append(new PaymentNotExport());
+                        $tools->append(new PaymentExport());
+                        $tools->append(new Export());
+                    }
+                    
                 }
                 
                 if (Admin::user()->isRole('warehouse_employee') || Admin::user()->isRole('ar_employee')) {
