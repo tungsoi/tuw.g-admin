@@ -139,7 +139,7 @@ class PortalController extends AdminController
     }
 
     public function receiveToday() {
-        $codes = TransportCode::where('vietnam_receive_at', 'like', date('Y-m-d', strtotime(now()))."%")->get();
+        $codes = TransportCode::whereStatus(1)->where('vietnam_receive_at', 'like', date('Y-m-d', strtotime(now()))."%")->get();
         $route = route('admin.transport_codes.index') . "?status=1"
                     . "&vietnam_receive_at%5Bstart%5D=".date('Y-m-d', strtotime(now()))."&vietnam_receive_at%5Bend%5D=".date('Y-m-d', strtotime(Carbon::now()->addDays(1)));
 
