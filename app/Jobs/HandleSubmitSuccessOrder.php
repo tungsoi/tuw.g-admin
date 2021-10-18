@@ -36,9 +36,9 @@ class HandleSubmitSuccessOrder implements ShouldQueue
      */
     public function handle()
     {
-        $order = PurchaseOrder::find($this->orderId);
+        $order = PurchaseOrder::where('status', '!=', 9)->where('id', $this->orderId)->first();
 
-        if ($order->status != 9) {
+        if ($order && $order->status != 9) {
             
         // step 1: change status of order
             $order->status = 9;
@@ -47,23 +47,23 @@ class HandleSubmitSuccessOrder implements ShouldQueue
             $order->save();
 
             // step 2: calculator money
-            $deposited = $order->deposited;
-            $amount_rmb = $order->amount();
-            $amount_vnd = str_replace(",", "", $amount_rmb) * $order->current_rate;
-            $owed = $amount_vnd-$deposited;
+            $deposited = (int) $order->deposited;
+            $amount_rmb = str_replace(",", "", $order->amount());
+            $amount_vnd = (int) number_format( $amount_rmb * $order->current_rate, 0, '.', '');
+            $owed = number_format( (int) ($amount_vnd - $deposited) , 0, '.', '');
 
             if ($owed > 0) {
                 $type = 3; // tru tien
                 $content = "Thanh toán đơn hàng mua hộ. Mã đơn hàng ".$order->order_number;
             } else {
                 $type = 2; // hoan tien
-                $content = "Thanh toán đơn hàng mua hộ. Mã đơn hàng ".$order->order_number.". ( Dư tiền cọc).";
+                $content = "Thanh toán đơn hàng mua hộ. Mã đơn hàng ".$order->order_number.". (Dư tiền cọc).";
                 $owed = abs($owed);
             }
 
-            $flag = Transaction::where('content', $content)->first();
+            $flag = Transaction::where('content', 'like', '%'.$content.'%')->count();
 
-            if (! $flag) {
+            if ($flag == 0) {
                 $customer = User::find($order->customer_id);
                 $transactionType = TransactionType::find($type);
 
@@ -79,12 +79,12 @@ class HandleSubmitSuccessOrder implements ShouldQueue
 
                 // create transaction
                 Transaction::create([
-                'customer_id'   =>  $order->customer_id,
-                'user_id_created'   =>  1,
-                'type_recharge' =>  $type,
-                'content'   =>  $content,
-                'money'     =>  $owed
-            ]);
+                    'customer_id'   =>  $order->customer_id,
+                    'user_id_created'   =>  1,
+                    'type_recharge' =>  $type,
+                    'content'   =>  $content,
+                    'money'     =>  $owed
+                ]);
             }
         }
         return true;

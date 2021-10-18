@@ -44,14 +44,14 @@ class SubmitSuccessOrder extends Command
     public function handle()
     {
         $service = new OrderService();
-        $orders = PurchaseOrder::whereStatus($service->getStatus('vn-recevice'))->orderBy('id', 'desc')->get();
+        $orders = PurchaseOrder::whereStatus(7)->orderBy('id', 'desc')->get();
 
         echo $orders->count() . "\n";
  
         $key = 0;
         foreach ($orders as $order) {
-            $all_items = $order->items->where('status', '!=', $service->getItemStatus('out_stock'))->count();
-            $vn_items = $order->items->where('status', $service->getItemStatus('vn_received'))->count();
+            $all_items = $order->items->where('status', '!=', 4)->count();
+            $vn_items = $order->items->where('status', 3)->count();
 
             if ($order->transport_code != "") {
                 $arr = explode(',', $order->transport_code);
@@ -60,23 +60,9 @@ class SubmitSuccessOrder extends Command
                 $all_trscs = sizeof($arr);
                 $vn_trscs = TransportCode::whereIn('transport_code', $arr)->whereIn('status', [1,3,5])->count();
 
-                $text = "Thanh toán đơn hàng mua hộ. Mã đơn hàng " . $order->order_number;
-                $flag_transaction = Transaction::where('content', $text)->first();
-
                 if ($all_items == $vn_items && $all_trscs == $vn_trscs) {
 
                     echo $key . "-" . $order->order_number. "\n";
-                    // $this->toString(
-                    //     [
-                    //         ($key+1),
-                    //         $order->order_number,
-                    //         "(".$vn_items."/".$all_items.")",
-                    //         "(".$vn_trscs."/".$all_trscs.")",
-                    //     ]
-                    // );
-
-                    // $order->status = 9;
-                    // $order->save();
 
                     $key++;
 
