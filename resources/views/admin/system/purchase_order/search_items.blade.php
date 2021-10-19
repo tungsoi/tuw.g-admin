@@ -3,7 +3,13 @@
 
     <tr>
         <td>
-            <span>{{ $item->order ? $item->order->order_number : "" }}</span> <br>
+            @php
+                $link = $item->order ? 
+                        route('admin.purchase_orders.show', $item->order->id)
+                        : '#';
+            @endphp
+ 
+            <a href="{{$link}}" target="_blank">{{ $item->order ? $item->order->order_number : "" }}</a> <br>
             <span>{{ $item->order ? $item->order->customer->symbol_name : "" }}</span>
         </td>
         <td style="width: 200px !important;">{{ $item->cn_code }}</td>
