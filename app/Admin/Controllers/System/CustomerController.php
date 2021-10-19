@@ -466,11 +466,16 @@ class CustomerController extends AdminController
 
         $form->select('type_recharge', 'Loại giao dịch')->options(TransactionType::pluck('name', 'id'))->default(1)->rules('required');
         $form->currency('money', 'Số tiền cần nạp')->rules('required|min:4')->symbol('VND')->digits(0);
-        $form->text('content', 'Nội dung')->placeholder('Ghi rõ nội dung giao dịch');
+        $form->text('content', 'Nội dung')->placeholder('Ghi rõ nội dung giao dịch')->rules('required');
 
         $service = new UserService();
         $form->radio('bank_id', 'Ngân hàng nhận')->options($service->GetListBankAccount())->rules('required')->stacked();
-        $form->datetime('created_at', 'Ngày tạo')->rules('required');
+
+        if ($recordId == "") {
+            $form->datetime('time', 'Ngày tạo')->rules('required')->default(now());
+        } else {
+            $form->datetime('created_at', 'Ngày tạo')->rules('required');
+        }
 
         $form->hidden('user_id_created')->default(Admin::user()->id);
         $form->hidden('customer_id')->default($id);
@@ -496,6 +501,7 @@ class CustomerController extends AdminController
     {
         # code...
         $data = $request->all();
+        $data['created_at'] = $data['time'];
         unset($data['updated_user_id']);
 
         SystemTransaction::create($data);
