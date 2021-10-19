@@ -622,7 +622,7 @@ SCRIPT;
                         $flag = true;
                     }
                     
-                    if ($flag) {
+                    if ($flag && (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator'))) {
                         $column->append((new Box('Thao tác', $this->action($id))));
                     }
                 });   
