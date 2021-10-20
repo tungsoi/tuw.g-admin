@@ -128,7 +128,11 @@ class PortalController extends AdminController
                                     . "&created_at%5Bstart%5D=".date('Y-m-', strtotime(now()))."01&created_at%5Bend%5D=".date('Y-m-', strtotime(now())).cal_days_in_month(CAL_GREGORIAN, date('m', strtotime(now())), date('Y', strtotime(now())))
             ];
         }
-        return view('admin.system.report.revenue_order_warehouse', compact('warehouses', 'revenue'))->render();
+
+        $route_total = route('admin.payments.all')
+        . "?status=payment_export"
+        . "&created_at%5Bstart%5D=".date('Y-m-', strtotime(now()))."01&created_at%5Bend%5D=".date('Y-m-', strtotime(now())).cal_days_in_month(CAL_GREGORIAN, date('m', strtotime(now())), date('Y', strtotime(now())));
+        return view('admin.system.report.revenue_order_warehouse', compact('warehouses', 'revenue', 'route_total'))->render();
     }
 
     public function weightPortal() {
