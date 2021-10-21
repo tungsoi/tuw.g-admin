@@ -30,9 +30,12 @@ class TodayController extends AdminController
         $grid->model()->whereBetween('vn_receive_at', [$today." 00:00:01", $today." 23:59:59"])->orderBy('status', 'asc');
 
         $grid->header(function () use ($today) {
+            $data = PurchaseOrder::select('id', 'order_number', 'status')->whereBetween('vn_receive_at', [$today." 00:00:01", $today." 23:59:59"])->orderBy('id', 'desc')->get();
             $html = "<h4><b>";
             $html .= "Danh sách đơn hàng mua hộ về trong ngày - " . date('Y-m-d', strtotime(now()));
-            $html .= "<br> Tổng số đơn: " . PurchaseOrder::whereBetween('vn_receive_at', [$today." 00:00:01", $today." 23:59:59"])->orderBy('id', 'desc')->count();
+            $html .= "<br><br> - Tổng số đơn: " . $data->count();
+            $html .= "<br> - Tổng số đơn Đã về Việt Nam: " . $data->where('status', 7)->count();
+            $html .= "<br> - Tổng số đơn Hoàn thành: " . $data->where('status', 9)->count();
             $html .= "</b></h4>";
             return $html;
         });
