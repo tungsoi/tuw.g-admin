@@ -188,14 +188,23 @@ class PurchaseOrder extends Model
         return $type == 'vn' ? str_replace(",", "", number_format($rmb * $this->current_rate, 0)) : $rmb;
     }
 
-    public function countItemFollowStatus() {
+    public function countItemFollowStatus($mode = 'html') {
         switch ($this->statusText->code) {
             case "vn-recevice": 
                 if ($this->transport_code != "") {
                     $arr = explode(',', $this->transport_code);
                     $arr = array_filter($arr);
                     $done = TransportCode::whereIn('transport_code', $arr)->whereNotNull('transport_code')->where('status', '!=', 0)->count();
-                    return " (".$done."/".sizeof($arr).")";
+
+                    if ($mode == 'html') {
+                        return " (".$done."/".sizeof($arr).")";
+                    } else {
+                        if ($done == $arr) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
                 } else {
                     return " (0/0)";
                 }
@@ -204,14 +213,22 @@ class PurchaseOrder extends Model
         }
     }
 
-    public function countProductFollowStatus() {
+    public function countProductFollowStatus($mode = 'html') {
         $service = new OrderService();
         switch ($this->statusText->code) {
             case "vn-recevice": 
                 $allItems = $this->items->where('status', '!=', $service->getItemStatus('out_stock'))->count();
                 $vnItems = $this->items->where('status', $service->getItemStatus('vn_received'))->count();
 
-                return " (".$vnItems."/".$allItems.")";
+                if ($mode == 'html') {
+                    return " (".$vnItems."/".$allItems.")";
+                } else {
+                    if ($vnItems == $allItems) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
         }
     }
 }

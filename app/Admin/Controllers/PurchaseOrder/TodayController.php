@@ -182,14 +182,23 @@ class TodayController extends AdminController
             $transaction = Transaction::where('content', "Thanh toán đơn hàng mua hộ. Mã đơn hàng $this->order_number")->first();
 
             if ($transaction) {
-                return "- ".$transaction->content . " <br> <br> - " . number_format($transaction->money) . " <br> <br>- " . $transaction->created_at;
+                return "* ".$transaction->content . " <br> <br> * " . number_format($transaction->money) . " <br> <br>* " . $transaction->created_at;
             }
 
             if ($this->status == 9) {
                 return "<span style='color:red'>Chưa có giao dịch thanh toán</span>";
-            } 
+            } else {
+                $flag_item = $this->countItemFollowStatus('boolean');
+                $flag_product = $this->countProductFollowStatus('boolean');
+                if ($flag_item && $flag_product)
+                {
+                    return "<span style='color:red'> <i class='fa fa-spinner fa-spin' style='color: red'></i> Đang chờ hệ thống thanh toán</span>";
+                } else {
+                    return "<span style='color:blue'> Mã vận đơn hoặc hàng chưa về đủ</span>";
+                }
+            }
 
-            return "<span style='color:red'> <i class='fa fa-spinner fa-spin' style='color: red'></i> Đang chờ hệ thống thanh toán</span>";
+            
         });
         $grid->disableBatchActions();
         $grid->disableCreateButton();
