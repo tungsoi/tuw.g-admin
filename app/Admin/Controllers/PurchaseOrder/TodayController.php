@@ -205,6 +205,7 @@ class TodayController extends AdminController
         $grid->disableExport();
         $grid->disableFilter();
         $grid->disableColumnSelector();
+        $grid->paginate(10);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableEdit();
             $actions->disableDelete();
