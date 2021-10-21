@@ -27,7 +27,7 @@ class TodayController extends AdminController
         $grid = new Grid(new PurchaseOrder());
 
         $today = date('Y-m-d', strtotime(now()));
-        $grid->model()->whereBetween('vn_receive_at', [$today." 00:00:01", $today." 23:59:59"])->orderBy('id', 'desc')->orderBy('status', 'asc');
+        $grid->model()->whereBetween('vn_receive_at', [$today." 00:00:01", $today." 23:59:59"])->orderBy('status', 'asc');
 
         $grid->header(function () use ($today) {
             $html = "<h4><b>";
