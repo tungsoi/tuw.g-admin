@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('report-warehouse:portal')->everyFiveMinutes();
         $schedule->command('purchase-order:delete-non-item')->everyMinute();
-        $schedule->command('submit:success-order')->everyFiveMinutes();
+        $schedule->command('submit:success-order')->everyMinute();
         $schedule->command('delete:error-transport-code-china')->everyFiveMinutes();
         $schedule->command('payment_order:fill_export_at')->hourly();
 
