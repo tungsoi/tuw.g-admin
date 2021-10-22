@@ -97,9 +97,9 @@
                                 <i class="fa fa-edit"></i>
                             </a>
 
-                            <a href="javascript:void(0);" data-url="{{ route('admin.carts.destroy', $item_ele->id) }}" data-id="{{ $item_ele->id }}" class="grid-row-custom-delete btn btn-xs btn-danger" data-toggle="tooltip" title="Xóa">
+                            {{-- <a href="javascript:void(0);" data-url="{{ route('admin.carts.destroy', $item_ele->id) }}" data-id="{{ $item_ele->id }}" class="grid-row-custom-delete btn btn-xs btn-danger" data-toggle="tooltip" title="Xóa">
                                 <i class="fa fa-trash"></i>
-                            </a>
+                            </a> --}}
 
                         </td>
                     </tr>
