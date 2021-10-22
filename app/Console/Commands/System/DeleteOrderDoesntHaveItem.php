@@ -43,6 +43,7 @@ class DeleteOrderDoesntHaveItem extends Command
         $time = date('Y-m-d', strtotime(now()));
         $orders = PurchaseOrder::select('id', 'order_number')->where('status', 2)->where('created_at', 'like', $time.'%')->get();
         echo "Total: " . $orders->count() . "\n";
+        $key = 0;
         foreach ($orders as $key => $order) {
             $items = PurchaseOrderItem::where('order_id', $order->id)->get();
 
@@ -52,6 +53,8 @@ class DeleteOrderDoesntHaveItem extends Command
                     'cancle_at' =>  now(),
                     'user_cancle_at'    =>  1
                 ]);
+
+                $key ++;
             } else {
                 echo ($key+1) . " - ". $order->order_number . ": pass \n";
             }
@@ -62,8 +65,8 @@ class DeleteOrderDoesntHaveItem extends Command
         //     ->doesntHave('items')
         //     ->delete();
         
-        // ScheduleLog::create([
-        //     'name'  =>  $this->signature
-        // ]);
+        ScheduleLog::create([
+            'name'  =>  $this->signature . " - " . $key
+        ]);
     }
 }
