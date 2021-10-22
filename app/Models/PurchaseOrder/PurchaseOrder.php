@@ -169,12 +169,12 @@ class PurchaseOrder extends Model
     }
 
     public function amount($format = true) {
-        // try {
+        try {
             $total = $this->sumItemPrice(false) + $this->sumShipFee(false) + $this->purchase_order_service_fee;
             return $format ? str_replace(".00", "", number_format($total, 2)) : $total;
-        // } catch (\Exception $e) {
-        //     // dd($this->id);
-        // }
+        } catch (\Exception $e) {
+            dd($this->id);
+        }
         
     }
 

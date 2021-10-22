@@ -44,11 +44,11 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
-        $orders = PaymentOrder::whereStatus('payment_export')
-            ->whereNull('export_at')
-            ->get();
+        // $orders = PaymentOrder::whereStatus('payment_export')
+        //     ->whereNull('export_at')
+        //     ->get();
 
-            dd($orders->count());
+        //     dd($orders->count());
         // $temp = $orders->pluck('id')->toArray();
 
         // $orders = PaymentOrder::whereStatus('payment_export')
@@ -149,22 +149,20 @@ class TestWalletUser extends Command
 
         // dd($money);
 
-        // $olds = AlilogiTransaction::where('created_at', 'like', '2021-09-13%')->get();
+        $olds = AlilogiTransaction::where('customer_id', 1043)->get();
 
-        // foreach ($olds as $transaction) {
-        //     $flag = Transaction::where('customer_id', $transaction->customer_id)
-        //         ->where('money', $transaction->money)
-        //         ->where('type_recharge', $transaction->type_recharge)
-        //         ->where('content', $transaction->content)
-        //         ->get();
+        foreach ($olds as $transaction) {
+            $flag = Transaction::where('customer_id', $transaction->customer_id)
+                ->where('content', 'like', '%'.$transaction->content)
+                ->get();
             
-        //     if (! $flag->count() > 0) {
+            if (! $flag->count() > 0) {
 
-        //         echo $transaction->id . "\n";
-        //     }
-        // }
+                echo $transaction->id . "\n";
+            }
+        }
 
-        // dd($olds->count());
+        dd($olds->count());
 
         // $transactions = Transaction::where('content', 'like', '%ship%')
         //     ->orWhere('content', 'like', '%SHIP%')
