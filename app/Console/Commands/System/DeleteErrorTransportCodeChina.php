@@ -39,14 +39,16 @@ class DeleteErrorTransportCodeChina extends Command
      */
     public function handle()
     {
-        TransportCode::where('status', 0)
-        ->where('internal_note', '!=', 'import')
-        ->update([
-            'status'   =>   -1
-        ]);
+        $codes = TransportCode::where('status', 0)
+        ->whereNull('internal_note');
+
+        $count = $codes->count();
+        $codes->delete();
+        
+        echo $this->signature . "- " . $count ;
 
         ScheduleLog::create([
-            'name'  =>  $this->signature
+            'name'  =>  $this->signature . "- " . $count 
         ]);
     }
 }
