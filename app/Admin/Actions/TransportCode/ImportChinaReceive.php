@@ -16,26 +16,32 @@ class ImportChinaReceive extends Action
 
     public function handle(Request $request)
     {
-        ini_set('precision', 20);
-        $path = $request->file('file')->getRealPath();
-        $data = Excel::load($path)->get();
-        
-        if ($data->count()) {
-            foreach ($data as $key => $value) {
-                $arr[] = [
-                    'transport_code' => strval($value->ma_van_don),
-                    'advance_drag'   => $value->ung_te,
-                    'china_receive_at'  =>  $request->create_at. " 00:00:01",
-                    'china_receive_user_id' =>  Admin::user()->id,
-                    'internal_note' =>  'import',
-                    'status'    =>  0
-                ];
+        try {
+            ini_set('precision', 20);
+            $path = $request->file('file')->getRealPath();
+            $data = Excel::load($path)->get();
+            if ($data->count()) {
+                foreach ($data as $key => $value) {
+                    
+                    $arr[] = [
+                        'transport_code' => strval($value->ma_van_don),
+                        'advance_drag'   => $value->ung_te,
+                        'china_receive_at'  =>  $request->create_at. " 00:00:01",
+                        'china_receive_user_id' =>  Admin::user()->id,
+                        'internal_note' =>  'import',
+                        'status'    =>  0
+                    ];
+                }
+    
+                TransportCode::insert($arr);
             }
 
-            TransportCode::insert($arr);
+            return $this->response()->success('Import thành công')->refresh();
+        
+        } catch (\Exception $e) {
+            return $this->response()->error($e->getMessage());
         }
 
-        return $this->response()->success('Import thành công')->refresh();
     }
 
     public function form()
