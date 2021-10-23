@@ -251,6 +251,13 @@ class PurchaseOrderItemController extends AdminController
                     'text'      =>  $this->getTimeline()
                 ]
             ];
+
+            if ($this->user_confirm_receive != null) {
+                $data[] = [
+                    'is_label'  =>  false,
+                    'text'  =>  'Tích nhận: ' . ($this->userConfirm->name ?? "")
+                ];
+            }
             return view('admin.system.core.list', compact('data'));
         });
         $grid->column('product_image', 'Ảnh')->lightbox(['width' => 40])->width(60);
@@ -560,7 +567,8 @@ SCRIPT;
     public function vnReceived(Request $request) {
         PurchaseOrderItem::find($request->id)->update([
             'status'    =>  3,
-            'vn_receive_at' =>  now()
+            'vn_receive_at' =>  now(),
+            'user_confirm_receive'  =>  Admin::user()->id
         ]);
 
         $res = PurchaseOrderItem::find($request->id);

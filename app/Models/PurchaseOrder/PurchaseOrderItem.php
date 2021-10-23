@@ -47,7 +47,8 @@ class PurchaseOrderItem extends Model
         'customer_id',
         'order_at',
         'outstock_at',
-        'vn_receive_at'
+        'vn_receive_at',
+        'user_confirm_receive'
     ];
 
     // protected $casts = [
@@ -120,4 +121,8 @@ class PurchaseOrderItem extends Model
     //     # code...
     //     return $this->hasOne(User::class, 'id', 'customer_id');
     // }
+
+    public function userConfirm() {
+        return $this->hasOne('App\User', 'id', 'user_confirm_receive');
+    }
 }
