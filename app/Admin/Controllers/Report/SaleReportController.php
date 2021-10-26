@@ -76,9 +76,12 @@ class SaleReportController extends AdminController
             $actions->append('<a href="'.$route.'?mode=new&portal='.$portal.'" class="grid-row-view btn btn-xs btn-warning" data-toggle="tooltip" title="" data-original-title="Xem chi tiết">
                     <i class="fa fa-times"></i>
                 </a>');
-            $actions->append('<a href="'.$detech.'" class="grid-row-view btn btn-xs btn-success" data-toggle="tooltip" title="" data-original-title="Hiệu quả công việc">
-                <i class="fa fa-check"></i>
-            </a>');
+
+            if (Admin::user()->isRole('administrator') || Admin::user()->isRole('ar_employee')) {
+                $actions->append('<a href="'.$detech.'" class="grid-row-view btn btn-xs btn-success" data-toggle="tooltip" title="" data-original-title="Hiệu quả công việc">
+                    <i class="fa fa-check"></i>
+                </a>');
+            }
         });
 
         return $grid;
@@ -296,9 +299,9 @@ EOT
      */
     protected function form()
     {
-        $form = new Form(new Report);
+        $form = new Form(new ReportDetail);
 
-        $form->display('id', __('ID'));
+        $form->text('salary');
 
         $form->disableEditingCheck();
         $form->disableCreatingCheck();
@@ -358,6 +361,11 @@ EOT
         $grid->model()->where('sale_report_id', $id)
         ->orderBy(DB::raw("`success_order_payment` + `processing_order_payment`"), 'desc');
 
+        $grid->header(function () use ($id) {
+            $html = Report::find($id)->title;
+            return "<h3 style='text-transform: uppercase;'>Phân tích hiệu quả trên / " . $html . "</h3>";
+        });
+
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
@@ -375,14 +383,71 @@ EOT
             $total = $this->total_transport_fee;
             $person = ($total * 0.1);
 
-            return number_format($person) . " <br> <span style='color:red'>(".number_format($total).")</span>";
+            return number_format($person) . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 10% tổng tiền doanh thu vận tải </i>";
+        });
+
+        $grid->exchange_rate_payment('DOANH THU TỶ GIÁ')->display(function () {
+            $total = $this->success_order_payment_rmb + $this->processing_order_payment_rmb;
+            $person = ($total * 30);
+
+            return number_format($person) . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 30 * tổng tiền tệ đơn hàng </i>";
+        });
+        $grid->total_fee("TỔNG DOANH THU")->display(function () {
+            $service_fee = $this->processing_order_service_fee + $this->success_order_service_fee;
+            $transport_payment = $this->total_transport_fee * 0.1;
+            $exchange_rate_payment = ($this->success_order_payment_rmb + $this->processing_order_payment_rmb) * 30;
+
+            return number_format(
+                $service_fee
+                + $transport_payment
+                + $exchange_rate_payment
+            );
+        })->label('success');
+        $grid->salary("TIỀN LƯƠNG THỰC NHẬN")->display(function () {
+            return number_format($this->salary);
+        })->editable();
+
+        $grid->dis("HIỆU QUẢ SAU TRỪ LƯƠNG")->display(function () {
+            if ($this->salary != 0) {
+                $service_fee = $this->processing_order_service_fee + $this->success_order_service_fee;
+                $transport_payment = $this->total_transport_fee * 0.1;
+                $exchange_rate_payment = ($this->success_order_payment_rmb + $this->processing_order_payment_rmb) * 30;
+
+                $total = (
+                    $service_fee
+                    + $transport_payment
+                    + $exchange_rate_payment
+                );
+
+                return number_format($total - $this->salary);
+            }
+
+            return "<span style='color:red'>Chưa điền tiền lương</span>";
         });
 
         $grid->paginate(50);
         $grid->disableBatchActions();
         $grid->disableCreateButton();
         $grid->disableFilter();
+        $grid->disableActions();
+
+        Admin::script($this->script());
 
         return $grid;
+    }
+
+
+    public function script() {
+        $route = route('admin.revenue_reports.index');
+
+        return <<<SCRIPT
+            $('.column-salary a').each(function () {
+                $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
+            });
+
+            $(document).on('click', '.editable-submit', function () {
+                window.location.reload();
+            });
+SCRIPT;
     }
 }
