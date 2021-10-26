@@ -378,20 +378,20 @@ EOT
         });
         $grid->service_fee('DOANH THU PHÍ DỊCH VỤ')->display(function () {
            return number_format($this->processing_order_service_fee + $this->success_order_service_fee);
-        });
+        })->style('text-align: right');
         $grid->transport_payment('DOANH THU VẬN TẢI')->display(function () {
             $total = $this->total_transport_fee;
             $person = ($total * 0.1);
 
             return number_format($person) . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 10% tổng tiền doanh thu vận tải </i>";
-        });
+        })->style('text-align: right');
 
         $grid->exchange_rate_payment('DOANH THU TỶ GIÁ')->display(function () {
             $total = $this->success_order_payment_rmb + $this->processing_order_payment_rmb;
             $person = ($total * 30);
 
             return number_format($person) . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 30 * tổng tiền tệ đơn hàng </i>";
-        });
+        })->style('text-align: right');
         $grid->total_fee("TỔNG DOANH THU")->display(function () {
             $service_fee = $this->processing_order_service_fee + $this->success_order_service_fee;
             $transport_payment = $this->total_transport_fee * 0.1;
@@ -402,10 +402,10 @@ EOT
                 + $transport_payment
                 + $exchange_rate_payment
             );
-        })->label('success');
+        })->style('text-align: right; color: green;')->label('success');
         $grid->salary("TIỀN LƯƠNG THỰC NHẬN")->display(function () {
             return number_format($this->salary);
-        })->editable();
+        })->editable()->style('text-align: right');
 
         $grid->dis("HIỆU QUẢ SAU TRỪ LƯƠNG")->display(function () {
             if ($this->salary != 0) {
@@ -419,11 +419,18 @@ EOT
                     + $exchange_rate_payment
                 );
 
-                return number_format($total - $this->salary);
+                $res = $total - $this->salary;
+                if ($res < 0) {
+                    $label = 'danger';
+                } else {
+                    $label = 'primary';
+                }
+
+                return "<span class='label label-".$label."'>".number_format($res)."</span>";
             }
 
             return "<span style='color:red'>Chưa điền tiền lương</span>";
-        });
+        })->style('text-align: right');
 
         $grid->paginate(50);
         $grid->disableBatchActions();
