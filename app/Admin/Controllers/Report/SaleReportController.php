@@ -380,38 +380,50 @@ EOT
 
             return $html;
         });
-        $grid->service_fee('DOANH THU PHÍ DỊCH VỤ')->display(function () {
-           return number_format($this->processing_order_service_fee + $this->success_order_service_fee);
+        $grid->success_order_service_fee('DOANH THU PHÍ DỊCH VỤ')->display(function () {
+           $html = number_format($this->processing_order_service_fee + $this->success_order_service_fee);
+           return "<span class='data-used'>".$html."</span>";
         })->style('text-align: right');
-        $grid->transport_payment('DOANH THU VẬN TẢI')->display(function () {
+
+        $grid->total_transport_fee('DOANH THU VẬN TẢI')->display(function () {
             $total = $this->total_transport_fee;
             $person = ($total * 0.1);
 
-            return number_format($person) . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 10% tổng tiền doanh thu vận tải </i>";
+            return "<span class='data-used'>".number_format($person)."</span>"
+             . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 10% tổng tiền doanh thu vận tải </i>";
         })->style('text-align: right');
 
-        $grid->exchange_rate_payment('DOANH THU TỶ GIÁ')->display(function () {
+        $grid->success_order_payment_rmb('DOANH THU TỶ GIÁ')->display(function () {
             $total = $this->success_order_payment_rmb + $this->processing_order_payment_rmb;
             $person = ($total * 30);
 
-            return number_format($person) . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 30 * tổng tiền tệ đơn hàng </i>";
+            return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 30 * tổng tiền tệ đơn hàng </i>";
         })->style('text-align: right');
-        $grid->total_fee("TỔNG DOANH THU")->display(function () {
+
+        $grid->success_order_new_customer("TỔNG DOANH THU")->display(function () {
             $service_fee = $this->processing_order_service_fee + $this->success_order_service_fee;
             $transport_payment = $this->total_transport_fee * 0.1;
             $exchange_rate_payment = ($this->success_order_payment_rmb + $this->processing_order_payment_rmb) * 30;
 
-            return number_format(
+            $html = number_format(
                 $service_fee
                 + $transport_payment
                 + $exchange_rate_payment
             );
+
+            return "<span class='data-used'>".$html."</span>";
         })->style('text-align: right; color: green;')->label('success');
+
         $grid->salary("TIỀN LƯƠNG THỰC NHẬN")->display(function () {
-            return number_format($this->salary);
+            if ($this->salary == null) {
+                $salary = 0;
+            } else {
+                $salary = $this->salary;
+            }
+            return number_format($salary);
         })->editable()->style('text-align: right');
 
-        $grid->dis("HIỆU QUẢ SAU TRỪ LƯƠNG")->display(function () {
+        $grid->success_order_payment_new_customer("HIỆU QUẢ SAU TRỪ LƯƠNG")->display(function () {
             if ($this->salary != 0) {
                 $service_fee = $this->processing_order_service_fee + $this->success_order_service_fee;
                 $transport_payment = $this->total_transport_fee * 0.1;
@@ -423,14 +435,20 @@ EOT
                     + $exchange_rate_payment
                 );
 
-                $res = $total - $this->salary;
+                if ($this->salary == null) {
+                    $salary = 0;
+                } else {
+                    $salary = $this->salary;
+                }
+                
+                $res = $total - $salary;
                 if ($res < 0) {
                     $label = 'danger';
                 } else {
                     $label = 'primary';
                 }
 
-                return "<span class='label label-".$label."'>".number_format($res)."</span>";
+                return "<span class='label label-".$label."'>"."<span class='data-used'>".number_format($res)."</span>"."</span>";
             }
 
             return "<span style='color:red'>Chưa điền tiền lương</span>";
@@ -455,9 +473,87 @@ EOT
             $('.column-salary a').each(function () {
                 $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
             });
+            $( document ).ready(function() {
+    
+                $(document).on('click', '.editable-submit', function () {
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 500);
+                });
 
-            $(document).on('click', '.editable-submit', function () {
-                window.location.reload();
+                $('table').prepend(
+                    '<tfoot style="text-align: right"><tr>'
+                    + '<td></td>'
+                    + '<td></td>'
+                    + '<td><span id="service-fee-total">0</span></td>'
+                    + '<td><span id="transport-fee-total">0</span></td>'
+                    + '<td><span id="exchange-fee-total">0</span></td>'
+                    + '<td><span id="amount-fee-total">0</span></td>'
+                    + '<td><span id="salary-fee-total">0</span></td>'
+                    + '<td><span id="payment-fee-total">0</span></td>'
+                    + '</tr></tfoot>'
+                );
+
+                getTotalHtml("column-success_order_service_fee", "service-fee-total", true);
+                getTotalHtml("column-total_transport_fee", "transport-fee-total", true);
+                getTotalHtml("column-success_order_payment_rmb", "exchange-fee-total", true);
+                getTotalHtml("column-success_order_new_customer", "amount-fee-total", true);
+                getTotalHtml("column-success_order_payment_new_customer", "payment-fee-total", true);
+                getTotalHtml("column-salary", "salary-fee-total", false);
+
+                function getTotalHtml(column_class, element_append_id, editable = true) {
+                    let ele = null;
+                    if (editable == true) {
+                        console.log('oke');
+                        ele = $('tbody .' + column_class + ' .data-used');
+                    } else {
+                        ele = $('tbody .' + column_class + ' a.editable');
+                    }
+                    let total = 0;
+
+                    if (ele != null) {
+                        ele.each( function( i, el ) {
+                            var elem = $( el );
+                            let html = $.trim(elem.html());
+
+                            html = html.replace(/\,/g, '');
+                            html = parseInt(html);
+        
+                            total += html;
+                        });
+
+                        if (element_append_id != "") {
+                            $("#"+ element_append_id).html(number_format(total));
+                        } 
+                    }
+
+                    return total;
+
+                }
+
+                function number_format(number, decimals, dec_point, thousands_sep) {
+                    // Strip all characters but numerical ones.
+                    number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+                    var n = !isFinite(+number) ? 0 : +number,
+                        prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                        sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+                        dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+                        s = '',
+                        toFixedFix = function (n, prec) {
+                            var k = Math.pow(10, prec);
+                            return '' + Math.round(n * k) / k;
+                        };
+                    // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+                    s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+                    if (s[0].length > 3) {
+                        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+                    }
+                    if ((s[1] || '').length < prec) {
+                        s[1] = s[1] || '';
+                        s[1] += new Array(prec - s[1].length + 1).join('0');
+                    }
+                    return s.join(dec);
+                }
             });
 SCRIPT;
     }
