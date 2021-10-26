@@ -307,6 +307,10 @@ EOT
         $form->disableCreatingCheck();
         $form->disableViewCheck();
 
+        $form->saving(function (Form $form) {
+            $form->salary = str_replace(",", "", $form->salary);
+        });
+
         return $form;
     }
 
