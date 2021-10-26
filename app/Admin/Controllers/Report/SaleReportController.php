@@ -15,6 +15,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use App\User;
 use Encore\Admin\Facades\Admin;
+use Encore\Admin\Layout\Content;
 use Illuminate\Support\Facades\DB;
 
 class SaleReportController extends AdminController
@@ -67,14 +68,17 @@ class SaleReportController extends AdminController
             // $actions->disableView();
             $actions->disableEdit();
             $route = route('admin.revenue_reports.show', $actions->getkey());
-
+            $detech = route('admin.revenue_reports.detech', $actions->getkey());
             $portal = "false";
             if ($this->row->id == 5) {
                 $portal = "true";
             }
             $actions->append('<a href="'.$route.'?mode=new&portal='.$portal.'" class="grid-row-view btn btn-xs btn-warning" data-toggle="tooltip" title="" data-original-title="Xem chi tiết">
-                    <i class="fa fa-eye"></i>
+                    <i class="fa fa-times"></i>
                 </a>');
+            $actions->append('<a href="'.$detech.'" class="grid-row-view btn btn-xs btn-success" data-toggle="tooltip" title="" data-original-title="Hiệu quả công việc">
+                <i class="fa fa-check"></i>
+            </a>');
         });
 
         return $grid;
@@ -338,6 +342,46 @@ EOT
                     <i class="fa fa-eye"></i>
                 </a>');
         });
+
+        return $grid;
+    }
+
+    public function detech($id, Content $content) {
+        return $content
+            ->title($this->title())
+            ->description("Phân tích hiệu quả công việc - Tháng 9")
+            ->body($this->detechGrid($id));
+    }
+
+    public function detechGrid($id) {
+        $grid = new Grid(new ReportDetail());
+        $grid->model()->where('sale_report_id', $id)
+        ->orderBy(DB::raw("`success_order_payment` + `processing_order_payment`"), 'desc');
+
+        $grid->rows(function (Grid\Row $row) {
+            $row->column('number', ($row->number+1));
+        });
+        $grid->column('number', 'STT');
+        $grid->user_id('NHÂN VIÊN KINH DOANH')->display(function () {
+            $html = User::find($this->user_id)->name;
+            $html .= "<br> " . User::find($this->user_id)->created_at;
+
+            return $html;
+        });
+        $grid->service_fee('DOANH THU PHÍ DỊCH VỤ')->display(function () {
+           return number_format($this->processing_order_service_fee + $this->success_order_service_fee);
+        });
+        $grid->transport_payment('DOANH THU VẬN TẢI')->display(function () {
+            $total = $this->total_transport_fee;
+            $person = ($total * 0.1);
+
+            return number_format($person) . " <br> <span style='color:red'>(".number_format($total).")</span>";
+        });
+
+        $grid->paginate(50);
+        $grid->disableBatchActions();
+        $grid->disableCreateButton();
+        $grid->disableFilter();
 
         return $grid;
     }

@@ -66,7 +66,7 @@ class SaleRevenue extends Command
 
             $sale_users = $service->GetListSaleEmployee();
             $sale_ids = array_keys($sale_users->toArray());
-            // $sale_ids = ['2156'];
+            // $sale_ids = ['3977'];
 
             ReportDetail::where('sale_report_id', $report->id)->delete();
             
@@ -103,6 +103,7 @@ class SaleRevenue extends Command
                     $success_order = $success_purchase_orders->count();
 
                     $success_order_payment = number_format($this->amount($success_purchase_orders->get()), 0, '.', '');
+                    $success_order_payment_rmb =  number_format($this->amount($success_purchase_orders->get(), true, 'rmb'), 0, '.', '');
                     $success_order_service_fee = number_format($this->serviceFee($success_purchase_orders->get()), 0, '.', '');
                                                
                     $success_purchase_orders_new_customer = $success_purchase_orders->whereIn('customer_id', $new_customers->pluck('id'))->get();
@@ -121,6 +122,7 @@ class SaleRevenue extends Command
             
                     $processing_order =  $ordering_orders->merge($ordered_orders);
                     $processing_order_payment = number_format($this->amount($processing_order), 0, '.', '');
+                    $processing_order_payment_rmb = number_format($this->amount($processing_order, true, 'rmb'), 0, '.', '');
                     $owed_processing_order_payment = number_format($this->amount($processing_order, false), 0, '.', '');
                     $processing_order_service_fee = number_format($this->serviceFee($processing_order), 0, '.', '');
 
@@ -137,11 +139,13 @@ class SaleRevenue extends Command
                         'total_customer_wallet' =>  number_format($total_customer_wallet, 0, '.', ''),
                         'success_order'     =>  $success_order,
                         'success_order_payment' =>  $success_order_payment,
+                        'success_order_payment_rmb' =>  $success_order_payment_rmb,
                         'success_order_new_customer'   =>  $success_purchase_orders_new_customer->count(),
                         'success_order_payment_new_customer'   =>  number_format($this->amount($success_purchase_orders_new_customer), 0, '.', ''),
                         'success_order_service_fee' =>  $success_order_service_fee,
                         'processing_order'  =>  $processing_order->count(),
                         'processing_order_payment'  =>  $processing_order_payment,
+                        'processing_order_payment_rmb'  =>  $processing_order_payment_rmb,
                         'processing_order_new_customers'  =>  $processing_order_new_customers->count(),
                         'processing_order_payment_new_customer'    =>  $processing_order_payment_new_customer,
                         'processing_order_service_fee' =>  $processing_order_service_fee,
@@ -168,15 +172,21 @@ class SaleRevenue extends Command
         
     }
 
-    public function amount($orders, $type = true) {
+    public function amount($orders, $type = true, $money = 'vnd') {
         $total = 0;
         $owed = 0;
 
         foreach ($orders as $order) {
             $amount = (float) str_replace(",","", $order->amount());
-            $amount_vnd = ($amount * $order->current_rate);
-            $total += $amount_vnd;
-            $owed += $amount_vnd - $order->deposited;
+
+            if ($money == 'vnd') {
+                $amount_vnd = ($amount * $order->current_rate);
+                $total += $amount_vnd;
+                $owed += $amount_vnd - $order->deposited;
+            } else {
+                $amount_vnd = $amount;
+                $total += $amount_vnd;
+            }
         }
 
         return $type ? $total : $owed;
