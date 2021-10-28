@@ -43,7 +43,7 @@ class DeleteOrderDoesntHaveItem extends Command
         $time = date('Y-m-d', strtotime(now()));
         $orders = PurchaseOrder::select('id', 'order_number')->where('status', 2)->where('created_at', 'like', $time.'%')->get();
         echo "Total: " . $orders->count() . "\n";
-        $number = 0;
+        $numb = 0;
         $text = "";
         foreach ($orders as $key => $order) {
             $text += $order->order_number . ", ";
@@ -56,14 +56,14 @@ class DeleteOrderDoesntHaveItem extends Command
                     'user_cancle_at'    =>  1
                 ]);
 
-                $number ++;
+                $numb ++;
             } else {
                 echo ($key+1) . " - ". $order->order_number . ": pass \n";
             }
         }
         
         ScheduleLog::create([
-            'name'  =>  $this->signature . " - " . $number,
+            'name'  =>  $this->signature . " - " . $numb,
             'content'   =>  $text
         ]);
     }
