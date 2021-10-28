@@ -9,6 +9,7 @@ class ScheduleLog extends Model
     protected $table = "schedule_logs";
 
     protected $fillable = [
-        'name'
+        'name',
+        'content'
     ];
 }
