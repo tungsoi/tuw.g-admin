@@ -46,7 +46,7 @@ class DeleteOrderDoesntHaveItem extends Command
         $numb = 0;
         $text = "";
         foreach ($orders as $key => $order) {
-            $text += $order->order_number . ", ";
+            $text .= $order->order_number . ", ";
             $items = PurchaseOrderItem::where('order_id', $order->id)->get();
 
             if ($items->count() == 0) {
