@@ -46,10 +46,11 @@ class DeleteOrderDoesntHaveItem extends Command
         $numb = 0;
         $text = "";
         foreach ($orders as $key => $order) {
-            $text .= $order->order_number . ", ";
             $items = PurchaseOrderItem::where('order_id', $order->id)->get();
 
             if ($items->count() == 0) {
+
+                $text .= $order->order_number . ", ";
                 PurchaseOrder::find($order->id)->update([
                     'status'    =>  10,
                     'cancle_at' =>  now(),
