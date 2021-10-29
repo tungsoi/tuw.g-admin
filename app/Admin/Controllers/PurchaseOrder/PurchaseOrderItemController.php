@@ -46,7 +46,9 @@ class PurchaseOrderItemController extends AdminController
     public function grid()
     {
         $grid = new Grid(new PurchaseOrderItem());
-        $grid->model()->whereNotNull('order_id')->orderBy('order_at', 'desc');
+        $grid->model()
+        ->where('status', '!=', 99)
+        ->whereNotNull('order_id')->orderBy('order_at', 'desc');
 
         $orderService = new OrderService();
 

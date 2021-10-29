@@ -197,4 +197,16 @@ class CartController extends AdminController
         admin_toastr('Lưu thành công', 'success');
         return redirect()->route('admin.carts.index');
     }
+
+    public function destroy($id)
+    {
+        $item = PurchaseOrderItem::find($id);
+        $item->status = 99;
+        $item->save();
+
+        return response()->json([
+            'status'    =>  true,
+            'message'   =>  "Xoá thành công"
+        ]);
+    }
 }
