@@ -105,7 +105,7 @@ class ConflictTransportCodeController extends AdminController
                 $arr_item[$item->cn_code] = $item->cn_code;
             }
 
-            return array_diff($arr_order, $arr_item);
+            return array_diff($arr_item, $arr_order);
         })->label('danger');
         $grid->timeline('Timeline')->display(function () {
             $data = [];
