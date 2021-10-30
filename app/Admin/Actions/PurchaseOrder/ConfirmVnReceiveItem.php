@@ -40,6 +40,7 @@ SCRIPT;
         foreach ($collection as $model) {
             $model->status = $orderService->getItemStatus('vn_received');
             $model->vn_receive_at = now();
+            $model->user_confirm_receive = Admin::user()->id;
             $model->save();
         }
 
