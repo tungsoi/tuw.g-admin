@@ -249,7 +249,7 @@ class PurchaseOrderController extends AdminController
                 $sale = $this->customer->saleEmployee ? $this->customer->saleEmployee->name : null;
                 $sale_link = $this->customer->saleEmployee ? $this->customer->saleEmployee->phone_number : null;
 
-                $order = $this->orderEmployee ? $this->orderEmployee->name : null;
+                $order = $this->orderEmployee ? $this->orderEmployee->name : "<span style='color: red'>Chưa gán</span>";
                 $order_link = $this->orderEmployee ? $this->orderEmployee->phone_number : null;
 
                 $warehouse = $this->warehouse ? $this->warehouse->name : null;
@@ -694,7 +694,7 @@ SCRIPT;
             [
                 "<span style='float: left'>Kho: ". ($order->warehouse ? $order->warehouse->name : null) . "</span>",
                 "<span style='float: right'>NVKD: " .  ($order->customer->saleEmployee ? $order->customer->saleEmployee->name : null). "</span>",
-                "<span style='float: right'>NVDH: " . ($order->orderEmployee ? $order->orderEmployee->name : null) ."</span>",
+                "<span style='float: right'>NVDH: " . ($order->orderEmployee ? $order->orderEmployee->name : "<span style='color: red'>Chưa gán</span>") ."</span>",
             ],
             [
                 'Trạng thái',
@@ -874,6 +874,8 @@ SCRIPT;
         $form->setTitle('TIỀN THANH TOÁN');
 
         $form->hidden('id');
+        $service = new UserService();
+        $form->select('supporter_order_id', 'NVDH')->options($service->GetListOrderEmployee());
         $form->tags('transport_code', "Mã vận đơn")->help('Mã đầu tiên được hiểu là MVD chính, các mã sau là MVD phụ.');
 
         if (Admin::user()->isRole('order_employee') || Admin::user()->isRole('administrator')) {
