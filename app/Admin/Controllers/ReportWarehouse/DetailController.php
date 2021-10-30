@@ -46,7 +46,7 @@ class DetailController extends AdminController
             $filter->like('title', "Ký hiệu");
         });
 
-        $grid->column('date',"Ngày về kho")->width(150);
+        $grid->column('date',"Ngày về kho")->width(150)->editable();
         $grid->column('order',"STT")->width(64)->editable();
         $grid->column('title', "Ký hiệu")->width(138)->editable();
         $grid->column('weight',"Cân nặng")->width(121)->editable()->totalRow();
