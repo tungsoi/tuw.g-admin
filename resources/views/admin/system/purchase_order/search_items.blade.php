@@ -35,7 +35,7 @@
         <td>{{ $item->purchase_cn_transport_fee }}</td>
         <td>---</td>
         <td>
-            <span class="status" @if($item->status == 3) style='color: green' @endif>{{ $item->statusText->name }}</span>
+            <span class="status" @if($item->status == 3) style='color: green; font-weight: bold;' @endif>{{ $item->statusText->name }}</span>
         </td>
         <td>
             @if ($item->status != 3)
