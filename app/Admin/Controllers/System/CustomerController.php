@@ -649,7 +649,7 @@ class CustomerController extends AdminController
         ]);
     }
 
-    public function paginateArray($items, $perPage = 10, $page = null, $options = [])
+    public function paginateArray($items, $perPage = 50, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
         $items = $items instanceof Collection ? $items : Collection::make($items);
