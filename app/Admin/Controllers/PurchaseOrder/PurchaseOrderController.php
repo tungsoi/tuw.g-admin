@@ -57,7 +57,11 @@ class PurchaseOrderController extends AdminController
     {
         $grid = new Grid(new PurchaseOrder());
 
-        $grid->model()->orderBy('id', 'desc');
+        if (Admin::user()->isRole('order_employee')) {
+            $grid->model()->orderBy('deposited_at', 'desc');
+        } else {
+            $grid->model()->orderBy('id', 'desc');
+        }
 
         // Khach hang
         if (Admin::user()->isRole('customer')) {
@@ -82,9 +86,9 @@ class PurchaseOrderController extends AdminController
            
             
         } else if (Admin::user()->isRole('order_manager')) {
-            $grid->model()->orderBy('deposited_at', 'asc');
+            // $grid->model()->orderBy('deposited_at', 'asc');
         } else if (Admin::user()->isRole('order_employee')) {
-            $grid->model()->where('supporter_order_id', Admin::user()->id)->orderBy('deposited_at', 'asc');
+            $grid->model()->where('supporter_order_id', Admin::user()->id);
         }
 
         $grid->filter(function($filter) {
