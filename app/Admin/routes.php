@@ -64,7 +64,8 @@ Route::group([
         'banking_check' =>  'Report\\BankingCheckController',
         'financial_reports' =>  'Report\\FinancialReportController',
         'purchase_order_today'  =>  'PurchaseOrder\\TodayController',
-        'payment_order_zero'    =>  'TransportOrder\\PaymentOrderZeroController'
+        'payment_order_zero'    =>  'TransportOrder\\PaymentOrderZeroController',
+        'conflict_transport_code'   =>  'Report\\ConflictTransportCodeController'
     ]);
 
     $router->get('report_portals','Report\\PortalController@indexRebuild')->name('report_portals');
