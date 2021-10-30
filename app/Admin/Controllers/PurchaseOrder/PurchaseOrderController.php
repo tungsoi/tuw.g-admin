@@ -82,9 +82,9 @@ class PurchaseOrderController extends AdminController
            
             
         } else if (Admin::user()->isRole('order_manager')) {
-            // $grid->model()->where('supporter_order_id', Admin::user()->id);
+            $grid->model()->orderBy('deposited_at', 'asc');
         } else if (Admin::user()->isRole('order_employee')) {
-            $grid->model()->where('supporter_order_id', Admin::user()->id);
+            $grid->model()->where('supporter_order_id', Admin::user()->id)->orderBy('deposited_at', 'asc');
         }
 
         $grid->filter(function($filter) {
