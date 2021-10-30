@@ -38,7 +38,9 @@
             <span class="status">{{ $item->statusText->name }}</span>
         </td>
         <td>
-            <button class="btn btn-sm btn-warning vn-receive-item" data-pk="{{ $item->id }}">Đã về kho VN</button>
+            @if ($item->status != 3)
+                <button class="btn btn-sm btn-warning vn-receive-item" data-pk="{{ $item->id }}">Đã về kho VN</button>
+            @endif
         </td>
     </tr>
         
@@ -48,7 +50,6 @@
 <script>
     $(document).on('click', '.vn-receive-item', function () {
         let iThis = $(this);
-        // console.log('oke');
         $.ajax({
             url: '/admin/vn_received',
             type: 'POST',
@@ -58,9 +59,8 @@
             },
             success: function (response)
             {
-                console.log(response);
                 if (response.status) {
-                    $.admin.toastr.success("Đã tích nhận", '', {timeOut: 2000});
+                    $.admin.toastr.success("Đã tích nhận", '', {timeOut: 2000, preventDuplicates: true});
                     iThis.parent().prev().find('.status').html(response.status);
                     iThis.remove();
                 }
