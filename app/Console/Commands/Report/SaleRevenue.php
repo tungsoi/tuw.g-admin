@@ -65,8 +65,8 @@ class SaleRevenue extends Command
             $service = new UserService();
 
             $sale_users = $service->GetListSaleEmployee();
-            // $sale_ids = array_keys($sale_users->toArray());
-            $sale_ids = ['1423'];
+            $sale_ids = array_keys($sale_users->toArray());
+            // $sale_ids = ['1423'];
 
             ReportDetail::where('sale_report_id', $report->id)->delete();
             
@@ -199,7 +199,7 @@ class SaleRevenue extends Command
             $purchase_order_service_fee = $order->purchase_order_service_fee != null 
                 ? $order->purchase_order_service_fee
                 : 0;
-                
+
             $total += (str_replace(",", "", $purchase_order_service_fee) * $order->current_rate);
         }
 
