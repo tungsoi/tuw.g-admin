@@ -25,7 +25,7 @@
         @foreach ($items as $item)
             @if ($item['items']->count() > 0)
             <tr>
-                <td colspan="12" style="background: linen">Tên shop: <b>{{ $item['shop_name'] }}</b></td>
+                <td colspan="12" style="background: linen">Tên shop: <b>{{ substr($item['shop_name'], 0, 80) }}...</b></td>
             </tr>
 
                 @foreach ($item['items'] as $key => $item_ele)
