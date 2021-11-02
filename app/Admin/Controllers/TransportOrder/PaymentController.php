@@ -27,6 +27,7 @@ use Encore\Admin\Layout\Row;
 use Encore\Admin\Layout\Column;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Widgets\Box;
+use App\Admin\Actions\PaymentOrder\MergeOrder;
 use Encore\Admin\Widgets\Table;
 
 class PaymentController extends AdminController
@@ -106,6 +107,10 @@ class PaymentController extends AdminController
                 'payment_not_export'    =>  'Thanh toán + chưa xuất kho'
             ])->default($payment_type)->disable()->help($help);
         });
+
+        if (isset($_GET['mode']) && $_GET['mode'] != null) {
+            $form->hidden('mode')->default($_GET['mode']);
+        }
 
         $form->column(1, function ($form) {
         });
@@ -230,6 +235,17 @@ class PaymentController extends AdminController
         $order_service = new OrderService();
 
         $arr_transport_code = $request->transport_code_id;
+        
+        // case merge order
+        $old_payment_order_note = null;
+        $old_order_ids = [];
+        if (isset($request->mode) && $request->mode == 'merge_order') {
+            $old_order_ids = TransportCode::whereIn('id', $arr_transport_code)->pluck('order_id')->toArray();
+            $old_order_ids = array_unique($old_order_ids);
+    
+            $old_payment_order = PaymentOrder::whereIn('id', $old_order_ids)->pluck('order_number')->toArray();
+            $old_payment_order_note = " / Gộp các đơn:  " . implode(", ", $old_payment_order);
+        }
 
         // step 1: Tạo đơn hàng thanh toán
         $payment_order_data = [
@@ -242,7 +258,7 @@ class PaymentController extends AdminController
             'total_advance_drag'    => (float) $request->advan_vnd,
             'user_created_id'   =>  Admin::user()->id,
             'payment_customer_id'   => (int) $request->payment_user_id,
-            'internal_note'     =>  $request->internal_note,
+            'internal_note'     =>  $request->internal_note . $old_payment_order_note,
             'discount_value'    =>  (float) $request->discount_value,
             'discount_type'     =>  (int) $request->discount_type,
             'price_kg'          =>  (int) str_replace(",", "", $request->sum_kg),
@@ -257,6 +273,14 @@ class PaymentController extends AdminController
         PaymentOrder::find($order->id)->update([
             'order_number'  =>  "C".$order->id
         ]);
+
+        // case merge order
+        if (isset($request->mode) && $request->mode == 'merge_order') {
+            PaymentOrder::whereIn('id', $old_order_ids)->update([
+                'status'    =>  'cancel',
+                'internal_note' =>  "Gộp về đơn: " . "C".$order->id
+            ]);
+        }
 
         // step 2: Update danh sách mã vận đơn
         $status_update = $payment_order_data['status'] == "payment_export" 
@@ -277,7 +301,6 @@ class PaymentController extends AdminController
         $payment_type = $request->payment_type;
         foreach ($arr_transport_code as $index => $transport_code_id) {
             $transport_code_data_update['payment_type'] = $payment_type[$index];
-
             TransportCode::find($transport_code_id)->update($transport_code_data_update);
         }
 
@@ -385,7 +408,9 @@ SCRIPT;
     public function grid() {
         $grid = new Grid(new PaymentOrder());
 
-        $grid->model()->orderBy('id', 'desc');
+        $grid->model()
+        // ->where('status', '!=', 'cancel')
+        ->orderBy('id', 'desc');
 
         if (Admin::user()->isRole('customer')) {
             $grid->model()->where('payment_customer_id', Admin::user()->id);
@@ -472,9 +497,14 @@ SCRIPT;
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->order_number('Mã đơn hàng')->width(100)->label('primary');
+        // $grid->order_number('Mã đơn hàng')->width(100)->label('primary');
         $grid->status('Trạng thái')->display(function () {
             $data = [
+                'order_number' => [
+                    'is_label'  =>  true,
+                    'color' =>  'primary',
+                    'text'  =>  $this->order_number
+                ],  
                 'amount_rmb'   =>  [
                     'is_label'   =>  true,
                     'color'     =>  $this->statusColor(),
@@ -498,7 +528,7 @@ SCRIPT;
         $grid->customer_input_name('Mã khách hàng')->display(function () {
             return $this->transportCode->first()->customer_code_input ?? "";
         });
-        $grid->symbol_name('KKhách hàng thanh toán')->display(function () {
+        $grid->symbol_name('Khách hàng thanh toán')->display(function () {
            $html = $this->paymentCustomer->symbol_name . "<br>";
            $zalo = "https://zalo.me/" . $this->paymentCustomer->phone_number;
            $asset = asset("images/logo-zalo.jpeg");
@@ -599,11 +629,11 @@ SCRIPT;
             
             return $time == null ? "" : date('H:i | d-m-Y', strtotime($time));
         })->style('text-align: center');
-        $grid->inernal_note('Ghi chú');
+        $grid->internal_note('Ghi chú');
 
         $grid->disableCreateButton();
         $grid->disableExport();
-        $grid->disableBatchActions();
+        // $grid->disableBatchActions();
         $grid->disableColumnSelector();
         $grid->paginate(10);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
@@ -627,6 +657,22 @@ SCRIPT;
                 }
                 
             }
+
+            if ($this->row->status != "payment_not_export") {
+                Admin::script(
+                    <<<EOT
+                    $('input[data-id={$this->row->id}]').parent().parent().empty();
+EOT);
+            }
+        });
+
+        $grid->tools(function (Grid\Tools $tools) {
+            $tools->batch(function(Grid\Tools\BatchActions $actions) {
+                $actions->disableDelete();
+            });
+            
+            $tools->append(new MergeOrder());
+            
         });
 
         Admin::script(
