@@ -685,6 +685,7 @@ SCRIPT;
         $amount_vnd = str_replace(",", "", $amount_rmb) * $order->current_rate;
 
         $deposited_at = $order->deposted_at != null ? date('H:i | d-m-Y', strtotime($order->deposited_at)) : "";
+        $purchase_order_service_fee = $order->purchase_order_service_fee != null ? $order->purchase_order_service_fee : 0;
         $rows = [
             [
                 "<b id='order_number' onclick='copyElementText(this.id)' style='cursor:pointer'>" . $order->order_number . " / " . $order->customer->symbol_name . "</b>", 
@@ -713,8 +714,8 @@ SCRIPT;
             ],
             [
                 'Phí dịch vụ',
-                "<span style='float: right'>". $order->purchase_order_service_fee . " (tệ) </span>",
-                "<span style='float: right'>". number_format(str_replace(",", "", $order->purchase_order_service_fee) * $order->current_rate) . " (vnd) </span>"
+                "<span style='float: right'>". $purchase_order_service_fee . " (tệ) </span>",
+                "<span style='float: right'>". number_format(str_replace(",", "", $purchase_order_service_fee) * $order->current_rate) . " (vnd) </span>"
             ],
             [
                 'VC nội địa TQ',
