@@ -4,6 +4,7 @@ namespace App\Admin\Controllers\Customer;
 
 // use App\Admin\Actions\Customer\CreateOrderFromCart;
 
+use App\Admin\Actions\Customer\CreateOrderInCart;
 use App\Admin\Actions\PurchaseOrder\CreateOrderFromCart;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
@@ -58,50 +59,118 @@ class CartController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new PurchaseOrderItem());
-        $grid->model()->where('customer_id', -1);
+        $grid->model()->where('customer_id', Admin::user()->id)
+        ->whereStatus(10)
+        ->orderBy('shop_name', 'desc')
+        ->orderBy('id', 'desc');
 
-        PurchaseOrderItem::where('customer_id', Admin::user()->id)
-            ->whereNull('shop_name')
-            ->update([
-                'shop_name' =>  'Không tên'
-            ]);
-
-        $shops = PurchaseOrderItem::select('shop_name')
-                ->whereNull('order_id')
-                ->where('customer_id', Admin::user()->id)
-                ->whereStatus(PurchaseOrderItemStatus::whereCode('in_cart')->first()->id)
-                ->orderBy('id', 'desc')
-                ->get()
-                ->unique('shop_name');
-
-        $items = [];
-        foreach ($shops as $shop) {
-            $shopName = ($shop->shop_name == null) ? "Không tên" : $shop->shop_name;
-            $items[$shopName] = [
-                'shop_name' =>  $shopName,
-                'items'     =>  PurchaseOrderItem::whereNull('order_id')
-                                ->whereShopName($shopName)
-                                ->where('customer_id', Admin::user()->id)
-                                ->whereStatus(PurchaseOrderItemStatus::whereCode('in_cart')->first()->id)
-                                ->get()
-            ];
-        }
-
-
-        $grid->header(function () use ($items) {
+        $grid->header(function () {
             $exchange_rates = ExchangeRate::first()->vnd;
             $warehouses = Warehouse::whereIsActive(1)->get();
 
-            return view('admin.system.customer.cart', compact('items', 'exchange_rates', 'warehouses'));
+            return view('admin.system.customer.cart', compact('exchange_rates', 'warehouses'))->render();
         });
+        // $grid->id('#')->display(function () {
+        //     return '<input type="checkbox" class="choose-item" id="" data-index="'.$this->id.'" style="width: 25px !important; height: 25px !important; cursor: pointer;"">';
+        // });
+        $grid->rows(function (Grid\Row $row) {
+            $row->column('number', ($row->number+1));
+        });
+        $grid->column('number', 'STT');
+        $grid->shop_name("Tên Shop")->width(200);
+        $grid->product_image('Ảnh sản phẩm')->lightbox(['width' => 100, 'height' => 100])->width(120);
+        $grid->product_name("Tên sản phẩm")->width(200);
+        $grid->product_link('Link')->display(function () {
+            return "<a href=".$this->product_link." target='_blank'>Xem </a>";
+        })->width(100);
+        $grid->product_size("Size");
+        $grid->product_color("Màu");
+        $grid->qty("Số lượng");
+        $grid->price("Đơn giá (Tệ)")->display(function () {
+            $price = $this->price;
+            if (strpos($price, ",") !== false && strpos($price, ".") !== false) {
+                $price = str_replace(",", "", $price);
+            } else {
+                if (strpos($price, ",") !== false) {
+                    $price = str_replace(",", ".", $price);
+                }
+            }
+            $price = (float) $price;
+            try {
+                $price = number_format($price, 2, '.', '');
+            } catch (\Exception $e) {
+                $price = 0;
+            }
+
+            return $price;
+        });
+
+        $grid->amount("Thành tiền (Tệ)")->display(function () {
+            $price = $this->price;
+            if (strpos($price, ",") !== false && strpos($price, ".") !== false) {
+                $price = str_replace(",", "", $price);
+            } else {
+                if (strpos($price, ",") !== false) {
+                    $price = str_replace(",", ".", $price);
+                }
+            }
+            $price = (float) $price;
+            try {
+                $price = number_format($price, 2, '.', '');
+            } catch (\Exception $e) {
+                $price = 0;
+            }
+            return '<span class="item-price" data-index="'.$this->id.'">'.str_replace(",", "", number_format($this->qty * $price, 2)).'</span>';
+        });
+        $grid->customer_note("Ghi chú");
+        $grid->actions(function (Grid\Displayers\Actions $actions) {
+            $actions->append('<a href="'.route('admin.carts.edit', $this->row->id).'" class="grid-row-edit btn btn-xs btn-warning" data-toggle="tooltip" title="" data-original-title="Chỉnh sửa"><i class="fa fa-edit"></i></a>');
+
+            $actions->disableView();
+            $actions->disableDelete();
+            $actions->disableEdit();
+            // $actions->append('<a href="javascript:void(0);" data-url="'.route('admin.carts.destroy', $this->row->id).'" data-id="{{ $item_ele->id }}" class="grid-row-custom-delete btn btn-xs btn-danger" data-toggle="tooltip" title="Xóa"><i class="fa fa-trash"></i></a>');
+        });
+        // PurchaseOrderItem::where('customer_id', Admin::user()->id)
+        //     ->whereNull('shop_name')
+        //     ->update([
+        //         'shop_name' =>  'Không tên'
+        //     ]);
+
+        // $shops = PurchaseOrderItem::select('shop_name')
+        //         ->whereNull('order_id')
+        //         ->where('customer_id', Admin::user()->id)
+        //         ->whereStatus(10)
+        //         ->orderBy('id', 'desc')
+        //         ->get()
+        //         ->unique('shop_name');
+
+        // $items = [];
+        // foreach ($shops as $shop) {
+        //     $shopName = ($shop->shop_name == null) ? "Không tên" : $shop->shop_name;
+        //     $items[$shopName] = [
+        //         'shop_name' =>  $shopName,
+        //         'items'     =>  PurchaseOrderItem::whereNull('order_id')
+        //                         ->whereShopName($shopName)
+        //                         ->where('customer_id', Admin::user()->id)
+        //                         ->whereStatus(10)
+        //                         ->get()
+        //     ];
+        // }
+
+
+        // $grid->header(function () use ($items) {
+        //     $exchange_rates = ExchangeRate::first()->vnd;
+        //     $warehouses = Warehouse::whereIsActive(1)->get();
+
+        //     return view('admin.system.customer.cart', compact('items', 'exchange_rates', 'warehouses'));
+        // });
 
         $grid->disableColumnSelector();
         $grid->disableExport();
         $grid->disableFilter();
-        $grid->disableActions();
-        $grid->disableBatchActions();
-        $grid->disablePagination();
         $grid->disableCreateButton();
+        // $grid->disableBatchActions();
         $grid->tools(function (Grid\Tools $tools) {
             $tools->append('
                 <a href="'.route('admin.carts.create').'" class="btn btn-sm btn-success">
@@ -109,12 +178,14 @@ class CartController extends AdminController
                 </a>
             ');
 
-            $tools->append("
-                <a class='btn-create-order btn btn-sm btn-danger'>
-                    <i class='fa fa-cart-plus'></i>
-                    &nbsp; Tạo đơn hàng
-                </a>
-            ");
+            // $tools->append("
+            //     <a class='btn-create-order btn btn-sm btn-danger'>
+            //         <i class='fa fa-cart-plus'></i>
+            //         &nbsp; Tạo đơn hàng
+            //     </a>
+            // ");
+
+            $tools->append( new CreateOrderInCart());
         });
 
         return $grid;
@@ -200,9 +271,10 @@ class CartController extends AdminController
 
     public function destroy($id)
     {
-        $item = PurchaseOrderItem::find($id);
-        $item->status = 99;
-        $item->save();
+        $ids = explode(",", $id);
+        PurchaseOrderItem::whereIn('id', $ids)->update([
+            'status'    =>  99
+        ]);
 
         return response()->json([
             'status'    =>  true,

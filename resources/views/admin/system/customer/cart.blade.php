@@ -1,4 +1,4 @@
-<div class="row">
+{{-- <div class="row">
     <div class="col-md-12">
         <h5>Tiền tạm tính: <b class="estimate-amount" style="color: red">0.00</b> (Tệ) = <b class="estimate-amount-vnd" style="color: red">0</b> (VND)</h5>
     </div>
@@ -114,8 +114,8 @@
         </tr>
         @endif
     </tbody>
-</table>
-
+</table> --}}
+<h5>Tiền tạm tính: <b class="estimate-amount" style="color: red">0.00</b> (Tệ) = <b class="estimate-amount-vnd" style="color: red">0</b> (VND)</h5>
 <input type="hidden" name="" class="exchange_rates" value="{{ $exchange_rates }}">
 
 <div id="myModal-storeOrderFromCart" class="modal fade" role="dialog">
@@ -160,6 +160,41 @@
 </div>
 
 <script>
+    // $('.grid-row-checkbox').iCheck({checkboxClass:'icheckbox_minimal-blue'}).on('ifChanged', function () {
+
+    //     var id = $(this).data('id');
+
+    //     console.log(id, "id");
+    //     if (this.checked) {
+    //         $.admin.grid.select(id);
+    //         $(this).closest('tr').css('background-color', '#ffffd5');
+    //     } else {
+    //         $.admin.grid.unselect(id);
+    //         $(this).closest('tr').css('background-color', '');
+    //     }
+    //     }).on('ifClicked', function () {
+
+    //     var id = $(this).data('id');
+
+    //     if (this.checked) {
+    //         $.admin.grid.unselect(id);
+    //     } else {
+    //         $.admin.grid.select(id);
+    //     }
+
+    //     var selected = $.admin.grid.selected().length;
+
+    //     if (selected > 0) {
+    //         $('.grid-select-all-btn').show();
+    //     } else {
+    //         $('.grid-select-all-btn').hide();
+    //     }
+
+    //     $('.grid-select-all-btn .selected').html("{n} sản phẩm được chọn".replace('{n}', selected));
+    // });
+</script>
+
+{{-- <script>
     let exchange_rates = $('.exchange_rates').val();
 
     $(document).on('click', '.choose-item-all', function () {
@@ -281,4 +316,4 @@
     $('#frm-cart').on('submit', function () {
         $('.loading-overlay').show();
     });
-</script>
+</script> --}}
