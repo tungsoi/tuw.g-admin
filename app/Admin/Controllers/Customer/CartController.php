@@ -76,7 +76,7 @@ class CartController extends AdminController
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->shop_name("Tên Shop")->width(200);
+        $grid->shop_name("Tên Shop")->width(200)->sortable();
         $grid->product_image('Ảnh sản phẩm')->lightbox(['width' => 100, 'height' => 100])->width(120);
         $grid->product_name("Tên sản phẩm")->width(200);
         $grid->product_link('Link')->display(function () {
