@@ -61,7 +61,6 @@ class CartController extends AdminController
         $grid = new Grid(new PurchaseOrderItem());
         $grid->model()->where('customer_id', Admin::user()->id)
         ->whereStatus(10)
-        ->orderBy('shop_name', 'desc')
         ->orderBy('id', 'desc');
 
         $grid->header(function () {
