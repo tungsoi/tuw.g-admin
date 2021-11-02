@@ -592,10 +592,12 @@ SCRIPT;
             return date('H:i | d-m-Y', strtotime($this->created_at));
         })->style('text-align: center');
         $grid->column('export_at', "Ngày thanh toán")->display(function () {
-            if ($this->export_at == "") {
-                return null;
+            $time = null;
+            if ($this->status == 'payment_export') {
+                $time = $this->export_at != null ? $this->export_at : $this->created_at;
             }
-            return date('H:i | d-m-Y', strtotime($this->export_at));
+            
+            return $time == null ? "" : date('H:i | d-m-Y', strtotime($time));
         })->style('text-align: center');
         $grid->inernal_note('Ghi chú');
 
