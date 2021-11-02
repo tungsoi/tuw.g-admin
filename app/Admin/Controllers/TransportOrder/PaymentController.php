@@ -671,7 +671,10 @@ EOT);
                 $actions->disableDelete();
             });
             
-            $tools->append(new MergeOrder());
+            if (! Admin::user()->isRole('customer')) {
+                $tools->append(new MergeOrder());
+            }
+            
             
         });
 
