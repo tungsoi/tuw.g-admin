@@ -40,7 +40,9 @@ class ReportDetail extends Model
         'log_processing_order',
         'log_processing_order_new_customer',
         'log_transport_order',
-        'log_transport_order_new_customer'
+        'log_transport_order_new_customer',
+        'offer_cn',
+        'offer_vn'
     ];
 
 

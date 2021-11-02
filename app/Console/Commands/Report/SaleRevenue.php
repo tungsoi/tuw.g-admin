@@ -99,7 +99,15 @@ class SaleRevenue extends Command
                                                     ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")
                                                     ->where('success_at', '>=', $report->begin_date . " 00:00:01")
                                                     ->where('success_at', '<=', $report->finish_date ." 23:59:59");
-
+                    $success_offer_cn = 0;
+                    $success_offer_vn = 0;
+                    foreach ($success_purchase_orders->get() as $order) {
+                        $offer_cn = $order->offer_cn != NULL ? $order->offer_cn : 0;
+                        $offer_vn = $order->offer_vn != NULL ? $order->offer_vn : 0;
+                        $success_offer_cn += str_replace(",", "",  $offer_cn);
+                        $success_offer_vn += str_replace(",", "",  $offer_vn);
+                    }
+                                
                     $success_order = $success_purchase_orders->count();
 
                     $success_order_payment = number_format($this->amount($success_purchase_orders->get()), 0, '.', '');
@@ -112,6 +120,15 @@ class SaleRevenue extends Command
                     ->where('deposited_at', '>=', $report->begin_date . " 00:00:01")
                     ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")
                     ->get();
+
+                    $ordering_offer_cn = 0;
+                    $ordering_offer_vn = 0;
+                    foreach ($ordering_orders as $order) {
+                        $offer_cn = $order->offer_cn != NULL ? $order->offer_cn : 0;
+                        $offer_vn = $order->offer_vn != NULL ? $order->offer_vn : 0;
+                        $ordering_offer_cn += str_replace(",", "",  $offer_cn);
+                        $ordering_offer_vn += str_replace(",", "",  $offer_vn);
+                    }
             
                     $ordered_orders = PurchaseOrder::whereIn('customer_id', $customer_ids)->whereIn('status', [5, 7])
                     ->where('deposited_at', '>=', $report->begin_date . " 00:00:01")
@@ -119,6 +136,15 @@ class SaleRevenue extends Command
                     ->where('order_at', '>=', $report->begin_date . " 00:00:01")
                     ->where('order_at', '<=', $report->finish_date ." 23:59:59")
                     ->get();
+
+                    $ordered_offer_cn = 0;
+                    $ordered_offer_vn = 0;
+                    foreach ($ordered_orders as $order) {
+                        $offer_cn = $order->offer_cn != NULL ? $order->offer_cn : 0;
+                        $offer_vn = $order->offer_vn != NULL ? $order->offer_vn : 0;
+                        $ordered_offer_cn += str_replace(",", "",  $offer_cn);
+                        $ordered_offer_vn += str_replace(",", "",  $offer_vn);
+                    }
             
                     $processing_order =  $ordering_orders->merge($ordered_orders);
                     $processing_order_payment = number_format($this->amount($processing_order), 0, '.', '');
@@ -131,6 +157,10 @@ class SaleRevenue extends Command
                     
                     $total_transport_weight = TransportCode::whereIn('order_id', $payment_orders->pluck('id'))->sum('kg');
                     $total_transport_weight_new_customer = TransportCode::whereIn('order_id', $payment_order_new_customer->pluck('id'))->sum('kg');
+                    
+                    $total_cn = $success_offer_cn + $ordering_offer_cn + $ordered_offer_cn;
+                    $total_vn = $success_offer_vn + $ordering_offer_vn + $ordered_offer_vn;
+
                     $data = [
                         'sale_report_id'    =>  $report->id,
                         'user_id'           =>  $sale_id,
@@ -155,7 +185,9 @@ class SaleRevenue extends Command
                         'total_transport_fee_new_customer'   =>  $payment_order_new_customer->sum('amount'),
                         'transport_order'   =>  $payment_orders->count(),
                         'transport_order_new_customer'   =>  $payment_order_new_customer->count(),
-                        'owed_processing_order_payment' =>  $owed_processing_order_payment
+                        'owed_processing_order_payment' =>  $owed_processing_order_payment,
+                        'offer_cn'  =>  number_format($total_cn, 2, '.', ''),
+                        'offer_vn'  =>  number_format($total_vn, 0, '.', '')
                     ];
 
                     ReportDetail::firstOrCreate($data);

@@ -370,6 +370,24 @@ EOT
             return "<h3 style='text-transform: uppercase;'>Phân tích hiệu quả trên / " . $html . "</h3>";
         });
 
+        $grid->filter(function($filter) {
+            $filter->expand();
+            $filter->disableIdFilter();
+            $filter->column(1/2, function ($filter) {
+                $filter->where(function ($query) {
+                    $ids = SystemTeamSale::find($this->input)->members;
+                    $query->whereIn('user_id', $ids);
+                }, 'Team Sale', 'team_sale')->select(SystemTeamSale::all()->pluck('name', 'id'));
+            });
+            
+            $filter->column(1/2, function ($filter) {
+                $service = new UserService();
+    
+                $filter->equal('user_id', 'Nhân viên kinh doanh')->select($service->GetListSaleEmployee());
+            });
+           
+        });
+
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
@@ -453,11 +471,15 @@ EOT
 
             return "<span style='color:red'>Chưa điền tiền lương</span>";
         })->style('text-align: right');
+        $grid->offer_cn('Lợi nhuận đàm phán')->display(function () {
+            $total = $this->offer_vn;
+            $person = $total * 0.85;
+            return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 85% tổng tiền đám phán đơn hàng </i>";
+        })->style('text-align: right');
 
         $grid->paginate(50);
         $grid->disableBatchActions();
         $grid->disableCreateButton();
-        $grid->disableFilter();
         $grid->disableActions();
 
         Admin::script($this->script());
@@ -491,6 +513,7 @@ EOT
                     + '<td><span id="amount-fee-total">0</span></td>'
                     + '<td><span id="salary-fee-total">0</span></td>'
                     + '<td><span id="payment-fee-total">0</span></td>'
+                    + '<td><span id="offer-fee-total">0</span></td>'
                     + '</tr></tfoot>'
                 );
 
@@ -500,6 +523,7 @@ EOT
                 getTotalHtml("column-success_order_new_customer", "amount-fee-total", true);
                 getTotalHtml("column-success_order_payment_new_customer", "payment-fee-total", true);
                 getTotalHtml("column-salary", "salary-fee-total", false);
+                getTotalHtml("column-offer_cn", "offer-fee-total", true);
 
                 function getTotalHtml(column_class, element_append_id, editable = true) {
                     let ele = null;
