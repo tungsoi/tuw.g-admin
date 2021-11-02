@@ -14,6 +14,7 @@ use App\Models\System\Alert;
 use App\Models\System\Warehouse;
 use App\Models\TransportOrder\TransportCode;
 use App\User;
+use Carbon\Carbon;
 use DateTime;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -46,7 +47,9 @@ class OfferController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new PurchaseOrder());
-        $grid->model()->orderBy('id', 'desc');
+        $grid->model()->whereIn('status', [5, 7, 9])
+        ->where('created_at', '>', Carbon::now()->subDays(60))
+        ->orderBy('id', 'desc');
 
         // Khach hang
         if (Admin::user()->isRole('customer')) {
