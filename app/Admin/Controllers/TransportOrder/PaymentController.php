@@ -592,7 +592,8 @@ SCRIPT;
         });
         $grid->wallet_weight('Sử dụng ví cân')->display(function () {
             if ($this->is_sub_customer_wallet_weight == 1) {
-                return str_replace('.0', '', number_format($this->total_sub_wallet_weight, 2, '.', ''));
+                return str_replace('.0', '', number_format($this->total_sub_wallet_weight, 1, '.', ''));
+                // return number_format($this->total_sub_wallet_weight, 1, '.', '');
             } else {
                 return 0;
             }
