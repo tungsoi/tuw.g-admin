@@ -48,7 +48,6 @@ class OfferController extends AdminController
     {
         $grid = new Grid(new PurchaseOrder());
         $grid->model()->whereIn('status', [5, 7, 9])
-        ->where('created_at', '>', Carbon::now()->subDays(60))
         ->orderBy('id', 'desc');
 
         // Khach hang
