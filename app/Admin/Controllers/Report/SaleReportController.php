@@ -398,12 +398,12 @@ EOT
 
             return $html;
         });
-        $grid->success_order_service_fee('DOANH THU PHÍ DỊCH VỤ')->display(function () {
+        $grid->success_order_service_fee('DOANH THU PHÍ DỊCH VỤ <br> (1)')->display(function () {
            $html = number_format($this->processing_order_service_fee + $this->success_order_service_fee);
            return "<span class='data-used'>".$html."</span>";
         })->style('text-align: right');
 
-        $grid->total_transport_fee('DOANH THU VẬN TẢI')->display(function () {
+        $grid->total_transport_fee('DOANH THU VẬN TẢI <br> (2)')->display(function () {
             $total = $this->total_transport_fee;
             $person = ($total * 0.1);
 
@@ -411,22 +411,29 @@ EOT
              . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 10% tổng tiền doanh thu vận tải </i>";
         })->style('text-align: right');
 
-        $grid->success_order_payment_rmb('DOANH THU TỶ GIÁ')->display(function () {
+        $grid->success_order_payment_rmb('DOANH THU TỶ GIÁ <br> (3)')->display(function () {
             $total = $this->success_order_payment_rmb + $this->processing_order_payment_rmb;
             $person = ($total * 30);
 
             return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 30 * tổng tiền tệ đơn hàng </i>";
         })->style('text-align: right');
-
-        $grid->success_order_new_customer("TỔNG DOANH THU")->display(function () {
+        $grid->offer_cn('Lợi nhuận đàm phán <br> (4)')->display(function () {
+            $total = $this->offer_vn;
+            $person = $total * 0.85;
+            return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 85% tổng tiền đám phán đơn hàng </i>";
+        })->style('text-align: right');
+        $grid->success_order_new_customer("TỔNG DOANH THU <br> (5 = 1 + 2 + 3 + 4)")->display(function () {
             $service_fee = $this->processing_order_service_fee + $this->success_order_service_fee;
             $transport_payment = $this->total_transport_fee * 0.1;
             $exchange_rate_payment = ($this->success_order_payment_rmb + $this->processing_order_payment_rmb) * 30;
+            $total = $this->offer_vn;
+            $person = $total * 0.85;
 
             $html = number_format(
                 $service_fee
                 + $transport_payment
                 + $exchange_rate_payment
+                + $person
             );
 
             return "<span class='data-used'>".$html."</span>";
@@ -471,11 +478,7 @@ EOT
 
             return "<span style='color:red'>Chưa điền tiền lương</span>";
         })->style('text-align: right');
-        $grid->offer_cn('Lợi nhuận đàm phán')->display(function () {
-            $total = $this->offer_vn;
-            $person = $total * 0.85;
-            return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 85% tổng tiền đám phán đơn hàng </i>";
-        })->style('text-align: right');
+        
 
         $grid->paginate(50);
         $grid->disableBatchActions();
@@ -503,17 +506,17 @@ EOT
                     }, 500);
                 });
 
+                // % row
                 $('table').prepend(
                     '<tfoot style="text-align: right"><tr>'
-                    + '<td></td>'
-                    + '<td></td>'
+                    + '<td colspan="2">Tiền đã tính % theo điều kiện</td>'
                     + '<td><span id="service-fee-total">0</span></td>'
                     + '<td><span id="transport-fee-total">0</span></td>'
                     + '<td><span id="exchange-fee-total">0</span></td>'
+                    + '<td><span id="offer-fee-total">0</span></td>'
                     + '<td><span id="amount-fee-total">0</span></td>'
                     + '<td><span id="salary-fee-total">0</span></td>'
                     + '<td><span id="payment-fee-total">0</span></td>'
-                    + '<td><span id="offer-fee-total">0</span></td>'
                     + '</tr></tfoot>'
                 );
 
@@ -552,8 +555,34 @@ EOT
                     }
 
                     return total;
-
                 }
+
+                // total row
+                $('table').prepend(
+                    '<tfoot style="text-align: right; background: orange !important;"><tr>'
+                    + '<td colspan="2">Tổng tiền các mục</td>'
+                    + '<td><span id="portal_service-fee-total">0</span></td>'
+                    + '<td><span id="portal_transport-fee-total">0</span></td>'
+                    + '<td><span id="portal_exchange-fee-total">0</span></td>'
+                    + '<td><span id="portal_offer-fee-total">0</span></td>'
+                    + '<td><span id="portal_amount-fee-total">0</span></td>'
+                    + '<td><span id="portal_salary-fee-total">0</span></td>'
+                    + '<td><span id="portal_payment-fee-total">0</span></td>'
+                    + '</tr></tfoot>'
+                );
+
+                getTotalHtml("column-success_order_service_fee", "service-fee-total", true);
+                getTotalHtml("column-success_order_service_fee", "portal_service-fee-total", true);
+
+                let per_transport_fee_total = parseInt($('#transport-fee-total').html().replace(/\,/g, ''));
+                $('#portal_transport-fee-total').html(number_format(per_transport_fee_total / 10 * 100));
+
+                let per_exchange_fee_total = parseInt($('#exchange-fee-total').html().replace(/\,/g, ''));
+                $('#portal_exchange-fee-total').html(number_format(per_exchange_fee_total / 30) + " (Tệ)");
+
+
+                let per_offer_fee_total = parseInt($('#offer-fee-total').html().replace(/\,/g, ''));
+                $('#portal_offer-fee-total').html(number_format(per_offer_fee_total / 85 * 100));
 
                 function number_format(number, decimals, dec_point, thousands_sep) {
                     // Strip all characters but numerical ones.
