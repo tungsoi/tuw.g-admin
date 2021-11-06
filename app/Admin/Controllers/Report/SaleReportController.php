@@ -399,7 +399,7 @@ EOT
             return $html;
         });
         $grid->success_order_service_fee('DOANH THU PHÍ DỊCH VỤ <br> (1)')->display(function () {
-           $html = number_format($this->processing_order_service_fee + $this->success_order_service_fee);
+           $html = number_format($this->success_order_service_fee);
            return "<span class='data-used'>".$html."</span>";
         })->style('text-align: right');
 
@@ -412,7 +412,7 @@ EOT
         })->style('text-align: right');
 
         $grid->success_order_payment_rmb('DOANH THU TỶ GIÁ <br> (3)')->display(function () {
-            $total = $this->success_order_payment_rmb + $this->processing_order_payment_rmb;
+            $total = $this->success_order_payment_rmb;
             $person = ($total * 30);
 
             return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 30 * tổng tiền tệ đơn hàng </i>";
@@ -423,9 +423,9 @@ EOT
             return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 85% tổng tiền đám phán đơn hàng </i>";
         })->style('text-align: right');
         $grid->success_order_new_customer("TỔNG DOANH THU <br> (5 = 1 + 2 + 3 + 4)")->display(function () {
-            $service_fee = $this->processing_order_service_fee + $this->success_order_service_fee;
+            $service_fee = $this->success_order_service_fee;
             $transport_payment = $this->total_transport_fee * 0.1;
-            $exchange_rate_payment = ($this->success_order_payment_rmb + $this->processing_order_payment_rmb) * 30;
+            $exchange_rate_payment = ($this->success_order_payment_rmb) * 30;
             $total = $this->offer_vn;
             $person = $total * 0.85;
 
@@ -439,7 +439,12 @@ EOT
             return "<span class='data-used'>".$html."</span>";
         })->style('text-align: right; color: green;')->label('success');
 
-        $grid->salary("TIỀN LƯƠNG THỰC NHẬN")->display(function () {
+        $grid->t9_pdv('PDV đơn cọc T9, thành công T10 <br> (6)')->display(function () {
+            $html = number_format($this->t9_pdv);
+           return "<span class='data-used'>".$html."</span>";
+        });
+
+        $grid->salary("TIỀN LƯƠNG THỰC NHẬN <br> (7)")->display(function () {
             if ($this->salary == null) {
                 $salary = 0;
             } else {
@@ -448,16 +453,19 @@ EOT
             return number_format($salary);
         })->editable()->style('text-align: right');
 
-        $grid->success_order_payment_new_customer("HIỆU QUẢ SAU TRỪ LƯƠNG")->display(function () {
+        $grid->success_order_payment_new_customer("HIỆU QUẢ SAU TRỪ LƯƠNG <br> (8 = 5 - 6 - 7)")->display(function () {
             if ($this->salary != 0) {
-                $service_fee = $this->processing_order_service_fee + $this->success_order_service_fee;
+                $service_fee = $this->success_order_service_fee;
                 $transport_payment = $this->total_transport_fee * 0.1;
-                $exchange_rate_payment = ($this->success_order_payment_rmb + $this->processing_order_payment_rmb) * 30;
+                $exchange_rate_payment = ($this->success_order_payment_rmb) * 30;
+                $total_offer = $this->offer_vn;
+                $person = $total_offer * 0.85;
 
                 $total = (
                     $service_fee
                     + $transport_payment
                     + $exchange_rate_payment
+                    + $person
                 );
 
                 if ($this->salary == null) {
@@ -466,7 +474,7 @@ EOT
                     $salary = $this->salary;
                 }
                 
-                $res = $total - $salary;
+                $res = $total - $salary - $this->t9_pdv;
                 if ($res < 0) {
                     $label = 'danger';
                 } else {
@@ -515,12 +523,14 @@ EOT
                     + '<td><span id="exchange-fee-total">0</span></td>'
                     + '<td><span id="offer-fee-total">0</span></td>'
                     + '<td><span id="amount-fee-total">0</span></td>'
+                    + '<td><span id="t9-pdv-fee-total">0</span></td>'
                     + '<td><span id="salary-fee-total">0</span></td>'
                     + '<td><span id="payment-fee-total">0</span></td>'
                     + '</tr></tfoot>'
                 );
 
                 getTotalHtml("column-success_order_service_fee", "service-fee-total", true);
+                getTotalHtml("column-t9_pdv", "t9-pdv-fee-total", true);
                 getTotalHtml("column-total_transport_fee", "transport-fee-total", true);
                 getTotalHtml("column-success_order_payment_rmb", "exchange-fee-total", true);
                 getTotalHtml("column-success_order_new_customer", "amount-fee-total", true);
@@ -566,6 +576,7 @@ EOT
                     + '<td><span id="portal_exchange-fee-total">0</span></td>'
                     + '<td><span id="portal_offer-fee-total">0</span></td>'
                     + '<td><span id="portal_amount-fee-total">0</span></td>'
+                    + '<td><span id="portal_t9-pdv-fee-total">0</span></td>'
                     + '<td><span id="portal_salary-fee-total">0</span></td>'
                     + '<td><span id="portal_payment-fee-total">0</span></td>'
                     + '</tr></tfoot>'

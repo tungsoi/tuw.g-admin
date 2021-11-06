@@ -12,14 +12,14 @@ use App\Models\TransportOrder\TransportCode;
 use App\User;
 use Illuminate\Console\Command;
 
-class OfferRevenue extends Command
+class T9PDV extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'update:offer';
+    protected $signature = 'pdvt9';
 
     /**
      * The console command description.
@@ -47,8 +47,8 @@ class OfferRevenue extends Command
     {
         ini_set("memory_limit","256M");
 
-        $begin_date = "2021-10-01";
-        $finish_date = "2021-10-31";
+        $begin_date = "2021-09-01";
+        $finish_date = "2021-09-30";
 
         $report = Report::whereBeginDate($begin_date)->whereFinishDate($finish_date)->orderBy('id', 'desc')->first();
         
@@ -75,23 +75,35 @@ class OfferRevenue extends Command
                 $total_customer = $customers->count();
 
                 if ($total_customer > 0) {
-                    $success_purchase_orders = PurchaseOrder::select('offer_cn', 'offer_vn')
-                                                    ->whereIn('customer_id', $customer_ids)
+                    $success_purchase_orders = PurchaseOrder::select('purchase_order_service_fee', 'current_rate')->whereIn('customer_id', $customer_ids)
                                                     ->where('status', 9)
                                                     ->where('deposited_at', '>=', $report->begin_date . " 00:00:01")
                                                     ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")
-                                                    ->where('success_at', '>=', $report->begin_date . " 00:00:01")
-                                                    ->where('success_at', '<=', $report->finish_date ." 23:59:59")
+                                                    ->where('success_at', '>=', "2021-10-01 00:00:01")
+                                                    ->where('success_at', '<=', "2021-10-31 23:59:59")
                                                     ->get();
+                            
+                                                    $total = 0;
+                    if ($success_purchase_orders->count() > 0) {
+                        foreach ($success_purchase_orders as $order)  {
+                            $total += $order->purchase_order_service_fee * $order->current_rate;
+                        }
 
-                    $success_offer_cn = 0;
-                    $success_offer_vn = 0;
-                    foreach ($success_purchase_orders as $order) {
-                        $offer_cn = $order->offer_cn != NULL ? $order->offer_cn : 0;
-                        $offer_vn = $order->offer_vn != NULL ? $order->offer_vn : 0;
-                        $success_offer_cn += str_replace(",", "",  $offer_cn);
-                        $success_offer_vn += str_replace(",", "",  $offer_vn);
+                        ReportDetail::where('user_id', $sale_id)
+                        ->where('sale_report_id', 19)
+                        ->update([
+                            't9_pdv'    =>  number_format($total, 0, '.', '')
+                        ]);
                     }
+
+                    // $success_offer_cn = 0;
+                    // $success_offer_vn = 0;
+                    // foreach ($success_purchase_orders as $order) {
+                    //     $offer_cn = $order->offer_cn != NULL ? $order->offer_cn : 0;
+                    //     $offer_vn = $order->offer_vn != NULL ? $order->offer_vn : 0;
+                    //     $success_offer_cn += str_replace(",", "",  $offer_cn);
+                    //     $success_offer_vn += str_replace(",", "",  $offer_vn);
+                    // }
 
                     // $ordering_orders = PurchaseOrder::select('offer_cn', 'offer_vn')
                     // ->whereIn('customer_id', $customer_ids)->where('status', 4)
@@ -99,8 +111,8 @@ class OfferRevenue extends Command
                     // ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")
                     // ->get();
 
-                    $ordering_offer_cn = 0;
-                    $ordering_offer_vn = 0;
+                    // $ordering_offer_cn = 0;
+                    // $ordering_offer_vn = 0;
                     // foreach ($ordering_orders as $order) {
 
                     //     try {
@@ -121,8 +133,8 @@ class OfferRevenue extends Command
                     // ->where('order_at', '<=', $report->finish_date ." 23:59:59")
                     // ->get();
 
-                    $ordered_offer_cn = 0;
-                    $ordered_offer_vn = 0;
+                    // $ordered_offer_cn = 0;
+                    // $ordered_offer_vn = 0;
                     // foreach ($ordered_orders as $order) {
 
                     //     $offer_cn = $order->offer_cn != NULL ? $order->offer_cn : 0;
@@ -131,16 +143,16 @@ class OfferRevenue extends Command
                     //     $ordered_offer_vn += str_replace(",", "",  $offer_vn);
                     // }
 
-                    $total_cn = $success_offer_cn + $ordering_offer_cn + $ordered_offer_cn;
-                    $total_vn = $success_offer_vn + $ordering_offer_vn + $ordered_offer_vn;
+                    // $total_cn = $success_offer_cn + $ordering_offer_cn + $ordered_offer_cn;
+                    // $total_vn = $success_offer_vn + $ordering_offer_vn + $ordered_offer_vn;
 
-                    $record = ReportDetail::where('user_id', $sale_id)
-                        ->where('sale_report_id', $report->id)
-                        ->first();
+                    // $record = ReportDetail::where('user_id', $sale_id)
+                    //     ->where('sale_report_id', $report->id)
+                    //     ->first();
 
-                    $record->offer_cn = number_format($total_cn, 2, '.', '');
-                    $record->offer_vn = number_format($total_vn, 0, '.', '');
-                    $record->save();
+                    // $record->offer_cn = number_format($total_cn, 2, '.', '');
+                    // $record->offer_vn = number_format($total_vn, 0, '.', '');
+                    // $record->save();
                 }
                 
             }

@@ -42,7 +42,8 @@ class ReportDetail extends Model
         'log_transport_order',
         'log_transport_order_new_customer',
         'offer_cn',
-        'offer_vn'
+        'offer_vn',
+        't9_pdv'
     ];
 
 

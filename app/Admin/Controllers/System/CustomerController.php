@@ -256,8 +256,11 @@ class CustomerController extends AdminController
             2 => 'Khách hàng Order',
             3 => 'Order + Vận chuyển'
         ]);
-        $grid->column('is_active', 'Trạng thái')->switch($states)->style('text-align: center');
-        $grid->column('is_used_pindoudou', 'Pindoudou')->switch($states)->style('text-align: center');
+
+        if (Admin::user()->isRole('administrator') || Admin::user()->isRole('order_employee') || Admin::user()->isRole('ar_employee')) {
+            $grid->column('is_active', 'Trạng thái')->switch($states)->style('text-align: center');
+            $grid->column('is_used_pindoudou', 'Pindoudou')->switch($states)->style('text-align: center');
+        }
         $grid->timeline('Giao dịch cuối')->display(function () {
             $data = [
                 'order_number'   =>  [
@@ -347,8 +350,10 @@ class CustomerController extends AdminController
                 'off' => ['value' => User::DEACTIVE, 'text' => 'Khoá', 'color' => 'danger'],
             ];
 
-            $form->switch('is_active', 'Trạng thái tài khoản')->states($states);
-            $form->switch('is_used_pindoudou', 'Sử dụng Pindoudou')->states($states);
+            if (Admin::user()->isRole('administrator') || Admin::user()->isRole('order_employee') || Admin::user()->isRole('ar_employee')) {
+                $form->switch('is_active', 'Trạng thái tài khoản')->states($states);
+                $form->switch('is_used_pindoudou', 'Sử dụng Pindoudou')->states($states);
+            }
 
         });
         $form->column(1/2, function ($form) use ($service) {
