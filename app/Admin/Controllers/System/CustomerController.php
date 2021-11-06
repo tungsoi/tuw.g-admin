@@ -257,7 +257,7 @@ class CustomerController extends AdminController
             3 => 'Order + Vận chuyển'
         ]);
 
-        if (Admin::user()->isRole('administrator') || Admin::user()->isRole('order_employee') || Admin::user()->isRole('ar_employee')) {
+        if (Admin::user()->isRole('administrator') || Admin::user()->isRole('order_manager') || Admin::user()->isRole('ar_employee')) {
             $grid->column('is_active', 'Trạng thái')->switch($states)->style('text-align: center');
             $grid->column('is_used_pindoudou', 'Pindoudou')->switch($states)->style('text-align: center');
         }
@@ -350,7 +350,7 @@ class CustomerController extends AdminController
                 'off' => ['value' => User::DEACTIVE, 'text' => 'Khoá', 'color' => 'danger'],
             ];
 
-            if (Admin::user()->isRole('administrator') || Admin::user()->isRole('order_employee') || Admin::user()->isRole('ar_employee')) {
+            if (Admin::user()->isRole('administrator') || Admin::user()->isRole('order_manager') || Admin::user()->isRole('ar_employee')) {
                 $form->switch('is_active', 'Trạng thái tài khoản')->states($states);
                 $form->switch('is_used_pindoudou', 'Sử dụng Pindoudou')->states($states);
             }
