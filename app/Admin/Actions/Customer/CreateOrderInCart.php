@@ -99,11 +99,16 @@ SCRIPT;
     public function form()
     {
         $this->select('warehouse_id', 'Kho hàng')->options(Warehouse::pluck('name', 'id'))->rules(['required'])->default(2);
-        $this->radio('order_type', 'Loại đơn hàng')->options([
+
+        $radio = [
             '1688, Taobao'  =>  '1688, Taobao',
-            'Pindoudou' =>  'Pindoudou',
             'Wechat'    =>  'Wechat'
-        ])->default('1688, Taobao');
+        ];
+
+        if (Admin::user()->is_used_pindoudou == 1) {
+            $radio['Pindoudou'] =   'Pindoudou';
+        }
+        $this->radio('order_type', 'Loại đơn hàng')->options($radio)->default('1688, Taobao')->stacked();
     }
 
     public function html()

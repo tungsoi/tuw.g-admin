@@ -63,7 +63,8 @@ class User extends Model implements AuthenticatableContract
         'wallet_weight',
         'staff_order_id',
         'default_price_kg',
-        'default_price_m3'
+        'default_price_m3',
+        'is_used_pindoudou'
     ];
 
     protected $casts = [

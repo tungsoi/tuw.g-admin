@@ -257,6 +257,7 @@ class CustomerController extends AdminController
             3 => 'Order + Vận chuyển'
         ]);
         $grid->column('is_active', 'Trạng thái')->switch($states)->style('text-align: center');
+        $grid->column('is_used_pindoudou', 'Pindoudou')->switch($states)->style('text-align: center');
         $grid->timeline('Giao dịch cuối')->display(function () {
             $data = [
                 'order_number'   =>  [
@@ -340,6 +341,15 @@ class CustomerController extends AdminController
                 $form->select('staff_order_id', 'Nhân viên Đặt hàng')->options($service->GetListOrderEmployee())->readonly();
                 $form->select('customer_percent_service', '% Phí dịch vụ')->options($service->GetListPercentService())->rules('required')->readonly();
             }
+
+            $states = [
+                'on'  => ['value' => User::ACTIVE, 'text' => 'Mở', 'color' => 'success'],
+                'off' => ['value' => User::DEACTIVE, 'text' => 'Khoá', 'color' => 'danger'],
+            ];
+
+            $form->switch('is_active', 'Trạng thái tài khoản')->states($states);
+            $form->switch('is_used_pindoudou', 'Sử dụng Pindoudou')->states($states);
+
         });
         $form->column(1/2, function ($form) use ($service) {
             $form->select('ware_house_id', 'Kho hàng')->options($service->GetListWarehouse())->rules('required');
