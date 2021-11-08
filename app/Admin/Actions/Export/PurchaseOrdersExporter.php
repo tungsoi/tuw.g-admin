@@ -42,7 +42,7 @@ class PurchaseOrdersExporter extends AbstractExporter
                         $deposite = $price_vnd / 100 * 70;
 
                         $rows[] = [
-                            $key++,
+                            $key+1,
                             $order->order_number,
                             $order->current_rate,
                             $order->items->where('status', '!=', 4)->count()." link, ". $order->totalItems() . " sp",
