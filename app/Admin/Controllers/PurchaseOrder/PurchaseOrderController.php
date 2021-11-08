@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers\PurchaseOrder;
 
 use App\Admin\Actions\Customer\Recharge;
+use App\Admin\Actions\Export\PurchaseOrdersExporter;
 use App\Admin\Actions\PurchaseOrder\ConfirmOrderItem;
 use App\Admin\Actions\PurchaseOrder\ConfirmOutstockItem;
 use App\Admin\Actions\PurchaseOrder\ConfirmVnReceiveItem;
@@ -468,7 +469,13 @@ class PurchaseOrderController extends AdminController
         }
         
         $grid->disableCreateButton();
-        $grid->disableExport();
+        
+        if (! Admin::user()->isRole('ar_employee')) {
+            $grid->disableExport();
+        }
+
+
+        $grid->exporter(new PurchaseOrdersExporter());
 
         // if (! Admin::user()->can('deposite_multiple_purchase_order')) {
             // $grid->disableBatchActions();
