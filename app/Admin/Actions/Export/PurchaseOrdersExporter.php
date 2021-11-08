@@ -2,6 +2,7 @@
 
 namespace App\Admin\Actions\Export;
 
+use App\Models\PurchaseOrder\PurchaseOrder;
 use App\User;
 use Encore\Admin\Grid\Exporters\AbstractExporter;
 use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
@@ -16,13 +17,32 @@ class PurchaseOrdersExporter extends AbstractExporter
             $excel->sheet('Sheet1', function(LaravelExcelWorksheet $sheet) {
 
                 $this->chunk(function ($records) use ($sheet) {
-                    $rows = $records->map(function ($order) {
+                    $ids = $records->map(function ($order) {
+                        return $order->id;
+                    });
 
+                    $orders = PurchaseOrder::whereIn('id', $ids)
+                        ->with('customer')
+                        ->with('statusText')
+                        ->with('warehouse')
+                        ->with('orderEmployee')
+                        ->with('createdUser')
+                        ->with('depositedUser')
+                        ->with('orderedUser')
+                        ->with('vnReceiveUser')
+                        ->with('successedUser')
+                        ->with('items')
+                        ->with('userCancle')
+                        ->get();
+                    
+                    $rows = [];
+                    foreach ($orders as $key => $order) {
                         $price_rmb = $order->sumItemPrice();
                         $price_vnd = str_replace(",", "", $order->sumItemPrice()) * $order->current_rate;
                         $deposite = $price_vnd / 100 * 70;
 
-                        $res = [
+                        $rows[] = [
+                            $key++,
                             $order->order_number,
                             $order->current_rate,
                             $order->items->where('status', '!=', 4)->count()." link, ". $order->totalItems() . " sp",
@@ -59,11 +79,9 @@ class PurchaseOrdersExporter extends AbstractExporter
                             $order->cancle_at != null ? date('H:i | d-m-Y', strtotime($order->cancle_at)) : "",
                             $order->userCancle->name ?? ""
                         ];
+                    }
 
-                        return $res;
-                    });
-                    $rows->prepend($this->header());
-
+                    array_unshift($rows, $this->header());
                     $sheet->rows($rows);
 
                 });
@@ -76,6 +94,7 @@ class PurchaseOrdersExporter extends AbstractExporter
     public function header()
     {
         return [
+            'STT',
             'Mã đơn hàng',
             'Tỷ giá',
             'Link / Sản phẩm',
