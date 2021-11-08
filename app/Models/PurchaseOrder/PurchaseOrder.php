@@ -122,14 +122,14 @@ class PurchaseOrder extends Model
 
     public function totalItems() {
         $service = new OrderService();
-        return $this->items->where('status', '!=', $service->getItemStatus('out_stock'))->sum('qty_reality');
+        return $this->items->where('status', '!=', 4)->sum('qty_reality');
     }
 
     public function sumItemPrice($format = true) {
         $service = new OrderService();
         $total = 0;
         foreach ($this->items as $item) {
-            if ($item->status != $service->getItemStatus('out_stock')) {
+            if ($item->status != 4) {
                 $price = (float) $item->price;
                 $price = number_format($price, 2, '.', '');
                 $total += $item->qty_reality * $price;
@@ -143,7 +143,7 @@ class PurchaseOrder extends Model
         $service = new OrderService();
         $total = 0;
         foreach ($this->items as $item) {
-            if ($item->status != $service->getItemStatus('out_stock')) {
+            if ($item->status != 4) {
                 if ($item->purchase_cn_transport_fee != "") {
                     $total += str_replace(",", ".", $item->purchase_cn_transport_fee);
                 }
@@ -217,8 +217,8 @@ class PurchaseOrder extends Model
         $service = new OrderService();
         switch ($this->statusText->code) {
             case "vn-recevice": 
-                $allItems = $this->items->where('status', '!=', $service->getItemStatus('out_stock'))->count();
-                $vnItems = $this->items->where('status', $service->getItemStatus('vn_received'))->count();
+                $allItems = $this->items->where('status', '!=', 4)->count();
+                $vnItems = $this->items->where('status', 3)->count();
 
                 if ($mode == 'html') {
                     return " (".$vnItems."/".$allItems.")";
