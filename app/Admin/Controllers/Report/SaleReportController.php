@@ -540,6 +540,7 @@ EOT
                 $('table').prepend(
                     '<tfoot style="text-align: right"><tr>'
                     + '<td colspan="2">Tiền đã tính % theo điều kiện</td>'
+                    + '<td><span id="order">0</span></td>'
                     + '<td><span id="service-fee-total">0</span></td>'
                     + '<td><span id="transport-fee-total">0</span></td>'
                     + '<td><span id="exchange-fee-total">0</span></td>'
@@ -593,6 +594,7 @@ EOT
                 $('table').prepend(
                     '<tfoot style="text-align: right; background: orange !important;"><tr>'
                     + '<td colspan="2">Tổng tiền các mục</td>'
+                    + '<td><span id="order">0</span></td>'
                     + '<td><span id="portal_service-fee-total">0</span></td>'
                     + '<td><span id="portal_transport-fee-total">0</span></td>'
                     + '<td><span id="portal_exchange-fee-total">0</span></td>'
