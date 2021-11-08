@@ -409,7 +409,7 @@ SCRIPT;
         $grid = new Grid(new PaymentOrder());
 
         $grid->model()
-        // ->where('status', '!=', 'cancel')
+        ->where('status', '!=', 'cancel')
         ->orderBy('id', 'desc');
 
         if (Admin::user()->isRole('customer')) {
@@ -497,7 +497,6 @@ SCRIPT;
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        // $grid->order_number('Mã đơn hàng')->width(100)->label('primary');
         $grid->status('Trạng thái')->display(function () {
             $data = [
                 'order_number' => [

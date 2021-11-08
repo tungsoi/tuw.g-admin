@@ -119,17 +119,17 @@ class OfferController extends AdminController
             $row->column('number', ($row->number+1));
         });
         $grid->id("#")->display(function () {
-            if ($this->final_payment != ""){
-                $price_rmb = str_replace(",", "", $this->sumItemPrice());
-                $ship = $this->sumShipFee();
-                $total = $price_rmb + $ship;
-                $offer_cn = number_format($total - $this->final_payment, 2, '.', '');
-                $offer_vn = number_format($offer_cn * $this->current_rate, 0, '.', '');
+            // if ($this->final_payment != ""){
+            //     $price_rmb = str_replace(",", "", $this->sumItemPrice());
+            //     $ship = $this->sumShipFee();
+            //     $total = $price_rmb + $ship;
+            //     $offer_cn = number_format($total - $this->final_payment, 2, '.', '');
+            //     $offer_vn = number_format($offer_cn * $this->current_rate, 0, '.', '');
 
-                $this->offer_cn = $offer_cn;
-                $this->offer_vn = $offer_vn;
-                $this->save();
-            }
+            //     $this->offer_cn = $offer_cn;
+            //     $this->offer_vn = $offer_vn;
+            //     $this->save();
+            // }
 
             return $this->id;
         });

@@ -200,7 +200,12 @@ class PurchaseOrderController extends AdminController
                 ],
                 'total_item'    =>  [
                     'is_label'  =>  false,
-                    'text'      =>  "". $this->items->where('status', '!=', 4)->count()." link, ". $this->totalItems() . " sp"
+                    'text'      =>  view('admin.system.core.ajaxload', [
+                        'class_element' =>  'flag_number_items',
+                        'key'   =>  $this->id,
+                        'url'   =>  route('admin.purchase_orders.calculate_items', $this->id)
+                    ])->render()
+                    // 'text'      =>  "". $this->items->where('status', '!=', 4)->count()." link, ". $this->totalItems() . " sp"
                 ],
                 'order_type'    =>  [
                     'is_label'  =>  true,
@@ -216,7 +221,13 @@ class PurchaseOrderController extends AdminController
                 'status'        =>  [
                     'is_label'  =>  true,
                     'color'     =>  $this->statusText->label,
-                    'text'      =>  $this->statusText->name . $this->countItemFollowStatus() . ($this->status == 7 ? $this->countProductFollowStatus() : null)
+                    'text'      =>  $this->statusText->name
+                    . view('admin.system.core.ajaxload', [
+                        'class_element' =>  'flag_number_item_by_status',
+                        'key'   =>  $this->id,
+                        'url'   =>  route('admin.purchase_orders.calculate_item_by_status', $this->id)
+                    ])->render()
+                    // 'text'      =>  $this->statusText->name . $this->countItemFollowStatus() . ($this->status == 7 ? $this->countProductFollowStatus() : null)
                 ],
                 'shop_name'        =>  [
                     'is_label'  =>  false,
@@ -234,7 +245,12 @@ class PurchaseOrderController extends AdminController
                     'is_label'  =>  false,
                     'color'     =>  'info',
                     'is_link'   =>  true,
-                    'text'      =>  "Số dư: ".number_format($this->customer->wallet),
+                    'text'      =>  "Số dư: "
+                    . view('admin.system.core.ajaxload', [
+                        'class_element' =>  'flag_customer_wallet',
+                        'key'   =>  $this->customer_id,
+                        'url'   =>  route('admin.customers.calculate_customer_wallet', $this->customer_id)
+                    ])->render(),
                     'route'     =>  route('admin.customers.transactions', $this->customer_id)."?mode=recharge"
                 ];
             }
@@ -467,13 +483,13 @@ class PurchaseOrderController extends AdminController
 
             $orderService = new OrderService();
             if (Admin::user()->isRole('customer')) {
-                if (! in_array($this->row->status, [$orderService->getStatus('new-order')]) ) {
+                if (! in_array($this->row->status, [2]) ) {
                     $actions->disableDelete();
                 }
             }
 
             if (! Admin::user()->isRole('customer')) {
-                if ($this->row->status == $orderService->getStatus('new-order')) {
+                if ($this->row->status == 2) {
                     $actions->append(new Deposite($this->row->id));
                 }
 
@@ -481,7 +497,7 @@ class PurchaseOrderController extends AdminController
                 $actions->append(new Recharge($this->row->customer_id));
             }    
 
-            if (Admin::user()->isRole('customer') && ! in_array($this->row->status, [$orderService->getStatus('new-order')])) {
+            if (Admin::user()->isRole('customer') && ! in_array($this->row->status, [2])) {
                 Admin::script(
                     <<<EOT
                     $('input[data-id={$this->row->id}]').parent().parent().empty();
@@ -1447,5 +1463,21 @@ SCRIPT;
 
         admin_toastr('Đặt cọc thành công', 'success');
         return redirect()->route('admin.transactions.index');
+    }
+
+    public function calculateItems($id) {
+        $order = PurchaseOrder::find($id);
+        return response()->json([
+            'status'    =>  true,
+            'html'      =>  $order->items->where('status', '!=', 4)->count()." link, ". $order->totalItems() . " sp"
+        ]);
+    }
+
+    public function calculateItemsByStatus($id) {
+        $order = PurchaseOrder::find($id);
+        return response()->json([
+            'status'    =>  true,
+            'html'      =>  $order->countItemFollowStatus() . ($order->status == 7 ? $order->countProductFollowStatus() : null)
+        ]);
     }
 }

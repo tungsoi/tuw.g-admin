@@ -742,4 +742,13 @@ class CustomerController extends AdminController
             'message'   =>  'oke'
         ]);
     }
+
+    public function getCustomerWallet($id) {
+        $customer = User::select('wallet')->where('id', $id)->first();
+
+        return response()->json([
+            'status'    =>  true,
+            'html'  =>  number_format($customer->wallet)
+        ]);
+    }
 }

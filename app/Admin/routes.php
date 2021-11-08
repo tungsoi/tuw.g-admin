@@ -166,6 +166,9 @@ Route::group([
     $router->post('purchase_orders/post_customer_deposite_multiple', 'PurchaseOrder\\PurchaseOrderController@postCustomerDepositeMultiple')->name('purchase_orders.post_admin_deposite_multiple');
     $router->get('purchase_orders/admin_deposite_multiple/{ids}', 'PurchaseOrder\\PurchaseOrderController@getAdminDepositeMultiple')->name('purchase_orders.admin_deposite_multiple');
     $router->post('purchase_orders/submit_admin_deposite_multiple', 'PurchaseOrder\\PurchaseOrderController@submitAdminDepositeMultiple')->name('purchase_orders.submit_admin_deposite_multiple');
+    $router->get('purchase_orders/{purchase_orders}/calculate_items', 'PurchaseOrder\\PurchaseOrderController@calculateItems')->name('purchase_orders.calculate_items');
+    $router->get('purchase_orders/{purchase_orders}/calculate_item_by_status', 'PurchaseOrder\\PurchaseOrderController@calculateItemsByStatus')->name('purchase_orders.calculate_item_by_status');
+    $router->get('customers/{customers}/calculate_customer_wallet', 'System\\CustomerController@getCustomerWallet')->name('customers.calculate_customer_wallet');
 
     // carts
     $router->get('/carts/booking/{ids}', 'Customer\\CartController@booking')->name('carts.booking');

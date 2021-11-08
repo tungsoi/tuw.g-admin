@@ -18,6 +18,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use Illuminate\Support\Facades\DB;
 
+Use Encore\Admin\Widgets\Table;
 class SaleReportController extends AdminController
 {
     /**
@@ -398,8 +399,29 @@ EOT
 
             return $html;
         });
+        $grid->order_number('Mã đơn hàng được tính')
+        ->display(function () {
+            if ($this->order_number == "") {
+                return 0;
+            }
+            $arr = explode(",", $this->order_number);
+            return sizeof($arr);
+        })
+        ->expand(function ($model) {
+            $arr = explode(",", $this->order_number);
+
+            $info = [];
+            foreach ($arr as $key => $value) {
+                $info[] = [
+                    $key+1,
+                    $value
+                ];
+            }
+        
+            return new Table(['STT', 'Mã đơn'], $info);
+        })->style('width: 100px; text-align: center;');
         $grid->success_order_service_fee('DOANH THU PHÍ DỊCH VỤ <br> (1)')->display(function () {
-           $html = number_format($this->success_order_service_fee);
+           $html = number_format($this->amount_percent_service);
            return "<span class='data-used'>".$html."</span>";
         })->style('text-align: right');
 
@@ -412,21 +434,21 @@ EOT
         })->style('text-align: right');
 
         $grid->success_order_payment_rmb('DOANH THU TỶ GIÁ <br> (3)')->display(function () {
-            $total = $this->success_order_payment_rmb;
+            $total = $this->amount_exchange_rate;
             $person = ($total * 30);
 
             return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 30 * tổng tiền tệ đơn hàng </i>";
         })->style('text-align: right');
         $grid->offer_cn('Lợi nhuận đàm phán <br> (4)')->display(function () {
-            $total = $this->offer_vn;
+            $total = $this->amount_offer_vn;
             $person = $total * 0.85;
             return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 85% tổng tiền đám phán đơn hàng </i>";
         })->style('text-align: right');
         $grid->success_order_new_customer("TỔNG DOANH THU <br> (5 = 1 + 2 + 3 + 4)")->display(function () {
-            $service_fee = $this->success_order_service_fee;
+            $service_fee = $this->amount_percent_service;
             $transport_payment = $this->total_transport_fee * 0.1;
-            $exchange_rate_payment = ($this->success_order_payment_rmb) * 30;
-            $total = $this->offer_vn;
+            $exchange_rate_payment = ($this->amount_exchange_rate) * 30;
+            $total = $this->amount_offer_vn;
             $person = $total * 0.85;
 
             $html = number_format(
@@ -455,11 +477,11 @@ EOT
 
         $grid->success_order_payment_new_customer("HIỆU QUẢ SAU TRỪ LƯƠNG <br> (8 = 5 - 6 - 7)")->display(function () {
             if ($this->salary != 0) {
-                $service_fee = $this->success_order_service_fee;
+                $service_fee = $this->amount_percent_service;
                 $transport_payment = $this->total_transport_fee * 0.1;
-                $exchange_rate_payment = ($this->success_order_payment_rmb) * 30;
-                $total_offer = $this->offer_vn;
-                $person = $total_offer * 0.85;
+                $exchange_rate_payment = ($this->amount_exchange_rate) * 30;
+                $total = $this->amount_offer_vn;
+                $person = $total * 0.85;
 
                 $total = (
                     $service_fee
