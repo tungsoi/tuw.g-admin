@@ -57,6 +57,18 @@ class PurchaseOrderController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new PurchaseOrder());
+        $grid->model()->with('customer')
+        ->with('warehouse')
+        ->with('orderEmployee')
+        ->with('items')
+        ->with('statusText');
+
+        $service = new UserService();
+
+        $portal_sales = $service->GetListSaleEmployee();
+        $portal_orders = $service->GetListOrderEmployee();
+        $portal_warehouses = $service->GetListWarehouse();
+        $portal_customers= $service->GetListCustomer();
 
         if (Admin::user()->isRole('order_employee')) {
             $grid->model()->orderBy('deposited_at', 'desc');
@@ -92,25 +104,25 @@ class PurchaseOrderController extends AdminController
             $grid->model()->where('supporter_order_id', Admin::user()->id);
         }
 
-        $grid->filter(function($filter) {
+        $grid->filter(function($filter) use ($portal_sales, $portal_warehouses, $portal_orders, $portal_customers) {
             $filter->expand();
             $filter->disableIdFilter();
 
             $service = new UserService();
-            $filter->column(1/4, function ($filter) use ($service) {
+            $filter->column(1/4, function ($filter) use ($service, $portal_customers) {
                 $filter->like('order_number', 'Mã đơn hàng');
 
                 if (! Admin::user()->isRole('customer')) {
-                    $filter->equal('customer_id', 'Mã khách hàng')->select($service->GetListCustomer());   
+                    $filter->equal('customer_id', 'Mã khách hàng')->select($portal_customers);   
                 } 
 
                 $filter->equal('status', 'Trạng thái')->select(PurchaseOrderStatus::pluck('name', 'id'));
             });
 
             if (! Admin::user()->isRole('customer')) {
-                $filter->column(1/4, function ($filter) use ($service) {
-                    $filter->equal('supporter_sale_id', 'Nhân viên kinh doanh')->select($service->GetListSaleEmployee());
-                    $options = $service->GetListOrderEmployee();
+                $filter->column(1/4, function ($filter) use ($service, $portal_sales, $portal_warehouses, $portal_orders) {
+                    $filter->equal('supporter_sale_id', 'Nhân viên kinh doanh')->select($portal_sales);
+                    $options = $portal_orders;
                     $options[0] = 'Chưa gán';
 
                     $filter->where(function ($query) {
@@ -121,7 +133,7 @@ class PurchaseOrderController extends AdminController
                         }
                     }, 'Nhân viên đặt hàng', 'supporter_order_id')->select($options);
                     
-                    $filter->equal('warehouse_id', 'Kho nhận hàng')->select($service->GetListWarehouse());
+                    $filter->equal('warehouse_id', 'Kho nhận hàng')->select($portal_warehouses);
                 });
             }
             
@@ -201,12 +213,12 @@ class PurchaseOrderController extends AdminController
                 ],
                 'total_item'    =>  [
                     'is_label'  =>  false,
-                    'text'      =>  view('admin.system.core.ajaxload', [
-                        'class_element' =>  'flag_number_items',
-                        'key'   =>  $this->id,
-                        'url'   =>  route('admin.purchase_orders.calculate_items', $this->id)
-                    ])->render()
-                    // 'text'      =>  "". $this->items->where('status', '!=', 4)->count()." link, ". $this->totalItems() . " sp"
+                    // 'text'      =>  view('admin.system.core.ajaxload', [
+                    //     'class_element' =>  'flag_number_items',
+                    //     'key'   =>  $this->id,
+                    //     'url'   =>  route('admin.purchase_orders.calculate_items', $this->id)
+                    // ])->render()
+                    'text'      =>  "". $this->items->where('status', '!=', 4)->count()." link, ". $this->totalItems() . " sp"
                 ],
                 'order_type'    =>  [
                     'is_label'  =>  true,
@@ -222,13 +234,13 @@ class PurchaseOrderController extends AdminController
                 'status'        =>  [
                     'is_label'  =>  true,
                     'color'     =>  $this->statusText->label,
-                    'text'      =>  $this->statusText->name
-                    . view('admin.system.core.ajaxload', [
-                        'class_element' =>  'flag_number_item_by_status',
-                        'key'   =>  $this->id,
-                        'url'   =>  route('admin.purchase_orders.calculate_item_by_status', $this->id)
-                    ])->render()
-                    // 'text'      =>  $this->statusText->name . $this->countItemFollowStatus() . ($this->status == 7 ? $this->countProductFollowStatus() : null)
+                    // 'text'      =>  $this->statusText->name
+                    // . view('admin.system.core.ajaxload', [
+                    //     'class_element' =>  'flag_number_item_by_status',
+                    //     'key'   =>  $this->id,
+                    //     'url'   =>  route('admin.purchase_orders.calculate_item_by_status', $this->id)
+                    // ])->render()
+                    'text'      =>  $this->statusText->name . $this->countItemFollowStatus() . ($this->status == 7 ? $this->countProductFollowStatus() : null)
                 ],
                 'shop_name'        =>  [
                     'is_label'  =>  false,
@@ -482,7 +494,7 @@ class PurchaseOrderController extends AdminController
         // }
 
         $grid->disableColumnSelector();
-        $grid->paginate(10);
+        $grid->paginate(20);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             // if (Admin::user()->isRole('customer')) {
                 $actions->disableEdit();
