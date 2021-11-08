@@ -7,6 +7,8 @@ use App\User;
 use Encore\Admin\Grid\Exporters\AbstractExporter;
 use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
 use Maatwebsite\Excel\Facades\Excel;
+use PHPExcel_Style_Fill;
+use Maatwebsite\Excel\Events\AfterSheet;
 
 class PurchaseOrdersExporter extends AbstractExporter
 {
@@ -83,7 +85,16 @@ class PurchaseOrdersExporter extends AbstractExporter
 
                     array_unshift($rows, $this->header());
                     $sheet->rows($rows);
-
+                    $sheet->getStyle('A1:AJ1')->applyFromArray(array(
+                        'font' => [
+                            'bold' => true,
+                            'size'      =>  13,
+                        ],
+                        'fill' => array(
+                            'type'  => PHPExcel_Style_Fill::FILL_SOLID,
+                            'color' => array('rgb' => 'DFBE00')
+                        )
+                    ));
                 });
 
             });
