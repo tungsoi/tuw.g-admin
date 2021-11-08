@@ -60,7 +60,7 @@ SCRIPT;
         $this->select('percent_deposite', 'Tỉ lệ % cọc')->options($data)->default(70);
         
         $this->hidden('ids_deposite_multiple');
-        $this->text('estimate-deposited', 'Tổng tiền cọc dự tính')->readonly();
+        // $this->text('estimate-deposited', 'Tổng tiền cọc dự tính')->readonly();
 
         Admin::script(
             <<<EOT
@@ -78,8 +78,9 @@ SCRIPT;
                 });
 
                 let ids = modal_ele.find('input[name="ids_deposite_multiple"]').val();
+                let percent = modal_ele.find('select[name="percent_deposite"]').val();
 
-                let route = "purchase_orders/admin_deposite_multiple/" + ids;
+                let route = "purchase_orders/admin_deposite_multiple/" + ids + "?percent=" + percent;
 
                 window.location.href = route;
             });

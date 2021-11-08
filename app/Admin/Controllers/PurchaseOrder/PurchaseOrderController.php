@@ -1408,12 +1408,17 @@ SCRIPT;
     public function formAdminDepositeMultiple($id) {
         $form = new Form(new PurchaseOrder);
 
+        $percent = 70;
+        if (isset($_GET['percent']) && $_GET['percent'] != "") {
+            $percent = $_GET['percent'];
+        }
+
         $ids = explode(",", $id);
         $orders = PurchaseOrder::whereIn('id', $ids)->get();
 
         $form->setTitle('Đặt cọc đơn hàng mua hộ');
         $form->setAction(route('admin.purchase_orders.submit_admin_deposite_multiple'));
-        $form->html(view('admin.system.purchase_order.admin_deposite_multiple', compact('orders'))->render());
+        $form->html(view('admin.system.purchase_order.admin_deposite_multiple', compact('orders', 'percent'))->render());
 
         $form->confirm('Xác nhận đặt cọc ?');
         Admin::style('

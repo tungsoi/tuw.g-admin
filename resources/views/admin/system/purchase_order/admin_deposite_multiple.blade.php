@@ -1,3 +1,11 @@
+@php
+    $percent = (int) $percent;
+@endphp
+<div class="row">
+    <div class="col-md-12">
+        <h4>Phần trăm tiền đặt cọc trên các đơn hàng đã được chọn: <b style="color: red">{{ $percent }}% tổng tiền sản phẩm</b></h4>
+    </div>
+</div>
 <table class="table table-bordered">
     <thead>
         <th>Mã đơn hàng</th>
@@ -21,7 +29,7 @@
                 <td>{{ number_format(str_replace(",", "", $order->amount()) * $order->current_rate) }}</td>
                 <td>
                     <input type="hidden" name="id[]" value="{{ $order->id }}">
-                    <input name="deposited[]" type="text" class="form-control deposited" value="{{ $order->depositeAmountCal() }}">
+                    <input name="deposited[]" type="text" class="form-control deposited" value="{{ $order->depositeAmountCal('vn', $percent) }}">
                 </td>
             </tr>
         @endforeach
