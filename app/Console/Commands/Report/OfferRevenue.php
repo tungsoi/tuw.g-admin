@@ -114,7 +114,6 @@ class OfferRevenue extends Command
                         $record->order_number = implode(",", $order_number);
                         $record->save();
 
-                        dd('oke');
                         
                         // dd('oke');
                     }
