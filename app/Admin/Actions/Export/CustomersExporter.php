@@ -6,6 +6,8 @@ use App\User;
 use Encore\Admin\Grid\Exporters\AbstractExporter;
 use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
 use Maatwebsite\Excel\Facades\Excel;
+use PHPExcel_Style_Fill;
+use Maatwebsite\Excel\Events\AfterSheet;
 
 class CustomersExporter extends AbstractExporter
 {
@@ -16,12 +18,24 @@ class CustomersExporter extends AbstractExporter
             $excel->sheet('Sheet1', function(LaravelExcelWorksheet $sheet) {
 
                 $this->chunk(function ($records) use ($sheet) {
+                    $ids = $records->map(function ($order) {
+                        return $order->id;
+                    });
 
-                    $flag = 1;
-                    $rows = $records->map(function ($item) use ($flag) {
+                    $orders = User::whereIn('id', $ids)
+                        ->with('warehouse')
+                        ->with('saleEmployee')
+                        ->with('orderEmployee')
+                        ->with('percentService')
+                        ->with('transactions')
+                        ->with('purchaseOrders')
+                        ->with('paymentOrders')
+                        ->get();
 
-                        $res = [
-                            $flag,
+                    $rows = [];
+                    foreach ($orders as $key => $item) {
+                        $rows[] = [
+                            $key+1,
                             $item->name,
                             $item->symbol_name,
                             $item->username,
@@ -40,14 +54,20 @@ class CustomersExporter extends AbstractExporter
                             $item->purchaseOrders->last() ? date('d-m-Y', strtotime($item->purchaseOrders->last()->created_at)) : "",
                             $item->paymentOrders->last() ? date('d-m-Y', strtotime($item->paymentOrders->last()->created_at)) : ""
                         ];
+                    }
 
-                        $flag++;
-
-                        return $res;
-                    });
-                    $rows->prepend($this->header());
-
+                    array_unshift($rows, $this->header());
                     $sheet->rows($rows);
+                    $sheet->getStyle('A1:R2')->applyFromArray(array(
+                        'font' => [
+                            'bold' => true,
+                            'size'      =>  13,
+                        ],
+                        'fill' => array(
+                            'type'  => PHPExcel_Style_Fill::FILL_SOLID,
+                            'color' => array('rgb' => 'DFBE00')
+                        )
+                    ));
 
                 });
 
