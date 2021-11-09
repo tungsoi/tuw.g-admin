@@ -40,14 +40,14 @@ class SubWalletWeightCustomer implements ShouldQueue
     public function handle()
     {
         $user = User::find($this->customer_id);
-        $user->wallet_weight -= $this->weight;
+        $user->wallet_weight -= number_format($this->weight, 1, '.', '');
         $user->save();
 
         TransactionWeight::create([
             'customer_id'   =>  $this->customer_id,
             'user_id_created'   =>  $this->user_id_created,
             'content'   =>  $this->content,
-            'kg'    =>  $this->weight
+            'kg'    =>  number_format($this->weight, 1, '.', '')
         ]);
     }
 }
