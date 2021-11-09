@@ -59,7 +59,7 @@ class CustomersExporter extends AbstractExporter
 
                     array_unshift($rows, $this->header());
                     $sheet->rows($rows);
-                    $sheet->getStyle('A1:R2')->applyFromArray(array(
+                    $sheet->getStyle('A1:R1')->applyFromArray(array(
                         'font' => [
                             'bold' => true,
                             'size'      =>  13,
