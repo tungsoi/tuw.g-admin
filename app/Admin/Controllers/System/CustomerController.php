@@ -172,6 +172,10 @@ class CustomerController extends AdminController
             $filter->column(1/4, function ($filter) {
                 $filter->like('phone_number', 'Số điện thoại');
                 $filter->equal('ware_house_id', 'Kho nhận hàng')->select($this->userService->GetListWarehouse());
+                $filter->equal('is_used_pindoudou', 'Pindoudou')->select([
+                    'Khoá',
+                    'Mở'
+                ]);
             });
 
             Admin::style('
