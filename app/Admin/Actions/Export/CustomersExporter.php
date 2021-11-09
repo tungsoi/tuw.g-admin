@@ -23,6 +23,7 @@ class CustomersExporter extends AbstractExporter
                     });
 
                     $orders = User::whereIn('id', $ids)
+                        ->whereIsCustomer(User::CUSTOMER)
                         ->with('warehouse')
                         ->with('saleEmployee')
                         ->with('orderEmployee')
