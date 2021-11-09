@@ -48,7 +48,9 @@ class OfferController extends AdminController
     {
         $grid = new Grid(new PurchaseOrder());
         $grid->model()->whereIn('status', [5, 7, 9])
-        ->orderBy('id', 'desc');
+        ->orderBy('id', 'desc')
+        ->with('orderEmployee')
+        ->with('statusText');
 
         // Khach hang
         if (Admin::user()->isRole('customer')) {
@@ -173,7 +175,9 @@ class OfferController extends AdminController
         });
         $grid->order_at("Ngày đặt");
         
-        $grid->orderEmployee()->name('Nhân viên Order');
+        $grid->supporter_order_id('Nhân viên Order')->display(function () {
+            return $this->orderEmployee->name ?? "";
+        });
 
         $grid->purchase_total_items_price('Tiền thực đặt (Tệ) (1)')->display(function () {
             $price_rmb = $this->sumItemPrice();

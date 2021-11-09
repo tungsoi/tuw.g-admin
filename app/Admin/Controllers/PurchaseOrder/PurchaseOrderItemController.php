@@ -48,12 +48,16 @@ class PurchaseOrderItemController extends AdminController
         $grid = new Grid(new PurchaseOrderItem());
         $grid->model()
         ->where('status', '!=', 99)
-        ->whereNotNull('order_id')->orderBy('order_at', 'desc');
+        ->whereNotNull('order_id')
+        ->with('order')
+        ->with('statusText')
+        ->with('userConfirm')
+        ->orderBy('order_at', 'desc');
 
         $orderService = new OrderService();
 
         // Khach hang
-        $orderIds = PurchaseOrder::whereCustomerId(Admin::user()->id)->pluck('id');
+        $orderIds = PurchaseOrder::select('id')->whereCustomerId(Admin::user()->id)->pluck('id');
         if (Admin::user()->isRole('customer')) {
             $grid->model()->whereIn('order_id', $orderIds);
         } else if (Admin::user()->isRole('sale_employee') ) {

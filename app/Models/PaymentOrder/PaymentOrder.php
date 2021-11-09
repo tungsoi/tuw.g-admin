@@ -47,6 +47,11 @@ class PaymentOrder extends Model
         return $this->hasOne(User::class, 'id', 'user_created_id');
     }
 
+
+    public function userCancel() {
+        return $this->hasOne(User::class, 'id', 'user_cancel_id');
+    }
+
     public function transportCode() {
         return $this->hasMany(TransportCode::class, 'order_id', 'id');
     }

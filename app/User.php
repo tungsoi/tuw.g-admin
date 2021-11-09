@@ -152,12 +152,20 @@ class User extends Model implements AuthenticatableContract
         return $this->hasOne('App\Models\System\Warehouse', 'id', 'ware_house_id');
     }
 
+    public function districtLink() {
+        return $this->hasOne('App\Models\System\District', 'district_id', 'district');
+    }
+
     public function getDistrict() {
         $district = District::where('district_id', $this->district)->first();
 
         if (! $district) { return null; }
 
         return $district->type . " " . $district->name;
+    }
+
+    public function provinceLink() {
+        return $this->hasOne('App\Models\System\Province', 'province_id', 'province');
     }
 
     public function getProvince() {

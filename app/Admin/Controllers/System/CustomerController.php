@@ -57,7 +57,14 @@ class CustomerController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new User());
-        $grid->model()->whereIsCustomer(User::CUSTOMER);
+        $grid->model()->whereIsCustomer(User::CUSTOMER)
+        ->with('saleEmployee')
+        ->with('orderEmployee')
+        ->with('warehouse')
+        ->with('purchaseOrders')
+        ->with('paymentOrders')
+        ->with('percentService')
+        ->with('transactions');
 
         if (isset($_GET['type_wallet']) && $_GET['type_wallet'] == 0) {
             $grid->model()->orderByRaw('CONVERT(wallet, SIGNED) desc');
@@ -205,8 +212,8 @@ class CustomerController extends AdminController
                 "Giao dịch gần nhất"    =>  null,
                 "Kho nhận hàng" =>  ($model->warehouse->name ?? "" ) . " - " . ( $model->warehouse->address ?? ""),
                 "Địa chỉ"   =>  $model->address,
-                "Quận / Huyện"  =>  $model->getDistrict(),
-                "Tỉnh / Thành phố" => $model->getProvince(),
+                "Quận / Huyện"  =>  $model->district != "" ? ($model->districtLink->type . '-' . $model->districtLink->name) : "",
+                "Tỉnh / Thành phố" => $model->province != "" ? ($model->provinceLink->type . '-' . $model->provinceLink->name) : "",
                 'Nhân viên kinh doanh'  =>  $model->saleEmployee->name ?? "",
                 'Nhân viên đặt hàng'    =>  $model->orderEmployee->name ?? "",
                 'Phí dịch vụ'           =>  $model->percentService->name ?? "",

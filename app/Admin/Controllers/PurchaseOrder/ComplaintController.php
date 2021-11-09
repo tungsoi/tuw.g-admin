@@ -43,9 +43,14 @@ class ComplaintController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Complaint);
-        $grid->model()->orderBy('created_at', 'desc');
+        $grid->model()->orderBy('created_at', 'desc')
+        ->with('order');
 
-        $grid->filter(function($filter) {
+        $service = new UserService();
+        $saleEmployee = $service->GetListSaleEmployee();
+        $orderEmployee = $service->GetListOrderEmployee();
+
+        $grid->filter(function($filter) use ($saleEmployee, $orderEmployee) {
             $filter->expand();
             $filter->disableIdFilter();
 
@@ -69,18 +74,18 @@ class ComplaintController extends AdminController
             });
 
             $service = new UserService();
-            $filter->column(1/4, function ($filter) use ($service) {
+            $filter->column(1/4, function ($filter) use ($saleEmployee) {
                 
-                $filter->where(function ($query) use ($service) {
+                $filter->where(function ($query){
                     $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
                                 ->where('supporter_sale_id', $this->input)
                                 ->get()->pluck('id');
 
                     $query->whereIn('order_id', $order_ids);
-                }, 'Nhân viên kinh doanh', 'supporter_sale_id')->select($service->GetListSaleEmployee());
+                }, 'Nhân viên kinh doanh', 'supporter_sale_id')->select($saleEmployee);
             });
 
-            $filter->column(1/4, function ($filter) use ($service) {
+            $filter->column(1/4, function ($filter) use ($orderEmployee) {
                 $filter->where(function ($query) {
                     $order_id = $this->input;
                     $order_ids = PurchaseOrder::whereIn('status', [9, 5, 7])
@@ -88,9 +93,9 @@ class ComplaintController extends AdminController
                                 ->get()->pluck('id');
 
                     $query->whereIn('order_id', $order_ids);
-                }, 'Nhân viên đặt hàng', 'supporter_order_id')->select($service->GetListOrderEmployee());
+                }, 'Nhân viên đặt hàng', 'supporter_order_id')->select($orderEmployee);
             });
-            $filter->column(1/4, function ($filter) use ($service) {
+            $filter->column(1/4, function ($filter) {
                 $filter->between('created_at', "Ngày tạo khiếu nại")->date();
             });
             
@@ -198,15 +203,21 @@ class ComplaintController extends AdminController
             return view('admin.system.core.list', compact('data'));
         });
 
-        $grid->column('sale_staff', 'Nhân viên')->display(function () {
+        $grid->column('sale_staff', 'Nhân viên')->display(function () use ($saleEmployee, $orderEmployee) {
             $data = [
                 'order'   =>  [
                     'is_label'   =>  false,
-                    'text'      =>  "- Sale: " . $this->order->customer->saleEmployee->name ?? ""
+                    'text'      =>  "- Sale: " 
+                    . ( ($this->order->customer->staff_sale_id != "" && isset($saleEmployee[$this->order->customer->staff_sale_id]))
+                    ? $saleEmployee[$this->order->customer->staff_sale_id]
+                    : "")
                 ],
                 'customer'  =>  [
                     'is_label'  =>  false,
-                    'text'  => "- Order: ". $this->order->orderEmployee->name ?? ""
+                    'text'  => "- Order: "
+                    . ( ($this->order->supporter_order_id != "" && isset($orderEmployee[$this->order->supporter_order_id]))
+                    ? $orderEmployee[$this->order->supporter_order_id]
+                    : "")
                 ],
                 'time'  =>  [
                     'is_label'  =>  false,

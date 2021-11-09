@@ -410,7 +410,10 @@ SCRIPT;
 
         $grid->model()
         ->where('status', '!=', 'cancel')
-        ->orderBy('id', 'desc');
+        ->orderBy('id', 'desc')
+        ->with('userCancel')
+        ->with('transportCode')
+        ->with('paymentCustomer');
 
         if (Admin::user()->isRole('customer')) {
             $grid->model()->where('payment_customer_id', Admin::user()->id);
@@ -514,7 +517,7 @@ SCRIPT;
             if ($this->status == "cancel") {
                 $data[] = [
                     'is_label'  =>  false,
-                    'text'  =>  $this->user_cancel_id != null ? User::find($this->user_cancel_id)->name : ""
+                    'text'  =>  $this->userCancel->name ?? ""
                 ];
 
                 $data[] = [

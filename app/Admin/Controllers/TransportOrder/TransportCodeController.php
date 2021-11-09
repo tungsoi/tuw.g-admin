@@ -46,7 +46,10 @@ class TransportCodeController extends AdminController
             ->orderByRaw("FIELD(status, $ids_ordered)")
             ->orderBy('vietnam_receive_at', 'desc')
             ->orderBy('china_receive_at', 'desc')
-            ->orderBy('customer_code_input', 'desc');
+            ->orderBy('customer_code_input', 'desc')
+            ->with('paymentOrder')
+            ->with('warehouse')
+            ->with('statusText');
 
         if (isset($_GET['query_customer_code_input']) && $_GET['query_customer_code_input'] != "") {
             $grid->model()->where('customer_code_input', $_GET['customer_code_input']);
@@ -260,8 +263,8 @@ class TransportCodeController extends AdminController
             return view('admin.system.core.list', compact('data'));
         });
 
-        $grid->ware_house_id('Kho hàng')->display(function () use ($orderService) {
-            if ($this->status == $orderService->getTransportCodeStatus('swap')) {
+        $grid->ware_house_id('Kho hàng')->display(function () {
+            if ($this->status == 4) {
                 return ($this->warehouse->name ?? "") . " => " . ($this->warehouseSwap->name ?? "");
             }
 
@@ -295,7 +298,7 @@ class TransportCodeController extends AdminController
             $actions->disableDelete();
 
             $orderService = new OrderService();
-            if (in_array($this->row->status, [$orderService->getTransportCodeStatus('wait-payment'), $orderService->getTransportCodeStatus('payment')])) {
+            if (in_array($this->row->status, [2, 3])) {
                 $actions->disableEdit();
             }
 
@@ -316,7 +319,7 @@ EOT);
             }
             
             if (
-                ! in_array($this->row->status, [$orderService->getTransportCodeStatus('vietnam-rev'), $orderService->getTransportCodeStatus('swap'), $orderService->getTransportCodeStatus('not-export')])
+                ! in_array($this->row->status, [1, 4, 5])
             ) {
                 Admin::script(
                     <<<EOT
