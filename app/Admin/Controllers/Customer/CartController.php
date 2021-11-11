@@ -187,6 +187,9 @@ class CartController extends AdminController
             $tools->append( new CreateOrderInCart());
         });
 
+
+        Admin::script($this->scriptGrid());
+
         return $grid;
     }
 
@@ -279,5 +282,71 @@ class CartController extends AdminController
             'status'    =>  true,
             'message'   =>  "Xoá thành công"
         ]);
+    }
+
+    public function scriptGrid() {
+
+        $exchange_rates = ExchangeRate::first()->vnd;
+        return <<<SCRIPT
+        console.log('grid js');
+
+        $("input.grid-row-checkbox").on("ifChanged", function () {
+            let total = 0;
+            var key = $.admin.grid.selected();
+        
+            if (key.length !== 0) {
+                var i;
+                for (i = 0; i < key.length; ++i) {
+                    let data_key = key[i];
+
+                    let tr_ele = $('tr[data-key="'+data_key+'"]');
+                    let item = tr_ele.find('.item-price').html();
+                    item = item.replace(/,/g, "");
+                    item = parseInt(item);
+
+                    total += item;
+                }
+
+                console.log(total, "total");
+            }
+
+            // let total_deposite_formated = number_format(total_deposite);
+            let total_rmb = number_format(total, 2);
+            let rate = {$exchange_rates};
+            let total_vnd = number_format(total_rmb * rate);
+
+            $('.estimate-amount-vnd').html(total_vnd);
+            $('.estimate-amount').html(total_rmb);
+            
+            // $('input#estimate-deposited').val(total_deposite_formated + " VND");
+        });
+
+        function number_format(number, decimals, dec_point, thousands_sep) {
+            // Strip all characters but numerical ones.
+            number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+            var n = !isFinite(+number) ? 0 : +number,
+                prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+                dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+                s = '',
+                toFixedFix = function (n, prec) {
+                    var k = Math.pow(10, prec);
+                    return '' + Math.round(n * k) / k;
+                };
+            // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+            s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+            if (s[0].length > 3) {
+                s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+            }
+            if ((s[1] || '').length < prec) {
+                s[1] = s[1] || '';
+                s[1] += new Array(prec - s[1].length + 1).join('0');
+            }
+            return s.join(dec);
+        }
+
+        
+ 
+SCRIPT;
     }
 }
