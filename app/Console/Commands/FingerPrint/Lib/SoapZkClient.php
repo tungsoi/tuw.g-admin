@@ -2,9 +2,7 @@
 
 namespace App\Console\Commands\FingerPrint\Lib;
 
-use SoapClient;
-
-class SoapZkClient extends SoapClient {
+class SoapZkClient extends \SoapClient {
 
     private $filter_enabled = false;
 
