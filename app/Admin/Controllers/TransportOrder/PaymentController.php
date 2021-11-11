@@ -647,17 +647,15 @@ SCRIPT;
 
             $actions->append(new BtnView($this->row->id, route('admin.payments.showRebuild', $this->row->id)));
 
-            if ($this->row->status == 'payment_not_export' && ! Admin::user()->isRole('customer')) {
+            if ($this->row->status == 'payment_not_export' && (Admin::user()->isRole('warehouse_employee') || Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator'))) {
                 $route = route('admin.payments.exportOrder'); // route export
                 $actions->append(new ExportTransportCode($this->row->id, $route));
             }
 
-            if (! Admin::user()->isRole('customer')) {
+            if (Admin::user()->isRole('warehouse_employee') || Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
                 $actions->append(new Recharge($this->row->payment_customer_id));
 
-                if ($this->row->status == "payment_not_export") {
-                    $actions->append(new Cancel($this->row->id));
-                }
+                $actions->append(new Cancel($this->row->id));
                 
             }
 

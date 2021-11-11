@@ -10,6 +10,7 @@ use App\Models\SyncData\AlilogiUser;
 use App\Models\System\Transaction;
 use App\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class TestWalletUser extends Command
 {
@@ -18,7 +19,7 @@ class TestWalletUser extends Command
      *
      * @var string
      */
-    protected $signature = 'test:user-wallet';
+    protected $signature = 'test';
 
     /**
      * The console command description.
@@ -44,6 +45,27 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
+
+        $orders = PurchaseOrder::where('status', 9)
+                        ->where('success_at', '>=', "2021-10-01 00:00:01")
+                        ->where('success_at', '<=', "2021-10-31 23:59:59")
+                        ->with('items')
+                        ->get();
+        
+        $total = 0;
+        $note = [];
+        foreach ($orders as $key => $order) {
+            $amount = number_format(str_replace(",", '', $order->amount()), 2, '.', '') ;
+            $amount_vnd = $amount * $order->current_rate;
+            $total += $amount_vnd;
+
+            $note[] = ($key+1). " - ". $order->order_number . " - Tệ: " . $amount . " - Tỷ giá: " . $order->current_rate . " - VND: " . number_format($amount_vnd) . "\n";
+        }
+
+        Storage::disk('admin')->put('don_hang_thanh_cong_trong_thang_10.txt', $note);
+
+        dd(number_format($total));
+
         // $orders = PaymentOrder::whereStatus('payment_export')
         //     ->whereNull('export_at')
         //     ->get();
@@ -149,20 +171,20 @@ class TestWalletUser extends Command
 
         // dd($money);
 
-        $olds = AlilogiTransaction::where('customer_id', 1043)->get();
+        // $olds = AlilogiTransaction::where('customer_id', 1043)->get();
 
-        foreach ($olds as $transaction) {
-            $flag = Transaction::where('customer_id', $transaction->customer_id)
-                ->where('content', 'like', '%'.$transaction->content)
-                ->get();
+        // foreach ($olds as $transaction) {
+        //     $flag = Transaction::where('customer_id', $transaction->customer_id)
+        //         ->where('content', 'like', '%'.$transaction->content)
+        //         ->get();
             
-            if (! $flag->count() > 0) {
+        //     if (! $flag->count() > 0) {
 
-                echo $transaction->id . "\n";
-            }
-        }
+        //         echo $transaction->id . "\n";
+        //     }
+        // }
 
-        dd($olds->count());
+        // dd($olds->count());
 
         // $transactions = Transaction::where('content', 'like', '%ship%')
         //     ->orWhere('content', 'like', '%SHIP%')
