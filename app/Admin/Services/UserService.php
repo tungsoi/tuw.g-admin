@@ -82,6 +82,12 @@ class UserService {
         $res = Transaction::where('money', ">", 0)
         ->where('customer_id', $customerId)
         ->orderBy('created_at', 'desc')
+        ->with('userCreated')
+        ->with('userUpdated')
+        ->with('customer')
+        ->with('type')
+        ->with('paymentOrder')
+        ->with('bank')
         ->get();
 
         $raw = [

@@ -425,7 +425,13 @@ class CustomerController extends AdminController
     public function transactionGrid($id) {
 
         $grid = new Grid(new SystemTransaction());
-        $grid->model()->whereCustomerId(0)->where('money', '!=', 0)->orderBy('id', 'desc');
+        $grid->model()->whereCustomerId(0)->where('money', '!=', 0)->orderBy('id', 'desc')
+        ->with('userCreated')
+        ->with('userUpdated')
+        ->with('customer')
+        ->with('type')
+        ->with('paymentOrder')
+        ->with('bank');
 
         $grid->header(function () use ($id) {
 
@@ -675,7 +681,7 @@ class CustomerController extends AdminController
         ]);
     }
 
-    public function paginateArray($items, $perPage = 50, $page = null, $options = [])
+    public function paginateArray($items, $perPage = 100, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
         $items = $items instanceof Collection ? $items : Collection::make($items);
