@@ -22,7 +22,7 @@ class Cancel
             let id = $(this).data('id');
 
             Swal.fire({
-                title: 'Bạn có chắc chắn muốn huỷ đơn hàng này ?',
+                title: '<span><b>Bạn có chắc chắn muốn huỷ đơn hàng này ?</b> </br> </br> <i> Nếu bạn huỷ đơn hàng đã xuất kho, vui lòng xoá giao dịch trừ tiền của khách hàng </i></span>',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
