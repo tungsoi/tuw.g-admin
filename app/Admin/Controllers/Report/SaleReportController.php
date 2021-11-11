@@ -557,9 +557,10 @@ EOT
                 getTotalHtml("column-total_transport_fee", "transport-fee-total", true);
                 getTotalHtml("column-success_order_payment_rmb", "exchange-fee-total", true);
                 getTotalHtml("column-success_order_new_customer", "amount-fee-total", true);
-                getTotalHtml("column-success_order_payment_new_customer", "payment-fee-total", true);
                 getTotalHtml("column-salary", "salary-fee-total", false);
                 getTotalHtml("column-offer_cn", "offer-fee-total", true);
+
+                // getTotalHtml("column-success_order_payment_new_customer", "payment-fee-total", true);
 
                 function getTotalHtml(column_class, element_append_id, editable = true) {
                     let ele = null;
@@ -583,12 +584,30 @@ EOT
                         });
 
                         if (element_append_id != "") {
+                            console.log(total);
                             $("#"+ element_append_id).html(number_format(total));
                         } 
                     }
 
                     return total;
                 }
+
+                let final_total = $('#amount-fee-total').html();
+                final_total = final_total.replace(/\,/g, '');
+                final_total = parseInt(final_total);
+
+                let final_pdv_t9 = $("#t9-pdv-fee-total").html();
+                final_pdv_t9 = final_pdv_t9.replace(/\,/g, '');
+                final_pdv_t9 = parseInt(final_pdv_t9);
+
+                let final_salary = $('#salary-fee-total').html();
+                final_salary = final_salary.replace(/\,/g, '');
+                final_salary = parseInt(final_salary);
+
+                let owed = final_total - final_pdv_t9 - final_salary;
+
+                $("#payment-fee-total").html(number_format(owed));
+                console.log(final_total, "final_total");
 
                 // total row
                 $('table').prepend(

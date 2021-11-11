@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands\FingerPrint;
 
+use App\Console\Commands\FingerPrint\Lib\ZkLib;
 use Illuminate\Console\Command;
-use Rats\Zkteco\Lib\ZKTeco;
 
 class Attendance extends Command
 {
@@ -42,13 +42,11 @@ class Attendance extends Command
      */
     public function handle()
     {
-        $zk = new ZKTeco('171.241.12.162', 4370);
-        $zk->connect();
-        $zk->enableDevice();   
+       
+        $zklib = new ZkLib("192.168.1.201", 4370);
+        // dd($zklib);
+        $serial_number = $zklib->getDeviceName();
 
-
-        $resUser = $zk->getUser();
-
-        dd($resUser);
+        dd($serial_number);
     }
 }
