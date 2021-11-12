@@ -108,7 +108,17 @@ class CustomerController extends AdminController
 
             $filter->column(1/4, function ($filter) {
                 $filter->equal('id', 'Mã khách hàng')->select($this->userService->GetListCustomer());
-                $filter->equal('staff_sale_id', 'Nhân viên kinh doanh')->select($this->userService->GetListSaleEmployee());
+                $sale = $this->userService->GetListSaleEmployee();
+                $sale["-1"] = "Chưa gán";
+
+                $filter->where(function ($query) {
+                    if ($this->input == -1) { // vi duong
+                        $query->whereNull('staff_sale_id');
+                    } else {
+                        $query->where('staff_sale_id', $this->input);
+                    }
+                }, 'Nhân viên kinh doanh', 'staff_sale_id')->select($sale);
+
                 $filter->where(function ($query) {
                     if ($this->input == 0) { // vi duong
                         $query->where('wallet', '>=', 0)->orderByRaw('CONVERT(wallet, SIGNED) desc');
