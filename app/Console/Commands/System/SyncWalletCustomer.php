@@ -45,6 +45,7 @@ class SyncWalletCustomer extends Command
         $users = User::select('id', 'wallet', 'symbol_name')
         ->whereIsCustomer(User::CUSTOMER)
         ->whereIsActive(User::ACTIVE)
+        ->whereIn('symbol_name', ['PHUNGSG'])
         ->with('transactions')
         ->get();
 
@@ -55,8 +56,8 @@ class SyncWalletCustomer extends Command
             $user_wallet = number_format($user->wallet, 0, '.', '');
             $total = 0;
             if ($user->transactions->count() > 0) {
-
-                foreach ($user->transactions as $transaction) {
+                $transactions = $user->transactions->where('money', '>', 0);
+                foreach ($transactions as $transaction) {
                     if (in_array($transaction->type_recharge, [0, 1, 2])) {
                         $total += $transaction->money;
                     } else {
@@ -69,8 +70,8 @@ class SyncWalletCustomer extends Command
         
                 if ($total != $user_wallet) {
                     $err[] = $user->symbol_name;
-                    $user->wallet = $total;
-                    $user->save();
+                    // $user->wallet = $total;
+                    // $user->save();
                 }
             }
 
