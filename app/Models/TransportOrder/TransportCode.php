@@ -105,6 +105,8 @@ class TransportCode extends Model
                 return 'Đã xuất kho';
             case self::SWAP_WAREHOUSE:
                 return 'Đang luân chuyển từ ' . $this->warehouse->name . ' đến ' . $this->warehouseSwap->name;
+            case self::NOT_EXPORT:
+                return 'Đã thanh toán - Chưa xuất kho';
         }
     }
 
