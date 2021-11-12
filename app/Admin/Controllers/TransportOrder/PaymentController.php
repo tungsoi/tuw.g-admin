@@ -308,7 +308,7 @@ class PaymentController extends AdminController
         
         $ware_house_id = TransportCode::whereIn('id', $ids)->whereNotNull('ware_house_id')->first()->ware_house_id;
         PaymentOrder::find($order->id)->update([
-            'ware_house_id'  =>  $ware_house_id
+            'warehouse_id'  =>  $ware_house_id
         ]); 
 
         // step 3: Trừ tiền ví khách hàng với đơn hàng thanh toán xuất kho
