@@ -299,10 +299,17 @@ class PaymentController extends AdminController
         }
 
         $payment_type = $request->payment_type;
+        $ids = [];
         foreach ($arr_transport_code as $index => $transport_code_id) {
+            $ids[] = $transport_code_id;
             $transport_code_data_update['payment_type'] = $payment_type[$index];
             TransportCode::find($transport_code_id)->update($transport_code_data_update);
         }
+        
+        $ware_house_id = TransportCode::whereIn('id', $ids)->whereNotNull('ware_house_id')->first()->ware_house_id;
+        PaymentOrder::find($order->id)->update([
+            'ware_house_id'  =>  $ware_house_id
+        ]); 
 
         // step 3: Trừ tiền ví khách hàng với đơn hàng thanh toán xuất kho
         if ($payment_order_data['status'] == 'payment_export') {
