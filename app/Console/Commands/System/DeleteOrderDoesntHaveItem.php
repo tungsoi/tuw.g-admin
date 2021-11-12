@@ -41,7 +41,12 @@ class DeleteOrderDoesntHaveItem extends Command
     public function handle()
     {
         $time = date('Y-m-d', strtotime(now()));
-        $orders = PurchaseOrder::select('id', 'order_number')->where('status', 2)->where('created_at', 'like', $time.'%')->get();
+        $orders = PurchaseOrder::select('id', 'order_number')
+        ->where('status', 2)
+        ->where('created_at', 'like', $time.'%')
+        ->with('items')
+        ->get();
+
         echo "Total: " . $orders->count() . "\n";
         $numb = 0;
         $text = "";
@@ -62,6 +67,8 @@ class DeleteOrderDoesntHaveItem extends Command
                 echo ($key+1) . " - ". $order->order_number . ": pass \n";
             }
         }
+
+        echo "Error: $numb \n";
         
         ScheduleLog::create([
             'name'  =>  $this->signature . " - " . $numb,

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\System;
 
+use App\Models\System\ScheduleLog;
 use App\User;
 use Illuminate\Console\Command;
 use App\Models\System\Transaction as SystemTransaction;
@@ -39,34 +40,48 @@ class SyncWalletCustomer extends Command
      */
     public function handle()
     {
-        $users = User::select('id', 'wallet', 'symbol_name')->whereIsCustomer(User::CUSTOMER)->whereIsActive(User::ACTIVE)->get();
+        ini_set('memory_limit', '6400M');
 
-        foreach ($users as $user) {
-            echo $user->symbol_name . "\n";
+        $users = User::select('id', 'wallet', 'symbol_name')
+        ->whereIsCustomer(User::CUSTOMER)
+        ->whereIsActive(User::ACTIVE)
+        ->with('transactions')
+        ->get();
+
+        $begin = now();
+        $err = [];
+        foreach ($users as $key => $user) {
+            echo ($key+1) . " - " . $user->symbol_name . " - wallet: " . $user->wallet . " - transaction: ";
             $user_wallet = number_format($user->wallet, 0, '.', '');
-            $transactions = SystemTransaction::select('money', 'type_recharge')->where('money', ">", 0)
-            ->where('customer_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
             $total = 0;
+            if ($user->transactions->count() > 0) {
 
-            if ($transactions->count() > 0) {
-
-                foreach ($transactions as $transaction) {
+                foreach ($user->transactions as $transaction) {
                     if (in_array($transaction->type_recharge, [0, 1, 2])) {
                         $total += $transaction->money;
                     } else {
                         $total -= $transaction->money;
                     }
                 }
-        
+                
                 $total = number_format($total, 0, '.', '');
+                echo $total . "\n";
         
                 if ($total != $user_wallet) {
-                    dd($user->id);
+                    $err[] = $user->symbol_name;
+                    $user->wallet = $total;
+                    $user->save();
                 }
             }
+
         }
+
+        $end = now();
+
+        $time = date('i:s', strtotime($begin )). " --> " . date('i:s', strtotime($end));
+        
+        ScheduleLog::create([
+            'name'  =>  $this->signature . " - Time: " . $time . " - Error: ".sizeof($err)." - List: " . json_encode($err)
+        ]);
     }
 }

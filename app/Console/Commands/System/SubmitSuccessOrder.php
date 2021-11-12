@@ -44,7 +44,7 @@ class SubmitSuccessOrder extends Command
     public function handle()
     {
         $service = new OrderService();
-        $orders = PurchaseOrder::whereStatus(7)->orderBy('id', 'desc')->get();
+        $orders = PurchaseOrder::whereStatus(7)->orderBy('id', 'desc')->with('items')->get();
 
         echo $orders->count() . "\n";
  

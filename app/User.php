@@ -64,7 +64,9 @@ class User extends Model implements AuthenticatableContract
         'staff_order_id',
         'default_price_kg',
         'default_price_m3',
-        'is_used_pindoudou'
+        'is_used_pindoudou',
+        'time_sync_wallet',
+        'updated_at'
     ];
 
     protected $casts = [
