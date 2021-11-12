@@ -45,7 +45,6 @@ class SyncWalletCustomer extends Command
         $users = User::select('id', 'wallet', 'symbol_name')
         ->whereIsCustomer(User::CUSTOMER)
         ->whereIsActive(User::ACTIVE)
-        ->whereIn('symbol_name', ['PHUNGSG'])
         ->with('transactions')
         ->get();
 
