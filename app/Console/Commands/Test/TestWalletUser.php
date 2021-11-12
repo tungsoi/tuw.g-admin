@@ -47,7 +47,8 @@ class TestWalletUser extends Command
     {   
         ini_set('memory_limit', '6400M');
 
-        $orders = PaymentOrder::where('export_at', '>', '2021-10-01 00:00:01')
+        $orders = PaymentOrder::where('created_at', '>=', '2021-08-01 00:00:01')
+            ->where('warehouse_id', 0)
             ->where('status', '!=', 'cancel')
             // ->where('order_number', 'B7685')
             ->with('transportCode')
