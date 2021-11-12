@@ -69,8 +69,8 @@ class SyncWalletCustomer extends Command
         
                 if ($total != $user_wallet) {
                     $err[] = $user->symbol_name;
-                    // $user->wallet = $total;
-                    // $user->save();
+                    $user->wallet = $total;
+                    $user->save();
                 }
             }
 
