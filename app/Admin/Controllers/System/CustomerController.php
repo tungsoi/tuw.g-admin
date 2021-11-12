@@ -118,6 +118,17 @@ class CustomerController extends AdminController
                 }, 'Trạng thái số dư', 'type_wallet')->select([
                     'Ví dương', 'Ví âm'
                 ]);
+
+                $filter->where(function ($query) {
+                    if ($this->input == 0) {
+                        $query->whereNull('avatar');
+                    } else if ($this->input == 1) {
+                        $query->whereNotNull('avatar');
+                    }
+                }, 'Avatar', 'avatar')->select([
+                    'Chưa có Avatar',
+                    'Đã có Avatar'
+                ]);
             });
             $filter->column(1/4, function ($filter) {
                 $filter->like('name', 'Họ và tên');
