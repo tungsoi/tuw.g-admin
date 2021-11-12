@@ -45,26 +45,65 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
+        ini_set('memory_limit', '6400M');
 
-        $orders = PurchaseOrder::where('status', 9)
-                        ->where('success_at', '>=', "2021-10-01 00:00:01")
-                        ->where('success_at', '<=', "2021-10-31 23:59:59")
-                        ->with('items')
-                        ->get();
+        $orders = PaymentOrder::where('export_at', '>', '2021-10-01 00:00:01')
+            ->where('status', '!=', 'cancel')
+            // ->where('order_number', 'B7685')
+            ->with('transportCode')
+            ->get();
+
         
-        $total = 0;
-        $note = [];
         foreach ($orders as $key => $order) {
-            $amount = number_format(str_replace(",", '', $order->amount()), 2, '.', '') ;
-            $amount_vnd = $amount * $order->current_rate;
-            $total += $amount_vnd;
+            // dd($order);
+            if ($order->transportCode->count() > 0) {
 
-            $note[] = ($key+1). " - ". $order->order_number . " - Tệ: " . $amount . " - Tỷ giá: " . $order->current_rate . " - VND: " . number_format($amount_vnd) . "\n";
+                try {
+                    echo $key+1 . " -- ";
+                    echo $order->order_number . " \t";
+
+                    $ware_house_id = 0;
+
+                    // dd($order->transportCode);
+                    foreach ($order->transportCode as $transportCode) {
+                        if ($transportCode->ware_house_id != null) {
+                            $ware_house_id = $transportCode->ware_house_id;
+                        }
+                    }
+
+
+                    // $ware_house_id = $order->transportCode->where('ware_house_id', '!=', null)->first()->ware_house_id;
+                    echo $ware_house_id . "\n";
+                    $order->warehouse_id = $ware_house_id;
+                    $order->save();
+                } catch (\Exception $e) {
+                    dd($e->getMessage());
+                    dd($order->transportCode);
+                }
+            }
+           
         }
 
-        Storage::disk('admin')->put('don_hang_thanh_cong_trong_thang_10.txt', $note);
+        dd('oke');
+        // $orders = PurchaseOrder::where('status', 9)
+        //                 ->where('success_at', '>=', "2021-10-01 00:00:01")
+        //                 ->where('success_at', '<=', "2021-10-31 23:59:59")
+        //                 ->with('items')
+        //                 ->get();
+        
+        // $total = 0;
+        // $note = [];
+        // foreach ($orders as $key => $order) {
+        //     $amount = number_format(str_replace(",", '', $order->amount()), 2, '.', '') ;
+        //     $amount_vnd = $amount * $order->current_rate;
+        //     $total += $amount_vnd;
 
-        dd(number_format($total));
+        //     $note[] = ($key+1). " - ". $order->order_number . " - Tệ: " . $amount . " - Tỷ giá: " . $order->current_rate . " - VND: " . number_format($amount_vnd) . "\n";
+        // }
+
+        // Storage::disk('admin')->put('don_hang_thanh_cong_trong_thang_10.txt', $note);
+
+        // dd(number_format($total));
 
         // $orders = PaymentOrder::whereStatus('payment_export')
         //     ->whereNull('export_at')

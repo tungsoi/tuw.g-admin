@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\System;
 
+use App\Models\System\Transaction;
 use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\System\ScheduleLog;
 use Illuminate\Console\Command;
@@ -39,19 +40,51 @@ class DeleteNullItemPaymentOrder extends Command
      */
     public function handle()
     {
-        $ids = PaymentOrder::select('id')
-        ->where('status', 'payment_not_export')
-        ->where('created_at', '>', "2021-09-01 00:00:01")
-        ->doesntHave('transportCode')
-        ->pluck('id');
-        
-        PaymentOrder::whereIn('id', $ids)->update([
-            'status'    =>  'cancel'
-        ]);
+        ini_set('memory_limit', '6400M');
 
-        ScheduleLog::create([
-            'name'  =>  $this->signature . " - " . sizeof($ids)
-        ]);
+        $order_number = PaymentOrder::whereIn('id', [
+            0 => 16570,
+            1 => 17342,
+            2 => 18227,
+            3 => 18520,
+            4 => 19226,
+            5 => 19351,
+            6 => 21056,
+            7 => 21151,
+            8 => 21690,
+        ])->pluck('order_number');
+
+        foreach ($order_number as $code) {
+            $transactions = Transaction::where('content', 'like', '%'.$code.'%')->delete();
+
+            // if ($transactions->count() > 0) {
+            //     echo $transactions->id . "\n";
+            // }
+
+        }
+        
+          dd($order_number);
+        // $ids = PaymentOrder::
+        // // ->where('status', 'payment_not_export')
+        // where('created_at', '>', "2021-09-01 00:00:01")
+        // ->with('transportCode')
+        // ->where('status', '!=', 'cancel')
+        // ->get();
+
+        // $order_ids = [];
+        // foreach ($ids as $order) {
+        //     if ($order->transportCode->count() == 0) {
+        //         $order_ids[] = $order->id;
+        //     }
+        // }
+
+        // PaymentOrder::whereIn('id', $order_ids)->update([
+        //     'status'    =>  'cancel'
+        // ]);
+
+        // ScheduleLog::create([
+        //     'name'  =>  $this->signature . " - " . sizeof($ids)
+        // ]);
     }
 
     // 0 => 17382

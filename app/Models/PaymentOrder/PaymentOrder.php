@@ -2,6 +2,7 @@
 
 namespace App\Models\PaymentOrder;
 
+use App\Models\System\Warehouse;
 use App\Models\TransportOrder\TransportCode;
 use Illuminate\Database\Eloquent\Model;
 use App\User;
@@ -36,7 +37,8 @@ class PaymentOrder extends Model
         'purchase_order_id',
         '_id',
         'user_cancel_id',
-        'cancel_at'
+        'cancel_at',
+        'warehouse_id'
     ];
 
     public function paymentCustomer() {
@@ -50,6 +52,10 @@ class PaymentOrder extends Model
 
     public function userCancel() {
         return $this->hasOne(User::class, 'id', 'user_cancel_id');
+    }
+
+    public function warehouse() {
+        return $this->hasOne(Warehouse::class, 'id', 'warehouse_id');
     }
 
     public function transportCode() {

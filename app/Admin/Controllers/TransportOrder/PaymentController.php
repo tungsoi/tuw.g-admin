@@ -450,13 +450,10 @@ SCRIPT;
             $filter->column(1/4, function ($filter) use ($service)  {
                 if (! Admin::user()->isRole('customer') ) {
                     $filter->equal('payment_customer_id', 'Khách hàng thanh toán')->select($service->GetListCustomer());
-                    $filter->where(function ($query) {
-                        $ware_house_id = $this->input;
 
-                        $warehouse = Warehouse::find($ware_house_id);
-                        
-                        $query->whereIn('user_created_id', $warehouse->employees);
-                    }, 'Kho hàng thanh toán', 'ware_house_id')->select($service->GetListWarehouse());
+                    $warehouse = $service->GetListWarehouse();
+                    $warehouse[0] = "Chưa gán";
+                    $filter->equal('warehouse_id', 'Kho hàng thanh toán')->select($warehouse);
                 }
             }); 
             $filter->column(1/4, function ($filter) {
@@ -507,6 +504,10 @@ SCRIPT;
                     'is_label'   =>  true,
                     'color'     =>  $this->statusColor(),
                     'text'      =>  $this->statusText()
+                ],
+                'warehouse' =>  [
+                    'is_label'  =>  false,
+                    'text'  =>  $this->warehouse->name ?? ""
                 ]
             ];
 
