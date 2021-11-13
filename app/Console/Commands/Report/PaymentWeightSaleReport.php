@@ -47,20 +47,35 @@ class PaymentWeightSaleReport extends Command
     {
         ini_set("memory_limit","256M");
 
-        $_1customer_ids = User::whereIsCustomer(User::CUSTOMER)
-        ->whereIsActive(User::ACTIVE)
-        ->whereNull('staff_sale_id')
-        ->pluck('id');
+        // $off_user = User::whereIsActive(0)
+        //     ->whereIsCustomer(0)
+        //     ->get()
+        //     ->pluck('id')
+        //     ->toArray();
+
+        // $customers = User::whereIn('staff_sale_id', $off_user)
+        // // ->get();
+        // ->update([
+        //     'staff_sale_id' =>  4138
+        // ]);
+
+        // dd($customers);
+//         $_1customer_ids = User::whereIsCustomer(User::CUSTOMER)
+//         ->whereIsActive(User::ACTIVE)
+//         ->whereNull('staff_sale_id')
+//         ->pluck('id');
 
 
-        $orders_non_sale = PaymentOrder::select('id')->where('status', 'payment_export')
-                        ->where('export_at', '>=', '2021-10-01 00:00:01')
-                        ->where('export_at', '<=', '2021-11-01 00:00:01')
-                        ->whereIn('payment_customer_id', $_1customer_ids)
-                        ->with('transportCode')
-                        ->get()
-                        ->pluck('id');
-// $count  = 0;
+        // $orders_non_sale = PaymentOrder::select('id')->where('status', 'cancel')
+        //                 ->where('export_at', '>=', '2021-10-01 00:00:01')
+        //                 ->where('export_at', '<=', '2021-11-01 00:00:01')
+                        // ->whereIn('payment_customer_id', $_1customer_ids)
+                        // ->with('transportCode')
+                        // ->get();
+
+                        // dd($orders_non_sale->count());
+                        // ->pluck('id');
+// // $count  = 0;
 // $total_kg = 0;
 // $total_vnd = 0;
 //             if ($orders->count() > 0) {
@@ -97,15 +112,11 @@ class PaymentWeightSaleReport extends Command
             $sale_ids = array_keys($sale_users->toArray());
             
 
-            $total_kg = 0;
-            $total_vnd = 0;
             $count = 0;
             $ids = [];
             foreach ($sale_ids as $sale_id)
             {
                 $sale_user = User::find($sale_id);
-                echo $sale_user->name . "\n";
-
                 $customers = $sale_user->saleCustomers();
                 $customer_ids = $customers->pluck('id');
                 $total_customer = $customers->count();
@@ -120,27 +131,63 @@ class PaymentWeightSaleReport extends Command
 
                     if ($orders->count() > 0) {
                         $count += $orders->count();
+
+                        $total_kg = 0;
+                        $total_vnd = 0;
+                        $total_m3 = 0;
                         foreach ($orders as $order) {
                             $ids[] = $order->id;
                             $total_kg += $order->total_kg;
                             $total_vnd += $order->amount;
+                            $total_m3 += $order->total_m3;
+                        }
+                        $record = ReportDetail::where('user_id', $sale_id)
+                        ->where('sale_report_id', $report->id)
+                        ->first();
+                    
+                        if ($record) {
+                            echo "- Sale:".  $sale_user->name . "\n";
+                            echo "- Tổng cân:  $total_kg \n";
+                            echo "- Tổng tiền:  ".number_format($total_vnd)." \n";
+                            echo "--------------------------------\n";
+
+                            // $record->total_transport_weight = number_format($total_kg, 1, '.', '');
+                            $record->total_transport_m3 = number_format($total_m3, 3, '.', '');
+                            // $record->total_transport_fee = number_format($total_vnd, 0, '.', '');
+                            // $record->total_transport_weight_new_customer = 0;
+                            // $record->total_transport_fee_new_customer = 0;
+                            $record->save();
                         }
                     }
+
+                    
                 }
             }
 
-            echo "- Count:  $count \n";
-            echo "- Tổng cân:  $total_kg \n";
-            echo "- Tổng tiền:  ".number_format($total_vnd)." \n";
+            // dd(sizeof($ids));
 
-            $ids = array_merge($ids, $orders_non_sale);
-            $check = PaymentOrder::whereNotIn('id', $ids)
-            ->where('export_at', '>=', '2021-10-01 00:00:01')
-            ->where('export_at', '<=', '2021-11-01 00:00:01')
-            ->where('status', '!=', 'cancel')
-            ->get();
+            // $all = PaymentOrder::whereNotIn('id', $ids)
+            // ->where('status', 'payment_export')
+            // ->where('export_at', '>=', '2021-10-01 00:00:01')
+            // ->where('export_at', '<=', '2021-11-01 00:00:01')
+            // ->get();
 
-            dd($check->pluck('order_number'));
+            // dd($all->pluck('order_number'));
+            
+
+            // dd($ids);
+            // $ids = array_merge($ids->toArray(), $orders_non_sale->toArray());
+            // echo sizeof($ids) . "\n";
+            // $check = PaymentOrder::whereNotIn('id', $ids)
+            // ->whereNotIn('id', $orders_non_sale)
+            // ->where('export_at', '>=', '2021-10-01 00:00:01')
+            // ->where('export_at', '<=', '2021-11-01 00:00:01')
+            // ->where('status', 'payment_export')
+            // ->pluck('order_number');
+
+            // echo "Đơn lệch - ". json_encode($check);
+
+            // dd($check->pluck('order_number'));
         }
     }
 }

@@ -1,4 +1,6 @@
 <h4>Thời điểm cập nhật dữ liệu: {{ date('H:i | d-m-Y', strtotime($data['created_at'])) }}</h4>
+<h4>Đơn hàng thanh toán: Đã xuất kho </h4>
+<h4>Ngày thanh toán: {{ $report->begin_date . " 00:00:01" }} đến  {{ $report->finish_date . " 23:59:59" }}</h4>
 <hr>
 <ul class="nav nav-pills">
     <li class="active"><a data-toggle="tab" href="#home">Cân nặng vận chuyển theo từng khách hàng</a></li>
@@ -23,8 +25,9 @@
                     <td></td>
                     <td></td>
                     <td>{{ $total }}</td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ $m3 }}</td>
+                    <td>{{ $count }}</td>
+                    <td>{{ number_format($amount) }}</td>
                 </tr>
             </tfoot>
             <thead>
@@ -35,8 +38,11 @@
                     <th>Số dư ví</th>
                     <th>Ngày tạo tài khoản</th>
                     <th>Cận nặng</th>
-                    <th>Ngày giao dịch gần nhất</th>
-                    <th>Ghi chú</th>
+                    <th>Khối</th>
+                    <th>Số đơn hàng</th>
+                    <th>Tổng tiền</th>
+                    {{-- <th>Ngày giao dịch gần nhất</th>
+                    <th>Ghi chú</th> --}}
                 </tr>
             </thead>
             <tbody>
@@ -48,7 +54,10 @@
                         <td>{{ number_format($customer->wallet) }}</td>
                         <td>{{ date('H:i | d-m-Y', strtotime($customer->created_at)) }}</td>
                         <td>{{ $customer->weight }}</td>
-                        <td>
+                        <td>{{ $customer->m3 }}</td>
+                        <td>{{ $customer->count_order }}</td>
+                        <td>{{ number_format($customer->amount) }}</td>
+                        {{-- <td>
                             <p>Tạo đơn order: 
                                 {{$customer->last_action['purchase_created'] != null ? date('H:i | d-m-Y', strtotime($customer->last_action['purchase_created'])) : null }}</p>
                             <p>Cọc đơn order: {{$customer->last_action['purchase_deposited'] != null ? date('H:i | d-m-Y', strtotime($customer->last_action['purchase_deposited'])) : null }}</p>
@@ -81,7 +90,7 @@
                             @endphp
 
                             <p style="color: red">{{ $note }}</p>
-                        </td>
+                        </td> --}}
                     </tr>
                 @endforeach
             </tbody>

@@ -48,7 +48,8 @@ class ReportDetail extends Model
         'amount_exchange_rate',
         'amount_offer_cn',
         'amount_offer_vn',
-        'order_number'
+        'order_number',
+        'total_transport_m3'
     ];
 
 
@@ -57,6 +58,6 @@ class ReportDetail extends Model
     }
 
     public function report() {
-        return $this->hasOne('\App\Models\SaleReport', 'id', 'sale_report_id');
+        return $this->hasOne('\App\Models\SaleReport\Report', 'id', 'sale_report_id');
     }
 }

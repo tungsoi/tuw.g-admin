@@ -47,47 +47,63 @@ class FetchController extends AdminController
             ->whereBetween('created_at', [$report->begin_date, $report->finish_date])
             ->get();
         } else {
-            $customers = User::select('id', 'username', 'symbol_name', 'created_at', 'wallet')->where('staff_sale_id', $user->id)->get();
+            $customers = User::select('id', 'username', 'symbol_name', 'created_at', 'wallet')
+            ->whereIsActive(1)
+            ->where('staff_sale_id', $user->id)->get();
         }
         $total = 0;
+        $m3 = 0;
+        $count = 0;
+        $amount = 0;
         foreach ($customers as $customer) {
-            $orders = PaymentOrder::select('id')->where('payment_customer_id', $customer->id)
-            ->where('created_at', '>=', $report->begin_date)
-            ->where('created_at', '<=', $report->finish_date)
-            ->get();
+            $orders = PaymentOrder::where('status', 'payment_export')
+                        ->where('export_at', '>=', $report->begin_date .' 00:00:01')
+                        ->where('export_at', '<=', $report->finish_date . ' 23:59:59')
+                        ->where('payment_customer_id', $customer->id)
+                        ->with('transportCode')
+                        ->get();
 
-            $total_order = 0;
-            foreach ($orders as $order) {
-                $items = TransportCode::select('kg')->where('order_id', $order->id)->sum('kg');
-                $total_order += $items;
-            }
+            $total_order = $orders->sum('total_kg');
+            $total_m3 = $orders->sum('total_m3');
+            $count_order = $orders->count();
+            $total_amount = $orders->sum('amount');
+            // foreach ($orders as $order) {
+            //    $total_order
+            // }
             
             $customer->weight = $total_order;
-            $total += $total_order;
+            $customer->m3 = $total_m3;
+            $customer->count_order = $count_order;
+            $customer->amount = $total_amount;
 
-            $last_action = [
-                'purchase_created'  =>  PurchaseOrder::select('created_at', 'customer_id')
-                ->where('customer_id', $customer->id)
-                ->orderBy('created_at', 'desc')
-                ->first()
-                ->created_at ?? "",
-                'purchase_deposited'    =>  PurchaseOrder::select('deposited_at', 'customer_id')
-                ->where('customer_id', $customer->id)
-                ->orderBy('deposited_at', 'desc')
-                ->first()
-                ->deposited_at ?? "",
-                'transport_created' =>  PaymentOrder::select('created_at', 'payment_customer_id')
-                ->where('payment_customer_id', $customer->id)
-                ->orderBy('created_at', 'desc')
-                ->first()
-                ->created_at ?? ""
-            ];
-            $customer->last_action = $last_action;
+            $total += $total_order;
+            $m3 += $total_m3;
+            $count += $count_order;
+            $amount += $total_amount;
+
+            // $last_action = [
+            //     'purchase_created'  =>  PurchaseOrder::select('created_at', 'customer_id')
+            //     ->where('customer_id', $customer->id)
+            //     ->orderBy('created_at', 'desc')
+            //     ->first()
+            //     ->created_at ?? "",
+            //     'purchase_deposited'    =>  PurchaseOrder::select('deposited_at', 'customer_id')
+            //     ->where('customer_id', $customer->id)
+            //     ->orderBy('deposited_at', 'desc')
+            //     ->first()
+            //     ->deposited_at ?? "",
+            //     'transport_created' =>  PaymentOrder::select('created_at', 'payment_customer_id')
+            //     ->where('payment_customer_id', $customer->id)
+            //     ->orderBy('created_at', 'desc')
+            //     ->first()
+            //     ->created_at ?? ""
+            // ];
+            // $customer->last_action = $last_action;
 
         }
-        $grid->header(function () use ($customers, $data, $total) {
+        $grid->header(function () use ($customers, $data, $total, $m3, $report, $count, $amount) {
             
-            return view('salereport.fetch', compact('customers', 'data', 'total'));
+            return view('admin.salereport.fetch', compact('customers', 'data', 'total', 'm3', 'report', 'count', 'amount'));
         });
 
         $grid->disableBatchActions();

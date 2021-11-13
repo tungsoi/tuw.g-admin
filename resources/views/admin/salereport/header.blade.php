@@ -31,7 +31,7 @@
             <th colspan="4" style="text-align: center; background: #FFEC67;">đơn hoàn thành</th>
             <th colspan="5" style="text-align: center; background: #A9B6CC;">đơn chưa hoàn thành</th>
             <th rowspan="2" style="text-align: center; background: wheat;">phí dịch vụ <br> <i>(14) = (8) + (13)</i></th>
-            <th colspan="4" style="text-align: center; background: #95998A;">vận chuyển</th>
+            <th colspan="5" style="text-align: center; background: #95998A;">vận chuyển</th>
             <th rowspan="2" style="text-align: center; background: green; color: white">Tổng doanh số tháng <br> (19) = (7) + (11)</th>
             {{-- <th rowspan="2" style="text-align: center; background: whitesmoke">Thao tác</th> --}}
         </tr>
@@ -50,9 +50,10 @@
             <th style="text-align: center;background: rgb(182, 47, 47); color: white">Công nợ trên đơn <br> <i>(12)</i></th>
             <th style="text-align: center;background: whitesmoke">Phí dịch vụ <br> <i>(13)</i></th>
             <th style="text-align: center;background: whitesmoke">tổng kg <br> <i>(15)</i></th>
-            <th style="text-align: center;background: whitesmoke">tổng kg KHM <br> <i>(16)</i></th>
-            <th style="text-align: center;background: whitesmoke">Doanh thu KHM<br> <i>(17)</i></th>
-            <th style="text-align: center;background: whitesmoke">Tổng doanh thu <br> <i>(18)</i></th>
+            <th style="text-align: center;background: whitesmoke">tổng m3 <br> <i>(16)</i></th>
+            <th style="text-align: center;background: whitesmoke">tổng kg KHM <br> <i>(17)</i></th>
+            <th style="text-align: center;background: whitesmoke">Doanh thu KHM<br> <i>(18)</i></th>
+            <th style="text-align: center;background: whitesmoke">Tổng doanh thu <br> <i>(19)</i></th>
         </tr>
     </thead>
     <tbody>
@@ -74,6 +75,7 @@
             $total_transport_weight_new_customer = 0;
             $total_transport_fee_new_customer = 0;
             $total_transport_fee = 0;
+            $total_transport_m3 = 0;
         @endphp
        
         @foreach ($detail as $key => $row)
@@ -92,6 +94,7 @@
                 $owed_processing_order_payment += $row->owed_processing_order_payment;
                 $processing_order_service_fee += $row->processing_order_service_fee;
                 $total_transport_weight += $row->total_transport_weight;
+                $total_transport_m3 += $row->total_transport_m3;
                 $total_transport_weight_new_customer += $row->total_transport_weight_new_customer;
                 $total_transport_fee_new_customer += $row->total_transport_fee_new_customer;
                 $total_transport_fee += $row->total_transport_fee;
@@ -160,6 +163,7 @@
                         {{ number_format($row->total_transport_weight, 2) }}
                     @endif
                 </td>
+                <td>{{ number_format($row->total_transport_m3, 3) }}</td>
                 <td>
                     @php
                         if ($portal == "false")
@@ -208,6 +212,7 @@
             <td>{{ number_format($processing_order_service_fee) }}</td>
             <td>{{ number_format($success_order_service_fee + $processing_order_service_fee) }}</td>
             <td>{{ number_format($total_transport_weight, 2) }}</td>
+            <td>{{ number_format($total_transport_m3, 3) }}</td>
             <td>{{ number_format($total_transport_weight_new_customer, 2) }}</td>
             <td>{{ number_format($total_transport_fee_new_customer) }}</td>
             <td>{{ number_format($total_transport_fee) }}</td>

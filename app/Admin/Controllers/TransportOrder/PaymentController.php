@@ -585,7 +585,7 @@ SCRIPT;
         })->style('max-width: 150px; text-align: center;');
         $grid->total_kg('Số KG')->display(function () {
             return str_replace('.0', '', $this->total_kg);
-        });
+        })->totalRow();
         $grid->price_kg('Giá KG')->display(function () {
             return number_format($this->price_kg);
         });
@@ -604,7 +604,7 @@ SCRIPT;
                 return 0;
             }
         });
-        $grid->total_m3('Số khối');
+        $grid->total_m3('Số khối')->totalRow();
         $grid->price_m3('Giá khối')->display(function () {
             if ($this->price_m3 == "") {
                 return 0;
