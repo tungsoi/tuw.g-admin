@@ -436,6 +436,16 @@ SCRIPT;
 
                 if (! Admin::user()->isRole('customer') ) {
                     $filter->in('user_created_id', 'Người tạo')->multipleSelect($service->GetListWarehouseEmployee());
+                    $filter->where(function ($query) {
+                        // if ($this->input == 0) {
+                            $sale_id = $this->input;
+                            $customers = User::select('id')->whereIsCustomer(1)
+                                ->whereIsActive(1)
+                                ->where('staff_sale_id', $sale_id)
+                                ->pluck('id');
+                            $query->whereIn('payment_customer_id', $customers);
+                        // }
+                    }, 'Nhân viên Kinh doanh', 'staff_sale_id')->select($service->GetListSaleEmployee());
                 }
             });
 
