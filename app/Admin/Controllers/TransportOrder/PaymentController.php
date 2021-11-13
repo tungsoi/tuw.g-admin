@@ -570,6 +570,7 @@ SCRIPT;
                     $data[] = [
                         $key+1,
                         $transportCode->transport_code,
+                        $transportCode->customer_code_input,
                         $payment_type,
                         $transportCode->kg,
                         $transportCode->length,
@@ -584,6 +585,7 @@ SCRIPT;
             return new Table([
                     'STT',
                     'Mã vận đơn',
+                    'Tên khách hàng',
                     'Loại thanh toán',
                     'KG',
                     'Dài',

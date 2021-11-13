@@ -47,6 +47,17 @@ class TestWalletUser extends Command
     {   
         ini_set('memory_limit', '6400M');
 
+        $sale_user = User::find($sale_id);
+
+        $customers = $sale_user->saleCustomers();
+        $customer_ids = $customers->pluck('id');
+
+        $payment_orders = PaymentOrder::whereIn('payment_customer_id', $customer_ids)
+        ->where('created_at', '>=', "2021-10-01 00:00:01")->where('created_at', '<=', "2021-10-31 23:59:59")
+        ->get();
+
+
+        dd('oke');
         $orders = PaymentOrder::where('created_at', '>=', '2021-08-01 00:00:01')
             ->where('warehouse_id', 0)
             ->where('status', '!=', 'cancel')
