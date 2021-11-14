@@ -142,7 +142,17 @@ class CustomerController extends AdminController
             });
             $filter->column(1/4, function ($filter) {
                 $filter->like('name', 'Họ và tên');
-                $filter->equal('staff_order_id', 'Nhân viên đặt hàng')->select($this->userService->GetListOrderEmployee());
+
+                $order_ems = $this->userService->GetListOrderEmployee();
+                $order_ems[-1] = "Chưa gán";
+                $filter->where(function ($query) {
+                    if ($this->input == -1) { // vi duong
+                        $query->whereNull('staff_order_id');
+                    } else {
+                        $query->where('staff_order_id', $this->input);
+                    }
+                },'Nhân viên đặt hàng', 'staff_order_id')->select($order_ems);
+                // $filter->equal('staff_order_id', 'Nhân viên đặt hàng')->select($this->userService->GetListOrderEmployee());
                 $filter->equal('type_customer', 'Loại khách hàng')->select([
                     0 => 'Chưa chọn',
                     1 => 'Khách hàng Vận chuyển',
