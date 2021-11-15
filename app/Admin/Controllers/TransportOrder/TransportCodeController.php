@@ -97,6 +97,12 @@ class TransportCodeController extends AdminController
             $filter->column(1/4, function ($filter) use ($orderService)  {
                 $filter->like('customer_code_input', 'Mã khách hàng');
                 $filter->equal('status', 'Trạng thái')->select(TransportCodeStatus::pluck('name', 'id'));
+                $filter->where(function ($query) {
+                    if ($this->input != "") {
+                        $order = PaymentOrder::where('order_number', 'like', '%'.$this->input.'%')->pluck('id');
+                        $query->whereIn('order_id', $order);
+                    }
+                }, 'Mã đơn hàng', 'order_number');
             });
 
             $filter->column(1/4, function ($filter) {
@@ -207,7 +213,7 @@ class TransportCodeController extends AdminController
                 if ($this->payment_type == 1 && $this->paymentOrder) {
                     return number_format($this->paymentOrder->price_kg);
                 } elseif ($this->payment_type == -1 && $this->paymentOrder) {
-                    return number_format($this->paymentOrder->price_service);
+                    return number_format($this->paymentOrder->price_m3);
                 } else {
                     return 0;
                 }
@@ -222,7 +228,7 @@ class TransportCodeController extends AdminController
             if ($this->payment_type == 1 && $this->paymentOrder) {
                 return number_format($this->paymentOrder->price_kg * $this->kg);
             } else if ($this->payment_type == -1 && $this->paymentOrder) {
-                return number_format($this->paymentOrder->price_service * $this->m3());
+                return number_format($this->paymentOrder->price_m3 * $this->m3());
             } else {
                 return 0;
             } 

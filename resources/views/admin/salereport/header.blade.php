@@ -105,7 +105,7 @@
                 <td>
                     @php
                         if ($portal == "false")
-                            $route = "https://aloorder.vn/admin/customers?&name=&symbol_name=&wallet=2&staff_sale_id=" . $row->user_id . "&wallet_sort=&email=&phone_number=&ware_house_id=&province=&district=";
+                            $route = "https://alilogi.vn/admin/customers?&name=&symbol_name=&wallet=2&staff_sale_id=" . $row->user_id . "&wallet_sort=&email=&phone_number=&ware_house_id=&province=&district=";
                         else {
                             $route = "#";
                         }
@@ -121,7 +121,7 @@
                 <td>
                     @php
                         if ($portal == "false")
-                            $route = "https://aloorder.vn/admin/customers?&name=&symbol_name=&wallet=2&staff_sale_id=" . $row->user_id . "&wallet_sort=&email=&phone_number=&ware_house_id=&province=&district=&created_at%5Bstart%5D=" . $data['begin_date'] . "&created_at%5Bend%5D=" . $data['finish_date'];
+                            $route = "https://alilogi.vn/admin/customers?&name=&symbol_name=&wallet=2&staff_sale_id=" . $row->user_id . "&wallet_sort=&email=&phone_number=&ware_house_id=&province=&district=&created_at%5Bstart%5D=" . $data['begin_date'] . "&created_at%5Bend%5D=" . $data['finish_date'];
                         else {
                             $route = "#";
                         }

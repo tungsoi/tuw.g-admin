@@ -50,7 +50,9 @@ class ReportDetail extends Model
         'amount_offer_vn',
         'order_number',
         'total_transport_m3',
-        'customer_ids'
+        'customer_ids',
+        'new_customer_ids',
+        'total_transport_m3_new_customer'
     ];
 
 
