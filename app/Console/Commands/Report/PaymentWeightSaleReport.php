@@ -114,57 +114,58 @@ class PaymentWeightSaleReport extends Command
 
             $count = 0;
             $ids = [];
-            foreach ($sale_ids as $sale_id)
+            $arr = [];
+            foreach ($sale_ids as $key => $sale_id)
             {
-                $sale_user = User::find($sale_id);
-                $customers = $sale_user->saleCustomers();
-                $customer_ids = $customers->pluck('id');
-                $total_customer = $customers->count();
 
-                if ($total_customer > 0) {
-                    $orders = PaymentOrder::where('status', 'payment_export')
+                // if ($sale_id == 1423) {
+                    $sale_user = User::find($sale_id);
+                    $customers = $sale_user->saleCustomers();
+                    $customer_ids = $customers->pluck('id');
+                    $total_customer = $customers->count();
+
+                    if ($total_customer > 0) {
+                        $orders = PaymentOrder::where('status', 'payment_export')
                         ->where('export_at', '>=', '2021-10-01 00:00:01')
                         ->where('export_at', '<=', '2021-11-01 00:00:01')
                         ->whereIn('payment_customer_id', $customer_ids)
                         ->with('transportCode')
                         ->get();
 
-                    if ($orders->count() > 0) {
-                        $count += $orders->count();
+                        if ($orders->count() > 0) {
+                            $count += $orders->count();
 
-                        $total_kg = 0;
-                        $total_vnd = 0;
-                        $total_m3 = 0;
-                        foreach ($orders as $order) {
-                            $ids[] = $order->id;
-                            $total_kg += $order->total_kg;
-                            $total_vnd += $order->amount;
-                            $total_m3 += $order->total_m3;
-                        }
-                        $record = ReportDetail::where('user_id', $sale_id)
+                            $total_kg = 0;
+                            $total_vnd = 0;
+                            $total_m3 = 0;
+                            foreach ($orders as $order) {
+                                $ids[] = $order->id;
+                                $total_kg += $order->total_kg;
+                                $total_vnd += $order->amount;
+                                $total_m3 += $order->total_m3;
+                            }
+                            $record = ReportDetail::where('user_id', $sale_id)
                         ->where('sale_report_id', $report->id)
                         ->first();
                     
-                        if ($record) {
-                            echo "- Sale:".  $sale_user->name . "\n";
-                            echo "- Tổng cân:  $total_kg \n";
-                            echo "- Tổng tiền:  ".number_format($total_vnd)." \n";
-                            echo "--------------------------------\n";
-
-                            // $record->total_transport_weight = number_format($total_kg, 1, '.', '');
-                            $record->total_transport_m3 = number_format($total_m3, 3, '.', '');
-                            // $record->total_transport_fee = number_format($total_vnd, 0, '.', '');
-                            // $record->total_transport_weight_new_customer = 0;
-                            // $record->total_transport_fee_new_customer = 0;
-                            $record->save();
+                            if ($record) {
+                                $arr[] = [
+                                    'user_name' =>    $sale_user->name,
+                                    'user_id'   =>  $sale_id,
+                                    'total_transport_weight'    =>  $total_kg,
+                                    'total_transport_m3'   =>   $total_m3,
+                                    'total_transport_fee'   =>  $total_vnd,
+                                    'total_transport_weight_new_customer'   =>  0,
+                                    'total_transport_fee_new_customer'  =>  0,
+                                    'customer_id'   =>  json_encode($customer_ids)
+                                ];
+                            }
                         }
                     }
-
-                    
-                }
+                // }
             }
 
-            // dd(sizeof($ids));
+            dd($arr);
 
             // $all = PaymentOrder::whereNotIn('id', $ids)
             // ->where('status', 'payment_export')

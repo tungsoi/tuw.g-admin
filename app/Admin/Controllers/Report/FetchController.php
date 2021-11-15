@@ -34,7 +34,9 @@ class FetchController extends AdminController
     {
         $grid = new Grid(new ReportDetail());
         $grid->model()->where('id', $_GET['id']);
+
         $data = ReportDetail::find($_GET['id']);
+
         $report = $data->report;
         $user = User::find($data->user_id);
 
@@ -43,13 +45,14 @@ class FetchController extends AdminController
         if ($type == "new_customer") 
         {
             $customers = User::select('id', 'username', 'symbol_name', 'created_at', 'wallet')
-            ->where('staff_sale_id', $user->id)
+            ->whereIn('id', json_decode($data->customer_ids))
             ->whereBetween('created_at', [$report->begin_date, $report->finish_date])
             ->get();
         } else {
             $customers = User::select('id', 'username', 'symbol_name', 'created_at', 'wallet')
             ->whereIsActive(1)
-            ->where('staff_sale_id', $user->id)->get();
+            ->whereIn('id', json_decode($data->customer_ids))
+            ->get();
         }
         $total = 0;
         $m3 = 0;
