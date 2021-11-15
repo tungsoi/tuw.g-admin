@@ -43,10 +43,11 @@ class SubmitSuccessOrder extends Command
      */
     public function handle()
     {
-        $orders = PurchaseOrder::whereStatus(7)->orderBy('id', 'desc')->with('items')->get();
+        $orders = PurchaseOrder::whereIn('status', [5, 7])->orderBy('id', 'desc')->with('items')->get();
+        // da dat hang hoac da ve viet nam
 
         echo $orders->count() . "\n";
- 
+        
         $key = 0;
         foreach ($orders as $order) {
             $all_items = $order->items->where('status', '!=', 4)->count();
