@@ -210,9 +210,7 @@ class VietnamReceiveController extends AdminController
                     $code['customer_code_input']    = $data['customer_code_input'];
                     $code['ware_house_id']    = $data['ware_house_id'];
                     $code['vietnam_receive_at'] = now();
-    
-                    $orderService = new OrderService();
-                    $code['status'] = $orderService->getTransportCodeStatus('vietnam-rev');
+                    $code['status'] = 1;
                     $code['vietnam_receive_user_id'] = Admin::user()->id;
                     $code['admin_note'] = $code['internal_note'];
                     $code['internal_note']  = json_encode(PurchaseOrder::where('transport_code', 'like', '%'.$code['transport_code'].'%')->pluck('order_number')) ?? "";
@@ -232,7 +230,7 @@ class VietnamReceiveController extends AdminController
                     PurchaseOrder::where('transport_code', 'like', '%'.$code['transport_code'].'%')
                     ->where('status', '!=', 9)
                     ->update([
-                        'status'                =>  $orderService->getStatus('vn-recevice'),
+                        'status'                =>  7,
                         'vn_receive_at'         =>  now(),
                         'user_vn_receive_at'    =>  Admin::user()->id
                     ]);

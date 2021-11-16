@@ -50,6 +50,18 @@ class TestWalletUser extends Command
         ini_set('memory_limit', '6400M');
 
 
+        $orders = PurchaseOrder::whereIn('status', [5, 7, 9])->with('items')->orderBy('id', 'desc')
+        ->where('created_at', '>', '2021-08-01')
+        ->get();
+
+        foreach ($orders as $order) {
+
+          if ($order->sumItemPrice() == 0) {
+            echo $order->order_number . "\n";
+          }
+
+        }
+        dd($orders->count());
         $data = [
             0 =>  [
               "user_name" => "Công ty",
