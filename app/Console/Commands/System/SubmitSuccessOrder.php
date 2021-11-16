@@ -50,10 +50,15 @@ class SubmitSuccessOrder extends Command
         
         $key = 0;
         foreach ($orders as $order) {
+            $items = $order->items->count();
             $all_items = $order->items->where('status', '!=', 4)->count();
             $vn_items = $order->items->where('status', 3)->count();
+            $cancel_items = $order->items->where('status', 4)->count();
 
-            if ($all_items == $vn_items) {
+            if ($items == 1 && $cancel_items == 1) {
+
+            }
+            else if ($all_items == $vn_items) {
                 echo $key . "-" . $order->order_number. "\n";
                 $key++;
                 $job = new HandleSubmitSuccessOrder($order->id);
