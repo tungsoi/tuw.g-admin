@@ -1093,7 +1093,8 @@ EOT);
                     'cancel_at' =>  now(),
                     'internal_note' =>  $note
                 ];
-                PaymentOrder::where('id', $id)->first()->update($data);
+                $order = PaymentOrder::where('id', $id)->first();
+                $order->update($data);
 
                 // update trang thai ma van don
                 TransportCode::whereOrderId($id)->update([
@@ -1105,6 +1106,21 @@ EOT);
                     'export_at' =>  null,
                     'user_export_id'    =>  null
                 ]);
+
+                // update vi can
+                if ($order->is_sub_customer_wallet_weight == 1 && $order->total_sub_wallet_weight > 0) {
+                    $weight = number_format($order->total_sub_wallet_weight, 1, '.', '');
+                    $customer = $order->paymentCustomer;
+                    $customer->wallet_weight += $weight;
+                    $customer->save();
+
+                    TransactionWeight::create([
+                        'customer_id'   =>  $order->payment_customer_id,
+                        'user_id_created'   =>  $data['user_cancel_id'],
+                        'content'   =>  "Huỷ đơn hàng thanh toán ".$order->order_number.", cộng lại ví cân cho khách",
+                        'kg'    =>  $weight
+                    ]);
+                }
             }
 
             return response()->json([

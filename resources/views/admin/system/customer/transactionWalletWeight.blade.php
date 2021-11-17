@@ -64,7 +64,13 @@
                     <td>{{ $key+1 }}</td>
                     <td align="center">{{ date('H:i | d-m-Y', strtotime($transaction->created_at)) }}</td>
                     <td align="center">{{ $transaction->userCreated->name }}</td>
-                    <td align="center">{{ $transaction->kg }}</td>
+                    <td align="center">
+                        @if (strpos($transaction->content, "Thanh toán") !== false )
+                            <span style="color: red">-{{ $transaction->kg }}</span>
+                        @else 
+                            <span style="color: green">+{{ $transaction->kg }}</span>
+                        @endif
+                       </td>
                     <td align="center">{{ $transaction->content }}</td>
                 </tr>
             @endforeach
