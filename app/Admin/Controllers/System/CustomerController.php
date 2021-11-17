@@ -397,6 +397,8 @@ class CustomerController extends AdminController
                 $form->switch('is_used_pindoudou', 'Sử dụng Pindoudou')->states($states);
             }
 
+            $form->text('note', 'Ghi chú');
+
         });
         $form->column(1/2, function ($form) use ($service) {
             $form->select('ware_house_id', 'Kho hàng')->options($service->GetListWarehouse())->rules('required');
