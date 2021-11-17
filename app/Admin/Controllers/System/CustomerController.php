@@ -414,8 +414,8 @@ class CustomerController extends AdminController
                 });
             
             $form->divider();
-            $form->currency('default_price_kg', 'Giá cân')->symbol('VND')->digits(0);
-            $form->currency('default_price_m3', 'Giá khối')->symbol('VND')->digits(0);
+            $form->text('default_price_kg', 'Giá cân');
+            $form->text('default_price_m3', 'Giá khối');
             $form->divider();
             $form->select('type_customer', 'Loại khách hàng')->options([
                 '',
