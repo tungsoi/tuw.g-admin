@@ -205,7 +205,10 @@ class TransportCodeController extends AdminController
             return $this->v();
         });
         $grid->m3('M3')->display(function () {
-            return ($this->m3 == "" || $this->m3 == "0.00") ? $this->m3() : $this->m3;
+            $m3 = ($this->m3 == "" || $this->m3 == "0.00") ? $this->m3() : $this->m3;
+            return "<span class='data-used'>".$m3."</span>";
+        })->totalRow(function () {
+            return "<span id='total-m3'>0</span>";
         });
         $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
         $grid->price_service('Giá vận chuyển')->display(function () {
@@ -339,6 +342,65 @@ EOT);
             $('tfoot').each(function () {
                 $(this).insertAfter($(this).siblings('thead'));
             });
+
+            getTotalHtml("column-m3", "total-m3", true);
+
+            function getTotalHtml(column_class, element_append_id, editable = true) {
+                let ele = null;
+                if (editable == true) {
+                    console.log('oke');
+                    ele = $('tbody .' + column_class + ' .data-used');
+                } else {
+                    ele = $('tbody .' + column_class + ' a.editable');
+                }
+                let total = 0.000;
+
+                if (ele != null) {
+                    ele.each( function( i, el ) {
+                        var elem = $( el );
+                        let html = $.trim(elem.html());
+
+                        console.log(html, "html");
+
+                        html = html.replace(/\,/g, '');
+                        html = parseFloat(html);
+                        // html = html.toFixed(3);
+    
+                        total += html;
+                    });
+
+                    if (element_append_id != "") {
+                        console.log(total);
+                        $("#"+ element_append_id).html(total.toFixed(3));
+                    } 
+                }
+
+                return total;
+            }
+
+            function number_format(number, decimals, dec_point, thousands_sep) {
+                // Strip all characters but numerical ones.
+                number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+                var n = !isFinite(+number) ? 0 : +number,
+                    prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                    sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+                    dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+                    s = '',
+                    toFixedFix = function (n, prec) {
+                        var k = Math.pow(10, prec);
+                        return '' + Math.round(n * k) / k;
+                    };
+                // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+                s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+                if (s[0].length > 3) {
+                    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+                }
+                if ((s[1] || '').length < prec) {
+                    s[1] = s[1] || '';
+                    s[1] += new Array(prec - s[1].length + 1).join('0');
+                }
+                return s.join(dec);
+            }
 EOT);
        
 
