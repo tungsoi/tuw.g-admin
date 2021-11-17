@@ -571,18 +571,26 @@ SCRIPT;
     }
 
     public function vnReceived(Request $request) {
-        PurchaseOrderItem::find($request->id)->update([
+        $thisItem = PurchaseOrderItem::find($request->id);
+        $order = $thisItem->order;
+
+        $thisItem->update([
             'status'    =>  3,
             'vn_receive_at' =>  now(),
             'user_confirm_receive'  =>  Admin::user()->id
         ]);
 
-        $res = PurchaseOrderItem::find($request->id);
-        $status = $res->statusText->name;
+        if ($order->status == 5) {
+            $order->status = 7;
+            $order->vn_receive_at = now();
+            $order->user_vn_receive_at =  Admin::user()->id;
+            $order->save();
+        }
+
         return response()->json([
-            'status'    =>  true,
-            'data'  =>  PurchaseOrderItem::find($request->id),
-            'status'    =>  $status
+            'data'  =>  $thisItem,
+            'msg'    => $thisItem->statusText->name,
+            'status'    => true
         ]);
     }
     

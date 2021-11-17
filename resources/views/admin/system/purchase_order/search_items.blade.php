@@ -61,7 +61,7 @@
             {
                 if (response.status) {
                     $.admin.toastr.success("Đã tích nhận", '', {timeOut: 2000, preventDuplicates: true});
-                    iThis.parent().prev().find('.status').html(response.status);
+                    iThis.parent().prev().find('.status').html(response.msg);
                     iThis.remove();
                 }
             }
