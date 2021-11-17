@@ -59,7 +59,7 @@ class CartController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new PurchaseOrderItem());
-        $grid->model()->where('customer_id', Admin::user()->id)
+        $grid->model()->where('customer_id', 2695)
         ->whereStatus(10)
         ->orderBy('id', 'desc');
 
@@ -105,6 +105,15 @@ class CartController extends AdminController
         });
 
         $grid->amount("Thành tiền (Tệ)")->display(function () {
+            $qty = $this->qty;
+
+            if (! is_numeric($this->qty)) {
+                $this->update([
+                    'qty'   =>  1,
+                    'qty_reality'   =>  1,
+                ]);
+                $qty = 1;
+            }
             $price = $this->price;
             if (strpos($price, ",") !== false && strpos($price, ".") !== false) {
                 $price = str_replace(",", "", $price);
@@ -116,10 +125,12 @@ class CartController extends AdminController
             $price = (float) $price;
             try {
                 $price = number_format($price, 2, '.', '');
+                return '<span class="item-price" data-index="'.$this->id.'">'.str_replace(",", "", number_format($qty * $price, 2)).'</span>';
+
             } catch (\Exception $e) {
+                dd($this->id);
                 $price = 0;
             }
-            return '<span class="item-price" data-index="'.$this->id.'">'.str_replace(",", "", number_format($this->qty * $price, 2)).'</span>';
         });
         $grid->customer_note("Ghi chú");
         $grid->actions(function (Grid\Displayers\Actions $actions) {
