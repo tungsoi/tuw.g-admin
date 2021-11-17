@@ -204,12 +204,7 @@ class TransportCodeController extends AdminController
         $grid->v('V/6000')->display(function () {
             return $this->v();
         });
-        $grid->m3('M3')->display(function () {
-            $m3 = ($this->m3 == "" || $this->m3 == "0.00") ? $this->m3() : $this->m3;
-            return "<span class='data-used'>".$m3."</span>";
-        })->totalRow(function () {
-            return "<span id='total-m3'>0</span>";
-        });
+        $grid->m3('M3')->totalRow();
         $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
         $grid->price_service('Giá vận chuyển')->display(function () {
             try {
