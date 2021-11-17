@@ -670,9 +670,10 @@ SCRIPT;
 
             if (Admin::user()->isRole('warehouse_employee') || Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
                 $actions->append(new Recharge($this->row->payment_customer_id));
+            }
 
+            if (Admin::user()->isRole('warehouse_employee') || Admin::user()->isRole('administrator')) {
                 $actions->append(new Cancel($this->row->id));
-                
             }
 
             if ($this->row->status != "payment_not_export") {
