@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\TransportOrder\TransportCode;
 use Illuminate\Console\Command;
 
@@ -39,17 +40,49 @@ class CalculatorM3 extends Command
     public function handle()
     {
         ini_set('memory_limit', '6400M');
+        // $codes = TransportCode::select('id', 'transport_code', 'length', 'width', 'height', 'm3')
+        // ->whereIn('m3', [0.00, 0.000, ""])
+        // ->where('length', 0)
+        // ->where('width', 0)
+        // ->where('height', 0)
+        // ->whereNull('m3')
+        // ->where('vietnam_receive_at', '>=', '2021-09-01 00:00:01')
+        // ->where('vietnam_receive_at', '<=', '2021-09-30 00:00:01')
+        // ->update([
+        //     'm3'    =>  "0.000"
+        // ]);
+        // ->get();
+
+        // $codes = TransportCode::whereNull('width')->update([
+        //     'width' => 0
+        // ]);
+
+        // dd($codes->count());
+        // dd($codes);
+
+        $order_ids = PaymentOrder::select('created_at', 'order_number', 'total_kg', 'total_m3', 'id', 'discount_value', 'discount_type', 'is_sub_customer_wallet_weight', 'total_sub_wallet_weight')
+        ->where('export_at', '>', '2021-10-01 00:00:01')
+        // ->where('export_at', '<', '2021-10-31 00:00:00')
+        ->pluck('id');
 
         $codes = TransportCode::select('id', 'transport_code', 'length', 'width', 'height', 'm3')
-        ->whereIn('m3', [0.00, 0.000, ""])
+        ->whereIn('m3', [0.00, 0.000])
         ->where('length', '!=', 0)
         ->where('width', '!=', 0)
         ->where('height', '!=', 0)
-        ->where('vietnam_receive_at', '>=', '2021-10-01 00:00:01')
+        // ->where('vietnam_receive_at', '>=', '2021-09-01 00:00:01')
+        // ->where('vietnam_receive_at', '<=', '2021-09-30 00:00:01')
+        ->whereIn('order_id', $order_ids)
         ->orderBy('id', 'desc')
         // ->get();
+        // dd($codes->count());
 
-        // dd($codes);
+        // foreach ($codes as $code) {
+        //     echo $code->transport_code . ": ". $code->length."-".$code->width."-".$code->height."-".$code->m3."\n";
+        // }
+
+        // dd($codes->count());
+        // dd($codes->pluck('transport_code'));
 
 
         // da ve vn tu 01-10 , m3 = 0 : 27254

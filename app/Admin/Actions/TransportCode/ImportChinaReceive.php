@@ -29,7 +29,8 @@ class ImportChinaReceive extends Action
                         'china_receive_at'  =>  $request->create_at. " 00:00:01",
                         'china_receive_user_id' =>  Admin::user()->id,
                         'internal_note' =>  'import',
-                        'status'    =>  0
+                        'status'    =>  0,
+                        'm3'    =>  "0.000"
                     ];
                 }
     
