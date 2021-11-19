@@ -49,7 +49,13 @@ class TestWalletUser extends Command
     {   
         ini_set('memory_limit', '6400M');
 
+        $customers = User::where('staff_sale_id', 1931)->
+        update([
+          'staff_sale_id' =>  3975
+        ]);
 
+
+        dd($customers);
         $orders = PurchaseOrder::whereIn('status', [5, 7, 9])->with('items')->orderBy('id', 'desc')
         ->where('created_at', '>', '2021-08-01')
         ->get();
