@@ -350,6 +350,8 @@ class PaymentController extends AdminController
             $('.box-footer .btn-success').removeClass('btn-sm');
             $('.box-footer .btn-success').html('Thanh toán');
 
+            $('.box-footer .col-md-8').prepend('<button type="button" class="btn btn-primary btn-md" style="margin-bottom: 10px; display: block;" id="btn-re-cal">Tính số liệu</button>');
+
             $('#select.payment_user_id').on("select2-selecting", function(e) {
                 $("#search_code").select2("data",e.choice);
             });

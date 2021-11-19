@@ -49,13 +49,23 @@ class TestWalletUser extends Command
     {   
         ini_set('memory_limit', '6400M');
 
-        $customers = User::where('staff_sale_id', 1931)->
-        update([
-          'staff_sale_id' =>  3975
-        ]);
+        $customers = User::where('symbol_name', 'like', 'TX%')->with('transactions')->get();
 
+        foreach ($customers as $customer) {
+          echo $customer->symbol_name . "\n";
+          $service = new UserService();
+          $res = $service->GetCustomerTransactionHistory($customer->id, false);
 
-        dd($customers);
+          foreach ($res as $value) {
+            dd($value['after_payment']);
+            if (strpos($value['after_payment'], '407') !== false) {
+              echo 'true';
+            }
+          }
+
+          // dd($res);
+        }
+        dd($customers->count());
         $orders = PurchaseOrder::whereIn('status', [5, 7, 9])->with('items')->orderBy('id', 'desc')
         ->where('created_at', '>', '2021-08-01')
         ->get();

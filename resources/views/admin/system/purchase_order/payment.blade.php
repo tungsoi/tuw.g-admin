@@ -81,14 +81,13 @@
             new AutoNumeric.multiple('.sum_cublic_meter', {
                 decimalPlaces: 0
             });
-    });
+        });
     
         $(".btn-success").toggle();
         $(".payment_user_id").on("select2:select", function (e) { 
             var userId = $(e.currentTarget).val();
 
             $('.loading-overlay').toggle();
-            $(".btn-success").toggle();
             $.ajax({
                 url: '/admin/customers/' + userId + '/find',
                 type: 'GET',
@@ -336,5 +335,14 @@
             }
             return s.join(dec);
         }
+
+        $(document).on('click', '#btn-re-cal', function () {
+            $('.loading-overlay').toggle();
+            calculator();
+            setTimeout(() => {
+                $('.loading-overlay').toggle(); 
+                $(".btn-success").show();
+            }, 1000);
+        });
     });
 </script>
