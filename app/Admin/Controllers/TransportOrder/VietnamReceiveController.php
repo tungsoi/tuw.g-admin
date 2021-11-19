@@ -128,7 +128,7 @@ class VietnamReceiveController extends AdminController
                 $table->currency('height', 'Cao (cm)')->digits(0)->default(0);
                 $table->currency('advance_drag', 'Ứng kéo (cm)')->digits(1)->default(0);
                 $table->text('internal_note', 'Ghi chú');
-                $table->currency('m3', 'Thể tích')->digits(2)->default(0);
+                $table->currency('m3', 'M3')->digits(3)->default(0);
             });
         });
 
@@ -263,7 +263,6 @@ class VietnamReceiveController extends AdminController
                 return count;
             }
 
-
             $(document).on('keydown','.has-many-vietnam-receive-form input', function(e) {
                 if (e.which == 13) 
                 {
@@ -348,6 +347,18 @@ class VietnamReceiveController extends AdminController
                     }
                 }
             });
+            $(document).on('keyup','.has-many-vietnam-receive-form input.length', function(e) {
+                let par = $(this).closest('tr');
+                calculatorM3(par);
+            });
+            $(document).on('keyup','.has-many-vietnam-receive-form input.height', function(e) {
+                let par = $(this).closest('tr');
+                calculatorM3(par);
+            });
+            $(document).on('keyup','.has-many-vietnam-receive-form input.width', function(e) {
+                let par = $(this).closest('tr');
+                calculatorM3(par);
+            });
 
             var mode = getUrlParameter('mode');
 
@@ -371,6 +382,31 @@ class VietnamReceiveController extends AdminController
                 }
                 return false;
             };
+
+            function calculatorM3(par) {
+                let length = par.children().find('input.length').val();
+                let height = par.children().find('input.height').val();
+                let width = par.children().find('input.width').val();
+
+                length = parseInt(length.replace(/\,/g, ''));
+                height = parseInt(height.replace(/\,/g, ''));
+                width = parseInt(width.replace(/\,/g, ''));
+
+                let m3 = 0.000;
+                try {
+                    let temp = (width * height * length) / 1000000;
+                    temp = parseFloat(temp).toFixed(3);
+
+                    m3 = temp;
+                } catch (err) {
+                    m3 = 0.000;
+                }
+
+                par.children().find('input.m3').val(m3);
+                // console.log(length, "length");
+                // console.log(height, "height");
+                // console.log(width, "width");
+            }
         });
 SCRIPT;
     }

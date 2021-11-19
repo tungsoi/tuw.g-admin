@@ -41,15 +41,15 @@ class CalculatorM3 extends Command
         ini_set('memory_limit', '6400M');
 
         $codes = TransportCode::select('id', 'transport_code', 'length', 'width', 'height', 'm3')
-        ->where('m3', 0)
-        ->orWhereNull('m3')
-        // ->where('length', '!=', 0)
-        // ->where('width', '!=', 0)
-        // ->where('height', '!=', 0)
+        ->whereIn('m3', [0.00, 0.000, ""])
+        ->where('length', '!=', 0)
+        ->where('width', '!=', 0)
+        ->where('height', '!=', 0)
         ->where('vietnam_receive_at', '>=', '2021-10-01 00:00:01')
         ->orderBy('id', 'desc')
-        // ->get()
-        // ->count();
+        // ->get();
+
+        // dd($codes);
 
 
         // da ve vn tu 01-10 , m3 = 0 : 27254
