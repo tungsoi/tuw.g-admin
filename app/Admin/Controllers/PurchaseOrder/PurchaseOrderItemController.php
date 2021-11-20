@@ -403,7 +403,10 @@ class PurchaseOrderItemController extends AdminController
             //     return null;
             // })->width(150);
             $grid->cn_code('Mã vận đơn')->editable();
-            $grid->cn_order_number('Mã giao dịch')->editable();
+
+            if (Admin::user()->isRole('order_employee') || Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
+                $grid->cn_order_number('Mã giao dịch')->editable();
+            }
         }
 
         Admin::script($this->script());
