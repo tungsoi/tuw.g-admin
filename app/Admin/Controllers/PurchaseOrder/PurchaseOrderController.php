@@ -147,7 +147,7 @@ class PurchaseOrderController extends AdminController
                 $filter->between('vn_receive_at', 'Ngày về Việt Nam')->datetime();
                 $filter->between('success_at', 'Ngày hoàn thành')->datetime();
                 $filter->equal('order_type', 'Loại đơn hàng')->select([
-                    "Taobao-1688"   =>  "Taobao-1688",
+                    "1688, Taobao"   =>  "1688, Taobao",
                     "Pindoudou"     =>  "Pindoudou",
                     "Wechat"        =>  "Wechat"
                 ]);
