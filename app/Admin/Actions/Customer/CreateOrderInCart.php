@@ -81,7 +81,7 @@ SCRIPT;
                     'user_deposited_at' =>  null,
                     'user_order_at'     =>  null,
                     'user_success_at'   =>  null,
-                    'order_type'    =>  $request->order_type
+                    'order_type'    =>  $request->order_type != "" ? $request->order_type : "1688, Taobao"
                 ];
 
                 $order_res = PurchaseOrder::firstOrCreate($order);
