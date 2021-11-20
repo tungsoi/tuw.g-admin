@@ -1226,7 +1226,7 @@ SCRIPT;
             $form->select('supporter_order_id', 'Nhân viên đặt hàng')->options($userService->GetListOrderEmployee())->default($order->supporter_order_id);
             $form->select('warehouse_id', 'Kho hàng')->options($userService->GetListWarehouse())->default($order->warehouse_id);
             $form->select('order_type', 'Loại đơn hàng')->options([
-                "Taobao-1688"   =>  "Taobao-1688",
+                "1688, Taobao"   =>  "1688, Taobao",
                 "Pindoudou"     =>  "Pindoudou",
                 "Wechat"        =>  "Wechat"
             ])->default($order->order_type);
