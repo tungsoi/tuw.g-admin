@@ -28,6 +28,7 @@ class TodayController extends AdminController
 
         $today = date('Y-m-d', strtotime(now()));
         $grid->model()
+        ->whereIn('status', [7, 9])
         ->orderBy('status', 'asc')
         ->with('items')
         ->with('statusText')
