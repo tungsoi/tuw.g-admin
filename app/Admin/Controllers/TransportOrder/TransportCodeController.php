@@ -422,9 +422,14 @@ EOT);
         $form->number('height', "Cao (cm)")->rules(['required']);
         $form->currency('advance_drag', "Ứng kéo")->symbol('Tệ');
         $form->text('admin_note', 'Admin ghi chú');
+        $form->hidden('m3');
 
         $service = new UserService();
         $form->select('ware_house_id', 'Kho hàng')->options($service->GetListWarehouse());
+
+        $form->saving(function (Form $form) {
+            $form->m3 = number_format(($form->width * $form->height * $form->length)/1000000, 3, '.', '');
+        });
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
