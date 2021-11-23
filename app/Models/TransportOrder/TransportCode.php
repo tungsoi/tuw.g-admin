@@ -81,7 +81,7 @@ class TransportCode extends Model
         }
     }
 
-    public function m3() {
+    public function m3_cal() {
         try {
             $width = ($this->width != "") ? $this->width : 0;
             $height = ($this->height != "") ? $this->height : 0;
@@ -141,7 +141,7 @@ class TransportCode extends Model
         if ($this->payment_type == 1) {
             return $this->price_service * $this->kg;
         } else if ($this->payment_type == -1) {
-            return $this->m3() * $this->price_service;
+            return $this->m3_cal() * $this->price_service;
         } else {
             return 0;
         }

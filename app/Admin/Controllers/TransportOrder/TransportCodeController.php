@@ -228,7 +228,7 @@ class TransportCodeController extends AdminController
             if ($this->payment_type == 1 && $this->paymentOrder) {
                 return number_format($this->paymentOrder->price_kg * $this->kg);
             } else if ($this->payment_type == -1 && $this->paymentOrder) {
-                return number_format($this->paymentOrder->price_m3 * $this->m3());
+                return number_format($this->paymentOrder->price_m3 * $this->m3_cal());
             } else {
                 return 0;
             } 
@@ -422,14 +422,14 @@ EOT);
         $form->number('height', "Cao (cm)")->rules(['required']);
         $form->currency('advance_drag', "Ứng kéo")->symbol('Tệ');
         $form->text('admin_note', 'Admin ghi chú');
-        // $form->hidden('m3');
+        $form->hidden('m3', 'm3');
 
         $service = new UserService();
         $form->select('ware_house_id', 'Kho hàng')->options($service->GetListWarehouse());
 
-        // $form->saving(function (Form $form) {
-        //     $form->m3 = number_format(($form->width * $form->height * $form->length)/1000000, 3, '.', '');
-        // });
+        $form->saving(function (Form $form) {
+            $form->m3 = number_format(($form->width * $form->height * $form->length)/1000000, 3, '.', '');
+        });
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
@@ -562,7 +562,7 @@ SCRIPT;
             return $this->v();
         });
         $grid->m3('M3')->display(function () {
-            return $this->m3();
+            return $this->m3_cal();
         });
         $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
         

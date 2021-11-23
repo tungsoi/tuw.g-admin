@@ -170,7 +170,7 @@ class VietnamCustomerCodeController extends AdminController
                     $code->width,
                     $code->height,
                     $code->v(),
-                    $code->m3(),
+                    $code->m3_cal(),
                     $code->advance_drag,
                     $code->china_receive_at != null ? date('H:i d-m-Y', strtotime($code->china_receive_at)) : null,
                     $code->vietnam_receive_at != null ? date('H:i d-m-Y', strtotime($code->vietnam_receive_at)) : null,
@@ -195,7 +195,7 @@ class VietnamCustomerCodeController extends AdminController
         //     return $this->v();
         // });
         // $grid->m3('M3')->display(function () {
-        //     return $this->m3();
+        //     return $this->m3_cal();
         // });
         // $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
         // $grid->price_service('Giá vận chuyển')->display(function () {
@@ -442,7 +442,7 @@ SCRIPT;
             return $this->v();
         });
         $grid->m3('M3')->display(function () {
-            return $this->m3();
+            return $this->m3_cal();
         });
         $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
         

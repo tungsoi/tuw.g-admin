@@ -34,7 +34,7 @@
                     <select class="payment_type form-control" 
                     style="width: 100%;" name="payment_type[]" 
                     data-kg="{{ $code->kg }}" 
-                    data-m3="{{ ($code->m3 == "" || $code->m3 == "0.00") ? $code->m3() : $code->m3 }}" 
+                    data-m3="{{ ($code->m3 == "" || $code->m3 == "0.00") ? $code->m3_cal() : $code->m3 }}" 
                     data-v="{{ $code->v() }}">
                         <option value="1" selected="">Khối lượng</option>
                         <option value="-1">M3</option>
@@ -45,7 +45,7 @@
                 <td align="right">{{ $code->length }}</td>
                 <td align="right">{{ $code->width }}</td>
                 <td align="right">{{ $code->height }}</td>
-                <td align="right">{{ ($code->m3 == "" || $code->m3 == "0.00") ? $code->m3() : $code->m3 }}</td>
+                <td align="right">{{ ($code->m3 == "" || $code->m3 == "0.00") ? $code->m3_cal() : $code->m3 }}</td>
                 <td align="right">{{ str_replace(".00", "", $code->v()) }}</td>
                 <td align="right">{{ $code->advance_drag }}</td>
             </tr>

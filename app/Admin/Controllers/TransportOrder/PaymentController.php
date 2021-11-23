@@ -922,7 +922,7 @@ EOT);
                 } else if ($code->payment_type == -1) {
                     $payment_type = "Mét khối";
                     $price = $order->price_m3;
-                    $amount = $price * $code->m3();
+                    $amount = $price * $code->m3_cal();
                 } else {
                     $payment_type = "V/6000";
                     $price = $order->price_v;
@@ -937,7 +937,7 @@ EOT);
                     $code->width,
                     $code->height,
                     $code->v(),
-                    $code->m3(),
+                    $code->m3_cal(),
                     $payment_type,
                     $code->advance_drag,
                     number_format($price),
@@ -945,7 +945,7 @@ EOT);
                 ];
 
                 $total_kg += $code->kg;
-                $total_m3 += $code->m3();
+                $total_m3 += $code->m3_cal();
                 $total_v += $code->v();
                 $total_advance_drag += $code->advance_drag;
                 $total_amount += $amount;
