@@ -420,6 +420,7 @@ SCRIPT;
         $grid->model()
         ->where('status', '!=', 'cancel')
         ->orderBy('id', 'desc')
+        ->where('payment_customer_id', '!=', 0)
         ->with('userCancel')
         ->with('transportCode')
         ->with('paymentCustomer');
