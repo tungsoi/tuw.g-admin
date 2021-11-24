@@ -37,7 +37,7 @@ class TrackingPaymentOrderController extends AdminController
     {
         ini_set('memory_limit', '6400M');
         $orders = PaymentOrder::select('created_at', 'order_number', 'total_kg', 'total_m3', 'id', 'discount_value', 'discount_type', 'is_sub_customer_wallet_weight', 'total_sub_wallet_weight')
-        ->where('export_at', '>', '2021-09-01 00:00:01')
+        ->where('export_at', '>', '2021-11-17 00:00:01')
         // ->where('export_at', '<', '2021-10-3 00:00:00')
         ->with('transportCode')
         ->where('status', '!=', 'cancel')
