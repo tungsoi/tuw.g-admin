@@ -195,9 +195,14 @@ class OfferController extends AdminController
         });
 
         $grid->purchase_order_service_fee('Tổng tiền thực đặt (3) = (1) + (2)')->display(function () {
-            $price_rmb = str_replace(",", "", $this->sumItemPrice());
-            $ship = $this->sumShipFee();
-            return $price_rmb + $ship;
+            try {
+                $price_rmb = str_replace(",", "", $this->sumItemPrice());
+                $ship = str_replace(",", "", $this->sumShipFee());
+                return $price_rmb + $ship;
+            } catch (\Exception $e) {
+                // dd($ship);
+                // dd($this->id);
+            }
         })->style('text-align: right; width: 100px;')
         ->totalRow(function ($amount) {
             return "<span id='purchase_order_service_fee'></span>";
