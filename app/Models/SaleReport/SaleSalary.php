@@ -55,4 +55,8 @@ class SaleSalary extends Model
     public function report() {
         return $this->hasOne(Report::class, 'id', 'report_id');
     }
+
+    public function details() {
+        return $this->hasMany(SaleSalaryDetail::class, 'sale_salary_id', 'id');
+    }
 }

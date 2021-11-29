@@ -38,7 +38,11 @@ class SaleSalaryDetailController extends AdminController
     protected function detail($id)
     {
         $grid = new Grid(new SaleSalaryDetail());
-        $grid->model()->where('sale_salary_id', $id);
+        $grid->model()->where('sale_salary_id', $id)
+        ->orderByRaw('CONVERT(po_success, SIGNED) desc')
+        ->orderByRaw('CONVERT(po_not_success, SIGNED) desc')
+        ->orderByRaw('CONVERT(trs, SIGNED) desc')
+        ->orderByRaw('CONVERT(wallet, SIGNED) asc');
 
         $grid->header(function ($query) use ($id) {
             $amount = $query->where('wallet', '<', 0)->sum('wallet');
@@ -47,8 +51,13 @@ class SaleSalaryDetailController extends AdminController
             $report = SaleSalary::find($id);
             $html = "Nhân viên: " . $report->employee->name . "<br>";
             $html .= "Thời gian cập nhật: " . $report->updated_at . "<br>";
-
             $html .= "Tổng âm ví khách hàng: <h3 class='label label-danger'>".$amount."</h3> VND";
+
+            $all_customers = $report->all_customer;
+            $action_customers = 0;
+
+            $html .= "<br>Khách hàng phát sinh doanh thu / Tổng số khách hàng: 0 /".$all_customers;
+
             return $html;
         });
         $grid->rows(function (Grid\Row $row) {
