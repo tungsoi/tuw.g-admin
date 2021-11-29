@@ -87,7 +87,7 @@ class SaleReportController extends AdminController
 
             $route_salary = route('admin.revenue_reports.salary', $actions->getKey());
 
-            $actions->append('<a href="'.$route_salary.'" class="grid-row-view btn btn-xs btn-pink" data-toggle="tooltip" title="" data-original-title="Bảng doanh số tính lương">
+            $actions->append('<a href="'.$route_salary.'" class="grid-row-view btn btn-xs btn-danger" data-toggle="tooltip" title="" data-original-title="Bảng doanh số tính lương">
             <i class="fa fa-heartbeat"></i>
                 </a>');
         });
@@ -683,7 +683,9 @@ SCRIPT;
         $grid = new Grid(new Report());
         $grid->model()->whereId(-1);
         $grid->header(function () use ($id) {
-            $data = SaleSalary::whereReportId($id)->whereUserId(Admin::user()->id)->get();
+            $user_id = Admin::user()->id;
+            $user_id = 503;
+            $data = SaleSalary::whereReportId($id)->whereUserId($user_id)->get();
             return view('admin.system.report_portal.sale_salary', compact('data'));
         });
 
