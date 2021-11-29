@@ -41,6 +41,7 @@ SCRIPT;
             $model->status = $orderService->getItemStatus('out_stock');
             $model->outstock_at = now();
             $model->qty_reality = 0;
+            $model->user_confirm_outstock = Admin::user()->id;
             $model->save();
         }
 

@@ -294,7 +294,7 @@ class PurchaseOrderItemController extends AdminController
                     $flag_qty = true;
                 }
 
-                if ($status == $orderService->getStatus('success')) {
+                if ($status == 9) {
                     $is_edit_qty_reality = false;
                 }
             }

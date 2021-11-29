@@ -48,7 +48,8 @@ class PurchaseOrderItem extends Model
         'order_at',
         'outstock_at',
         'vn_receive_at',
-        'user_confirm_receive'
+        'user_confirm_receive',
+        'user_confirm_outstock'
     ];
 
     // protected $casts = [

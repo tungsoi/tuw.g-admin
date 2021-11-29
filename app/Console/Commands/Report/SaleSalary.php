@@ -87,7 +87,7 @@ class SaleSalary extends Command
                 ->with('items')
                 ->get();
             
-            $po_not_success = PurchaseOrder::whereIn('status', [2, 4, 5, 7])
+            $po_not_success = PurchaseOrder::whereIn('status', [4, 5, 7])
                 ->whereIn('customer_id', $all_customers->pluck('id'))
                 ->with('items')
                 ->get();
@@ -154,7 +154,7 @@ class SaleSalary extends Command
                 ->with('items')
                 ->get();
 
-                $po_not_success = $customer->purchaseOrders()->whereIn('status', [2, 4, 5, 7])
+                $po_not_success = $customer->purchaseOrders()->whereIn('status', [4, 5, 7])
                 ->with('items')
                 ->get();
                 

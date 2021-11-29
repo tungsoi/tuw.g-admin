@@ -893,7 +893,10 @@ SCRIPT;
                 // if ($order->items()->whereStatus($orderService->getItemStatus('in_order'))->count() > 0) {
                     $tools->append(new ConfirmOrderItem());
                     // $tools->append(new ConfirmVnReceiveItem());
-                    $tools->append(new ConfirmOutstockItem());
+                    if ($order->status != 9) {
+                        $tools->append(new ConfirmOutstockItem());
+                    }
+                    
                 // }
             }
            
