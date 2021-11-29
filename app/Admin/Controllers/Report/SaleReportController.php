@@ -688,7 +688,7 @@ SCRIPT;
                 $user_id = Admin::user()->id;
                 $data = SaleSalary::whereReportId($id)->whereUserId($user_id)->get();
             } else if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
-                $daa = SaleSalary::whereReportId($id)->get();
+                $data = SaleSalary::whereReportId($id)->get();
             }
             
             return view('admin.system.report_portal.sale_salary', compact('data'));
