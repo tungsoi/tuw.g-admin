@@ -42,18 +42,25 @@ class SaleSalaryDetailController extends AdminController
 
         $grid->header(function ($query) use ($id) {
             $amount = $query->where('wallet', '<', 0)->sum('wallet');
-            $html = number_format($amount);
+            $amount = number_format($amount);
 
-            return "Tổng âm ví khách hàng: <h3 class='label label-danger'>".$html."</h3> VND";
+            $report = SaleSalary::find($id);
+            $html = "Nhân viên: " . $report->employee->name . "<br>";
+            $html .= "Thời gian cập nhật: " . $report->updated_at . "<br>";
+
+            $html .= "Tổng âm ví khách hàng: <h3 class='label label-danger'>".$amount."</h3> VND";
+            return $html;
         });
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT')->style('text-align: center');
-        $grid->customer()->symbol_name('MKH');
+        $grid->customer()->symbol_name('Mã khách hàng');
         $grid->wallet('Số dư')
         ->display(function ($value) {
-            return number_format($value);
+            $amount = number_format($value);
+            $color = $value < 0 ? "danger" : "success";
+            return "<span class='label label-$color'>".$amount."</span>";
         });
         $grid->po_success('Đơn Order thành công')
         ->display(function ($value) {
