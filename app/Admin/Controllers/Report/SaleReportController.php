@@ -684,7 +684,7 @@ SCRIPT;
         $grid->model()->whereId(-1);
         $grid->header(function () use ($id) {
             $user_id = Admin::user()->id;
-            $user_id = 503;
+            // $user_id = 503;
             $data = SaleSalary::whereReportId($id)->whereUserId($user_id)->get();
             return view('admin.system.report_portal.sale_salary', compact('data'));
         });
