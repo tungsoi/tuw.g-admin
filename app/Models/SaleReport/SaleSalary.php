@@ -51,4 +51,8 @@ class SaleSalary extends Model
     public function employee() {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
+
+    public function report() {
+        return $this->hasOne(Report::class, 'id', 'report_id');
+    }
 }

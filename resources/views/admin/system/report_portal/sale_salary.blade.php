@@ -28,10 +28,12 @@
         @foreach ($data as $key => $value)
         <tr>
             <td>{{ $key+1 }}</td>
-            <td>
+            <td style="width: 100px">
                 <ul data-note="Thông tin nhân viên">
                     <li class="employee_name">{{ $value->employee->name }}</li>
                     <li class="joining_date">{{ date('d/m/Y', strtotime($value->employee->created_at)) }}</li>
+                    <li></li>
+                    <li><a href="{{ route('admin.sale_salary_details.show', $value->id) }}">Xem chi tiết</a></li>
                 </ul>
             </td>
             <td>
@@ -82,6 +84,7 @@
             </td>
             <td>
                 <ul data-note="Tổng kết">
+                    <li class="amount_po">Tổng doanh số Order <span class="pull-right">{{ $value->po_success }}</span></li>
                     <li class="po_success">Số đơn thành công <span class="pull-right">{{ $value->po_success }}</span></li>
                     <li class="po_success_service_fee">Doanh thu phí dịch vụ (100%) <span class="pull-right">{{ number_format($value->po_success_service_fee) }}</span></li>
                     <li class="trs_amount_all_customer">Doanh thu vận chuyển (10%) <span class="pull-right">{{ number_format($value->trs_amount_all_customer*0.1) }}</span></li>

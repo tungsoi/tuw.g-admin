@@ -9,6 +9,7 @@ use App\Models\SaleReport\Report;
 use App\User;
 use Illuminate\Console\Command;
 use App\Models\SaleReport\SaleSalary as SaleSalaryModel;
+use App\Models\SaleReport\SaleSalaryDetail;
 
 class SaleSalary extends Command
 {
@@ -58,6 +59,11 @@ class SaleSalary extends Command
             echo "overtime";
             return false;
         }
+
+        $details = SaleSalaryModel::where('report_id', $report->id)->get();
+        
+        SaleSalaryModel::where('report_id', $report->id)->delete();
+        SaleSalaryDetail::whereIn('sale_salary_id', $details->pluck('id'))->delete();
 
         $begin = $report->begin_date." 00:00:01";
         $finish = $report->finish_date." 23:59:59";
@@ -131,7 +137,55 @@ class SaleSalary extends Command
                 'employee_working_point'    =>  0
             ];
 
-            SaleSalaryModel::create($data);
+            $res = SaleSalaryModel::create($data);
+
+            // fetch detail
+            SaleSalaryDetail::where('sale_salary_id', $res->id)->delete();
+
+            $customers = User::whereIn('id', $employee->saleCustomers()->pluck('id'))
+            ->with('purchaseOrders')
+            ->with('paymentOrders')
+            ->get();
+            
+            foreach ($customers as $customer) {
+
+                $po_success = $customer->purchaseOrders()->whereStatus(9)
+                ->whereBetween('success_at', [$begin, $finish])
+                ->with('items')
+                ->get();
+
+                $po_not_success = $customer->purchaseOrders()->whereIn('status', [2, 4, 5, 7])
+                ->with('items')
+                ->get();
+                
+                $transport_orders = $customer->paymentOrders()->whereStatus('payment_export')
+                ->whereBetween('export_at', [$begin, $finish])
+                ->with('transportCode')
+                ->get();
+
+                $fetch = [
+                    'sale_salary_id'    =>  $res->id,
+                    'customer_id'   =>  $customer->id,
+                    'wallet'    =>  number_format($customer->wallet, 0, '.', ''),
+                    'po_success'    =>  $po_success->count(),
+                    'po_payment'    =>  $this->amount($po_success),
+                    'po_service_fee'    =>  $this->serviceFee($po_success),
+                    'po_rmb'    =>  $this->amount($po_success, true, "rmb"),
+                    'po_offer'    =>  $this->offer($po_success),
+                    'po_not_success'    =>  $po_not_success->count(),
+                    'po_not_success_payment'    =>   $this->amount($po_not_success),
+                    'po_not_success_service_fee'    =>  $this->serviceFee($po_not_success),
+                    'po_not_success_deposite'    =>  $this->deposited($po_not_success),
+                    'po_not_success_owed'    =>  $this->owed($po_not_success),
+                    'trs'    =>  $transport_orders->count(),
+                    'trs_kg'    =>  $this->kg($transport_orders->sum('total_kg')),
+                    'trs_m3'    =>  $this->m3($transport_orders->sum('total_m3')),
+                    'trs_payment'    =>  number_format($transport_orders->sum('amount'), 0, '.', ''),
+                ];
+
+                SaleSalaryDetail::create($fetch);
+            }
+
         }
 
     }
