@@ -215,3 +215,8 @@ th {
     margin-bottom: 2px !important;
     line-height: 2;
 }
+.btn-pink {
+    background-color: pink;
+    border-color: gray !important;
+    color: white !important;
+}

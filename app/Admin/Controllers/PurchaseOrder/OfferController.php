@@ -74,7 +74,12 @@ class OfferController extends AdminController
 
             if (! Admin::user()->isRole('customer')) {
                 $filter->column(1/4, function ($filter) use ($service) {
-                    $filter->equal('supporter_id', 'Nhân viên kinh doanh')->select($service->GetListSaleEmployee());
+                    $filter->where(function ($query) {
+                        $sale = User::find($this->input);
+                        $customers_id = $sale->saleCustomers;
+                        $query->whereIn('customer_id', $customers_id->pluck('id'));
+                    }, 'Nhân viên kinh doanh', 'supporter_sale_id')->select($service->GetListSaleEmployee());
+                    // $filter->equal('supporter_sale_id', 'Nhân viên kinh doanh')->select($service->GetListSaleEmployee());
 
                     $order_ids = DB::table('admin_role_users')->where('role_id', 4)->get()->pluck('user_id');
                     $filter->equal('supporter_order_id', 'Nhân viên đặt hàng')->select($service->GetListOrderEmployee());

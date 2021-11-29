@@ -8,6 +8,7 @@ namespace App\Admin\Controllers\Report;
 use App\Admin\Services\UserService;
 use App\Models\SaleReport\Report;
 use App\Models\SaleReport\ReportDetail;
+use App\Models\SaleReport\SaleSalary;
 use App\Models\System\TeamSale as SystemTeamSale;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
@@ -82,7 +83,13 @@ class SaleReportController extends AdminController
                 $actions->append('<a href="'.$detech.'" class="grid-row-view btn btn-xs btn-success" data-toggle="tooltip" title="" data-original-title="Hiệu quả công việc">
                     <i class="fa fa-check"></i>
                 </a>');
-            }
+            }   
+
+            $route_salary = route('admin.revenue_reports.salary', $actions->getKey());
+
+            $actions->append('<a href="'.$route_salary.'" class="grid-row-view btn btn-xs btn-pink" data-toggle="tooltip" title="" data-original-title="Bảng doanh số tính lương">
+            <i class="fa fa-heartbeat"></i>
+                </a>');
         });
 
         return $grid;
@@ -663,5 +670,32 @@ EOT
                 }
             });
 SCRIPT;
+    }
+
+    public function salary($id, Content $content) {
+        return $content
+            ->title($this->title())
+            ->description("Bảng tổng hợp doanh số, hiệu quả làm việc")
+            ->body($this->salaryGrid($id));
+    }
+
+    public function salaryGrid($id) {
+        $grid = new Grid(new Report());
+        $grid->model()->whereId(-1);
+        $grid->header(function () use ($id) {
+            $data = SaleSalary::whereReportId($id)->whereUserId(Admin::user()->id)->get();
+            return view('admin.system.report_portal.sale_salary', compact('data'));
+        });
+
+        $grid->disableActions();
+        $grid->disableBatchActions();
+        $grid->disableColumnSelector();
+        $grid->disableCreateButton();
+        $grid->disableFilter();
+        $grid->disablePagination();
+        $grid->disablePerPageSelector();
+        $grid->disableExport();
+        
+        return $grid;
     }
 }

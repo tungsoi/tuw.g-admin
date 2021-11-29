@@ -119,7 +119,7 @@ Route::group([
     $router->get('purchase_orders/get-list-customer-new-order', 'PurchaseOrder\\PurchaseOrderController@getListCustomerNewOrder')->name('purchase_orders.geListCustomerNewOrder');
     $router->get('purchase_orders/get-list-customer-depositting-order', 'PurchaseOrder\\PurchaseOrderController@getListCustomerDeposittingOrder')->name('purchase_orders.geListCustomerNewOrder');
     $router->get('revenue_reports/{revenue_reports_id}/detech', 'Report\\SaleReportController@detech')->name('revenue_reports.detech');
-
+    $router->get('revenue_reports/{revenue_reports_id}/salary', 'Report\\SaleReportController@salary')->name('revenue_reports.salary');
 });
 
 Route::group([
