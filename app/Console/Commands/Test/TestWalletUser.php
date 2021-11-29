@@ -5,6 +5,7 @@ namespace App\Console\Commands\Test;
 use App\Admin\Services\UserService;
 use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
+use App\Models\PurchaseOrder\PurchaseOrderItem;
 use App\Models\SaleReport\ReportDetail;
 use App\Models\SyncData\AlilogiTransaction;
 use App\Models\SyncData\AlilogiUser;
@@ -49,6 +50,45 @@ class TestWalletUser extends Command
     {   
         ini_set('memory_limit', '6400M');
 
+        $items = PurchaseOrderItem::whereNotNull('outstock_at')
+        ->whereBetween('outstock_at', ['2021-11-01 00:00:01', '2021-11-30 23:59:59'])
+        ->with('order')
+        ->get();
+
+        $orders = [];
+        foreach ($items as $item) {
+          $item_outstock = date('d-m-Y', strtotime($item->outstock_at));
+          $order_success = date('d-m-Y', strtotime($item->order->success_at));
+          if ($item->order->status == 9 && ($item_outstock >= $order_success)) {
+            $orders[$item->order->id] = $item->order->id;
+            // if ($item->order->totalItems() == $item->order->items->where('status', 4)->count()) {
+            //   $orders[$item->order->id] = $item->order->orderEmployee->name;
+            // }
+          }
+        }
+
+        $data = PurchaseOrder::whereIn('id', $orders)->with('items')->get();
+
+        $key = 1;
+        foreach ($data as $order) {
+          $total_items = $order->items->count();
+          $total_outstock_items = $order->items()->where('status', 4)->count();
+
+          if ($total_items == $total_outstock_items) {
+            echo $key . " - ". $order->order_number . " - Tổng sản phẩm: " . $total_items . " - Hết hàng: " . $total_outstock_items . " - NV Order: " . $order->orderEmployee->name.  "\n"; 
+            $key++;
+          }
+        }
+        // $orders = PurchaseOrder::whereBetween('success_at', ['2021-11-01 00:00:01', '2021-11-30 23:59:59'])
+        // ->with('items')
+        // ->get();
+
+        // foreach ($orders as $order) {
+        //   foreach 
+        // }
+
+        // dd(sizeof($orders));
+        dd('-');
         $customers = User::where('symbol_name', 'like', 'TX%')->with('transactions')->get();
 
         foreach ($customers as $customer) {

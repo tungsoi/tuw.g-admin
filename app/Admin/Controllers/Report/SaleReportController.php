@@ -684,10 +684,13 @@ SCRIPT;
         $grid->model()->whereId(-1);
         $grid->header(function () use ($id) {
 
-
-            $user_id = Admin::user()->id;
-            // $user_id = 503;
-            $data = SaleSalary::whereReportId($id)->whereUserId($user_id)->get();
+            if (Admin::user()->isRole('sale_employee')) {
+                $user_id = Admin::user()->id;
+                $data = SaleSalary::whereReportId($id)->whereUserId($user_id)->get();
+            } else if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
+                $daa = SaleSalary::whereReportId($id)->get();
+            }
+            
             return view('admin.system.report_portal.sale_salary', compact('data'));
         });
 
