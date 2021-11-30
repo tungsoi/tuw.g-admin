@@ -51,12 +51,19 @@ class SaleSalaryDetailController extends AdminController
             $report = SaleSalary::find($id);
             $html = "Nhân viên: " . $report->employee->name . "<br>";
             $html .= "Thời gian cập nhật: " . $report->updated_at . "<br>";
-            $html .= "Tổng âm ví khách hàng: <h3 class='label label-danger'>".$amount."</h3> VND";
+            $html .= "Tổng âm ví khách hàng: <span style='color: red' >".$amount."</span> VND";
 
             $all_customers = $report->all_customer;
-            $action_customers = 0;
+            $not_action_customers = SaleSalaryDetail::where('sale_salary_id', $id)
+                ->where('po_payment', 0)
+                ->where('po_not_success_payment', 0)
+                ->where('trs_payment', 0)
+                ->get();
+            $action_customers = SaleSalaryDetail::where('sale_salary_id', $id)
+            ->whereNotIn('customer_id', $not_action_customers->pluck('customer_id'))
+            ->count();
 
-            $html .= "<br>Khách hàng phát sinh doanh thu / Tổng số khách hàng: 0 /".$all_customers;
+            $html .= "<br>Khách hàng phát sinh doanh thu / Tổng số khách hàng: ".$action_customers." /".$all_customers ." = " . (number_format($action_customers / $all_customers * 100, 1) ) . "%";
 
             return $html;
         });
