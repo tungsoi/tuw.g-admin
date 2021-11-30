@@ -49,47 +49,47 @@
             <td>
                 <ul data-note="Đơn order thành công">
                     <li class="po_success">Số lượng <span class="pull-right">{{ $value->po_success }}</span></li>
-                    <li class="po_success_new_customer">Doanh số KH mới <span class="pull-right">{{ number_format($value->po_success_new_customer) }}</span></li>
-                    <li class="po_success_old_customer">Doanh số KH cũ <span class="pull-right">{{ number_format($value->po_success_old_customer) }}</span></li>
-                    <li class="po_success_all_customer">Tổng doanh số <span class="pull-right text-red">{{ number_format($value->po_success_all_customer) }}</span></li>
+                    <li class="po_success_new_customer">DS KH mới <span class="pull-right">{{ number_format($value->po_success_new_customer) }}</span></li>
+                    <li class="po_success_old_customer">DS KH cũ <span class="pull-right">{{ number_format($value->po_success_old_customer) }}</span></li>
+                    <li class="po_success_all_customer">Tổng DS <span class="pull-right text-red">{{ number_format($value->po_success_all_customer) }}</span></li>
                     <li class="po_success_service_fee">Phí dịch vụ <span class="pull-right text-red">{{ number_format($value->po_success_service_fee) }}</span></li>
-                    <li class="po_success_total_rmb">Tổng giá tệ <span class="pull-right text-red">{{ number_format($value->po_success_total_rmb) }}</span></li>
-                    <li class="po_success_offer">Tổng đàm phán <span class="pull-right text-red">{{ number_format($value->po_success_offer) }}</span></li>
+                    <li class="po_success_total_rmb">Tổng tệ <span class="pull-right text-red">{{ number_format($value->po_success_total_rmb) }}</span></li>
+                    <li class="po_success_offer">Đàm phán <span class="pull-right text-red">{{ number_format($value->po_success_offer) }}</span></li>
                 </ul>
             </td>
             <td>
                 <ul data-note="Đơn order chưa hoàn thành">
                     <li class="po_not_success">Số lượng <span class="pull-right">{{ $value->po_not_success }}</span></li>
-                    <li class="po_not_success_new_customer">Doanh số KH mới <span class="pull-right">{{ number_format($value->po_not_success_new_customer) }}</span></li>
-                    <li class="po_not_success_old_customer">Doanh số KH cũ <span class="pull-right">{{ number_format($value->po_not_success_old_customer) }}</span></li>
-                    <li class="po_not_success_all_customer">Tổng doanh số <span class="pull-right  text-red">{{ number_format($value->po_not_success_all_customer) }}</span></li>
+                    <li class="po_not_success_new_customer">DS KH mới <span class="pull-right">{{ number_format($value->po_not_success_new_customer) }}</span></li>
+                    <li class="po_not_success_old_customer">DS KH cũ <span class="pull-right">{{ number_format($value->po_not_success_old_customer) }}</span></li>
+                    <li class="po_not_success_all_customer">Tổng DS <span class="pull-right  text-red">{{ number_format($value->po_not_success_all_customer) }}</span></li>
                     <li class="po_not_success_service_fee">Phí dịch vụ <span class="pull-right">{{ number_format($value->po_not_success_service_fee) }}</span></li>
-                    <li class="po_not_success_owed">Tổng tiền đã cọc <span class="pull-right">{{ number_format($value->po_not_success_deposited) }}</span></li>
-                    <li class="po_not_success_owed">Công nợ trên đơn <span class="pull-right  text-red">{{ number_format($value->po_not_success_owed) }}</span></li>
+                    <li class="po_not_success_owed">Tổng cọc <span class="pull-right">{{ number_format($value->po_not_success_deposited) }}</span></li>
+                    <li class="po_not_success_owed">Công nợ <span class="pull-right  text-red">{{ number_format($value->po_not_success_owed) }}</span></li>
                 </ul>
             </td>
             <td>
                 <ul data-note="Đơn hàng vận chuyển">
                     <li class="transport_order">Số lượng <span class="pull-right">{{ $value->transport_order }}</span></li>
-                    <li class="trs_kg_new_customer">Số KG KH mới <span class="pull-right">{{ $value->trs_kg_new_customer }}</span></li>
-                    <li class="trs_kg_old_customer">Số KG KH cũ <span class="pull-right">{{ $value->trs_kg_old_customer }}</span></li>
+                    <li class="trs_kg_new_customer">KG KH mới <span class="pull-right">{{ $value->trs_kg_new_customer }}</span></li>
+                    <li class="trs_kg_old_customer">KG KH cũ <span class="pull-right">{{ $value->trs_kg_old_customer }}</span></li>
                     <li class="trs_kg_all_customer">Tổng KG <span class="pull-right text-red">{{ $value->trs_kg_all_customer }}</span></li>
-                    <li class="trs_m3_new_customer">Số M3 KH mới <span class="pull-right">{{ $value->trs_m3_new_customer }}</span></li>
-                    <li class="trs_m3_old_customer">Số M3 KH cũ <span class="pull-right">{{ $value->trs_m3_old_customer }}</span></li>
+                    <li class="trs_m3_new_customer">M3 KH mới <span class="pull-right">{{ $value->trs_m3_new_customer }}</span></li>
+                    <li class="trs_m3_old_customer">M3 KH cũ <span class="pull-right">{{ $value->trs_m3_old_customer }}</span></li>
                     <li class="trs_m3_all_customer">Tổng M3 <span class="pull-right text-red">{{ $value->trs_m3_all_customer }}</span></li>
-                    <li class="trs_amount_new_customer">Doanh thu KH mới <span class="pull-right">{{ number_format($value->trs_amount_new_customer) }}</span></li>
-                    <li class="trs_amount_old_customer">Doanh thu KH cũ <span class="pull-right">{{ number_format($value->trs_amount_old_customer) }}</span></li>
-                    <li class="trs_amount_all_customer">Tổng doanh thu <span class="pull-right text-red">{{ number_format($value->trs_amount_all_customer) }}</span></li>
+                    <li class="trs_amount_new_customer">DT KH mới <span class="pull-right">{{ number_format($value->trs_amount_new_customer) }}</span></li>
+                    <li class="trs_amount_old_customer">DT KH cũ <span class="pull-right">{{ number_format($value->trs_amount_old_customer) }}</span></li>
+                    <li class="trs_amount_all_customer">Tổng DT <span class="pull-right text-red">{{ number_format($value->trs_amount_all_customer) }}</span></li>
                 </ul>
             </td>
             <td>
                 <ul data-note="Tổng kết">
-                    <li class="amount_po">Tổng doanh số Order <span class="pull-right">{{ $value->po_success }}</span></li>
-                    <li class="po_success">Số đơn thành công <span class="pull-right">{{ $value->po_success }}</span></li>
-                    <li class="po_success_service_fee">Doanh thu phí dịch vụ (100%) <span class="pull-right">{{ number_format($value->po_success_service_fee) }}</span></li>
-                    <li class="trs_amount_all_customer">Doanh thu vận chuyển (10%) <span class="pull-right">{{ number_format($value->trs_amount_all_customer*0.1) }}</span></li>
-                    <li class="po_success_total_rmb">Doanh thu tỷ giá (30 * Tổng giá tệ) <span class="pull-right">{{ number_format($value->po_success_total_rmb*30) }}</span></li>
-                    <li class="po_success_offer">Doanh thu đàm phán (85%) <span class="pull-right">{{ number_format($value->po_success_offer*0.85) }}</span></li>
+                    <li class="amount_po">Tổng DS Order <span class="pull-right text-red">{{ number_format($value->po_success_all_customer + $value->po_not_success_all_customer) }}</span></li>
+                    <li class="po_success">Số đơn TC <span class="pull-right">{{ $value->po_success }}</span></li>
+                    <li class="po_success_service_fee">Phí dịch vụ <i>(100%)</i> <span class="pull-right">{{ number_format($value->po_success_service_fee) }}</span></li>
+                    <li class="trs_amount_all_customer">DT vận chuyển <i>(10%)</i><span class="pull-right">{{ number_format($value->trs_amount_all_customer*0.1) }}</span></li>
+                    <li class="po_success_total_rmb">DT tỷ giá <i>(30 * Tổng giá tệ)</i> <span class="pull-right">{{ number_format($value->po_success_total_rmb*30) }}</span></li>
+                    <li class="po_success_offer">DT đàm phán <i>(85%)</i> <span class="pull-right">{{ number_format($value->po_success_offer*0.85) }}</span></li>
                     <li class="total_revenue">
                         Tổng doanh thu
                         @php
