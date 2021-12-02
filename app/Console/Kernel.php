@@ -39,8 +39,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('delete:null-payment-order')->hourly();
         $schedule->command('sync:customer-wallet')->everyMinute();
 
-        $schedule->command('sale-revenue-report:update', ['2021-11-01', '2021-11-30'])->dailyAt("13:00");
-        $schedule->command('sale-revenue-report:update', ['2021-11-01', '2021-11-30'])->dailyAt("21:00");
+        $schedule->command('sale-revenue-report:update', ['2021-12-01', '2021-12-31'])->dailyAt("13:00");
+        $schedule->command('sale-revenue-report:update', ['2021-12-01', '2021-12-31'])->dailyAt("21:00");
 
         // $schedule->command('sale-revenue-report:update', ['2020-10-01', '2021-12-31'])->dailyAt("03:00");
     }
