@@ -509,9 +509,23 @@ class PurchaseOrderController extends AdminController
             // }
 
             $orderService = new OrderService();
-            if (Admin::user()->isRole('customer')) {
-                if (! in_array($this->row->status, [2]) ) {
+            if (Admin::user()->isRole('customer')) { // khach hang chi duoc huy don hang moi
+                if (! in_array($this->row->status, [2])) {
                     $actions->disableDelete();
+                }
+            } else {
+
+                if (Admin::user()->isRole('sale_employee')) {
+                    // sale huy don hang moi
+                    if (! in_array($this->row->status, [2])) {
+                        $actions->disableDelete();
+                    }
+                } else if (Admin::user()->isRole('order_employee') || Admin::user()->isRole('ar_employee')) {
+                    if (! in_array($this->row->status, [2, 4])) {
+                        $actions->disableDelete();
+                    }
+                } else if (Admin::user()->isRole('administrator')) {
+                    
                 }
             }
 
@@ -1237,8 +1251,11 @@ SCRIPT;
             $form->html('Tổng tiền sản phẩm: ' . $order->sumItemPrice() . ' (Tệ)');
             $form->currency('purchase_order_service_fee', 'Phí dịch vụ')->symbol('Tệ')->digits(2)->default($order->purchase_order_service_fee);
 
-            $form->select('supporter_sale_id', 'Nhân viên kinh doanh')->options($userService->GetListSaleEmployee())->default($order->supporter_sale_id);
-            $form->select('supporter_order_id', 'Nhân viên đặt hàng')->options($userService->GetListOrderEmployee())->default($order->supporter_order_id);
+            if (Admin::user()->isRole('order_employee') || Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
+                $form->select('supporter_sale_id', 'Nhân viên kinh doanh')->options($userService->GetListSaleEmployee())->default($order->supporter_sale_id);
+                $form->select('supporter_order_id', 'Nhân viên đặt hàng')->options($userService->GetListOrderEmployee())->default($order->supporter_order_id);    
+            }
+
             $form->select('warehouse_id', 'Kho hàng')->options($userService->GetListWarehouse())->default($order->warehouse_id);
             $form->select('order_type', 'Loại đơn hàng')->options([
                 "1688, Taobao"   =>  "1688, Taobao",

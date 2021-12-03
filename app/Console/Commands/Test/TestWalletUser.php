@@ -67,6 +67,7 @@ class TestWalletUser extends Command
           }
         }
 
+
         $data = PurchaseOrder::whereIn('id', $orders)->with('items')->get();
 
         $key = 1;
@@ -74,6 +75,9 @@ class TestWalletUser extends Command
           $total_items = $order->items->count();
           $total_outstock_items = $order->items()->where('status', 4)->count();
 
+          if ($order->order_number == 'MH-D0218') {
+            dd($total_items."-".$total_outstock_items);
+          }
           if ($total_items == $total_outstock_items) {
             echo $key . " - ". $order->order_number . " - Tổng sản phẩm: " . $total_items . " - Hết hàng: " . $total_outstock_items . " - NV Order: " . $order->orderEmployee->name.  "\n"; 
             $key++;

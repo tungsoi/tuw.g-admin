@@ -288,6 +288,20 @@ class ComplaintController extends AdminController
             return view('admin.system.core.list', compact('data'));
         });
 
+        $grid->actions(function (Grid\Displayers\Actions $actions) {
+            if (Admin::user()->isRole('sale_manager')){
+
+            } else {
+                if (Admin::user()->isRole('sale_employee')) {
+                    if ($this->row->status != Complaint::NEW){
+                        $actions->disableDelete();
+                    }
+                } else {
+                    $actions->disableDelete();
+                }
+            }
+        });
+
         $grid->disableColumnSelector();
         $grid->disableBatchActions();
         $grid->disableExport();
