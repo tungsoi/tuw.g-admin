@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\System\DeleteErrorTransportCodeChina',
         'App\Console\Commands\System\FillExportAtPaymentOrder',
         'App\Console\Commands\Report\SaleRevenue',
+        'App\Console\Commands\Report\SaleSalary',
         'App\Console\Commands\System\DeleteNullItemPaymentOrder',
         'App\Console\Commands\System\SyncWalletCustomer',
     ];
