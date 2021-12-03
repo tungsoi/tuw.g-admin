@@ -14,6 +14,14 @@
     }
 </style>
 <div class="table_wrapper">
+    <div class="row">
+        <div class="col-md-12">
+            <h5>{{ $report->title }}</h5>
+            <h5>Thời gian cập nhật: <span class="text-red">{{ $report->updated_at }}</span></h5>
+            <h5>ĐƠN HÀNG ORDER HOÀN THÀNH: <span class="text-red">Tính theo ngày thành công trong tháng</span> </h5>
+            <h5>ĐƠN HÀNG VẬN CHUYỂN: <span class="text-red">Tính theo đơn hàng xuất kho trong tháng</span></h5>
+        </div>
+    </div>
 <table class="table table-bordered">
     <thead>
         <th>STT</th>

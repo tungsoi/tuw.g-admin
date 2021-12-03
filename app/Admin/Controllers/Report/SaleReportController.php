@@ -685,13 +685,30 @@ SCRIPT;
         $grid->header(function () use ($id) {
 
             if (Admin::user()->isRole('sale_employee')) {
-                $user_id = Admin::user()->id;
-                $data = SaleSalary::whereReportId($id)->whereUserId($user_id)->get();
+               
+                if (Admin::user()->isRole('sale_manager')) {
+                    $data = SaleSalary::whereReportId($id)->get();
+                } else {
+                
+                    $flag = SystemTeamSale::where('leader', Admin::user()->id)->first();
+                    
+                    if ($flag != "" && $flag->count() > 0) {
+                        $members = $flag->members;
+                        $data = SaleSalary::whereReportId($id)->whereIn('user_id', $members)->get();
+                    } else {
+
+                        $user_id = Admin::user()->id;
+                        $data = SaleSalary::whereReportId($id)->whereUserId($user_id)->get();
+                    }
+                }
             } else if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
                 $data = SaleSalary::whereReportId($id)->get();
             }
+
+
+            $report = Report::find($id);
             
-            return view('admin.system.report_portal.sale_salary', compact('data'));
+            return view('admin.system.report_portal.sale_salary', compact('data', 'report'));
         });
 
         $grid->disableActions();
