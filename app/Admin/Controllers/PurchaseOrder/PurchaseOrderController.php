@@ -1227,6 +1227,10 @@ SCRIPT;
             $form->text('customer_note', 'Khách hàng ghi chú')->default($order->customer_note);
             $form->text('admin_note', 'Admin ghi chú')->default($order->admin_note);
             $form->text('internal_note', 'Nội bộ ghi chú')->default($order->internal_note);
+
+            if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
+                $form->currency('deposited', 'Tiền đã cọc')->symbol('VND')->digits(0)->default($order->deposited);
+            }
         });
         
         $form->column(1/2, function ($form) use ($order, $userService) {
