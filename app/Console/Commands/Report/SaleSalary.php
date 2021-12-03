@@ -47,147 +47,147 @@ class SaleSalary extends Command
     {
         ini_set("memory_limit","256M");
 
-        // $begin_date = $this->argument('begin_date');
-        // $finish_date = $this->argument('finish_date');
+        $begin_date = $this->argument('begin_date');
+        $finish_date = $this->argument('finish_date');
 
-        // $report = Report::whereBeginDate($begin_date)
-        //     ->whereFinishDate($finish_date)
-        //     ->orderBy('id', 'desc')
-        //     ->first();
+        $report = Report::whereBeginDate($begin_date)
+            ->whereFinishDate($finish_date)
+            ->orderBy('id', 'desc')
+            ->first();
         
-        // if (strtotime($finish_date." 23:59:59") < strtotime(now()))
-        // {
-        //     echo "overtime";
-        //     return false;
-        // }
+        if (strtotime($finish_date." 23:59:59") < strtotime(now()))
+        {
+            echo "overtime";
+            return false;
+        }
 
-        // $details = SaleSalaryModel::where('report_id', $report->id)->get();
+        $details = SaleSalaryModel::where('report_id', $report->id)->get();
         
-        // SaleSalaryModel::where('report_id', $report->id)->delete();
-        // SaleSalaryDetail::whereIn('sale_salary_id', $details->pluck('id'))->delete();
+        SaleSalaryModel::where('report_id', $report->id)->delete();
+        SaleSalaryDetail::whereIn('sale_salary_id', $details->pluck('id'))->delete();
 
-        // $begin = $report->begin_date." 00:00:01";
-        // $finish = $report->finish_date." 23:59:59";
-        // $service = new UserService();
+        $begin = $report->begin_date." 00:00:01";
+        $finish = $report->finish_date." 23:59:59";
+        $service = new UserService();
 
-        // $sale_users = $service->GetListSaleEmployee();
-        // $sale_ids = array_keys($sale_users->toArray());
+        $sale_users = $service->GetListSaleEmployee();
+        $sale_ids = array_keys($sale_users->toArray());
 
-        // $employees = User::whereIn('id', $sale_ids)->with('saleCustomers')->get();
+        $employees = User::whereIn('id', $sale_ids)->with('saleCustomers')->get();
 
-        // foreach ($employees as $employee) {
-        //     echo $employee->name."\n";
+        foreach ($employees as $employee) {
+            echo $employee->name."\n";
 
-        //     $all_customers = $employee->saleCustomers();
-        //     $new_customers = $employee->saleCustomers()->whereBetween('created_at', [$begin, $finish]);
-        //     $old_customers = $employee->saleCustomers()->whereNotIn('id', $new_customers->pluck('id'));
+            $all_customers = $employee->saleCustomers();
+            $new_customers = $employee->saleCustomers()->whereBetween('created_at', [$begin, $finish]);
+            $old_customers = $employee->saleCustomers()->whereNotIn('id', $new_customers->pluck('id'));
 
-        //     $po_success = PurchaseOrder::whereStatus(9)
-        //         ->whereBetween('success_at', [$begin, $finish])
-        //         ->whereIn('customer_id', $all_customers->pluck('id'))
-        //         ->with('items')
-        //         ->get();
+            $po_success = PurchaseOrder::whereStatus(9)
+                ->whereBetween('success_at', [$begin, $finish])
+                ->whereIn('customer_id', $all_customers->pluck('id'))
+                ->with('items')
+                ->get();
             
-        //     $po_not_success = PurchaseOrder::whereIn('status', [4, 5, 7])
-        //         ->whereIn('customer_id', $all_customers->pluck('id'))
-        //         ->with('items')
-        //         ->get();
+            $po_not_success = PurchaseOrder::whereIn('status', [4, 5, 7])
+                ->whereIn('customer_id', $all_customers->pluck('id'))
+                ->with('items')
+                ->get();
             
-        //     $transport_orders = PaymentOrder::whereStatus('payment_export')
-        //         ->whereBetween('export_at', [$begin, $finish])
-        //         ->whereIn('payment_customer_id', $all_customers->pluck('id'))
-        //         ->with('transportCode')
-        //         ->get();
+            $transport_orders = PaymentOrder::whereStatus('payment_export')
+                ->whereBetween('export_at', [$begin, $finish])
+                ->whereIn('payment_customer_id', $all_customers->pluck('id'))
+                ->with('transportCode')
+                ->get();
 
-        //     $data = [
-        //         'report_id'    =>    $report->id,
-        //         'user_id'    =>    $employee->id,
-        //         'new_customer_ids'  =>  json_encode($new_customers->pluck('id')),
-        //         'old_customer_ids'  =>  json_encode($old_customers->pluck('id')),
-        //         'new_customer'    =>    $new_customers->count(),
-        //         'old_customer'    =>    $old_customers->count(),
-        //         'all_customer'    =>    $all_customers->count(),
-        //         'owed_wallet_new_customer'    =>  $this->wallet($new_customers->get()),
-        //         'owed_wallet_old_customer'    =>  $this->wallet($old_customers->get()),
-        //         'owed_wallet_all_customer'    =>  $this->wallet($all_customers->get()),
-        //         'po_success'    =>    $po_success->count(),
-        //         'po_success_all_customer'    =>  $this->amount($po_success),
-        //         'po_success_old_customer'    =>  $this->amount($po_success->whereIn('customer_id', $old_customers->pluck('id'))),
-        //         'po_success_new_customer'    =>     $this->amount($po_success->whereIn('customer_id', $new_customers->pluck('id'))),
-        //         'po_success_service_fee'    =>  $this->serviceFee($po_success),
-        //         'po_success_total_rmb'    =>    $this->amount($po_success, true, "rmb"),
-        //         'po_success_offer'    =>    $this->offer($po_success),
-        //         'po_not_success'    =>    $po_not_success->count(),
-        //         'po_not_success_all_customer'    =>    $this->amount($po_not_success),
-        //         'po_not_success_old_customer'    =>    $this->amount($po_not_success->whereIn('customer_id', $old_customers->pluck('id'))),
-        //         'po_not_success_new_customer'    =>    $this->amount($po_not_success->whereIn('customer_id', $new_customers->pluck('id'))),
-        //         'po_not_success_service_fee'     =>    $this->serviceFee($po_not_success),
-        //         'po_not_success_owed'    =>    $this->owed($po_not_success),
-        //         'po_not_success_deposited'   =>  $this->deposited($po_not_success),
-        //         'transport_order'    =>    $transport_orders->count(),
-        //         'trs_kg_new_customer'    =>    $this->kg($transport_orders->whereIn('payment_customer_id', $new_customers->pluck('id'))->sum('total_kg')),
-        //         'trs_m3_new_customer'    =>    $this->m3($transport_orders->whereIn('payment_customer_id', $new_customers->pluck('id'))->sum('total_m3')),
-        //         'trs_kg_old_customer'    =>    $this->kg($transport_orders->whereIn('payment_customer_id', $old_customers->pluck('id'))->sum('total_kg')),
-        //         'trs_m3_old_customer'    =>    $this->m3($transport_orders->whereIn('payment_customer_id', $old_customers->pluck('id'))->sum('total_m3')),
-        //         'trs_kg_all_customer'    =>    $this->kg($transport_orders->sum('total_kg')),
-        //         'trs_m3_all_customer'    =>    $this->m3($transport_orders->sum('total_m3')),
-        //         'trs_amount_new_customer'    =>   number_format($transport_orders->whereIn('payment_customer_id', $new_customers->pluck('id'))->sum('amount'), 0, '.', ''),
-        //         'trs_amount_old_customer'    =>   number_format($transport_orders->whereIn('payment_customer_id', $old_customers->pluck('id'))->sum('amount'), 0, '.', ''),
-        //         'trs_amount_all_customer'    =>   number_format($transport_orders->sum('amount'), 0, '.', ''),
-        //         'employee_salary'    =>    0,
-        //         'employee_working_point'    =>  0
-        //     ];
+            $data = [
+                'report_id'    =>    $report->id,
+                'user_id'    =>    $employee->id,
+                'new_customer_ids'  =>  json_encode($new_customers->pluck('id')),
+                'old_customer_ids'  =>  json_encode($old_customers->pluck('id')),
+                'new_customer'    =>    $new_customers->count(),
+                'old_customer'    =>    $old_customers->count(),
+                'all_customer'    =>    $all_customers->count(),
+                'owed_wallet_new_customer'    =>  $this->wallet($new_customers->get()),
+                'owed_wallet_old_customer'    =>  $this->wallet($old_customers->get()),
+                'owed_wallet_all_customer'    =>  $this->wallet($all_customers->get()),
+                'po_success'    =>    $po_success->count(),
+                'po_success_all_customer'    =>  $this->amount($po_success),
+                'po_success_old_customer'    =>  $this->amount($po_success->whereIn('customer_id', $old_customers->pluck('id'))),
+                'po_success_new_customer'    =>     $this->amount($po_success->whereIn('customer_id', $new_customers->pluck('id'))),
+                'po_success_service_fee'    =>  $this->serviceFee($po_success),
+                'po_success_total_rmb'    =>    $this->amount($po_success, true, "rmb"),
+                'po_success_offer'    =>    $this->offer($po_success),
+                'po_not_success'    =>    $po_not_success->count(),
+                'po_not_success_all_customer'    =>    $this->amount($po_not_success),
+                'po_not_success_old_customer'    =>    $this->amount($po_not_success->whereIn('customer_id', $old_customers->pluck('id'))),
+                'po_not_success_new_customer'    =>    $this->amount($po_not_success->whereIn('customer_id', $new_customers->pluck('id'))),
+                'po_not_success_service_fee'     =>    $this->serviceFee($po_not_success),
+                'po_not_success_owed'    =>    $this->owed($po_not_success),
+                'po_not_success_deposited'   =>  $this->deposited($po_not_success),
+                'transport_order'    =>    $transport_orders->count(),
+                'trs_kg_new_customer'    =>    $this->kg($transport_orders->whereIn('payment_customer_id', $new_customers->pluck('id'))->sum('total_kg')),
+                'trs_m3_new_customer'    =>    $this->m3($transport_orders->whereIn('payment_customer_id', $new_customers->pluck('id'))->sum('total_m3')),
+                'trs_kg_old_customer'    =>    $this->kg($transport_orders->whereIn('payment_customer_id', $old_customers->pluck('id'))->sum('total_kg')),
+                'trs_m3_old_customer'    =>    $this->m3($transport_orders->whereIn('payment_customer_id', $old_customers->pluck('id'))->sum('total_m3')),
+                'trs_kg_all_customer'    =>    $this->kg($transport_orders->sum('total_kg')),
+                'trs_m3_all_customer'    =>    $this->m3($transport_orders->sum('total_m3')),
+                'trs_amount_new_customer'    =>   number_format($transport_orders->whereIn('payment_customer_id', $new_customers->pluck('id'))->sum('amount'), 0, '.', ''),
+                'trs_amount_old_customer'    =>   number_format($transport_orders->whereIn('payment_customer_id', $old_customers->pluck('id'))->sum('amount'), 0, '.', ''),
+                'trs_amount_all_customer'    =>   number_format($transport_orders->sum('amount'), 0, '.', ''),
+                'employee_salary'    =>    0,
+                'employee_working_point'    =>  0
+            ];
 
-        //     $res = SaleSalaryModel::create($data);
+            $res = SaleSalaryModel::create($data);
 
-        //     // fetch detail
-        //     SaleSalaryDetail::where('sale_salary_id', $res->id)->delete();
+            // fetch detail
+            SaleSalaryDetail::where('sale_salary_id', $res->id)->delete();
 
-        //     $customers = User::whereIn('id', $employee->saleCustomers()->pluck('id'))
-        //     ->with('purchaseOrders')
-        //     ->with('paymentOrders')
-        //     ->get();
+            $customers = User::whereIn('id', $employee->saleCustomers()->pluck('id'))
+            ->with('purchaseOrders')
+            ->with('paymentOrders')
+            ->get();
             
-        //     foreach ($customers as $customer) {
+            foreach ($customers as $customer) {
 
-        //         $po_success = $customer->purchaseOrders()->whereStatus(9)
-        //         ->whereBetween('success_at', [$begin, $finish])
-        //         ->with('items')
-        //         ->get();
+                $po_success = $customer->purchaseOrders()->whereStatus(9)
+                ->whereBetween('success_at', [$begin, $finish])
+                ->with('items')
+                ->get();
 
-        //         $po_not_success = $customer->purchaseOrders()->whereIn('status', [4, 5, 7])
-        //         ->with('items')
-        //         ->get();
+                $po_not_success = $customer->purchaseOrders()->whereIn('status', [4, 5, 7])
+                ->with('items')
+                ->get();
                 
-        //         $transport_orders = $customer->paymentOrders()->whereStatus('payment_export')
-        //         ->whereBetween('export_at', [$begin, $finish])
-        //         ->with('transportCode')
-        //         ->get();
+                $transport_orders = $customer->paymentOrders()->whereStatus('payment_export')
+                ->whereBetween('export_at', [$begin, $finish])
+                ->with('transportCode')
+                ->get();
 
-        //         $fetch = [
-        //             'sale_salary_id'    =>  $res->id,
-        //             'customer_id'   =>  $customer->id,
-        //             'wallet'    =>  number_format($customer->wallet, 0, '.', ''),
-        //             'po_success'    =>  $po_success->count(),
-        //             'po_payment'    =>  $this->amount($po_success),
-        //             'po_service_fee'    =>  $this->serviceFee($po_success),
-        //             'po_rmb'    =>  $this->amount($po_success, true, "rmb"),
-        //             'po_offer'    =>  $this->offer($po_success),
-        //             'po_not_success'    =>  $po_not_success->count(),
-        //             'po_not_success_payment'    =>   $this->amount($po_not_success),
-        //             'po_not_success_service_fee'    =>  $this->serviceFee($po_not_success),
-        //             'po_not_success_deposite'    =>  $this->deposited($po_not_success),
-        //             'po_not_success_owed'    =>  $this->owed($po_not_success),
-        //             'trs'    =>  $transport_orders->count(),
-        //             'trs_kg'    =>  $this->kg($transport_orders->sum('total_kg')),
-        //             'trs_m3'    =>  $this->m3($transport_orders->sum('total_m3')),
-        //             'trs_payment'    =>  number_format($transport_orders->sum('amount'), 0, '.', ''),
-        //         ];
+                $fetch = [
+                    'sale_salary_id'    =>  $res->id,
+                    'customer_id'   =>  $customer->id,
+                    'wallet'    =>  number_format($customer->wallet, 0, '.', ''),
+                    'po_success'    =>  $po_success->count(),
+                    'po_payment'    =>  $this->amount($po_success),
+                    'po_service_fee'    =>  $this->serviceFee($po_success),
+                    'po_rmb'    =>  $this->amount($po_success, true, "rmb"),
+                    'po_offer'    =>  $this->offer($po_success),
+                    'po_not_success'    =>  $po_not_success->count(),
+                    'po_not_success_payment'    =>   $this->amount($po_not_success),
+                    'po_not_success_service_fee'    =>  $this->serviceFee($po_not_success),
+                    'po_not_success_deposite'    =>  $this->deposited($po_not_success),
+                    'po_not_success_owed'    =>  $this->owed($po_not_success),
+                    'trs'    =>  $transport_orders->count(),
+                    'trs_kg'    =>  $this->kg($transport_orders->sum('total_kg')),
+                    'trs_m3'    =>  $this->m3($transport_orders->sum('total_m3')),
+                    'trs_payment'    =>  number_format($transport_orders->sum('amount'), 0, '.', ''),
+                ];
 
-        //         SaleSalaryDetail::create($fetch);
-        //     }
+                SaleSalaryDetail::create($fetch);
+            }
 
-        // }
+        }
 
         ScheduleLog::create([
             'name'  =>  'update sale salary '
