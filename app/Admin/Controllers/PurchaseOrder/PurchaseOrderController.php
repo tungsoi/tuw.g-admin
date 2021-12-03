@@ -521,7 +521,7 @@ class PurchaseOrderController extends AdminController
                         $actions->disableDelete();
                     }
                 } else if (Admin::user()->isRole('order_employee') || Admin::user()->isRole('ar_employee')) {
-                    if (! in_array($this->row->status, [2, 4])) {
+                    if (! in_array($this->row->status, [2, 4, 5])) {
                         $actions->disableDelete();
                     }
                 } else if (Admin::user()->isRole('administrator')) {
