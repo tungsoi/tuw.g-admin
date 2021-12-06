@@ -20,6 +20,8 @@ use Encore\Admin\Layout\Content;
 use Illuminate\Support\Facades\DB;
 
 Use Encore\Admin\Widgets\Table;
+use Illuminate\Http\Request;
+
 class SaleReportController extends AdminController
 {
     /**
@@ -369,164 +371,445 @@ EOT
     }
 
     public function detechGrid($id) {
-        $grid = new Grid(new ReportDetail());
-        $grid->model()->where('sale_report_id', $id)
-        ->orderBy(DB::raw("`success_order_payment` + `processing_order_payment`"), 'desc');
-
-        $grid->header(function () use ($id) {
-            $html = Report::find($id)->title;
-            return "<h3 style='text-transform: uppercase;'>Phân tích hiệu quả trên / " . $html . "</h3>";
-        });
-
-        $grid->filter(function($filter) {
-            $filter->expand();
-            $filter->disableIdFilter();
-            $filter->column(1/2, function ($filter) {
-                $filter->where(function ($query) {
-                    $ids = SystemTeamSale::find($this->input)->members;
-                    $query->whereIn('user_id', $ids);
-                }, 'Team Sale', 'team_sale')->select(SystemTeamSale::all()->pluck('name', 'id'));
-            });
+        $report = Report::find($id);
+        if ($report->status == 0) {
             
-            $filter->column(1/2, function ($filter) {
-                $service = new UserService();
-    
-                $filter->equal('user_id', 'Nhân viên kinh doanh')->select($service->GetListSaleEmployee());
+            $grid = new Grid(new ReportDetail());
+            $grid->model()->where('sale_report_id', $id)
+            ->orderBy(DB::raw("`success_order_payment` + `processing_order_payment`"), 'desc');
+
+            $grid->header(function () use ($id) {
+                $html = Report::find($id)->title;
+                return "<h3 style='text-transform: uppercase;'>Phân tích hiệu quả trên / " . $html . "</h3>";
             });
-           
-        });
 
-        $grid->rows(function (Grid\Row $row) {
-            $row->column('number', ($row->number+1));
-        });
-        $grid->column('number', 'STT');
-        $grid->user_id('NHÂN VIÊN KINH DOANH')->display(function () {
-            $html = User::find($this->user_id)->name;
-            $html .= "<br> " . User::find($this->user_id)->created_at;
-
-            return $html;
-        });
-        $grid->order_number('Mã đơn hàng được tính')
-        ->display(function () {
-            if ($this->order_number == "") {
-                return 0;
-            }
-            $arr = explode(",", $this->order_number);
-            return sizeof($arr);
-        })
-        ->expand(function ($model) {
-            $arr = explode(",", $this->order_number);
-
-            $info = [];
-            foreach ($arr as $key => $value) {
-                $info[] = [
-                    $key+1,
-                    $value
-                ];
-            }
+            $grid->filter(function($filter) {
+                $filter->expand();
+                $filter->disableIdFilter();
+                $filter->column(1/2, function ($filter) {
+                    $filter->where(function ($query) {
+                        $ids = SystemTeamSale::find($this->input)->members;
+                        $query->whereIn('user_id', $ids);
+                    }, 'Team Sale', 'team_sale')->select(SystemTeamSale::all()->pluck('name', 'id'));
+                });
+                
+                $filter->column(1/2, function ($filter) {
+                    $service = new UserService();
         
-            return new Table(['STT', 'Mã đơn'], $info);
-        })->style('width: 100px; text-align: center;');
-        $grid->success_order_service_fee('DOANH THU PHÍ DỊCH VỤ <br> (1)')->display(function () {
-           $html = number_format($this->amount_percent_service);
-           return "<span class='data-used'>".$html."</span>";
-        })->style('text-align: right');
+                    $filter->equal('user_id', 'Nhân viên kinh doanh')->select($service->GetListSaleEmployee());
+                });
+            
+            });
 
-        $grid->total_transport_fee('DOANH THU VẬN TẢI <br> (2)')->display(function () {
-            $total = $this->total_transport_fee;
-            $person = ($total * 0.1);
-
-            return "<span class='data-used'>".number_format($person)."</span>"
-             . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 10% tổng tiền doanh thu vận tải </i>";
-        })->style('text-align: right');
-
-        $grid->success_order_payment_rmb('DOANH THU TỶ GIÁ <br> (3)')->display(function () {
-            $total = $this->amount_exchange_rate;
-            $person = ($total * 30);
-
-            return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 30 * tổng tiền tệ đơn hàng </i>";
-        })->style('text-align: right');
-        $grid->offer_cn('Lợi nhuận đàm phán <br> (4)')->display(function () {
-            $total = $this->amount_offer_vn;
-            $person = $total * 0.85;
-            return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 85% tổng tiền đám phán đơn hàng </i>";
-        })->style('text-align: right');
-        $grid->success_order_new_customer("TỔNG DOANH THU <br> (5 = 1 + 2 + 3 + 4)")->display(function () {
-            $service_fee = $this->amount_percent_service;
-            $transport_payment = $this->total_transport_fee * 0.1;
-            $exchange_rate_payment = ($this->amount_exchange_rate) * 30;
-            $total = $this->amount_offer_vn;
-            $person = $total * 0.85;
-
-            $html = number_format(
-                $service_fee
-                + $transport_payment
-                + $exchange_rate_payment
-                + $person
-            );
-
-            return "<span class='data-used'>".$html."</span>";
-        })->style('text-align: right; color: green;')->label('success');
-
-        $grid->t9_pdv('PDV đơn cọc T9, thành công T10 <br> (6)')->display(function () {
-            $html = number_format($this->t9_pdv);
-           return "<span class='data-used'>".$html."</span>";
-        });
-
-        $grid->salary("TIỀN LƯƠNG THỰC NHẬN <br> (7)")->display(function () {
-            if ($this->salary == null) {
-                $salary = 0;
-            } else {
-                $salary = $this->salary;
-            }
-            return number_format($salary);
-        })->editable()->style('text-align: right');
-
-        $grid->success_order_payment_new_customer("HIỆU QUẢ SAU TRỪ LƯƠNG <br> (8 = 5 - 6 - 7)")->display(function () {
-            if ($this->salary != 0) {
+            $grid->rows(function (Grid\Row $row) {
+                $row->column('number', ($row->number+1));
+            });
+            $grid->column('number', 'STT');
+            $grid->user_id('NHÂN VIÊN KINH DOANH')->display(function () {
+                $html = User::find($this->user_id)->name;
+                $html .= "<br> " . User::find($this->user_id)->created_at;
+    
+                return $html;
+            });
+            $grid->order_number('Mã đơn hàng được tính')
+            ->display(function () {
+                if ($this->order_number == "") {
+                    return 0;
+                }
+                $arr = explode(",", $this->order_number);
+                return sizeof($arr);
+            })
+            ->expand(function ($model) {
+                $arr = explode(",", $this->order_number);
+    
+                $info = [];
+                foreach ($arr as $key => $value) {
+                    $info[] = [
+                        $key+1,
+                        $value
+                    ];
+                }
+            
+                return new Table(['STT', 'Mã đơn'], $info);
+            })->style('width: 100px; text-align: center;');
+            $grid->success_order_service_fee('DOANH THU PHÍ DỊCH VỤ <br> (1)')->display(function () {
+               $html = number_format($this->amount_percent_service);
+               return "<span class='data-used'>".$html."</span>";
+            })->style('text-align: right');
+    
+            $grid->total_transport_fee('DOANH THU VẬN TẢI <br> (2)')->display(function () {
+                $total = $this->total_transport_fee;
+                $person = ($total * 0.1);
+    
+                return "<span class='data-used'>".number_format($person)."</span>"
+                 . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 10% tổng tiền doanh thu vận tải </i>";
+            })->style('text-align: right');
+    
+            $grid->success_order_payment_rmb('DOANH THU TỶ GIÁ <br> (3)')->display(function () {
+                $total = $this->amount_exchange_rate;
+                $person = ($total * 30);
+    
+                return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 30 * tổng tiền tệ đơn hàng </i>";
+            })->style('text-align: right');
+            $grid->offer_cn('Lợi nhuận đàm phán <br> (4)')->display(function () {
+                $total = $this->amount_offer_vn;
+                $person = $total * 0.85;
+                return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 85% tổng tiền đám phán đơn hàng </i>";
+            })->style('text-align: right');
+            $grid->success_order_new_customer("TỔNG DOANH THU <br> (5 = 1 + 2 + 3 + 4)")->display(function () {
                 $service_fee = $this->amount_percent_service;
                 $transport_payment = $this->total_transport_fee * 0.1;
                 $exchange_rate_payment = ($this->amount_exchange_rate) * 30;
                 $total = $this->amount_offer_vn;
                 $person = $total * 0.85;
-
-                $total = (
+    
+                $html = number_format(
                     $service_fee
                     + $transport_payment
                     + $exchange_rate_payment
                     + $person
                 );
-
+    
+                return "<span class='data-used'>".$html."</span>";
+            })->style('text-align: right; color: green;')->label('success');
+    
+            $grid->t9_pdv('PDV đơn cọc T9, thành công T10 <br> (6)')->display(function () {
+                $html = number_format($this->t9_pdv);
+               return "<span class='data-used'>".$html."</span>";
+            });
+    
+            $grid->salary("TIỀN LƯƠNG THỰC NHẬN <br> (7)")->display(function () {
                 if ($this->salary == null) {
                     $salary = 0;
                 } else {
                     $salary = $this->salary;
                 }
-                
-                $res = $total - $salary - $this->t9_pdv;
-                if ($res < 0) {
-                    $label = 'danger';
-                } else {
-                    $label = 'primary';
+                return number_format($salary);
+            })->editable()->style('text-align: right');
+    
+            $grid->success_order_payment_new_customer("HIỆU QUẢ SAU TRỪ LƯƠNG <br> (8 = 5 - 6 - 7)")->display(function () {
+                if ($this->salary != 0) {
+                    $service_fee = $this->amount_percent_service;
+                    $transport_payment = $this->total_transport_fee * 0.1;
+                    $exchange_rate_payment = ($this->amount_exchange_rate) * 30;
+                    $total = $this->amount_offer_vn;
+                    $person = $total * 0.85;
+    
+                    $total = (
+                        $service_fee
+                        + $transport_payment
+                        + $exchange_rate_payment
+                        + $person
+                    );
+    
+                    if ($this->salary == null) {
+                        $salary = 0;
+                    } else {
+                        $salary = $this->salary;
+                    }
+                    
+                    $res = $total - $salary - $this->t9_pdv;
+                    if ($res < 0) {
+                        $label = 'danger';
+                    } else {
+                        $label = 'primary';
+                    }
+    
+                    return "<span class='label label-".$label."'>"."<span class='data-used'>".number_format($res)."</span>"."</span>";
                 }
+    
+                return "<span style='color:red'>Chưa điền tiền lương</span>";
+            })->style('text-align: right');
 
-                return "<span class='label label-".$label."'>"."<span class='data-used'>".number_format($res)."</span>"."</span>";
-            }
 
-            return "<span style='color:red'>Chưa điền tiền lương</span>";
-        })->style('text-align: right');
+            Admin::script($this->script());
+            
+        } else {
+            $grid = new Grid(new SaleSalary());
+            $grid->model()->whereReportId($id);
+
+            $grid->header(function () use ($id) {
+                $html = Report::find($id)->title;
+                return "<h3 style='text-transform: uppercase;'>Phân tích hiệu quả trên / " . $html . "</h3>";
+            });
+
+            $grid->filter(function($filter) {
+                $filter->expand();
+                $filter->disableIdFilter();
+                $filter->column(1/2, function ($filter) {
+                    $filter->where(function ($query) {
+                        $ids = SystemTeamSale::find($this->input)->members;
+                        $query->whereIn('user_id', $ids);
+                    }, 'Team Sale', 'team_sale')->select(SystemTeamSale::all()->pluck('name', 'id'));
+                });
+                
+                $filter->column(1/2, function ($filter) {
+                    $service = new UserService();
         
+                    $filter->equal('user_id', 'Nhân viên kinh doanh')->select($service->GetListSaleEmployee());
+                });
+            
+            });
 
+            $grid->rows(function (Grid\Row $row) {
+                $row->column('number', ($row->number+1));
+            });
+            $grid->column('number', 'STT');
+            $grid->user_id('NHÂN VIÊN KINH DOANH')->display(function () {
+                $html = $this->employee->name;
+                $html .= "<br>";
+                $html .= date('H:i d-m-Y', strtotime($this->employee->created_at));
+
+                return $html;
+            });$grid->order_number('Mã đơn hàng được tính')
+            ->display(function () {
+                return $this->po_success;
+            })->style('width: 100px; text-align: center;');
+            $grid->success_order_service_fee('DOANH THU PHÍ DỊCH VỤ (1)')->display(function () {
+                $html = number_format($this->po_success_service_fee);
+                return "<span class='data-used'>".$html."</span>";
+            })->style('text-align: right');
+            $grid->total_transport_fee('DOANH THU VẬN TẢI <br> (2)')->display(function () {
+                $total = $this->trs_amount_all_customer;
+                $person = ($total * 0.1);
+    
+                return "<span class='data-used'>".number_format($person)."</span>"
+                 . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 10% tổng tiền doanh thu vận tải </i>";
+            })->style('text-align: right');
+
+            $grid->success_order_payment_rmb('DOANH THU TỶ GIÁ <br> (3)')->display(function () {
+                $total = $this->po_success_total_rmb;
+                $person = ($total * 30);
+    
+                return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 30 * tổng tiền tệ đơn hàng </i>";
+            })->style('text-align: right');
+
+            $grid->offer_cn('Lợi nhuận đàm phán <br> (4)')->display(function () {
+                $total = $this->po_success_offer;
+                $person = $total * 0.85;
+                return "<span class='data-used'>". number_format($person)."</span>" . " <br> <span style='color:red'>(".number_format($total).")</span> <br> <i> 85% tổng tiền đám phán đơn hàng </i>";
+            })->style('text-align: right');
+
+            $grid->success_order_new_customer("TỔNG DOANH THU <br> (5 = 1 + 2 + 3 + 4)")->display(function () {
+                $service_fee = $this->po_success_service_fee;
+                $transport_payment = $this->trs_amount_all_customer * 0.1;
+                $exchange_rate_payment = ($this->po_success_total_rmb) * 30;
+                $total = $this->po_success_offer;
+                $person = $total * 0.85;
+    
+                $html = number_format(
+                    $service_fee
+                    + $transport_payment
+                    + $exchange_rate_payment
+                    + $person
+                );
+    
+                return "<span class='data-used'>".$html."</span>";
+            })->style('text-align: right; color: green;')->label('success');
+            $grid->t9_pdv('PDV đơn cọc T9, thành công T10 <br> (6)')->display(function () {
+                // $html = number_format($this->t9_pdv);
+                $html = 0;
+               return "<span class='data-used'>".$html."</span>";
+            });
+            $grid->salary("TIỀN LƯƠNG THỰC NHẬN <br> (7)")->display(function () {
+                if ($this->employee_salary == null) {
+                    $employee_salary = 0;
+                } else {
+                    $employee_salary = $this->employee_salary;
+                }
+                return number_format($employee_salary);
+            })->editable()->style('text-align: right');
+    
+            $grid->success_order_payment_new_customer("HIỆU QUẢ SAU TRỪ LƯƠNG <br> (8 = 5 - 6 - 7)")->display(function () {
+                if ($this->salary != 0) {
+                    $service_fee = $this->po_success_service_fee;
+                    $transport_payment = $this->trs_amount_all_customer * 0.1;
+                    $exchange_rate_payment = ($this->po_success_total_rmb) * 30;
+                    $total = $this->po_success_offer;
+                    $person = $total * 0.85;
+    
+                    $total = (
+                        $service_fee
+                        + $transport_payment
+                        + $exchange_rate_payment
+                        + $person
+                    );
+    
+                    if ($this->employee_salary == null) {
+                        $employee_salary = 0;
+                    } else {
+                        $employee_salary = $this->employee_salary;
+                    }
+                    
+                    $res = $total - $employee_salary - $this->t9_pdv;
+                    if ($res < 0) {
+                        $label = 'danger';
+                    } else {
+                        $label = 'primary';
+                    }
+    
+                    return "<span class='label label-".$label."'>"."<span class='data-used'>".number_format($res)."</span>"."</span>";
+                }
+    
+                return "<span style='color:red'>Chưa điền tiền lương</span>";
+            })->style('text-align: right');
+
+
+            Admin::script($this->script2());
+        }
+    
         $grid->paginate(50);
         $grid->disableBatchActions();
         $grid->disableCreateButton();
         $grid->disableActions();
 
-        Admin::script($this->script());
-
         return $grid;
+        
     }
 
+    public function script2() {
+        $route = route('admin.sale_salary_details.index');
+
+        return <<<SCRIPT
+            $('.column-salary a').each(function () {
+                $(this).attr('data-url', "{$route}" + "/" + $(this).attr('data-pk'));
+            });
+            $( document ).ready(function() {
+    
+                $(document).on('click', '.editable-submit', function () {
+                    // setTimeout(function () {
+                    //     window.location.reload();
+                    // }, 500);
+                });
+
+                // % row
+                $('table').prepend(
+                    '<tfoot style="text-align: right"><tr>'
+                    + '<td colspan="2">Tiền đã tính % theo điều kiện</td>'
+                    + '<td><span id="order">0</span></td>'
+                    + '<td><span id="service-fee-total">0</span></td>'
+                    + '<td><span id="transport-fee-total">0</span></td>'
+                    + '<td><span id="exchange-fee-total">0</span></td>'
+                    + '<td><span id="offer-fee-total">0</span></td>'
+                    + '<td><span id="amount-fee-total">0</span></td>'
+                    + '<td><span id="t9-pdv-fee-total">0</span></td>'
+                    + '<td><span id="salary-fee-total">0</span></td>'
+                    + '<td><span id="payment-fee-total">0</span></td>'
+                    + '</tr></tfoot>'
+                );
+
+                getTotalHtml("column-success_order_service_fee", "service-fee-total", true);
+                getTotalHtml("column-t9_pdv", "t9-pdv-fee-total", true);
+                getTotalHtml("column-total_transport_fee", "transport-fee-total", true);
+                getTotalHtml("column-success_order_payment_rmb", "exchange-fee-total", true);
+                getTotalHtml("column-success_order_new_customer", "amount-fee-total", true);
+                getTotalHtml("column-salary", "salary-fee-total", false);
+                getTotalHtml("column-offer_cn", "offer-fee-total", true);
+
+                // getTotalHtml("column-success_order_payment_new_customer", "payment-fee-total", true);
+
+                function getTotalHtml(column_class, element_append_id, editable = true) {
+                    let ele = null;
+                    if (editable == true) {
+                        console.log('oke');
+                        ele = $('tbody .' + column_class + ' .data-used');
+                    } else {
+                        ele = $('tbody .' + column_class + ' a.editable');
+                    }
+                    let total = 0;
+
+                    if (ele != null) {
+                        ele.each( function( i, el ) {
+                            var elem = $( el );
+                            let html = $.trim(elem.html());
+
+                            html = html.replace(/\,/g, '');
+                            html = parseInt(html);
+        
+                            total += html;
+                        });
+
+                        if (element_append_id != "") {
+                            console.log(total);
+                            $("#"+ element_append_id).html(number_format(total));
+                        } 
+                    }
+
+                    return total;
+                }
+
+                let final_total = $('#amount-fee-total').html();
+                final_total = final_total.replace(/\,/g, '');
+                final_total = parseInt(final_total);
+
+                let final_pdv_t9 = $("#t9-pdv-fee-total").html();
+                final_pdv_t9 = final_pdv_t9.replace(/\,/g, '');
+                final_pdv_t9 = parseInt(final_pdv_t9);
+
+                let final_salary = $('#salary-fee-total').html();
+                final_salary = final_salary.replace(/\,/g, '');
+                final_salary = parseInt(final_salary);
+
+                let owed = final_total - final_pdv_t9 - final_salary;
+
+                $("#payment-fee-total").html(number_format(owed));
+                console.log(final_total, "final_total");
+
+                // total row
+                $('table').prepend(
+                    '<tfoot style="text-align: right; background: orange !important;"><tr>'
+                    + '<td colspan="2">Tổng tiền các mục</td>'
+                    + '<td><span id="order">0</span></td>'
+                    + '<td><span id="portal_service-fee-total">0</span></td>'
+                    + '<td><span id="portal_transport-fee-total">0</span></td>'
+                    + '<td><span id="portal_exchange-fee-total">0</span></td>'
+                    + '<td><span id="portal_offer-fee-total">0</span></td>'
+                    + '<td><span id="portal_amount-fee-total">0</span></td>'
+                    + '<td><span id="portal_t9-pdv-fee-total">0</span></td>'
+                    + '<td><span id="portal_salary-fee-total">0</span></td>'
+                    + '<td><span id="portal_payment-fee-total">0</span></td>'
+                    + '</tr></tfoot>'
+                );
+
+                getTotalHtml("column-success_order_service_fee", "service-fee-total", true);
+                getTotalHtml("column-success_order_service_fee", "portal_service-fee-total", true);
+
+                let per_transport_fee_total = parseInt($('#transport-fee-total').html().replace(/\,/g, ''));
+                $('#portal_transport-fee-total').html(number_format(per_transport_fee_total / 10 * 100));
+
+                let per_exchange_fee_total = parseInt($('#exchange-fee-total').html().replace(/\,/g, ''));
+                $('#portal_exchange-fee-total').html(number_format(per_exchange_fee_total / 30) + " (Tệ)");
+
+
+                let per_offer_fee_total = parseInt($('#offer-fee-total').html().replace(/\,/g, ''));
+                $('#portal_offer-fee-total').html(number_format(per_offer_fee_total / 85 * 100));
+
+                function number_format(number, decimals, dec_point, thousands_sep) {
+                    // Strip all characters but numerical ones.
+                    number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+                    var n = !isFinite(+number) ? 0 : +number,
+                        prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                        sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+                        dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+                        s = '',
+                        toFixedFix = function (n, prec) {
+                            var k = Math.pow(10, prec);
+                            return '' + Math.round(n * k) / k;
+                        };
+                    // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+                    s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+                    if (s[0].length > 3) {
+                        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+                    }
+                    if ((s[1] || '').length < prec) {
+                        s[1] = s[1] || '';
+                        s[1] += new Array(prec - s[1].length + 1).join('0');
+                    }
+                    return s.join(dec);
+                }
+            });
+SCRIPT;
+    }
 
     public function script() {
         $route = route('admin.revenue_reports.index');

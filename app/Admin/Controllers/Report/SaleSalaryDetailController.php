@@ -15,6 +15,7 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Grid;
 use Illuminate\Support\Facades\DB;
+use Encore\Admin\Form;
 
 class SaleSalaryDetailController extends AdminController
 {
@@ -71,7 +72,13 @@ class SaleSalaryDetailController extends AdminController
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT')->style('text-align: center');
-        $grid->customer()->symbol_name('Mã khách hàng');
+        $grid->customer_id('Mã khách hàng')->display(function () {
+            $html = $this->customer->symbol_name;
+            $html .= "<br>";
+            $html .= date('H:i | d-m-Y', strtotime($this->customer->created_at));
+
+            return $html;
+        });
         $grid->wallet('Số dư')
         ->display(function ($value) {
             $amount = number_format($value);
@@ -207,4 +214,25 @@ SCRIPT;
     }
 
 
+    /**
+     * Make a form builder.
+     *
+     * @return Form
+     */
+    protected function form()
+    {
+        $form = new Form(new SaleSalary());
+
+        $form->text('employee_salary');
+
+        $form->disableEditingCheck();
+        $form->disableCreatingCheck();
+        $form->disableViewCheck();
+
+        $form->saving(function (Form $form) {
+            $form->employee_salary = str_replace(",", "", $form->employee_salary);
+        });
+
+        return $form;
+    }
 }
