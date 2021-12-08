@@ -44,7 +44,7 @@
                 <input type="text" name="note[]" class="form-control">
             </td>
         </tr>
-        <tr>
+        <tr class="empty-row">
             <td>
                 <input type="text" name="order[]" class="form-control" value="1">
             </td>
@@ -76,9 +76,13 @@
 
 <button class="btn btn-xs btn-success" id="btn-add-row" type="button">Thêm dòng</button>
 
+<hr>
+
+<button class="btn btn-xs btn-success" id="btn-submit" type="button">Xác nhận</button>
+
 <script>
 
-    let order = 2;
+    let order = $('tr.empty-row').length+1;
     $(document).on('click', '#btn-add-row', function () {
         let default_row = $('.default-row').clone();
 
@@ -86,5 +90,21 @@
         default_row.removeClass('default-row');
         default_row.find('.order').val(order++);
         $('#table-warehouse tbody').append(default_row);
+    });
+
+    $(document).on('keydown', function(e) {
+        if (e.which == 13) 
+        {
+            let default_row = $('.default-row').clone();
+
+            default_row.css('display', 'table-row');
+            default_row.removeClass('default-row');
+            default_row.find('.order').val(order++);
+            $('#table-warehouse tbody').append(default_row);
+        }
+    });
+
+    $("#btn-submit").on('click', function () {
+        $("form").submit();
     });
 </script>

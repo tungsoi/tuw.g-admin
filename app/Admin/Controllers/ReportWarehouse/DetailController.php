@@ -49,13 +49,17 @@ class DetailController extends AdminController
         $grid->column('date',"Ngày về kho")->width(150)->editable();
         $grid->column('order',"STT")->width(64)->editable();
         $grid->column('title', "Ký hiệu")->width(138)->editable();
-        $grid->column('weight',"Cân nặng")->width(121)->editable()->totalRow();
+        $grid->column('weight',"Cân nặng")->width(121)->editable()->totalRow(function ($amount) {
+            return number_format($amount);
+        });
         $grid->column('lenght','Dài (cm)')->width(150)->editable();
         $grid->column('width','Rộng (cm)')->width(150)->editable();
         $grid->column('height','Cao (cm)')->width(150)->editable();
         $grid->column('cublic_meter', 'Mét khối')->width(150)->display(function () {
             return str_replace('.0000','', $this->cublic_meter);
-        })->editable()->totalRow();
+        })->editable()->totalRow(function ($amount) {
+            return number_format($amount, 4);
+        });
         $grid->column('line', 'Quy cách đóng gói')->width(100)->editable('select', ReportWarehouse::LINE);
         $grid->transport_route('Line vận chuyển')->editable('select', TransportLine::all()->pluck('code', 'id'));
         $grid->warehouse()->name('Kho nhận hàng');
@@ -143,6 +147,8 @@ EOT
         $form->disableEditingCheck();
         $form->disableCreatingCheck();
         $form->disableViewCheck();
+        $form->disableSubmit();
+        $form->disableReset();
 
         // callback before save
 
@@ -189,7 +195,7 @@ EOT
         }
 
         admin_toastr('Lưu thành công', 'success');
-        return redirect()->route('report_warehouses.index');
+        return redirect()->route('admin.report_warehouses.index');
     }
 
     public function updateDetail(Request $request) {
