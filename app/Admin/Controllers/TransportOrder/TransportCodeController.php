@@ -156,7 +156,21 @@ class TransportCodeController extends AdminController
                     $tools->append(new ImportChinaReceive());
                 }
             }
-            
+        });
+
+        $grid->header(function ($query) {
+            $code_kgs = TransportCode::where('transport_code', '!=', "")->where('payment_type', 1);
+            $code_m3s = TransportCode::where('transport_code', '!=', "")->where('payment_type', -1);
+
+            $html = "<h4>Số MVD thanh toán KG: <b>" . $code_kgs->count() ."</b>";
+            $html .= " - Tổng KG: <b>" . number_format($code_kgs->sum('kg'), 1, '.', ''). "</b>";
+            $html .= " - Tổng tiền thanh toán: <b>Chưa cập nhật</b> </h4>";
+
+            $html .= "<h4>Số MVD thanh toán M3: <b>" . $code_m3s->count() ."</b>";
+            $html .= " - Tổng M3: <b>" . number_format($code_m3s->sum('m3'), 1, '.', ''). "</b>";
+            $html .= " - Tổng tiền thanh toán: <b>Chưa cập nhật</b> </h4>";
+
+            return $html;
         });
 
         $grid->rows(function (Grid\Row $row) {
@@ -196,7 +210,7 @@ class TransportCodeController extends AdminController
             return $this->paymentOrder->paymentCustomer->symbol_name ?? "";
         });
         $grid->kg('Cân nặng (kg)')->totalRow(function ($amount) {
-            return number_format($amount, 2);
+            return number_format($amount, 1, '.', '');
         });
         $grid->length('Dài (cm)');
         $grid->width('Rộng (cm)');
@@ -206,8 +220,12 @@ class TransportCodeController extends AdminController
         });
         $grid->m3('M3')->display(function () {
             return number_format($this->m3, 3, '.', '');
-        })->totalRow();
+        })->totalRow(function ($amount) {
+            return number_format($amount, 3, '.', '');
+        });
+        
         $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
+        
         $grid->price_service('Giá vận chuyển')->display(function () {
             try {
                 if ($this->payment_type == 1 && $this->paymentOrder) {
@@ -221,9 +239,11 @@ class TransportCodeController extends AdminController
                 dd($e);
             }
         })->style('max-width: 100px');
+        
         $grid->payment_type('Loại thanh toán')->display(function () {
             return $this->paymentType();
         })->style('max-width: 100px');
+        
         $grid->amount('Tổng tiền')->display(function ()  {
             if ($this->payment_type == 1 && $this->paymentOrder) {
                 return number_format($this->paymentOrder->price_kg * $this->kg);
@@ -234,6 +254,7 @@ class TransportCodeController extends AdminController
             } 
             
         })->style('max-width: 100px');
+        
         $grid->china_receive_at('Về kho TQ')->display(function () {
             if ($this->china_receive_at != null) {
                 return date('H:i d-m-Y', strtotime($this->china_receive_at));
