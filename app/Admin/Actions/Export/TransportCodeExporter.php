@@ -14,6 +14,8 @@ class TransportCodeExporter extends AbstractExporter
 {
     public function export()
     {
+        ini_set("memory_limit","256M");
+
         Excel::create('DSMVD_'.date('Ymd', strtotime(now())), function($excel) {
 
             $excel->sheet('Sheet1', function(LaravelExcelWorksheet $sheet) {
@@ -23,8 +25,8 @@ class TransportCodeExporter extends AbstractExporter
                         return $code->id;
                     });
 
-                    $ids = array(1,4,5,3,0);
-                    $ids_ordered = implode(',', $ids);
+                    $selected_ids = array(1,4,5,3,0);
+                    $ids_ordered = implode(',', $selected_ids);
 
                     $codes = TransportCode::whereIn('id', $ids)
                         ->where('transport_code', '!=', "")
@@ -41,10 +43,11 @@ class TransportCodeExporter extends AbstractExporter
                     foreach ($codes as $key => $item) {
                         $rows[] = [
                             $key+1,
-                            $item->transport_code,
+                            strval($item->transport_code),
                             $item->paymentOrder->order_number ?? null,
                             $item->getOrdernNumberPurchase(),
                             $item->customer_code_input,
+                            $item->paymentOrder->paymentCustomer->symbol_name ?? "",
                             $item->kg,
                             $item->length,
                             $item->width,
@@ -53,14 +56,14 @@ class TransportCodeExporter extends AbstractExporter
                             $item->m3,
                             $item->advance_drag,
                             $this->price_service($item),
-                            $item->payment_type(),
+                            $item->paymentType(),
                             $this->amount($item),
-                            $item->china_receive_at != "" ? date('H:i d-m-Y', strtotime($item->china_receive_at)) : "",
+                            $item->china_receive_at != "" ? date('H:i | d-m-Y', strtotime($item->china_receive_at)) : "",
                             $item->getUserAction(),
-                            $item->vietnam_receive_at != "" ? date('H:i d-m-Y', strtotime($item->vietnam_receive_at)) : "",
+                            $item->vietnam_receive_at != "" ? date('H:i | d-m-Y', strtotime($item->vietnam_receive_at)) : "",
                             $item->getUserAction(),
-                            $item->payment_at != "" ? date('H:i d-m-Y', strtotime($item->payment_at)) : "",
-                            $item->statusText->label,
+                            $item->payment_at != "" ? date('H:i | d-m-Y', strtotime($item->payment_at)) : "",
+                            $item->statusText->name,
                             $this->warehouse($item),
                             $item->admin_note
                         ];
@@ -68,7 +71,7 @@ class TransportCodeExporter extends AbstractExporter
 
                     array_unshift($rows, $this->header());
                     $sheet->rows($rows);
-                    $sheet->getStyle('A1:R1')->applyFromArray(array(
+                    $sheet->getStyle('A1:X1')->applyFromArray(array(
                         'font' => [
                             'bold' => true,
                             'size'      =>  13,
