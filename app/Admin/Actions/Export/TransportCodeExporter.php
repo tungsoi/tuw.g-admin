@@ -69,7 +69,6 @@ class TransportCodeExporter extends AbstractExporter
                         ];
                     }
 
-                    dd($rows);
                     array_unshift($rows, $this->header());
                     $sheet->rows($rows);
                     $sheet->getStyle('A1:X1')->applyFromArray(array(
