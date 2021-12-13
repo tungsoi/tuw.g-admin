@@ -136,7 +136,7 @@ class PurchaseOrder extends Model
             }   
         }
 
-        return $format ? str_replace(".00", "", number_format($total, 2)) : $total;
+        return $format ? str_replace(".00", "", number_format($total, 2, '.', '')) : $total;
     }
 
     public function sumShipFee($format = true) {
@@ -151,7 +151,7 @@ class PurchaseOrder extends Model
             }   
         }
 
-        return $format ? str_replace(".00", "", number_format($total, 2)) : $total;
+        return $format ? str_replace(".00", "", number_format($total, 2, '.', '')) : $total;
     }
 
     public function sumItemWeight() {
