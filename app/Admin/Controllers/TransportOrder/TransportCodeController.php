@@ -293,7 +293,9 @@ class TransportCodeController extends AdminController
 
         $grid->disableCreateButton();
 
-        if (! Admin::user()->isRole('administrator') || ! Admin::user()->isRole('ar_employee')) {
+        if (Admin::user()->isRole('administrator') || Admin::user()->isRole('ar_employee')) {
+            
+        } else {
             $grid->disableExport();
         }
         $grid->exporter(new TransportCodeExporter());
