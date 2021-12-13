@@ -84,7 +84,7 @@ class TransportCodeExporter extends AbstractExporter
                         )
                     ));
 
-                }, 1000);
+                });
 
             });
 
