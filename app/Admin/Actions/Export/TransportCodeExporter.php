@@ -45,7 +45,7 @@ class TransportCodeExporter extends AbstractExporter
                             $key+1,
                             strval($item->transport_code),
                             $item->paymentOrder->order_number ?? null,
-                            $item->getOrdernNumberPurchase(),
+                            // $item->getOrdernNumberPurchase(),
                             $item->customer_code_input,
                             $item->paymentOrder->paymentCustomer->symbol_name ?? "",
                             $item->kg,
@@ -69,6 +69,7 @@ class TransportCodeExporter extends AbstractExporter
                         ];
                     }
 
+                    dd($rows);
                     array_unshift($rows, $this->header());
                     $sheet->rows($rows);
                     $sheet->getStyle('A1:X1')->applyFromArray(array(
@@ -82,7 +83,7 @@ class TransportCodeExporter extends AbstractExporter
                         )
                     ));
 
-                });
+                }, 1000);
 
             });
 
@@ -113,7 +114,7 @@ class TransportCodeExporter extends AbstractExporter
             'STT', 
             'Mã vận đơn', 
             'Mã đơn hàng vận chuyển',
-            'Mã đơn hàng mua hộ',
+            // 'Mã đơn hàng mua hộ',
             'Mã khách hàng', 
             'Khách hàng thanh toán',
             'Cân nặng',
