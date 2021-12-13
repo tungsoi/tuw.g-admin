@@ -22,6 +22,7 @@ use App\Models\TransportOrder\TransportCode;
 use App\Models\TransportOrder\TransportCodeStatus;
 use App\User;
 use Encore\Admin\Grid;
+use App\Admin\Actions\Export\TransportCodeExporter;
 
 class TransportCodeController extends AdminController
 {
@@ -158,21 +159,6 @@ class TransportCodeController extends AdminController
             }
         });
 
-        $grid->header(function ($query) {
-            $code_kgs = TransportCode::where('transport_code', '!=', "")->where('payment_type', 1);
-            $code_m3s = TransportCode::where('transport_code', '!=', "")->where('payment_type', -1);
-
-            $html = "<h4>Số MVD thanh toán KG: <b>" . $code_kgs->count() ."</b>";
-            $html .= " - Tổng KG: <b>" . number_format($code_kgs->sum('kg'), 1, '.', ''). "</b>";
-            $html .= " - Tổng tiền thanh toán: <b>Chưa cập nhật</b> </h4>";
-
-            $html .= "<h4>Số MVD thanh toán M3: <b>" . $code_m3s->count() ."</b>";
-            $html .= " - Tổng M3: <b>" . number_format($code_m3s->sum('m3'), 1, '.', ''). "</b>";
-            $html .= " - Tổng tiền thanh toán: <b>Chưa cập nhật</b> </h4>";
-
-            return $html;
-        });
-
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
@@ -306,7 +292,11 @@ class TransportCodeController extends AdminController
         
 
         $grid->disableCreateButton();
-        $grid->disableExport();
+
+        if (! Admin::user()->isRole('administrator') || ! Admin::user()->isRole('ar_employee')) {
+            $grid->disableExport();
+        }
+        $grid->exporter(new TransportCodeExporter());
 
         if (Admin::user()->isRole('customer')) {
             $grid->disableBatchActions();
