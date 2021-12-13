@@ -37,6 +37,8 @@ class TransportCodeExporter extends AbstractExporter
                         ->with('paymentOrder')
                         ->with('warehouse')
                         ->with('statusText')
+                        ->with('chinaRevUser')
+                        ->with('vietnamRevUser')
                         ->get();
 
                     $rows = [];
@@ -59,9 +61,9 @@ class TransportCodeExporter extends AbstractExporter
                             $item->paymentType(),
                             $this->amount($item),
                             $item->china_receive_at != "" ? date('H:i | d-m-Y', strtotime($item->china_receive_at)) : "",
-                            $item->getUserAction(),
+                            $item->chinaRevUser->name ?? "",
                             $item->vietnam_receive_at != "" ? date('H:i | d-m-Y', strtotime($item->vietnam_receive_at)) : "",
-                            $item->getUserAction(),
+                            $item->vietnamRevUser->name ?? "",
                             $item->payment_at != "" ? date('H:i | d-m-Y', strtotime($item->payment_at)) : "",
                             $item->statusText->name,
                             $this->warehouse($item),
