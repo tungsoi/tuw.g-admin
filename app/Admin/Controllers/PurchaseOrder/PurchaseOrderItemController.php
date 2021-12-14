@@ -277,8 +277,12 @@ class PurchaseOrderItemController extends AdminController
             $grid->product_color('Màu')->style('text-align: right; max-width: 100px;')->editable();
         } else {
 
-            $grid->product_size('Kích thước')->style('text-align: right; max-width: 100px;');
-            $grid->product_color('Màu')->style('text-align: right; max-width: 100px;');
+            $grid->product_size('Kích thước')->style('text-align: right; max-width: 100px;')->display(function () {
+                return "{$this->product_size}";
+            });
+            $grid->product_color('Màu')->style('text-align: right; max-width: 100px;')->display(function () {
+                return "{$this->product_color}";
+            });
         }
 
         // trường hợp đang ở màn hình chi tiết đơn hàng mua hộ

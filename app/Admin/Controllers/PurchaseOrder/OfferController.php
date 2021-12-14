@@ -300,8 +300,8 @@ class OfferController extends AdminController
                 $amount = str_replace(",", "", $amount);
                 $final_payment = str_replace(",", "", $order->final_payment);
                 
-                $order->offer_cn = number_format($amount - $final_payment, 2);
-                $order->offer_vn = number_format(($amount - $final_payment) * $order->current_rate, 0);
+                $order->offer_cn = number_format($amount - $final_payment, 2, '.', '');
+                $order->offer_vn = number_format(($amount - $final_payment) * $order->current_rate, 0, '.', '');
                 $order->save();
             }
 
