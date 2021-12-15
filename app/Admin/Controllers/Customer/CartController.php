@@ -76,14 +76,22 @@ class CartController extends AdminController
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->shop_name("Tên Shop")->width(200)->sortable();
+        $grid->shop_name("Tên Shop")->width(200)->sortable()->display(function () {
+            return "{$this->shop_name}";
+        });
         $grid->product_image('Ảnh sản phẩm')->lightbox(['width' => 100, 'height' => 100])->width(120);
-        $grid->product_name("Tên sản phẩm")->width(200);
+        $grid->product_name("Tên sản phẩm")->width(200)->display(function () {
+            return "{$this->product_name}";
+        });
         $grid->product_link('Link')->display(function () {
             return "<a href=".$this->product_link." target='_blank'>Xem </a>";
         })->width(100);
-        $grid->product_size("Size");
-        $grid->product_color("Màu");
+        $grid->product_size("Size")->display(function () {
+            return "{$this->product_size}";
+        });
+        $grid->product_color("Màu")->display(function () {
+            return "{$this->product_color}";
+        });
         $grid->qty("Số lượng");
         $grid->price("Đơn giá (Tệ)")->display(function () {
             $price = $this->price;

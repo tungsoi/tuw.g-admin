@@ -335,7 +335,9 @@ class CustomerController extends AdminController
 
             $actions->append(new WalletWeight($actions->getKey()));
             if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('warehouse_employee')) {
-                $actions->append(new Recharge($actions->getKey()));
+                if (Admin::user()->can('recharge_for_customer')) {
+                    $actions->append(new Recharge($actions->getKey()));
+                }
             }
             $actions->append(new Transaction($actions->getKey()));
             $actions->append(new HistoryWalletWeight($actions->getKey()));
