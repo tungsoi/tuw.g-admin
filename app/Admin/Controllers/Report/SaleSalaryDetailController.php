@@ -65,7 +65,9 @@ class SaleSalaryDetailController extends AdminController
             ->count();
 
             $html .= "<br>Khách hàng phát sinh doanh thu / Tổng số khách hàng: ".$action_customers." /".$all_customers ." = " . (number_format($action_customers / $all_customers * 100, 1) ) . "%";
-
+            $html .= "<br>Tổng số khách hàng cũ: " . $report->old_customer;
+            $html .= "<br>Tổng số khách hàng mới: " . $report->new_customer;
+            $html .= "<br>Tổng số khách hàng: " . $report->all_customer;
             return $html;
         });
         $grid->rows(function (Grid\Row $row) {
