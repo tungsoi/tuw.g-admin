@@ -60,42 +60,45 @@ class PortalController extends AdminController
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
-                    $column->append((new Box('Doanh thu nạp tiền kho / ' . $this->today, $this->revenueWarehouse())));
+                    $column->append((new Box('Doanh thu nạp tiền kho ngày: ' . $this->today, $this->revenueWarehouse())));
                 });
 
                 $row->column(6, function (Column $column)
                 {
-                    $column->append((new Box('Doanh thu nạp tiền kế toán / ' . $this->today, $this->revenueAr())));
+                    $column->append((new Box('Doanh thu nạp tiền kế toán ngày: ' . $this->today, $this->revenueAr())));
                 });   
             })
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
-                    $column->append((new Box('Doanh thu vận chuyển kho / ' . $this->today, $this->revenueOrderWarehouse())));
+                    $first_day = date('Y-m-01', strtotime(now()));
+                    $last_day = date('Y-m-t', strtotime(now()));
+                    $text = 'Doanh thu vận chuyển kho / Từ ' . $first_day . " đến " . $last_day;
+                    $column->append((new Box($text, $this->revenueOrderWarehouse())));
                 });
             })
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
-                    $column->append((new Box('Tiền dự trù đặt hàng', $this->estimateAmountBooking())));
+                    $column->append((new Box('Tiền dự trù đặt hàng (Toàn thời gian)', $this->estimateAmountBooking())));
                 });   
             })
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
-                    $column->append((new Box('Số liệu hàng tồn trong kho', $this->inWarehouseOrder())));
+                    $column->append((new Box('Số liệu hàng tồn trong kho (Toàn thời gian)', $this->inWarehouseOrder())));
                 });   
             })
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
-                    $column->append((new Box('Hàng về trong ngày / ' . $this->today, $this->receiveToday())));
+                    $column->append((new Box('Hàng về trong ngày: ' . $this->today, $this->receiveToday())));
                 });   
             })
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column)
                 {
-                    $column->append((new Box('Báo cáo phòng kinh doanh / ' . date('Y-m', strtotime(now())), $this->saleRevenue())));
+                    $column->append((new Box('Báo cáo phòng kinh doanh tháng ' . date('m-Y', strtotime(now())), $this->saleRevenue())));
                 });   
             });
     }
@@ -103,20 +106,17 @@ class PortalController extends AdminController
     public function revenueOrderWarehouse() {
         $warehouses = Warehouse::all();
         $revenue = [];
-
-        $all_orders = PaymentOrder::where('status', 'payment_export')
-                ->where('created_at', 'like', date('Y-m', strtotime(now())).'%')    
-                ->pluck('id');
+        
+        $first_day = date('Y-m-01', strtotime(now()));
+        $last_day = date('Y-m-t', strtotime(now()));
 
         foreach ($warehouses as $warehouse) {
-            $order_ids = TransportCode::whereIn('order_id', $all_orders)
-                ->where('ware_house_id', $warehouse->id)
-                ->get()
-                ->unique('order_id')
-                ->pluck('order_id');
 
             $orders = PaymentOrder::select('amount')
-                        ->whereIn('id', $order_ids)
+                        ->where('payment_customer_id', '!=', 0)
+                        ->where('status', 'payment_export')
+                        ->whereBetween('export_at', [$first_day, $last_day])
+                        ->where('warehouse_id', $warehouse->id)
                         ->get();
 
             $revenue[$warehouse->id] = [
@@ -124,14 +124,14 @@ class PortalController extends AdminController
                 'count'         =>  $orders->count(),
                 'route'         =>  route('admin.payments.all')
                                     . "?status=payment_export"
-                                    . "&ware_house_id=" . $warehouse->id
-                                    . "&created_at%5Bstart%5D=".date('Y-m-', strtotime(now()))."01&created_at%5Bend%5D=".date('Y-m-', strtotime(now())).cal_days_in_month(CAL_GREGORIAN, date('m', strtotime(now())), date('Y', strtotime(now())))
+                                    . "&warehouse_id=" . $warehouse->id
+                                    . "&export_at%5Bstart%5D=".date('Y-m-', strtotime(now()))."01&export_at%5Bend%5D=".date('Y-m-', strtotime(now())).cal_days_in_month(CAL_GREGORIAN, date('m', strtotime(now())), date('Y', strtotime(now())))
             ];
         }
 
         $route_total = route('admin.payments.all')
         . "?status=payment_export"
-        . "&created_at%5Bstart%5D=".date('Y-m-', strtotime(now()))."01&created_at%5Bend%5D=".date('Y-m-', strtotime(now())).cal_days_in_month(CAL_GREGORIAN, date('m', strtotime(now())), date('Y', strtotime(now())));
+        . "&export_at%5Bstart%5D=".date('Y-m-', strtotime(now()))."01&export_at%5Bend%5D=".date('Y-m-', strtotime(now())).cal_days_in_month(CAL_GREGORIAN, date('m', strtotime(now())), date('Y', strtotime(now())));
         return view('admin.system.report.revenue_order_warehouse', compact('warehouses', 'revenue', 'route_total'))->render();
     }
 
@@ -143,9 +143,14 @@ class PortalController extends AdminController
     }
 
     public function receiveToday() {
-        $codes = TransportCode::whereStatus(1)->where('vietnam_receive_at', 'like', date('Y-m-d', strtotime(now()))."%")->get();
-        $route = route('admin.transport_codes.index') . "?status=1"
-                    . "&vietnam_receive_at%5Bstart%5D=".date('Y-m-d', strtotime(now()))."&vietnam_receive_at%5Bend%5D=".date('Y-m-d', strtotime(Carbon::now()->addDays(1)));
+
+        $first_day = date('Y-m-d', strtotime(now())) . " 00:00:01";
+        $last_day = date('Y-m-d', strtotime(now())) . " 23:59:59";
+
+        $codes = TransportCode::select('kg', 'm3')->whereBetween('vietnam_receive_at', [$first_day, $last_day])->get();
+
+        $route = route('admin.transport_codes.index')
+                    . "?vietnam_receive_at%5Bstart%5D=".date('Y-m-d', strtotime(now()))."&vietnam_receive_at%5Bend%5D=".date('Y-m-d', strtotime(Carbon::now()->addDays(1)));
 
         return view('admin.system.report.receive_today', compact('codes', 'route'))->render();
     }
@@ -212,6 +217,7 @@ class PortalController extends AdminController
 
             $orders = PurchaseOrder::select('id', 'deposited', 'current_rate')
                 ->whereStatus(4)
+                ->with('items')
                 ->orderBy('id', 'desc')
                 ->get();
             $total_vnd = 0;
@@ -242,17 +248,19 @@ class PortalController extends AdminController
         $revenue = [];
 
         foreach ($warehouses as $warehouse) {
-            $members = $warehouse->employees;
 
-            $orders = PaymentOrder::where('status', 'payment_not_export')->whereIn('user_created_id', $members)->get();
+            $orders = PaymentOrder::select('amount')
+            ->where('payment_customer_id', '!=', 0)
+            ->where('status', 'payment_not_export')
+            ->where('warehouse_id', $warehouse->id)
+            ->get();
 
             $revenue[$warehouse->id] = [
                 'count'    =>  $orders->count(),
                 'money'    =>  $orders->sum('amount'),
                 'route'         =>  route('admin.payments.all')
                                     . "?status=payment_not_export"
-                                    . "&user_created_id%5B%5D="
-                                    . implode("&user_created_id%5B%5D=", $members)
+                                    . "&warehouse_id=".$warehouse->id
             ];
         }
 
