@@ -39,49 +39,24 @@ class VietnamCustomerCodeController extends AdminController
     {
         $grid = new Grid(new TransportCode());
 
-        $orderService = new OrderService();
-        $userService = new UserService();
-
-        $ids = TransportCode::where('status', $orderService->getTransportCodeStatus('vietnam-rev'))
-
-        // ->groupBy('id')
-        ->get()
-        ->unique('customer_code_input')
-        ->pluck('id');
-
-        $grid->model()->whereIn('id', $ids)
-        ->orderBy('vietnam_receive_at', 'desc');
-        // $grid->model()
-        //     ->where('status', $service->getTransportCodeStatus('vietnam-rev'))
-        //     ->where('transport_code', '!=', "")
-        //     ->orderBy('vietnam_receive_at', 'desc')
-        //     ->orderBy('payment_at', 'asc')
-        //     ->orderBy('export_at', 'asc')
-        //     ->orderBy('customer_code_input', 'desc');
-
-        
-
-        $grid->expandFilter();
-        $grid->filter(function($filter) use ($userService, $orderService) {
+        $grid->filter(function($filter) {
             $filter->expand();
             $filter->disableIdFilter();
-            $filter->column(1/4, function ($filter) use ($userService) {
+            $filter->column(1/4, function ($filter) {
                 
                 $filter->like('transport_code', 'Mã vận đơn');
                 
             });
-            $filter->column(1/4, function ($filter) use ($orderService)  {
+            $filter->column(1/4, function ($filter) {
                 $filter->like('customer_code_input', 'Mã khách hàng');
-                $filter->equal('status', 'Trạng thái')->select(TransportCodeStatus::pluck('name', 'id'));
             });
 
             $filter->column(1/4, function ($filter) {
                 $filter->between('china_recevie_at', 'Ngày về TQ')->date();
-                $filter->between('payment_at', 'Ngày thanh toán')->date();
             });
 
             $filter->column(1/4, function ($filter) {
-                $filter->between('export_at', 'Ngày xuất kho')->date();
+                $filter->between('vietnam_recevie_at', 'Ngày về VN')->date();
             });
 
             Admin::style('
@@ -102,168 +77,74 @@ class VietnamCustomerCodeController extends AdminController
             ');
         });
 
-        // $grid->tools(function (Grid\Tools $tools) {
-        //     $tools->batch(function(Grid\Tools\BatchActions $actions) {
-        //         $actions->disableDelete();
-        //     });
-        //     if (! Admin::user()->isRole('customer')) {
-        //         $tools->append(new SwapWarehouse());
-        //         $tools->append(new ConfirmSwapWarehouse());
-        //         // $tools->append(new Payment());
-        //         $tools->append(new PaymentNotExport());
-        //         $tools->append(new PaymentExport());
-        //         $tools->append(new Export());
-        //     }
-            
-        // });
-
-        $grid->rows(function (Grid\Row $row) {
-            $row->column('number', ($row->number+1));
+        $grid->header(function () {
+            return "Tổng hợp mã vận đơn đã về kho Việt Nam theo mã khách hàng";
         });
-        $grid->column('number', 'STT');
-        // $grid->order_id('Mã đơn hàng')->style('width: 100px')->display(function () {
-        //     $html = "<input type='hidden' value='$this->id' id='id' />";
-        //     return $html .=  $this->paymentOrder->order_number ?? null;
-        // });
-        // $grid->transport_code('Mã vận đơn')->style('max-width: 150px')->display(function () {
-        //     $data = [
-        //         'order_number'   =>  [
-        //             'is_label'   =>  false,
-        //             'text'      =>  $this->transport_code
-        //         ],
-        //         'purchase_orders' => [
-        //             'is_link'  =>  true,
-        //             'route' =>  route('admin.purchase_orders.index') . "?order_number=".$this->getOrdernNumberPurchase(),
-        //             'text'      =>  $this->getOrdernNumberPurchase()
-        //         ]
-        //     ];
-        //     return view('admin.system.core.list', compact('data'));
-        // });
-        $grid->customer_code_input('Mã khách hàng')->display(function () {
-            $data = [
-                'order_number'   =>  [
-                    'is_link'   =>  true,
-                    'route'     =>  route('admin.transport_codes.index'). "?customer_code_input=". $this->customer_code_input."&query_customer_code_input=equal&status=1",
-                    'text'      =>  $this->customer_code_input,
-                    'style'     =>  'color: black !important;'
-                ]
-            ];
-            return view('admin.system.core.list', compact('data'));
-        })->style('color: black !important;');
 
-        $grid->id('Số mã vận đơn')->display(function (){
-            return "(".TransportCode::where('customer_code_input', $this->customer_code_input)->where('status', 1)->count().")";
-        })->expand(function ($model) {
-            $customer_code = $model->customer_code_input;
-            $header = ["MÃ ĐƠN HÀNG", "MÃ VẬN ĐƠN", "MKH", "CÂN NẶNG (KG)", "DÀI (CM)", "RỘNG (CM)", "CAO (CM)", "V/6000", "M3", "ỨNG KÉO (TỆ)", "VỀ KHO TQ", "VỀ KHO VN", "TRẠNG THÁI", "KHO HÀNG"];
-            
-            $codes = TransportCode::where('customer_code_input', $customer_code)->where('status', 1)->get();
+        $all_codes = TransportCode::where('status', 1)->get();
+        $all_code_ids = $all_codes->pluck('id');
+        $all_customer_codes = $all_codes->pluck('customer_code_input', 'id');
 
-            $info  = [];
-            foreach ($codes as $code) {
-                $info[] = [
-                    $code->paymentOrder->order_number ?? null,
-                    $code->transport_code,
-                    $code->customer_code_input,
-                    $code->kg,
-                    $code->length,
-                    $code->width,
-                    $code->height,
-                    $code->v(),
-                    $code->m3_cal(),
-                    $code->advance_drag,
-                    $code->china_receive_at != null ? date('H:i d-m-Y', strtotime($code->china_receive_at)) : null,
-                    $code->vietnam_receive_at != null ? date('H:i d-m-Y', strtotime($code->vietnam_receive_at)) : null,
-                    $code->statusText->name,
-                    $code->warehouse->name ?? ""
+        if ($all_customer_codes->count() > 0) {
+            $all_customer_codes = array_unique($all_customer_codes->toArray());
+            $ids = array_keys($all_customer_codes);
+
+            $grid->model()->whereIn('id', $ids)->with('paymentOrder')->orderBy('vietnam_receive_at', 'desc');
+
+            $grid->rows(function (Grid\Row $row) {
+                $row->column('number', ($row->number+1));
+            });
+            $grid->column('number', 'STT');
+            $grid->customer_code_input('Mã khách hàng')->display(function () {
+                $data = [
+                    'order_number'   =>  [
+                        'is_link'   =>  true,
+                        'route'     =>  route('admin.transport_codes.index'). "?customer_code_input=". $this->customer_code_input."&query_customer_code_input=equal&status=1",
+                        'text'      =>  $this->customer_code_input,
+                        'style'     =>  'color: green !important;'
+                    ]
                 ];
-            }
-        
-            return new Table( $header, $info);
-        })->style('width: 50%;');
+                return view('admin.system.core.list', compact('data'));
+            })->style('color: black !important;');
 
-        // $grid->customer_payment('Khách hàng thanh toán')->style('width: 100px')->display(function () {
-        //     return $this->paymentOrder->paymentCustomer->symbol_name ?? "";
-        // });
-        // $grid->kg('Cân nặng (kg)')->totalRow(function ($amount) {
-        //     return number_format($amount, 2);
-        // });
-        // $grid->length('Dài (cm)');
-        // $grid->width('Rộng (cm)');
-        // $grid->height('Cao (cm)');
-        // $grid->v('V/6000')->display(function () {
-        //     return $this->v();
-        // });
-        // $grid->m3('M3')->display(function () {
-        //     return $this->m3_cal();
-        // });
-        // $grid->advance_drag('Ứng kéo (Tệ)')->style('max-width: 100px');
-        // $grid->price_service('Giá vận chuyển')->display(function () {
-        //     return number_format($this->price_service); 
-        // })->style('max-width: 100px');
-        // $grid->payment_type('Loại thanh toán')->display(function () {
-        //     return $this->paymentType();
-        // })->style('max-width: 100px');
-        // $grid->amount('Tổng tiền')->display(function ()  {
-        //     $amount = $this->amount();
+            $grid->id('Số mã vận đơn')->display(function () use ($all_codes) {
+                return "(".$all_codes->where('customer_code_input', $this->customer_code_input)->count().")";
+            })->expand(function ($model) use ($all_codes) {
+                $header = ["MÃ ĐƠN HÀNG", "MÃ VẬN ĐƠN", "MKH", "CÂN NẶNG (KG)", "DÀI (CM)", "RỘNG (CM)", "CAO (CM)", "V/6000", "M3", "ỨNG KÉO (TỆ)", "VỀ KHO TQ", "VỀ KHO VN", "TRẠNG THÁI", "KHO HÀNG"];
+                
+                $codes = $all_codes->where('customer_code_input', $model->customer_code_input);
 
-        //     return $amount == 0 ? "<span style='color: red'>0</span>" : number_format($amount);
+                $info  = [];
+                foreach ($codes as $code) {
+                    $info[] = [
+                        $code->paymentOrder->order_number ?? null,
+                        $code->transport_code,
+                        $code->customer_code_input,
+                        $code->kg,
+                        $code->length,
+                        $code->width,
+                        $code->height,
+                        $code->v(),
+                        $code->m3_cal(),
+                        $code->advance_drag,
+                        $code->china_receive_at != null ? date('H:i d-m-Y', strtotime($code->china_receive_at)) : null,
+                        $code->vietnam_receive_at != null ? date('H:i d-m-Y', strtotime($code->vietnam_receive_at)) : null,
+                        $code->statusText->name,
+                        $code->warehouse->name ?? ""
+                    ];
+                }
             
-        // })->style('max-width: 100px');
-        // $grid->china_receive_at('Về kho TQ')->display(function () {
-        //     if ($this->china_receive_at != null) {
-        //         return date('H:i d-m-Y', strtotime($this->china_receive_at));
-        //     }
-        // });
-        // $grid->vietnam_receive_at('Về kho VN')->display(function () {
-        //     if ($this->vietnam_receive_at != null) {
-        //         return date('H:i d-m-Y', strtotime($this->vietnam_receive_at));
-        //     }
-        // });
+                return new Table( $header, $info);
+            })->style('width: 50%;');
+            
+        }
 
-        // $grid->payment_at('Ngày thanh toán')->display(function () {
-        //     if ($this->payment_at != null) {
-        //         return date('H:i d-m-Y', strtotime($this->payment_at));
-        //     }
-        // });
-        // $grid->status('Trạng thái')->display(function () {
-        //     $data = [
-        //         'order_number'   =>  [
-        //             'is_label'  =>  true,
-        //             'color'     =>  $this->statusText->label,
-        //             'text'      =>  $this->statusText->name
-        //         ],
-        //         'time'  =>  [
-        //             'is_label'  =>  false,
-        //             'text'      =>  $this->getTimeline()
-        //         ]
-        //     ];
-        //     return view('admin.system.core.list', compact('data'));
-        // });
-
-        // $grid->ware_house_id('Kho hàng')->display(function () use ($orderService) {
-        //     if ($this->status == $orderService->getTransportCodeStatus('swap')) {
-        //         return ($this->warehouse->name ?? "") . " => " . ($this->warehouseSwap->name ?? "");
-        //     }
-
-        //     return $this->warehouse->name ?? "";
-        // })->style('max-width: 150px');
-
-        // if (! Admin::user()->isRole('customer')) {
-        //     $grid->admin_note('Ghi chú');
-        // } else {
-        //     $grid->disableActions();
-        // }
-        
-
+        $grid->expandFilter();
         $grid->disableCreateButton();
         $grid->disableExport();
-
-        if (Admin::user()->isRole('customer')) {
-            $grid->disableBatchActions();
-        }
+        $grid->disableBatchActions();
         $grid->disableColumnSelector();
-        $grid->paginate(20);
+        $grid->paginate(10);
 
         $grid->tools(function (Grid\Tools $tools) {
             $tools->batch(function(Grid\Tools\BatchActions $actions) {
@@ -275,18 +156,7 @@ class VietnamCustomerCodeController extends AdminController
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableView();
             $actions->disableDelete();
-
-            $orderService = new OrderService();
-            // if (in_array($this->row->status, [$orderService->getTransportCodeStatus('wait-payment'), $orderService->getTransportCodeStatus('payment')])) {
-                $actions->disableEdit();
-            // }
-
-//             if (! in_array($this->row->status, [$orderService->getTransportCodeStatus('vietnam-rev'), $orderService->getTransportCodeStatus('swap'), $orderService->getTransportCodeStatus('not-export')])) {
-//                 Admin::script(
-//                     <<<EOT
-//                     $('input[data-id={$this->row->id}]').parent().parent().empty();
-// EOT);
-//             }
+            $actions->disableEdit();
         });
 
         return $grid;
