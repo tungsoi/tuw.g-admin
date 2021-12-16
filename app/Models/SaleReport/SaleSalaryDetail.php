@@ -32,4 +32,8 @@ class SaleSalaryDetail extends Model
     public function customer() {
         return $this->hasOne(User::class, 'id', 'customer_id');
     }
+
+    public function report() {
+        return $this->hasOne(SaleSalary::class, 'id', 'sale_salary_id');
+    }
 }

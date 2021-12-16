@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\Report;
 
+use App\Admin\Actions\Export\SaleSalaryDetailExporter;
 use App\Admin\Services\UserService;
 use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
@@ -198,10 +199,11 @@ class SaleSalaryDetailController extends AdminController
         $grid->disableBatchActions();
         $grid->disableTools();
         $grid->disableCreateButton();
-        $grid->disableExport();
         $grid->disableFilter();
 
         Admin::script($this->offerOrderScript());
+
+        $grid->exporter(new SaleSalaryDetailExporter());
 
         return $grid;
     }
