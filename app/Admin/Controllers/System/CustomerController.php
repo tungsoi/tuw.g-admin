@@ -253,7 +253,14 @@ class CustomerController extends AdminController
                 'Nhân viên đặt hàng'    =>  $model->orderEmployee->name ?? "",
                 'Phí dịch vụ'           =>  $model->percentService->name ?? "",
                 'Giá cân thanh toán'    =>  $model->default_price_kg,
-                'Giá khối thanh toán'   =>  $model->default_price_m3
+                'Giá khối thanh toán'   =>  $model->default_price_m3,
+                'Đơn hàng Mua hộ'   =>  "<span class='label label-default'>Đơn hàng mới: ".$model->purchaseOrders->where('status', 2)->count()."</span>"
+                    . " &nbsp; <span class='label label-primary'>Đã cọc, đang đặt: ".$model->purchaseOrders->where('status', 4)->count()."</span>"
+                    . " &nbsp; <span class='label label-info'>Đã đặt hàng: ".$model->purchaseOrders->where('status', 5)->count()."</span>"
+                    . " &nbsp; <span class='label label-warning'>Đã về Việt Nam: ".$model->purchaseOrders->where('status', 7)->count()."</span>"
+                    . " &nbsp; <span class='label label-success'>Thành công: ".$model->purchaseOrders->where('status', 9)->count()."</span>",
+                'Đơn hàng Vận chuyển'   =>  "<span class='label label-warning'>Thanh toán chưa xuất kho: ".$model->paymentOrders->where('status', 'payment_not_export')->count()."</span>"
+                . " &nbsp; <span class='label label-success'>Đã xuất kho: ".$model->paymentOrders->where('status', 'payment_export')->count()."</span>",
             ];
         
             return new Table(['Thông tin', 'Nội dung'], $info);
