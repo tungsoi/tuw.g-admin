@@ -203,7 +203,7 @@ class SaleSalaryDetailController extends AdminController
 
         Admin::script($this->offerOrderScript());
 
-        $grid->exporter(new SaleSalaryDetailExporter());
+        $grid->exporter(new SaleSalaryDetailExporter($id));
 
         return $grid;
     }
