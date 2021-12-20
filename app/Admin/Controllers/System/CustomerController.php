@@ -159,6 +159,8 @@ class CustomerController extends AdminController
                     2 => 'Khách hàng Order',
                     3 => 'Cả 2'
                 ]);
+
+                $filter->between('created_at', 'Ngày tạo tài khoản')->date();
             });
             $filter->column(1/4, function ($filter) {
                 $filter->like('username', 'Email');
