@@ -141,6 +141,10 @@ EOT
         $line = ReportWarehouse::LINE;
 
         $form->html(function () use ($line) {
+            return view('admin.system.transport_order.report-warehouse-template', compact('line'))->render();
+        });
+
+        $form->html(function () use ($line) {
             return view('admin.report-warehouse', compact('line'))->render();
         });
 

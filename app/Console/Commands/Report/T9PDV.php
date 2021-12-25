@@ -67,7 +67,6 @@ class T9PDV extends Command
             
             foreach ($sale_ids as $sale_id)
             {
-                echo $sale_id . "\n";
                 $sale_user = User::find($sale_id);
 
                 $customers = $sale_user->saleCustomers();
@@ -79,21 +78,24 @@ class T9PDV extends Command
                                                     ->where('status', 9)
                                                     ->where('deposited_at', '>=', $report->begin_date . " 00:00:01")
                                                     ->where('deposited_at', '<=', $report->finish_date ." 23:59:59")
-                                                    ->where('success_at', '>=', "2021-10-01 00:00:01")
-                                                    ->where('success_at', '<=', "2021-10-31 23:59:59")
+                                                    ->where('success_at', '>=', "2021-11-01 00:00:01")
+                                                    ->where('success_at', '<=', "2021-11-31 23:59:59")
                                                     ->get();
                             
-                                                    $total = 0;
+                    $total = 0;
                     if ($success_purchase_orders->count() > 0) {
                         foreach ($success_purchase_orders as $order)  {
                             $total += $order->purchase_order_service_fee * $order->current_rate;
                         }
 
-                        ReportDetail::where('user_id', $sale_id)
-                        ->where('sale_report_id', 19)
-                        ->update([
-                            't9_pdv'    =>  number_format($total, 0, '.', '')
-                        ]);
+                        
+                        echo  $sale_user->id . "-". $sale_user->name . " - " . number_format($total, 0, '.', ',') . "\n";
+
+                        // ReportDetail::where('user_id', $sale_id)
+                        // ->where('sale_report_id', 19)
+                        // ->update([
+                        //     't9_pdv'    =>  number_format($total, 0, '.', '')
+                        // ]);
                     }
 
                     // $success_offer_cn = 0;

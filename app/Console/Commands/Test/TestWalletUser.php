@@ -50,8 +50,30 @@ class TestWalletUser extends Command
     {   
         ini_set('memory_limit', '6400M');
 
+        // check đơn thành công nhưng sản phẩm hết hàng
+
+        $orders = PurchaseOrder::whereStatus(9)
+          ->where('success_at', '>=', '2021-11-01 00:00:01')
+          ->with('items')
+          ->get();
+        
+        $flag = [];
+        foreach ($orders as $order) {
+          $all_items = $order->items->count();
+          $cancel_items = $order->items->where('status', 4)->count();
+
+          if ($all_items == $cancel_items) {
+            $flag[$order->id] = $order->order_number; 
+          }
+        }
+
+        dd($flag);
+
+          dd($orders->count());
+
+
         $items = PurchaseOrderItem::whereNotNull('outstock_at')
-        ->whereBetween('outstock_at', ['2021-11-01 00:00:01', '2021-11-30 23:59:59'])
+        ->whereBetween('outstock_at', ['2021-11-01 00:00:01', '2021-12-31 23:59:59'])
         ->with('order')
         ->get();
 
@@ -59,13 +81,15 @@ class TestWalletUser extends Command
         foreach ($items as $item) {
           $item_outstock = date('d-m-Y', strtotime($item->outstock_at));
           $order_success = date('d-m-Y', strtotime($item->order->success_at));
-          if ($item->order->status == 9 && ($item_outstock >= $order_success)) {
-            $orders[$item->order->id] = $item->order->id;
-            // if ($item->order->totalItems() == $item->order->items->where('status', 4)->count()) {
-            //   $orders[$item->order->id] = $item->order->orderEmployee->name;
+          // if ($item->order->status == 9 && ($item_outstock >= $order_success)) {
+            // $orders[$item->order->id] = $item->order->id;
+            if ($item->order->totalItems() == $item->order->items->where('status', 4)->count()) {
+              $orders[$item->order->id] = $item->order->orderEmployee->name;
             // }
-          }
+            }
         }
+
+        dd($orders);
 
 
         $data = PurchaseOrder::whereIn('id', $orders)->with('items')->get();
