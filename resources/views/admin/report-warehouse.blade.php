@@ -51,7 +51,7 @@
                 <input type="text" name="order[]" class="form-control" value="1">
             </td>
             <td>
-                <input type="text" name="weight[]" class="form-control">
+                <input type="text" name="weight[]" class="form-control" autofocus>
             </td>
             <td>
                 <input type="text" name="lenght[]" class="form-control">
@@ -103,6 +103,9 @@
             default_row.removeClass('default-row');
             default_row.find('.order').val(order++);
             $('#table-warehouse tbody').append(default_row);
+            let last_tr = $('#table-warehouse tbody tr').last();
+            console.log(last_tr.find('.weight'));
+            last_tr.find('.weight').focus();
         }
     });
 
