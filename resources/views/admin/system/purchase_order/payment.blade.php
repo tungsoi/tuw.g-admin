@@ -1,4 +1,10 @@
 <br>
+<div>
+    <input type="radio" id="all_weight" name="all_type" value="all_weight" style="width: 20px !important;">
+    <label for="all_weight">Tất cả tính cân</label><br>
+    <input type="radio" id="all_m3" name="all_type" value="all_m3" style="width: 20px !important;">
+    <label for="all_m3">Tất cả tính khối</label><br>
+</div>
 <table class="table table-bordered">
     <thead>
         <th>STT</th>
@@ -343,6 +349,53 @@
                 $('.loading-overlay').toggle(); 
                 $(".btn-success").show();
             }, 1000);
+        });
+
+        jQuery(function($) {
+            $(window).scroll(function fix_element() {
+                $('#customer-info-payment').css(
+                $(window).scrollTop() > 100
+                    ? { 'position': 'fixed', 'top': '10px', 'background': 'white', 'z-index': '1000', 'width': '455px'}
+                    : { 'position': 'relative', 'top': 'auto' }
+                );
+                return fix_element;
+            }());
+
+            // let payment_customer_div = $('label[for="payment_user_id"]').parent().parent();
+
+            // $(window).scroll(function fix_element() {
+            //     payment_customer_div.css(
+            //     $(window).scrollTop() > 100
+            //         ? { 'position': 'fixed', 'top': '10px', 'background': 'white', 'z-index': '1000', 'width': '455px', 'border-color' : 'black' }
+            //         : { 'position': 'relative', 'top': 'auto' }
+            //     );
+            //     return fix_element;
+            // }());
+
+            // let payment_type = $('input[name="order_type"]').parent();
+
+            // $(window).scroll(function fix_element() {
+            //     payment_type.css(
+            //     $(window).scrollTop() > 100
+            //         ? { 'position': 'fixed', 'top': '10px', 'background': 'white', 'z-index': '1000', 'width': '455px', 'border-color' : 'black' }
+            //         : { 'position': 'relative', 'top': 'auto' }
+            //     );
+            //     return fix_element;
+            // }());
+        });
+
+        $('#all_weight').click(function() {
+            if($('#all_weight').is(':checked')) { 
+                $('select.payment_type').val(1);
+                console.log('all_weight');
+            }
+        });
+
+        $('#all_m3').click(function() {
+            if($('#all_m3').is(':checked')) { 
+                console.log('all_m3'); 
+                $('select.payment_type').val(-1);
+            }
         });
     });
 </script>
