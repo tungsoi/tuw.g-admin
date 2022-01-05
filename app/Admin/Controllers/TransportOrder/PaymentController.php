@@ -424,7 +424,7 @@ SCRIPT;
         ->with('userCancel')
         ->with('transportCode')
         ->with('paymentCustomer');
-
+        
         if (Admin::user()->isRole('customer')) {
             $grid->model()->where('payment_customer_id', Admin::user()->id);
         }

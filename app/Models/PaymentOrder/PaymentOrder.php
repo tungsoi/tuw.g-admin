@@ -38,7 +38,8 @@ class PaymentOrder extends Model
         '_id',
         'user_cancel_id',
         'cancel_at',
-        'warehouse_id'
+        'warehouse_id',
+        'note_command'
     ];
 
     public function paymentCustomer() {
