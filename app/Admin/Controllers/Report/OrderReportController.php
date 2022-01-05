@@ -34,33 +34,41 @@ class OrderReportController extends AdminController
             $grid->header(function () {
                 $month = $_GET['month'];
 
-                $records = OrderReport::where('order_at', 'like', $month.'-%')->whereType(1)->get();
+                $data = OrderReport::where('order_at', 'like', $month.'-%')->whereType(1)->get();
                 $number = $amount = $final_payment = $percent_service = $offer_cn = $offer_vn = $total = $index = 0;
-                foreach ($records as $record) {
+                
+                $temp = [];
+                foreach ($data as $record) { // 1 ngay
                     $data = json_decode($record->content);
+
                     if ($data != "") {
-                        foreach ($data as $user) {
-                            $number += $user->number;
-                            $amount += $user->amount;
-                            $final_payment += $user->final_payment;
-                            $percent_service += $user->percent_service;
-                            $offer_cn += $user->offer_cn;
-                            $offer_vn += $user->offer_vn;
-                            $total += $user->total;
+                        foreach ($data as $key => $user) { // data trong ngay
+                            if (isset($temp[$key])) {
+                                $temp[$key]['user_name'] = $user->user_name;
+                                $temp[$key]['number'] += $user->number;
+                                $temp[$key]['amount'] += $user->amount;
+                                $temp[$key]['final_payment'] += $user->final_payment;
+                                $temp[$key]['percent_service'] += $user->percent_service;
+                                $temp[$key]['offer_cn'] += $user->offer_cn;
+                                $temp[$key]['offer_vn'] += $user->offer_vn;
+                                $temp[$key]['total'] += $user->total;
+                            } else {
+                                $temp[$key] = [
+                                    'user_name' =>  $user->user_name,
+                                    'number' =>  $user->number,
+                                    'amount' =>  $user->amount,
+                                    'final_payment' =>  $user->final_payment,
+                                    'percent_service' =>  $user->percent_service,
+                                    'offer_cn' =>  $user->offer_cn,
+                                    'offer_vn' =>  $user->offer_vn,
+                                    'total' =>  $user->total,
+                                ];
+                            }
                         }
                     }
                 }
 
-                $html = "";
-                $html .= "Số lượng đơn: " . $number . "<br>";
-                $html .= "Tổng tiền đơn hàng: " . $amount . "<br>";
-                $html .= "Tổng tiền thanh toán: " . $final_payment . "<br>";
-                $html .= "Tổng phí dịch vụ: " . $percent_service . "<br>";
-                $html .= "Tổng đàm phán tệ: " . $offer_cn . "<br>";
-                $html .= "Tổng đàm phán VND: " . number_format($offer_vn) . "<br>";
-                $html .= "Tổng thực đặt: " . $total . "<br>";
-
-                return $html;
+                return view('admin.system.report.order_report_total', compact('temp'));
             });
         }
 
