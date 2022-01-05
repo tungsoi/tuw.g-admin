@@ -115,7 +115,19 @@ class VietnamReceiveController extends AdminController
 
         $form->column(3, function ($form) {
             $userService = new UserService();
-            $form->select('ware_house_id', 'Kho hàng')->options($userService->GetListWarehouse())->default(2)->rules(['required']);
+            $warehouses = Warehouse::all();
+
+            $default_warehouse = 2;
+            foreach ($warehouses as $warehouse) {
+                if (in_array(Admin::user()->id, $warehouse->employees)) {
+                    $default_warehouse = $warehouse->id;
+                }
+            }
+            
+            $form->select('ware_house_id', 'Kho hàng')
+            ->options($userService->GetListWarehouse())
+            ->default($default_warehouse)
+            ->rules(['required']);
         });
 
         $form->column(12, function ($form) {
