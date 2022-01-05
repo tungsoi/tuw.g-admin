@@ -20,6 +20,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\System\FillExportAtPaymentOrder',
         'App\Console\Commands\Report\SaleRevenue',
         'App\Console\Commands\Report\SaleSalary',
+        'App\Console\Commands\Report\OrderReport',
         'App\Console\Commands\System\DeleteNullItemPaymentOrder',
         'App\Console\Commands\System\SyncWalletCustomer',
     ];
@@ -39,6 +40,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('payment_order:fill_export_at')->hourly();
         $schedule->command('delete:null-payment-order')->hourly();
         $schedule->command('sync:customer-wallet')->everyMinute();
+        $schedule->command('order:report')->dailyAt("13:00");
+        $schedule->command('order:report')->dailyAt("19:00");
 
         $schedule->command('sale-revenue-report:update', ['2022-01-01', '2022-01-31'])->dailyAt("13:00");
         $schedule->command('sale-revenue-report:update', ['2022-01-01', '2022-01-31'])->dailyAt("21:00");

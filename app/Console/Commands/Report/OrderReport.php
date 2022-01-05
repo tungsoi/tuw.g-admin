@@ -4,6 +4,7 @@ namespace App\Console\Commands\Report;
 
 use App\Models\OrderReport\OrderReport as OrderReportModel;
 use App\Models\PurchaseOrder\PurchaseOrder;
+use App\Models\System\ScheduleLog;
 use App\User;
 use Illuminate\Console\Command;
 
@@ -42,9 +43,9 @@ class OrderReport extends Command
     {
         $today = date('Y-m-d', strtotime(now()));
 
-        for ($i = 1; $i <= 31; $i++) {
-            $today = "2021-11-" . str_pad($i, 2, 0, STR_PAD_LEFT);
-            echo $today . "\n";
+        // for ($i = 1; $i <= 31; $i++) {
+        //     $today = "2021-11-" . str_pad($i, 2, 0, STR_PAD_LEFT);
+        //     echo $today . "\n";
             $orders = PurchaseOrder::where('status', '!=', 10)->where('order_at', 'like', $today."%")->with('items')->get();
 
             $user_ids = $orders->unique('supporter_order_id')->pluck('supporter_order_id');
@@ -94,6 +95,10 @@ class OrderReport extends Command
             } else {
                 OrderReportModel::create($res);
             }
-        }
+        // }
+
+        ScheduleLog::create([
+            'name'  =>  'order report ' . $today
+        ]);
     }
 }
