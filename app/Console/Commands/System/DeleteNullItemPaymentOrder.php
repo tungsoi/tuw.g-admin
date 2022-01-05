@@ -63,6 +63,10 @@ class DeleteNullItemPaymentOrder extends Command
             'note_command'  =>  'Chuyển từ payment_not_export về cancel do không có item'
         ]);
 
+        ScheduleLog::create([
+            'name'  =>  $this->signature . "- " . sizeof($ids)
+        ]);
+
     }
 }
 
