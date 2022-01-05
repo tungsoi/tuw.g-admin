@@ -67,7 +67,7 @@ class OrderReportSuccessController extends AdminController
             $filter->expand();
             $filter->disableIdFilter();
 
-            $filter->date('order_at', 'Ngày đặt hàng')->date();
+            $filter->date('order_at', 'Ngày thành công')->date();
             $filter->where(function ($query) {
                 
             }, 'Tháng VD: 2021-11', 'month');
@@ -78,7 +78,7 @@ class OrderReportSuccessController extends AdminController
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->order_at('Ngày dặt hàng')->display(function () {
+        $grid->order_at('Ngày thành công')->display(function () {
             return date('Y-m-d', strtotime($this->order_at));
         });
         $grid->content('Chi tiết')->display(function () {
