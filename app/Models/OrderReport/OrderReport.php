@@ -12,6 +12,7 @@ class OrderReport extends Model
 
     protected $fillable = [
         'order_at',
-        'content'
+        'content',
+        'type' // 1: ngay dat, 2: ngay thanh cong
     ];
 }

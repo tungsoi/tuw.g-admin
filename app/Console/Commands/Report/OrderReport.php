@@ -15,14 +15,14 @@ class OrderReport extends Command
      *
      * @var string
      */
-    protected $signature = 'order:report';
+    protected $signature = 'order:report {type}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Báo cáo đặt hàng theo ngày đặt hàng';
 
     /**
      * Create a new command instance.
@@ -42,11 +42,26 @@ class OrderReport extends Command
     public function handle()
     {
         $today = date('Y-m-d', strtotime(now()));
+        $type = $this->argument('type');
 
-        // for ($i = 1; $i <= 31; $i++) {
+        // for ($i = 1; $i <= 30; $i++) {
         //     $today = "2021-11-" . str_pad($i, 2, 0, STR_PAD_LEFT);
         //     echo $today . "\n";
-            $orders = PurchaseOrder::where('status', '!=', 10)->where('order_at', 'like', $today."%")->with('items')->get();
+
+            if ($type == 1) {
+                // ngay dat hang
+                $orders = PurchaseOrder::where('status', '!=', 10)
+                ->where('order_at', 'like', $today."%")
+                ->with('items')
+                ->get();
+            } else {
+                // ngay thanh cong
+
+                $orders = PurchaseOrder::where('status', '!=', 10)
+                ->where('success_at', 'like', $today."%")
+                ->with('items')
+                ->get();
+            }
 
             $user_ids = $orders->unique('supporter_order_id')->pluck('supporter_order_id');
 
@@ -84,10 +99,11 @@ class OrderReport extends Command
 
             $res = [
                 'order_at'  =>  $today,
-                'content'   =>  json_encode($data)
+                'content'   =>  json_encode($data),
+                'type'  =>  $type
             ];
 
-            $flag = OrderReportModel::whereOrderAt($today)->first();
+            $flag = OrderReportModel::whereOrderAt($today)->whereType($type)->first();
 
             if ($flag) {
                 // update
@@ -98,7 +114,7 @@ class OrderReport extends Command
         // }
 
         ScheduleLog::create([
-            'name'  =>  'order report ' . $today
+            'name'  =>  'order report ' . $today . ' type ' .$type
         ]);
     }
 }

@@ -68,7 +68,8 @@ Route::group([
         'conflict_transport_code'   =>  'Report\\ConflictTransportCodeController',
         'tracking_payment_orders'   =>  'Report\\TrackingPaymentOrderController',
         'sale_salary_details'   =>  'Report\\SaleSalaryDetailController',
-        'order_reports' =>  'Report\\OrderReportController'
+        'order_reports' =>  'Report\\OrderReportController',
+        'order_report_success'  =>  'Report\\OrderReportSuccessController',
     ]);
 
     $router->get('report_portals','Report\\PortalController@indexRebuild')->name('report_portals');

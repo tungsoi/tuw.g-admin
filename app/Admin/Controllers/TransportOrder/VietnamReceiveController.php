@@ -127,7 +127,7 @@ class VietnamReceiveController extends AdminController
             $form->select('ware_house_id', 'Kho hàng')
             ->options($userService->GetListWarehouse())
             ->default($default_warehouse)
-            ->rules(['required']);
+            ->readonly();
         });
 
         $form->column(12, function ($form) {

@@ -10,14 +10,14 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 
-class OrderReportController extends AdminController
+class OrderReportSuccessController extends AdminController
 {
     /**
      * Title for current resource.
      *
      * @var string
      */
-    protected $title = 'Báo cáo đặt hàng trong ngày - theo ngày đặt hàng';
+    protected $title = 'Báo cáo đặt hàng trong ngày - theo ngày thành công';
 
     /**
      * Make a grid builder.
@@ -27,13 +27,13 @@ class OrderReportController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new OrderReport());
-        $grid->model()->orderBy('order_at', 'desc')->whereType(1);
+        $grid->model()->orderBy('order_at', 'desc')->whereType(2);
 
         if (isset($_GET['month'])) {
             $grid->header(function () {
                 $month = $_GET['month'];
 
-                $records = OrderReport::where('order_at', 'like', $month.'-%')->whereType(1)->get();
+                $records = OrderReport::where('order_at', 'like', $month.'-%')->whereType(2)->get();
                 $number = $amount = $final_payment = $percent_service = $offer_cn = $offer_vn = $total = $index = 0;
                 foreach ($records as $record) {
                     $data = json_decode($record->content);
