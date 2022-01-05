@@ -341,6 +341,7 @@ class PurchaseOrderController extends AdminController
                 } else {
                     $purchase_order_service_fee = $this->purchase_order_service_fee;
                 }
+                $purchase_order_service_fee = str_replace(",", "", $purchase_order_service_fee);
                 $data = [
                     'amount_rmb'   =>  [
                         'is_label'   =>  false,
@@ -742,7 +743,7 @@ SCRIPT;
         $amount_vnd = str_replace(",", "", $amount_rmb) * $order->current_rate;
 
         $deposited_at = $order->deposted_at != null ? date('H:i | d-m-Y', strtotime($order->deposited_at)) : "";
-        $purchase_order_service_fee = $order->purchase_order_service_fee != null ? $order->purchase_order_service_fee : 0;
+        $purchase_order_service_fee = $order->purchase_order_service_fee != null ? str_replace(",", "", $order->purchase_order_service_fee) : 0;
         $rows = [
             [
                 "<b id='order_number' onclick='copyElementText(this.id)' style='cursor:pointer'>" . $order->order_number . " / " . $order->customer->symbol_name . "</b>", 

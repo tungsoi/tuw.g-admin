@@ -17,7 +17,7 @@ class OrderReportController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Báo cáo đặt hàng';
+    protected $title = 'Báo cáo đặt hàng trong ngày - theo ngày đặt hàng';
 
     /**
      * Make a grid builder.
@@ -29,11 +29,49 @@ class OrderReportController extends AdminController
         $grid = new Grid(new OrderReport());
         $grid->model()->orderBy('order_at', 'desc');
 
+        if (isset($_GET['month'])) {
+            $grid->header(function () {
+                $month = $_GET['month'];
+
+                $records = OrderReport::where('order_at', 'like', $month.'-%')->get();
+                $number = $amount = $final_payment = $percent_service = $offer_cn = $offer_vn = $total = $index = 0;
+                foreach ($records as $record) {
+                    $data = json_decode($record->content);
+                    if ($data != "") {
+                        foreach ($data as $user) {
+                            $number += $user->number;
+                            $amount += $user->amount;
+                            $final_payment += $user->final_payment;
+                            $percent_service += $user->percent_service;
+                            $offer_cn += $user->offer_cn;
+                            $offer_vn += $user->offer_vn;
+                            $total += $user->total;
+                        }
+                    }
+                }
+
+                $html = "";
+                $html .= "Số lượng đơn: " . $number . "<br>";
+                $html .= "Tổng tiền đơn hàng: " . $amount . "<br>";
+                $html .= "Tổng tiền thanh toán: " . $final_payment . "<br>";
+                $html .= "Tổng phí dịch vụ: " . $percent_service . "<br>";
+                $html .= "Tổng đàm phán tệ: " . $offer_cn . "<br>";
+                $html .= "Tổng đàm phán VND: " . number_format($offer_vn) . "<br>";
+                $html .= "Tổng thực đặt: " . $total . "<br>";
+
+                return $html;
+            });
+        }
+
         $grid->filter(function ($filter) {
             $filter->expand();
             $filter->disableIdFilter();
 
             $filter->date('order_at', 'Ngày đặt hàng')->date();
+            $filter->where(function ($query) {
+                
+            }, 'Tháng', 'month');
+            
         });
 
         $grid->rows(function (Grid\Row $row) {
