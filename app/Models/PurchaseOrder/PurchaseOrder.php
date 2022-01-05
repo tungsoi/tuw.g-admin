@@ -41,7 +41,9 @@ class PurchaseOrder extends Model
         '_id',
         'purchase_total_items_price',
         'purchase_order_transport_fee',
-        'order_type'
+        'order_type',
+        'offer_cn',
+        'offer_vn'
     ];
 
     public function customer() {
