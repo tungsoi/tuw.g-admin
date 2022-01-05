@@ -30,6 +30,7 @@ class OrderReportController extends AdminController
         $grid->model()->orderBy('order_at', 'desc')->whereType(1);
 
         if (isset($_GET['month'])) {
+            $grid->model()->where('order_at', 'like', $_GET['month'].'-%');
             $grid->header(function () {
                 $month = $_GET['month'];
 
