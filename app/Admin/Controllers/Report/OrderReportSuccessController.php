@@ -70,7 +70,7 @@ class OrderReportSuccessController extends AdminController
             $filter->date('order_at', 'Ngày đặt hàng')->date();
             $filter->where(function ($query) {
                 
-            }, 'Tháng', 'month');
+            }, 'Tháng VD: 2021-11', 'month');
             
         });
 
