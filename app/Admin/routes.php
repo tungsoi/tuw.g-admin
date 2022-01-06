@@ -70,7 +70,10 @@ Route::group([
         'sale_salary_details'   =>  'Report\\SaleSalaryDetailController',
         'order_reports' =>  'Report\\OrderReportController',
         'order_report_success'  =>  'Report\\OrderReportSuccessController',
+        'ar_reports'    =>  'Report\\ArReportController'
     ]);
+
+    $router->get('ar_reports/{ar_report}', 'Report\\ArReportController@showRebuild')->name('ar_reports.show');
 
     $router->get('report_portals','Report\\PortalController@indexRebuild')->name('report_portals');
     $router->get('report_portals/calculatorEstimateAmountBooking','Report\\PortalController@calculatorEstimateAmountBooking')->name('report_portals.calculatorEstimateAmountBooking');
