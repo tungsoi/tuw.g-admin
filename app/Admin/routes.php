@@ -11,7 +11,8 @@ Route::group([
 ], function (Router $router) {
 
     $router->get(
-        '/', 'IndexController@index'
+        '/',
+        'IndexController@index'
     )->name('index');
 
     $router->get('register', 'RegisterController@index')->name('register');
@@ -31,8 +32,8 @@ Route::group([
     'prefix'        => config('admin.route.prefix'),
     'namespace'     => config('admin.route.namespace'),
     'middleware'    =>  [
-        'web', 
-        'admin', 
+        'web',
+        'admin',
         'customer_informations',
         'admin.permission:deny,customer'
     ],
@@ -70,13 +71,14 @@ Route::group([
         'sale_salary_details'   =>  'Report\\SaleSalaryDetailController',
         'order_reports' =>  'Report\\OrderReportController',
         'order_report_success'  =>  'Report\\OrderReportSuccessController',
-        'ar_reports'    =>  'Report\\ArReportController'
+        'ar_reports'    =>  'Report\\ArReportController',
+        'ar_category'    =>  'Report\\ArCategoryController',
     ]);
 
     $router->get('ar_reports/{ar_report}', 'Report\\ArReportController@showRebuild')->name('ar_reports.show');
 
-    $router->get('report_portals','Report\\PortalController@indexRebuild')->name('report_portals');
-    $router->get('report_portals/calculatorEstimateAmountBooking','Report\\PortalController@calculatorEstimateAmountBooking')->name('report_portals.calculatorEstimateAmountBooking');
+    $router->get('report_portals', 'Report\\PortalController@indexRebuild')->name('report_portals');
+    $router->get('report_portals/calculatorEstimateAmountBooking', 'Report\\PortalController@calculatorEstimateAmountBooking')->name('report_portals.calculatorEstimateAmountBooking');
 
     // transaction
     $router->get('transactions/duplicate', 'System\\TransactionController@detail')->name('transactions.duplicate');
@@ -88,7 +90,7 @@ Route::group([
     $router->get('customers/{id}/walletWeight', 'System\\CustomerController@walletWeight')->name('customers.walletWeight');
     $router->post('customers/storeRechargeWeight', 'System\\CustomerController@storeRechargeWeight')->name('customers.storeRechargeWeight');
     $router->post('customers/updateRechargeWeght', 'System\\CustomerController@updateRechargeWeght')->name('customers.updateRechargeWeght');
-    $router->get('customers/{id}/find', 'System\\CustomerController@find')->name('customers.find');  
+    $router->get('customers/{id}/find', 'System\\CustomerController@find')->name('customers.find');
     $router->get('customers/{id}/calculator_wallet', 'System\\CustomerController@calculator_wallet')->name('customers.calculator_wallet');
     $router->post('customers/update_wallet', 'System\\CustomerController@update_wallet')->name('customers.update_wallet');
 
@@ -104,14 +106,14 @@ Route::group([
     $router->post('payments', 'TransportOrder\\PaymentController@storeRebuild')->name('payments.storeRebuild');
 
     // weight portal
-    $router->get('weight_portals', 'System\\WeightPortalController@indexRebuild')->name('weight_portals.index'); 
+    $router->get('weight_portals', 'System\\WeightPortalController@indexRebuild')->name('weight_portals.index');
 
     // complaint
 
     $router->get('/complaints/{complaint}', 'PurchaseOrder\\ComplaintController@showComplaint')->name('complaints.showComplaint');
     $router->post('/complaints/addComment', 'PurchaseOrder\\ComplaintController@addComment')->name('complaints.addComment');
     $router->get('/complaints/skipNotification/{id}', 'PurchaseOrder\\ComplaintController@skipNotification')->name('complaints.skipNotification');
-    
+
     $router->post('/complaints/adminConfirmSuccess', 'PurchaseOrder\\ComplaintController@storeAdminConfirmSuccess')->name('complaints.storeAdminConfirmSuccess');
     $router->post('/complaints/customerConfirmSuccess', 'PurchaseOrder\\ComplaintController@storeCustomerConfirmSuccess')->name('complaints.storeCustomerConfirmSuccess');
 
@@ -185,5 +187,4 @@ Route::group([
     $router->get('search_items/{transport_code}', 'PurchaseOrder\\PurchaseOrderItemController@showRebuild')->name('purchase_order_items.showRebuild');
     $router->post('vn_received', 'PurchaseOrder\\PurchaseOrderItemController@vnReceived')->name('purchase_order_items.vnReceived');
     $router->post('updateTransportCode', 'PurchaseOrder\\PurchaseOrderController@updateTransportCode')->name('purchase_orders.updateTransportCode');
-
 });

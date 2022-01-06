@@ -34,12 +34,12 @@ class ArReportController extends AdminController
         $grid = new Grid(new ArReportModel());
 
         $grid->rows(function (Grid\Row $row) {
-            $row->column('number', ($row->number+1));
+            $row->column('number', ($row->number + 1));
         });
         $grid->column('number', 'STT');
 
         $grid->column('title', "Tên báo cáo");
-        
+
         $grid->disableExport();
         $grid->disableFilter();
         $grid->disableBatchActions();
@@ -73,32 +73,32 @@ class ArReportController extends AdminController
     {
         $report = ArReportModel::find($id);
         return $content->header($report->title)
-        ->description('Chi tiết')
-        ->row(function (Row $row) use ($id)
-        {
-            $row->column(12, function (Column $column) use ($id) 
-            {
-                $column->append((new Box('Thông tin danh mục', $this->category($id))));
+            ->description('Chi tiết')
+            ->row(function (Row $row) use ($id) {
+                $row->column(12, function (Column $column) use ($id) {
+                    $column->append((new Box('Thông tin danh mục', $this->category($id))));
+                });
+                $row->column(12, function (Column $column) use ($id) {
+                    $column->append((new Box('Chi tiết báo cáo', $this->detail($id))));
+                });
             });
-            $row->column(12, function (Column $column) use ($id) 
-            {
-                $column->append((new Box('Chi tiết báo cáo', $this->detail($id))));
-            });
-        });
     }
 
-    public function category($id) {
-
-        $html = '<a href="" class="btn btn-xs btn-primary">1. Danh sách danh mục</a> &nbsp;';
+    public function category($id)
+    {
+        $indexCategory = route('admin.ar_category.index') . "?ar_report_id=" . $id;
+        $html = '<a href="' . $indexCategory . '" class="btn btn-xs btn-primary">1. Danh sách danh mục</a> &nbsp;';
         $html .= '<a href="" class="btn btn-xs btn-warning">2. Danh sách đơn vị</a> &nbsp;';
         $html .= '<a href="" class="btn btn-xs btn-danger">3. Đồng bộ danh mục + đơn vị</a> &nbsp;';
 
         return $html;
-
     }
 
-    public function detail($id) {
-
+    public function listCategory()
+    {
     }
 
+    public function detail($id)
+    {
+    }
 }
