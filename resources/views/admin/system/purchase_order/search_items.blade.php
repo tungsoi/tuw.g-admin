@@ -38,7 +38,7 @@
             <span class="status" @if($item->status == 3) style='color: green; font-weight: bold;' @endif>{{ $item->statusText->name }}</span>
         </td>
         <td>
-            @if ($item->status != 3)
+            @if ($item->status != 3 && $item->status != 4)
                 <button class="btn btn-sm btn-warning vn-receive-item" data-pk="{{ $item->id }}">Đã về kho VN</button>
             @endif
         </td>
