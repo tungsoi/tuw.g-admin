@@ -64,10 +64,10 @@ class PurchaseOrdersExporter extends AbstractExporter
                             number_format(str_replace(",", "", $order->amount()) * $order->current_rate),
                             $order->sumItemWeight(),
                             number_format($order->deposited),
-                            number_format(
+                            (int) number_format(
                                 number_format(str_replace(",", "", $order->amount()) * $order->current_rate, 0, '.', '')
                                 - number_format($order->deposited, 0, '.', '')
-                            ), 
+                            , 0, '.', ''), 
                             $order->transport_code,
                             $order->customer_note,
                             $order->admin_note,
