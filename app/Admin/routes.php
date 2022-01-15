@@ -188,3 +188,6 @@ Route::group([
     $router->post('vn_received', 'PurchaseOrder\\PurchaseOrderItemController@vnReceived')->name('purchase_order_items.vnReceived');
     $router->post('updateTransportCode', 'PurchaseOrder\\PurchaseOrderController@updateTransportCode')->name('purchase_orders.updateTransportCode');
 });
+
+
+Route::post('api/cart/create', 'App\\Admin\\Controllers\\Customer\\CartController@createProduct');

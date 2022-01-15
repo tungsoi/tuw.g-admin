@@ -368,4 +368,25 @@ class CartController extends AdminController
  
 SCRIPT;
     }
+
+    public function createProduct(Request $request) {
+        $data = $request->all();
+
+        $item = null;
+        if ($request->file('file')) {
+            $file = $request->file->store('public/admin/images');
+
+            $data['product_image'] = str_replace("public/admin/", "", $file);
+            $data['customer_id'] = $request->user_id;
+            $data['status'] = 10;
+
+            $item = PurchaseOrderItem::create($data);
+        }
+
+        return response()->json([
+            'code'  =>  201,
+            'data'  =>  $item,
+            'msg'   =>  'success'
+        ]);
+    }
 }
