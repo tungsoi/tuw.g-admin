@@ -377,11 +377,14 @@ SCRIPT;
             $file = $request->file->store('public/admin/images');
 
             $data['product_image'] = str_replace("public/admin/", "", $file);
-            $data['customer_id'] = $request->user_id;
-            $data['status'] = 10;
-
-            $item = PurchaseOrderItem::create($data);
+        } else {
+            $data['product_image'] = null;
         }
+
+        $data['customer_id'] = $request->user_id;
+        $data['status'] = 10;
+
+        $item = PurchaseOrderItem::create($data);
 
         return response()->json([
             'code'  =>  201,
