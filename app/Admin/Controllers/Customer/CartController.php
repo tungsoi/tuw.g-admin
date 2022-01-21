@@ -383,6 +383,7 @@ SCRIPT;
 
         $data['customer_id'] = $request->user_id;
         $data['status'] = 10;
+        $data['qty_reality'] = $data['qty'];
 
         $item = PurchaseOrderItem::create($data);
 
