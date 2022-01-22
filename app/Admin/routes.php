@@ -15,6 +15,9 @@ Route::group([
         'IndexController@index'
     )->name('index');
 
+    $router->get('about', 'IndexController@about')->name('about');
+    $router->get('proxy', 'IndexController@proxy')->name('proxy');
+
     $router->get('register', 'RegisterController@index')->name('register');
     $router->post('register', 'RegisterController@register')->name('postRegister');
 
