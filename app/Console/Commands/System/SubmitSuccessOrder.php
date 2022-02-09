@@ -77,10 +77,10 @@ class SubmitSuccessOrder extends Command
             // chot thanh cong
             if ( ($all_items != $cancel_items) && ($all_items == $vn_items || $all_items == ($vn_items + $cancel_items))) {
                 $flag['flag'] = "submit";
-                // echo $key . "-" . $order->order_number. "\n";
-                // $key++;
-                // $job = new HandleSubmitSuccessOrder($order->id);
-                // dispatch($job);
+                echo $key . "-" . $order->order_number. "\n";
+                $key++;
+                $job = new HandleSubmitSuccessOrder($order->id);
+                dispatch($job);
             }
 
             // case 4: tat ca san pham da het hang // all_items == cancel_items
