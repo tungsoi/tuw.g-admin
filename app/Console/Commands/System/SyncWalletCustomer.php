@@ -86,7 +86,8 @@ class SyncWalletCustomer extends Command
         $time = date('i:s', strtotime($begin )). " --> " . date('i:s', strtotime($end));
         
         ScheduleLog::create([
-            'name'  =>  $this->signature . " - Time: " . $time . " - Error: ".sizeof($err)." - List: " . json_encode($err)
+            'name'  =>  $this->signature . " - Time: " . $time . " - Error: ".sizeof($err)." - List: " . json_encode($err),
+            'content'   =>  json_encode($ids)
         ]);
     }
 }
