@@ -276,15 +276,27 @@ class VietnamReceiveController extends AdminController
             }
 
             $(document).on('keydown','.has-many-vietnam-receive-form input', function(e) {
+                console.log("run");
                 if (e.which == 13) 
                 {
+                    console.log("enter");
                     e.preventDefault();
 
                     if (e.originalEvent.target.className != "form-control vietnam-receive transport_code") 
                     {
-                        $('#has-many-vietnam-receive .add').click();
-                        $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').focus();
-                        $( ".has-many-vietnam-receive-form" ).last().find('.STT').val( $('tr.has-many-vietnam-receive-form').length );
+                        if (e.originalEvent.target.className == "form-control vietnam-receive kg") {
+                            let temp_kg = e.originalEvent.target.value;
+
+                            if (temp_kg != "0.0") {
+                                $('#has-many-vietnam-receive .add').click();
+                                $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').focus();
+                                $( ".has-many-vietnam-receive-form" ).last().find('.STT').val( $('tr.has-many-vietnam-receive-form').length );
+                            }
+                        } else {
+                            $('#has-many-vietnam-receive .add').click();
+                            $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').focus();
+                            $( ".has-many-vietnam-receive-form" ).last().find('.STT').val( $('tr.has-many-vietnam-receive-form').length );
+                        }
                     } else {
 
                         let value = $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').val();
