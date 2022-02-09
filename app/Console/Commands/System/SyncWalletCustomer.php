@@ -5,7 +5,7 @@ namespace App\Console\Commands\System;
 use App\Models\System\ScheduleLog;
 use App\User;
 use Illuminate\Console\Command;
-use App\Models\System\Transaction as SystemTransaction;
+use App\Models\System\Transaction;
 
 class SyncWalletCustomer extends Command
 {
@@ -42,7 +42,12 @@ class SyncWalletCustomer extends Command
     {
         ini_set('memory_limit', '6400M');
 
+        $ids = Transaction::where('created_at', 'like', date('Y-m-d', strtotime(now()))."%")->get()->pluck('customer_id');
+
+        $ids = array_unique($ids->toArray());
+
         $users = User::select('id', 'wallet', 'symbol_name')
+        ->whereIn('id', $ids)
         ->whereIsCustomer(User::CUSTOMER)
         ->whereIsActive(User::ACTIVE)
         ->with('transactions')
