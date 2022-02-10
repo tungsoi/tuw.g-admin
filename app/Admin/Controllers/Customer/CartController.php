@@ -321,7 +321,7 @@ class CartController extends AdminController
                     let tr_ele = $('tr[data-key="'+data_key+'"]');
                     let item = tr_ele.find('.item-price').html();
                     item = item.replace(/,/g, "");
-                    item = parseInt(item);
+                    item = parseFloat(item);
 
                     total += item;
                 }
@@ -331,9 +331,12 @@ class CartController extends AdminController
 
             // let total_deposite_formated = number_format(total_deposite);
             let total_rmb = number_format(total, 2);
+            console.log("total_rmb " + total_rmb);
             let rate = {$exchange_rates};
-            let total_vnd = number_format(total_rmb * rate);
+            console.log("rate " + rate);
+            let total_vnd = number_format(total * rate);
 
+            console.log("total_vnd " + total_vnd);
             $('.estimate-amount-vnd').html(total_vnd);
             $('.estimate-amount').html(total_rmb);
             
