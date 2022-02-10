@@ -573,7 +573,8 @@ SCRIPT;
         return response()->json([
             'status'    =>  true,
             'data'      =>  $items,
-            'html'      =>  view('admin.system.purchase_order.search_items', compact('items'))->render()
+            'html'      =>  view('admin.system.purchase_order.search_items', compact('items', 'transportCode'))->render(),
+            'ids'   => $items->count() > 0 ? $items->pluck('id')->toArray() : []
         ]);
     }
 

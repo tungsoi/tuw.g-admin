@@ -276,17 +276,37 @@ class VietnamReceiveController extends AdminController
             }
 
             $(document).on('keydown','.has-many-vietnam-receive-form input', function(e) {
-                console.log("run");
                 if (e.which == 13) 
                 {
-                    console.log("enter");
                     e.preventDefault();
 
                     if (e.originalEvent.target.className != "form-control vietnam-receive transport_code") 
                     {
                         if (e.originalEvent.target.className == "form-control vietnam-receive kg") {
                             let temp_kg = e.originalEvent.target.value;
+                            let value = $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').val();
 
+                            $.ajaxSetup({
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                }
+                            });
+
+                            $.ajax({
+                                url: "search_items/" + value,
+                                type: 'GET',
+                                dataType: "JSON",
+                                success: function (response)
+                                {
+                                    if (response.status && response.html != "") {
+
+                                        if (checkExitesElement(value) ) {
+                                            $(".content > .row > .col-md-11 table tbody").prepend(response.html); 
+                                        }
+
+                                    }
+                                }
+                            });
                             if (temp_kg != "0.0") {
                                 $('#has-many-vietnam-receive .add').click();
                                 $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').focus();
@@ -308,7 +328,6 @@ class VietnamReceiveController extends AdminController
 
                             let count = countElement(ele_value, temp);
 
-                            console.log(count, "count");
                             if (count == 1) {
                                 $.admin.toastr.error('MVD "'+ value +'" trùng.', '', {timeOut: 5000});
                                 $( ".has-many-vietnam-receive-form" ).last().find('.transport_code').val("");
@@ -318,7 +337,6 @@ class VietnamReceiveController extends AdminController
                             }
                         });
 
-                        console.log(temp, 'temp');
 
                         if (value != "" && flag) {
                             
@@ -335,7 +353,9 @@ class VietnamReceiveController extends AdminController
                                 success: function (response)
                                 {
                                     if (response.status && response.html != "") {
-                                        $(".content > .row > .col-md-11 table tbody").prepend(response.html); 
+                                        if (checkExitesElement(value) ) {
+                                            $(".content > .row > .col-md-11 table tbody").prepend(response.html); 
+                                        } 
                                     }
                                 }
                             });
@@ -430,6 +450,17 @@ class VietnamReceiveController extends AdminController
                 // console.log(length, "length");
                 // console.log(height, "height");
                 // console.log(width, "width");
+            }
+
+            function checkExitesElement(code) {
+                let flag = $("input[name='append_" + code + "']").length;
+
+                console.log(flag);
+                if (flag == 0) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
         });
 SCRIPT;
