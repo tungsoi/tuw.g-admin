@@ -5,6 +5,8 @@ namespace App\Admin\Controllers\TransportOrder;
 use App\Admin\Services\OrderService;
 use App\Admin\Services\UserService;
 use App\Models\PurchaseOrder\PurchaseOrder;
+use App\Models\ReportWarehouse\ReportWarehouse;
+use App\Models\System\TransportLine;
 use App\Models\System\Warehouse;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -134,13 +136,21 @@ class VietnamReceiveController extends AdminController
             $form->table('vietnam-receive', '', function ($table) {
                 $table->text('STT')->default(1)->readonly();
                 $table->text('transport_code', 'Mã vận đơn')->autofocus();
-                $table->currency('kg', 'Cân nặng (kg)')->digits(1)->default(0);
+                $table->currency('kg', 'Cân (kg)')->digits(1)->default(0);
                 $table->currency('length', 'Dài (cm)')->digits(0)->default(0);
                 $table->currency('width', 'Rộng (cm)')->digits(0)->default(0);
                 $table->currency('height', 'Cao (cm)')->digits(0)->default(0);
-                $table->currency('advance_drag', 'Ứng kéo (cm)')->digits(1)->default(0);
-                $table->text('internal_note', 'Ghi chú');
+                $table->currency('advance_drag', 'Ứng kéo')->digits(1)->default(0);
                 $table->currency('m3', 'M3')->digits(3)->default(0);
+                $table->text('title', 'Mã lô');
+                $table->text('order', 'STT lô')->default('01');
+                $table->text('package', 'Kiện');
+                $table->select('line', 'QC Đóng gói')->options(ReportWarehouse::LINE)->default(1);
+                $table->select('transport_route', 'Line vận chuyển')
+                ->options(TransportLine::all()->pluck('code', 'id'))
+                ->default(1);
+                $table->text('date', 'Ngày về kho')->default(date('Y-m-d', strtotime(now())));
+                $table->text('internal_note', 'Ghi chú');
             });
         });
 
@@ -169,15 +179,29 @@ class VietnamReceiveController extends AdminController
                 display: none;
             }
 
+            .has-many-vietnam-receive th:nth-child(9), 
+            .has-many-vietnam-receive th:nth-child(10), 
+            .has-many-vietnam-receive th:nth-child(11), 
+            .has-many-vietnam-receive th:nth-child(12), 
+            .has-many-vietnam-receive th:nth-child(13), 
+            .has-many-vietnam-receive th:nth-child(14), 
+            .has-many-vietnam-receive th:nth-child(15) {
+                background: #27a65a !important;
+                color: white !important;
+            }
+
             .box {
                 border: none !important;
             }
             .input-group {
                 width: 100%;
             }
+            .has-many-vietnam-receive th:nth-child(9) {
+                min-width: 150px !important;
+            }
 
             .has-many-vietnam-receive-form td:nth-child(2) {
-                min-width: 250px !important;
+                min-width: 150px !important;
             }
             .has-many-vietnam-receive-form td:nth-child(1) {
                 width: 20px !important;
@@ -225,7 +249,7 @@ class VietnamReceiveController extends AdminController
                     $code['status'] = 1;
                     $code['vietnam_receive_user_id'] = Admin::user()->id;
                     $code['admin_note'] = $code['internal_note'];
-                    $code['internal_note']  = json_encode(PurchaseOrder::where('transport_code', 'like', '%'.$code['transport_code'].'%')->pluck('order_number')) ?? "";
+                    // $code['internal_note']  = json_encode(PurchaseOrder::where('transport_code', 'like', '%'.$code['transport_code'].'%')->pluck('order_number')) ?? "";
     
                     $flag = TransportCode::whereTransportCode(trim($code['transport_code']))->first();
     
@@ -246,6 +270,24 @@ class VietnamReceiveController extends AdminController
                         'vn_receive_at'         =>  now(),
                         'user_vn_receive_at'    =>  Admin::user()->id
                     ]);
+
+                    if ($code['title'] != "") {
+                        ReportWarehouse::create([
+                            'date'  =>  $code['date'],
+                            'order' =>  $code['order'],
+                            'title' =>  $code['title'],
+                            'weight'    =>  $code['kg'],
+                            'lenght'    =>  $code['length'],
+                            'width'     =>  $code['width'],
+                            'height'    =>  $code['height'],
+                            'cublic_meter'  =>  $code['m3'],
+                            'line'  =>  $code['line'],
+                            'transport_route'   =>  $code['transport_route'],
+                            'warehouse_id'  =>  $data['ware_house_id'],
+                            'note'  =>  $code['internal_note'],
+                            'flag'  =>  1
+                        ]);
+                    }
 
                 }
             }

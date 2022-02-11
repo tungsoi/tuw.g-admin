@@ -67,6 +67,12 @@ class DetailController extends AdminController
         $grid->created_at(trans('admin.created_at'))->display(function () {
             return date('H:i | d-m-Y', strtotime($this->created_at));
         });
+        $grid->flag("Loại")->display(function () {
+            $text = $this->flag == 1 ? "Nhập khi bắn hàng" : "Nhập cân bằng tay";
+            $color = $this->flag == 1 ? "danger" : "default";
+
+            return "<span class='label label-".$color."'>".$text."</span>";
+        });
 
         // setup
         $grid->paginate(20);
