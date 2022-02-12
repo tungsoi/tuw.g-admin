@@ -963,33 +963,59 @@ SCRIPT;
     }
 
     public function salaryGrid($id) {
-        $grid = new Grid(new Report());
+        $grid = new Grid(new SaleSalary());
         $grid->model()->whereId(-1);
+
+        $grid->filter(function($filter) {
+            $filter->expand();
+            $filter->disableIdFilter();
+
+            $service = new UserService();
+            $portal_sales = $service->GetListSaleEmployee();
+
+            $filter->equal('user_id', 'Nhân viên kinh doanh')->select($portal_sales);
+            $filter->equal('team_sale_id', 'Team Sale')->select(SystemTeamSale::all()->pluck('name', 'id'));
+        });
+
         $grid->header(function () use ($id) {
 
             if (Admin::user()->isRole('sale_employee')) {
                
                 if (Admin::user()->isRole('sale_manager')) {
-                    $data = SaleSalary::whereReportId($id)->get();
+                    $data = SaleSalary::whereReportId($id);
                 } else {
                 
                     $flag = SystemTeamSale::where('leader', Admin::user()->id)->first();
                     
                     if ($flag != "" && $flag->count() > 0) {
                         $members = $flag->members;
-                        $data = SaleSalary::whereReportId($id)->whereIn('user_id', $members)->get();
+                        $data = SaleSalary::whereReportId($id)->whereIn('user_id', $members);
                     } else {
 
                         $user_id = Admin::user()->id;
-                        $data = SaleSalary::whereReportId($id)->whereUserId($user_id)->get();
+                        $data = SaleSalary::whereReportId($id)->whereUserId($user_id);
                     }
                 }
             } else if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
-                $data = SaleSalary::whereReportId($id)->get();
+                $data = SaleSalary::whereReportId($id);
             }
 
 
             $report = Report::find($id);
+            if (isset($_GET['user_id']) && $_GET['user_id'] != "") {
+                $data->where('user_id', $_GET['user_id']);
+            }
+
+            if (isset($_GET['team_sale_id']) && $_GET['team_sale_id'] != "") {
+                $team = SystemTeamSale::find($_GET['team_sale_id']);
+
+                if ($team) {
+                    $members = $team->members;
+                    $data->whereIn('user_id', $members);
+                }
+            }
+
+            $data = $data->get();
             
             return view('admin.system.report_portal.sale_salary', compact('data', 'report'));
         });
@@ -998,7 +1024,6 @@ SCRIPT;
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
         $grid->disableCreateButton();
-        $grid->disableFilter();
         $grid->disablePagination();
         $grid->disablePerPageSelector();
         $grid->disableExport();
