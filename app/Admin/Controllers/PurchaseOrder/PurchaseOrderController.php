@@ -532,11 +532,17 @@ class PurchaseOrderController extends AdminController
 
             if (! Admin::user()->isRole('customer')) {
                 if ($this->row->status == 2) {
-                    $actions->append(new Deposite($this->row->id));
+                    if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
+                        $actions->append(new Deposite($this->row->id));
+                    }
+                    
                 }
 
                 $actions->append(new Update($this->row->id));
-                $actions->append(new Recharge($this->row->customer_id));
+
+                if (Admin::user()->can('recharge_for_customer')) {
+                    $actions->append(new Recharge($this->row->customer_id));
+                }
             }    
 
             if (Admin::user()->isRole('customer') && ! in_array($this->row->status, [2])) {
