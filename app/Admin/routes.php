@@ -43,7 +43,6 @@ Route::group([
     'as'            => config('admin.route.prefix') . '.',
 ], function (Router $router) {
     $router->resources([
-
         'auth/roles'        =>  'System\\RoleController', // admin
         'warehouses'        =>  'System\\WarehouseController', // admin
         'exchange_rates'    =>  'System\\ExchangeRateController', // admin
@@ -74,8 +73,9 @@ Route::group([
         'sale_salary_details'   =>  'Report\\SaleSalaryDetailController',
         'order_reports' =>  'Report\\OrderReportController',
         'order_report_success'  =>  'Report\\OrderReportSuccessController',
-        'ar_reports'    =>  'Report\\ArReportController',
-        'ar_category'    =>  'Report\\ArCategoryController',
+        'ars/categories'    =>  'ReportAr\\CategoryController',
+        'ars/units'     =>  'ReportAr\\UnitController',
+        'ars/details'   =>  'ReportAr\\DetailController'
     ]);
 
     $router->get('ar_reports/{ar_report}', 'Report\\ArReportController@showRebuild')->name('ar_reports.show');

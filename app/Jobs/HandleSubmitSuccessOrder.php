@@ -83,7 +83,8 @@ class HandleSubmitSuccessOrder implements ShouldQueue
                     'user_id_created'   =>  1,
                     'type_recharge' =>  $type,
                     'content'   =>  $content,
-                    'money'     =>  $owed
+                    'money'     =>  $owed,
+                    'order_id'  =>  $order->id
                 ]);
             }
         }

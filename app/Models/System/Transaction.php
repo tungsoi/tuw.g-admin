@@ -18,7 +18,8 @@ class Transaction extends Model
         'updated_user_id',
         'money',
         'bank_id',
-        'created_at'
+        'created_at',
+        'order_id'
     ];
 
     public function userCreated() {

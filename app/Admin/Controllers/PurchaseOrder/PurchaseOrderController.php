@@ -1059,7 +1059,8 @@ SCRIPT;
                     Admin::user()->id, // khach hang
                     $deposite,
                     3,
-                    "Đặt cọc đơn hàng mua hộ $order->order_number"
+                    "Đặt cọc đơn hàng mua hộ $order->order_number",
+                    $order->id
                 );
                 dispatch($job);
 
@@ -1159,7 +1160,8 @@ SCRIPT;
             Admin::user()->id, // admin
             $request->deposited,
             3,
-            "Đặt cọc đơn hàng mua hộ $order->order_number"
+            "Đặt cọc đơn hàng mua hộ $order->order_number",
+            $order->id
         );
         dispatch($job);
 
@@ -1209,7 +1211,8 @@ SCRIPT;
                     1,
                     $owed,
                     $type,
-                    $content
+                    $content,
+                    $order->id
                 );
                 dispatch($job);
             }
@@ -1519,7 +1522,8 @@ SCRIPT;
                 Admin::user()->id, // admin
                 $money,
                 3,
-                "Đặt cọc đơn hàng mua hộ $order->order_number"
+                "Đặt cọc đơn hàng mua hộ $order->order_number",
+                $order->id
             );
             dispatch($job);
         }

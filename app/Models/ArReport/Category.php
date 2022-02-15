@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  *
  * @method where($parent_id, $id)
  */
-class ArCategory extends Model
+class Category extends Model
 {
     use DefaultDatetimeFormat;
     use ModelTree {

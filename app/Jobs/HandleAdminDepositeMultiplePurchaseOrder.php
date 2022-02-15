@@ -71,7 +71,8 @@ class HandleAdminDepositeMultiplePurchaseOrder implements ShouldQueue
                 $this->user_created_id, // admin
                 $deposited_final,
                 3,
-                "Đặt cọc đơn hàng mua hộ $order->order_number"
+                "Đặt cọc đơn hàng mua hộ $order->order_number",
+                $order->id
             );
             dispatch($job);
         }

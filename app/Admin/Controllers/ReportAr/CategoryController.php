@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Admin\Controllers\Report;
+namespace App\Admin\Controllers\ReportAr;
 
-use App\Models\ArReport\ArCategory;
-use App\Models\ArReport\ArReport;
+use App\Models\ArReport\Category;
 use Encore\Admin\Controllers\HasResourceActions;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -14,7 +13,7 @@ use Encore\Admin\Tree;
 use Encore\Admin\Widgets\Box;
 use Illuminate\Routing\Controller;
 
-class ArCategoryController extends Controller
+class CategoryController extends Controller
 {
     use HasResourceActions;
 
@@ -27,26 +26,18 @@ class ArCategoryController extends Controller
      */
     public function index(Content $content)
     {
-        $ar_report_id = isset($_GET['ar_report_id']) ? $_GET['ar_report_id'] : null;
-        $report = ArReport::find($ar_report_id);
         return $content
-            ->title('Danh muc - ' . $report->title)
+            ->title('Danh muc')
             ->description(trans('admin.list'))
             ->row(function (Row $row) {
-                $row->column(7, ArCategory::tree(function ($tree) {
-                    $tree->query(function ($model) {
-                        dd('oke');
-                        return $model->where('ar_report_id', $_GET['ar_report_id']);
-                    });
-                }));
+                $row->column(7, Category::tree());
 
                 $row->column(5, function (Column $column) {
                     $form = new \Encore\Admin\Widgets\Form();
-                    $menuModel = ArCategory::class;
+                    $menuModel = Category::class;
                     $form->select('parent_id', trans('admin.parent_id'))->options($menuModel::selectOptions());
                     $form->text('title', trans('admin.title'))->rules('required');
                     $form->hidden('_token')->default(csrf_token());
-                    $form->hidden('ar_report_id')->default($_GET['ar_report_id']);
 
                     $column->append((new Box(trans('admin.new'), $form))->style('success'));
                 });
@@ -56,7 +47,7 @@ class ArCategoryController extends Controller
     public function treeViewIndex() {
         return Admin::content(function (Content $content) {
             $content->header('Categories');
-            $content->body(ArCategory::tree());
+            $content->body(Category::tree());
         });
     }
 
@@ -77,9 +68,9 @@ class ArCategoryController extends Controller
      */
     protected function treeView()
     {
-        $menuModel = ArCategory::class;
+        $menuModel = Category::class;
 
-        $tree = new Tree(new ArCategory());
+        $tree = new Tree(new Category());
 
         $tree->disableCreate();
 
@@ -125,7 +116,7 @@ class ArCategoryController extends Controller
      */
     public function form()
     {
-        $menuModel = ArCategory::class;
+        $menuModel = Category::class;
 
         $form = new Form(new $menuModel());
 
@@ -136,8 +127,6 @@ class ArCategoryController extends Controller
 
         $form->display('created_at', trans('admin.created_at'));
         $form->display('updated_at', trans('admin.updated_at'));
-
-        $form->hidden('ar_report_id')->default($_GET['ar_report_id']);
 
         return $form;
     }

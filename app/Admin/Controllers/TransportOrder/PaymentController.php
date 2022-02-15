@@ -318,7 +318,8 @@ class PaymentController extends AdminController
                 Admin::user()->id,
                 $payment_order_data['amount'],
                 3,
-                "Thanh toán đơn hàng vận chuyển " . "C".$order->id
+                "Thanh toán đơn hàng vận chuyển " . "C".$order->id,
+                $order->id
             );
             dispatch($job);
         }
@@ -732,7 +733,8 @@ EOT);
                 Admin::user()->id,
                 $paymentOrder->amount,
                 3,
-                "Thanh toán đơn hàng vận chuyển " . $paymentOrder->order_number
+                "Thanh toán đơn hàng vận chuyển " . $paymentOrder->order_number,
+                $paymentOrder->id
             );
             dispatch($job);
 
