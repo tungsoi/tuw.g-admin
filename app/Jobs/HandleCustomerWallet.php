@@ -20,6 +20,7 @@ class HandleCustomerWallet implements ShouldQueue
     protected $money;
     protected $type;
     protected $content;
+    protected $order_id;
 
     /**
      * Create a new job instance.
@@ -33,6 +34,7 @@ class HandleCustomerWallet implements ShouldQueue
         $this->money = $money;
         $this->type = $type;
         $this->content = $content;
+        $this->order_id = $order_id;
     }
 
     /**
