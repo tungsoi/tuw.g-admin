@@ -44,6 +44,10 @@ class DetailController extends AdminController
             $filter->disableIdFilter();
             $filter->date('date', "Ngày về kho")->date();
             $filter->like('title', "Ký hiệu");
+            $filter->equal('flag', 'Loại')->select([
+                1   =>  "Nhập khi bắn hàng",
+                0   =>  "Nhập cân bằng tay"
+            ]);
         });
 
         $grid->column('date',"Ngày về kho")->width(150)->editable();
@@ -66,6 +70,12 @@ class DetailController extends AdminController
         $grid->note('Ghi chú')->editable();
         $grid->created_at(trans('admin.created_at'))->display(function () {
             return date('H:i | d-m-Y', strtotime($this->created_at));
+        });
+        $grid->flag("Loại")->display(function () {
+            $text = $this->flag == 1 ? "Nhập khi bắn hàng" : "Nhập cân bằng tay";
+            $color = $this->flag == 1 ? "danger" : "default";
+
+            return "<span class='label label-".$color."'>".$text."</span>";
         });
 
         // setup

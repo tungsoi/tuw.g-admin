@@ -38,7 +38,8 @@ class ReportWarehouse extends Model
         'line',
         'transport_route',
         'warehouse_id',
-        'note'
+        'note',
+        'flag'
     ];
 
     public function details() {

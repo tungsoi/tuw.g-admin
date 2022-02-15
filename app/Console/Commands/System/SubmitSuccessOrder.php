@@ -49,25 +49,57 @@ class SubmitSuccessOrder extends Command
         echo $orders->count() . "\n";
         
         $key = 0;
+        $data = [];
         foreach ($orders as $order) {
-            $items = $order->items->count();
-            $all_items = $order->items->where('status', '!=', 4)->count();
-            $vn_items = $order->items->where('status', 3)->count();
-            $cancel_items = $order->items->where('status', 4)->count();
+            echo $order->order_number . "\n";
 
-            if ($items == 1 && $cancel_items == 1) {
+            $all_items = $order->items->count(); // tat ca san pham
+            $vn_items = $order->items->where('status', 3)->count(); // da ve viet nam
+            $cancel_items = $order->items->where('status', 4)->count(); // da het hang
+            $order_items = $order->items->where('status', 1)->count(); // da dat hang
+            $new_items = $order->items->where('status', 0)->count(); // chua dat hang
 
-            }
-            else if ($all_items == $vn_items) {
+            $flag = [
+                $order->order_number,
+                'all_items' =>  $all_items,
+                'vn_items' =>  $vn_items,
+                'cancel_items' =>  $cancel_items,
+                'order_items' =>  $order_items,
+                'new_items' =>  $new_items,
+            ];
+            // case 1: tat ca san pham chua dat hang // all_items == new_items
+            // nothing
+
+            // case 2: tat ca san pham da dat hang // all_items == order_items
+            // nothing
+
+            // case 3: tat ca san pham da ve viet nam // all_items == vn_items || all_items == (vn_items + cancel_items)
+            // chot thanh cong
+            if ( ($all_items != $cancel_items) && ($all_items == $vn_items || $all_items == ($vn_items + $cancel_items))) {
+                $flag['flag'] = "submit";
                 echo $key . "-" . $order->order_number. "\n";
                 $key++;
                 $job = new HandleSubmitSuccessOrder($order->id);
                 dispatch($job);
             }
+
+            // case 4: tat ca san pham da het hang // all_items == cancel_items
+            // huy don
+
+            else if ($all_items == $cancel_items) {
+                $flag['flag'] = "cancel";
+            }
+
+            else {
+                $flag['flag'] = "nothing";
+            }
+
+            $data[] = $flag;
         }
 
         ScheduleLog::create([
-            'name'  =>  $this->signature . " - " . $key
+            'name'  =>  $this->signature . " - " . $key,
+            'content'   =>  json_encode($data)
         ]);
     }
 }

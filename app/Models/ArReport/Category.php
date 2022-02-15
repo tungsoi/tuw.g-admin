@@ -2,6 +2,7 @@
 
 namespace App\Models\ArReport;
 
+use Encore\Admin\Traits\AdminBuilder;
 use Encore\Admin\Traits\DefaultDatetimeFormat;
 use Encore\Admin\Traits\ModelTree;
 use Illuminate\Database\Eloquent\Model;
@@ -15,12 +16,13 @@ use Illuminate\Support\Facades\DB;
  *
  * @method where($parent_id, $id)
  */
-class ArCategory extends Model
+class Category extends Model
 {
     use DefaultDatetimeFormat;
     use ModelTree {
         ModelTree::boot as treeBoot;
     }
+    use AdminBuilder;
 
     protected $table = "ar_categories";
 

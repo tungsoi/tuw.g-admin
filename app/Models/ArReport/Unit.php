@@ -4,9 +4,9 @@ namespace App\Models\ArReport;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ArReport extends Model
+class Unit extends Model
 {
-    protected $table = "ar_reports";
+    protected $table = "ar_units";
 
     protected $fillable = [
         'title'

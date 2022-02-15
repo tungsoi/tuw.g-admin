@@ -45,7 +45,7 @@ class SaleRevenue extends Command
      */
     public function handle()
     {
-        ini_set("memory_limit","256M");
+        ini_set("memory_limit","2560M");
 
         $begin_date = $this->argument('begin_date');
         $finish_date = $this->argument('finish_date');

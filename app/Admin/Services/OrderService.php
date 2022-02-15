@@ -121,7 +121,8 @@ class OrderService {
                     1,
                     $order->deposited,
                     2,
-                    "Khách hàng huỷ đơn. Hoàn tiền cọc đơn hàng mua hộ $order->order_number"
+                    "Khách hàng huỷ đơn. Hoàn tiền cọc đơn hàng mua hộ $order->order_number",
+                    $order->id
                 );
 
                 dispatch($job);
@@ -139,7 +140,8 @@ class OrderService {
                     1,
                     $order->deposited,
                     2,
-                    "Huỷ đơn hàng. Hoàn tiền cọc đơn hàng mua hộ $order->order_number"
+                    "Huỷ đơn hàng. Hoàn tiền cọc đơn hàng mua hộ $order->order_number",
+                    $order->id
                 );
 
                 dispatch($job);

@@ -13,4 +13,14 @@ class IndexController extends Controller
         $alert = Alert::whereStatus(1)->first();
         return view('home.index', compact('alert'));
     }
+
+    public function about() {
+        return view('home.about');
+    }
+
+    public function proxy() {
+        return view('home.proxy');
+    }
+
+    
 }

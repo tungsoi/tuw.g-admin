@@ -46,6 +46,7 @@ class SaleSalary extends Model
         'employee_working_point',
         'new_customer_ids',
         'old_customer_ids',
+        'team_sale_id'
     ];
 
     public function employee() {

@@ -532,11 +532,17 @@ class PurchaseOrderController extends AdminController
 
             if (! Admin::user()->isRole('customer')) {
                 if ($this->row->status == 2) {
-                    $actions->append(new Deposite($this->row->id));
+                    if (Admin::user()->isRole('ar_employee') || Admin::user()->isRole('administrator')) {
+                        $actions->append(new Deposite($this->row->id));
+                    }
+                    
                 }
 
                 $actions->append(new Update($this->row->id));
-                $actions->append(new Recharge($this->row->customer_id));
+
+                if (Admin::user()->can('recharge_for_customer')) {
+                    $actions->append(new Recharge($this->row->customer_id));
+                }
             }    
 
             if (Admin::user()->isRole('customer') && ! in_array($this->row->status, [2])) {
@@ -1053,7 +1059,8 @@ SCRIPT;
                     Admin::user()->id, // khach hang
                     $deposite,
                     3,
-                    "Đặt cọc đơn hàng mua hộ $order->order_number"
+                    "Đặt cọc đơn hàng mua hộ $order->order_number",
+                    $order->id
                 );
                 dispatch($job);
 
@@ -1153,7 +1160,8 @@ SCRIPT;
             Admin::user()->id, // admin
             $request->deposited,
             3,
-            "Đặt cọc đơn hàng mua hộ $order->order_number"
+            "Đặt cọc đơn hàng mua hộ $order->order_number",
+            $order->id
         );
         dispatch($job);
 
@@ -1203,7 +1211,8 @@ SCRIPT;
                     1,
                     $owed,
                     $type,
-                    $content
+                    $content,
+                    $order->id
                 );
                 dispatch($job);
             }
@@ -1513,7 +1522,8 @@ SCRIPT;
                 Admin::user()->id, // admin
                 $money,
                 3,
-                "Đặt cọc đơn hàng mua hộ $order->order_number"
+                "Đặt cọc đơn hàng mua hộ $order->order_number",
+                $order->id
             );
             dispatch($job);
         }
