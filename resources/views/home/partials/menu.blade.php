@@ -8,9 +8,12 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#about">Dịch vụ</a></li>
+                <li class="nav-item"><a class="nav-link" href="#about">Bảng giá</a></li>
                 <li class="nav-item"><a class="nav-link" href="#about">Giới thiệu</a></li>
-                <li class="nav-item"><a class="nav-link" href="#projects">Quy trình đặt hàng</a></li>
-                <li class="nav-item"><a class="nav-link" href="#signup">Liên hệ</a></li>
+                {{-- <li class="nav-item"><a class="nav-link" href="#projects">Quy trình đặt hàng</a></li> --}}
+                {{-- <li class="nav-item"><a class="nav-link" href="#signup">Liên hệ</a></li> --}}
+                {{-- <li class="nav-item"><a class="nav-link" href="">App Mobile</a></li> --}}
                 <li class="nav-item"><a class="nav-link" href="{{ route('home.register') }}">Đăng ký</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('admin.login') }}">Đăng nhập</a></li>
             </ul>

@@ -8,7 +8,7 @@
         @include('home.partials.menu')
         @include('home.partials.banner')
 
-        @include('home.partials.modal')
+        {{-- @include('home.partials.modal') --}}
         
        
         <!-- About-->

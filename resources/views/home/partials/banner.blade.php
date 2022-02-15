@@ -28,7 +28,37 @@
                 <p style="color: white;">CÔNG CỤ ĐẶT HÀNG</p> <br>
                 <a class="btn btn-warning btn-sm" href="https://chrome.google.com/webstore/detail/alilogi-logistics-%C4%91%E1%BA%B7t-h%C3%A0n/dbfdjaaohgcjfeldjpgbpbpbajdafkec" style="margin-top: 20px;">Cài đặt cho Google Chorme</a>
                 <a class="btn btn-success btn-sm" href="https://chrome.google.com/webstore/detail/alilogi-logistics-%C4%91%E1%BA%B7t-h%C3%A0n/dbfdjaaohgcjfeldjpgbpbpbajdafkec" style="margin-top: 20px;">Cài đặt cho Cốc cốc</a>
+                <div class="store-dow"> 
+                    <a href="">
+                        <i class="chipo-icon icon-appstore"></i>
+                    </a>
+                    <a rel="nofollow" href="" target="_blank">
+                        <i class="chipo-icon icon-playstore"></i>
+                    </a> 
+                </div>
             </div>
         </div>
     </div>
 </header>
+<style>
+.store-dow{
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-evenly;
+}
+.chipo-icon.icon-appstore {
+    background-image: url(https://naipot.com/cb3095485279/static/web/images/icon-appstore.png);
+    width: 134px;
+    height: 40px;
+    display: inline-block;
+    float: left;
+    margin-bottom: 7px;
+}  
+.chipo-icon.icon-playstore {
+    background-image: url(https://naipot.com/cb3835360552/static/web/images/icon-playstore.png);
+    width: 134px;
+    height: 40px;
+    display: inline-block;
+    float: left;
+}  
+</style>
