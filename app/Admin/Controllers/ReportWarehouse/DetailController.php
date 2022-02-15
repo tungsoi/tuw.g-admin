@@ -44,6 +44,10 @@ class DetailController extends AdminController
             $filter->disableIdFilter();
             $filter->date('date', "Ngày về kho")->date();
             $filter->like('title', "Ký hiệu");
+            $filter->equal('flag', 'Loại')->select([
+                1   =>  "Nhập khi bắn hàng",
+                0   =>  "Nhập cân bằng tay"
+            ]);
         });
 
         $grid->column('date',"Ngày về kho")->width(150)->editable();
