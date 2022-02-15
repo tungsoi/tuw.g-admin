@@ -3,6 +3,8 @@
 namespace App\Console\Commands\Test;
 
 use App\Jobs\HandleCustomerWallet;
+use App\Models\System\TransactionWeight;
+use App\User;
 use Illuminate\Console\Command;
 
 class TestHandleCustomerWallet extends Command
@@ -38,41 +40,28 @@ class TestHandleCustomerWallet extends Command
      */
     public function handle()
     {
-        $job = new HandleCustomerWallet(
-            684,
-            1,
-            rand(100000, 1000000),
-            0,
-            "Test Nạp tiền chuyển khoản"
-        );
-        dispatch($job);
-        
-        $job = new HandleCustomerWallet(
-            684,
-            1,
-            rand(100000, 1000000),
-            1,
-            "Test Nạp tiền mặt"
-        );
-        dispatch($job);
+        // nhan
+        $user_ids = TransactionWeight::whereType(2)->get()->pluck('customer_id')->toArray();
+        $user_ids = array_unique($user_ids);
 
-        $job = new HandleCustomerWallet(
-            684,
-            1,
-            rand(100000, 1000000),
-            2,
-            "Test Hoàn tiền"
-        );
-        dispatch($job);
+        foreach ($user_ids as $user_id) {
+            $user = User::find($user_id);
+            $rev = TransactionWeight::whereType(2)->whereCustomerId($user_id)->sum('kg');
+            $rev = number_format($rev, 2, '.', '');
+            $used = TransactionWeight::whereType(1)->whereCustomerId($user_id)->sum('kg');
+            $used = number_format($used, 2, '.', '');
+            $owed = $rev-$used;
+            $wallet = $user->wallet_weight;
 
-        $job = new HandleCustomerWallet(
-            684,
-            1,
-            rand(100000, 1000000),
-            3,
-            "Test Trừ tiền"
-        );
-        dispatch($job);
-
+            if ($owed < 0) {
+                echo $user->symbol_name . " - Duoc nhan: "
+                    . $rev
+                    . " - Da dung: "
+                    . $used
+                    . " - Con du: " . $owed
+                    . " - Trong vi: " . $wallet
+                    . "\n";
+            }
+        }
     }
 }

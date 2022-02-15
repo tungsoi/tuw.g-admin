@@ -25,7 +25,7 @@ class WeightPortalController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Ví cân tổng hợp';
+    protected $title = 'Tổng quan';
     protected $current_kg = 'Tổng cân hiện tại';
     protected $add_kg = 'Thêm cân';
     protected $add_employee = 'Chia cân đến nhân viên';
@@ -46,37 +46,39 @@ class WeightPortalController extends AdminController
             ->description($this->description['index'] ?? trans('admin.list'))
             ->row(function (Row $row)
             {
-                $row->column(2, new InfoBox("Tổng cân trên toàn thời gian", 'weight', 'aqua', '/admin/customers', WeightPortal::whereType(2)->sum('value')));
-                $row->column(2, new InfoBox("Cân tổng còn lại chưa chia", 'weight', 'red', '/admin/customers', WeightPortal::whereType(1)->sum('value')));
-                $row->column(2, new InfoBox("Tổng cân đã chia nhân viên", 'weight', 'primary', '/admin/customers', WeightPortal::whereType(3)->sum('value')));
-                $row->column(2, new InfoBox("Tổng cân đã chia khách hàng", 'weight', 'orange', '/admin/customers', TransactionWeight::whereType(2)->sum('kg')));
-                $row->column(2, new InfoBox("Tổng số cân nhân viên còn giữ", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::ADMIN)->sum('wallet_weight')));
-                $row->column(2, new InfoBox("Tổng cân khách hàng còn dư", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::CUSTOMER)->sum('wallet_weight')));
+                $row->column(6, new InfoBox("Tổng cân trên toàn thời gian", 'weight', 'aqua', '/admin/customers', WeightPortal::whereType(2)->sum('value')));
+                $row->column(6, new InfoBox("Cân tổng còn lại chưa chia", 'weight', 'red', '/admin/customers', WeightPortal::whereType(1)->sum('value')));
+                $row->column(6, new InfoBox("Tổng cân đã chia nhân viên", 'weight', 'primary', '/admin/customers', WeightPortal::whereType(3)->sum('value')));
+                $row->column(6, new InfoBox("Tổng số cân nhân viên còn giữ", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::ADMIN)->sum('wallet_weight')));
 
-            })
-            ->row(function (Row $row) {
+                $row->column(4, new InfoBox("Tổng cân đã chia khách hàng", 'weight', 'orange', '/admin/customers', TransactionWeight::whereType(2)->sum('kg')));
+                $row->column(4, new InfoBox("Tổng cân khách hàng đã thanh toán", 'weight', 'red', '/admin/customers', TransactionWeight::whereType(1)->sum('kg')));
+                $row->column(4, new InfoBox("Tổng cân khách hàng còn dư", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::CUSTOMER)->sum('wallet_weight')));
 
-                $row->column(12, function (Column $column) {
-                    $column->append((new Box('Lịch sử cân', $this->grid()->render())));
-                });
-            })
-            ->row(function (Row $row) { 
-
-                $row->column(12, function (Column $column)
-                {
-                    $column->append((new Box('Lịch sử ' . $this->add_employee, $this->gridEmployee()->render())));
-                });
-
-                $row->column(12, function (Column $column)
-                {
-                    $column->append((new Box('Lịch sử ' . $this->add_customer, $this->gridCustomer()->render()))); 
-                });
-
-                $row->column(12, function (Column $column)
-                {
-                    $column->append((new Box('Lịch sử ' . $this->used_customer, $this->gridUsed()->render()))); // $this->gridUsed()->render()
-                });
             });
+            // ->row(function (Row $row) {
+
+            //     $row->column(12, function (Column $column) {
+            //         $column->append((new Box('Lịch sử cân', $this->grid()->render())));
+            //     });
+            // })
+            // ->row(function (Row $row) { 
+
+            //     $row->column(12, function (Column $column)
+            //     {
+            //         $column->append((new Box('Lịch sử ' . $this->add_employee, $this->gridEmployee()->render())));
+            //     });
+
+            //     $row->column(12, function (Column $column)
+            //     {
+            //         $column->append((new Box('Lịch sử ' . $this->add_customer, $this->gridCustomer()->render()))); 
+            //     });
+
+            //     $row->column(12, function (Column $column)
+            //     {
+            //         $column->append((new Box('Lịch sử ' . $this->used_customer, $this->gridUsed()->render()))); // $this->gridUsed()->render()
+            //     });
+            // });
     }
     
     /**

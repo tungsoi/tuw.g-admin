@@ -75,7 +75,11 @@ Route::group([
         'order_report_success'  =>  'Report\\OrderReportSuccessController',
         'ars/categories'    =>  'ReportAr\\CategoryController',
         'ars/units'     =>  'ReportAr\\UnitController',
-        'ars/details'   =>  'ReportAr\\DetailController'
+        'ars/details'   =>  'ReportAr\\DetailController',
+        'weight_portals_company'    =>  'System\\WeightPortalCompanyController', // admin
+        'weight_portals_staff'  =>  'System\\WeightPortalStaffController', // admin
+        'weight_portals_customer'   =>  'System\\WeightPortalCustomerController',
+        'weight_portals_payment'    =>  'System\\WeightPortalPaymentController',
     ]);
 
     $router->get('ar_reports/{ar_report}', 'Report\\ArReportController@showRebuild')->name('ar_reports.show');
