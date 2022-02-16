@@ -14,13 +14,18 @@ class IndexController extends Controller
         return view('home.index', compact('alert'));
     }
 
-    public function about() {
+    public function about()
+    {
         return view('home.about');
     }
 
-    public function proxy() {
+    public function proxy()
+    {
         return view('home.proxy');
     }
 
-    
+    public function service()
+    {
+        return  view('home.service');
+    }
 }

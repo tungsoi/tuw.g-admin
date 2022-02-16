@@ -17,6 +17,7 @@ Route::group([
 
     $router->get('about', 'IndexController@about')->name('about');
     $router->get('proxy', 'IndexController@proxy')->name('proxy');
+    $router->get('service', 'IndexController@service')->name('service');
 
     $router->get('register', 'RegisterController@index')->name('register');
     $router->post('register', 'RegisterController@register')->name('postRegister');
@@ -75,7 +76,9 @@ Route::group([
         'order_report_success'  =>  'Report\\OrderReportSuccessController',
         'ars/categories'    =>  'ReportAr\\CategoryController',
         'ars/units'     =>  'ReportAr\\UnitController',
-        'ars/details'   =>  'ReportAr\\DetailController'
+        'ars/details'   =>  'ReportAr\\DetailController',
+
+        'fr_service'        =>  'System\\ServiceController', // admin
     ]);
 
     $router->get('ar_reports/{ar_report}', 'Report\\ArReportController@showRebuild')->name('ar_reports.show');
