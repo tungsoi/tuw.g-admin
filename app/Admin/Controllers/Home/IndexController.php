@@ -40,4 +40,9 @@ class IndexController extends Controller
         }
         return  view('home.service', compact('data'));
     }
+
+    public function priceList()
+    {
+        return view('home.priceList');
+    }
 }

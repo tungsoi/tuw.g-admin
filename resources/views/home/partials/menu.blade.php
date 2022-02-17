@@ -9,7 +9,7 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="{{route('home.service')}}">Dịch vụ</a></li>
-                <li class="nav-item"><a class="nav-link" href="">Bảng giá</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('home.priceList') }}">Bảng giá</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('home.about') }}">Giới thiệu</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('home.proxy') }}">Chính sách khiếu nại</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('home.register') }}">Đăng ký</a></li>

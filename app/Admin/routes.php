@@ -18,6 +18,7 @@ Route::group([
     $router->get('about', 'IndexController@about')->name('about');
     $router->get('proxy', 'IndexController@proxy')->name('proxy');
     $router->get('service', 'IndexController@service')->name('service');
+    $router->get('price-list', 'IndexController@priceList')->name('priceList');
 
     $router->get('register', 'RegisterController@index')->name('register');
     $router->post('register', 'RegisterController@register')->name('postRegister');
