@@ -56,6 +56,7 @@ class ServiceController extends AdminController
         $show->field('id', trans('admin.id'));
         $show->title(trans('admin.title'));
         $show->description('Chi tiết');
+        $show->image()->image("", 100, 100);
         $show->field('created_at', trans('admin.created_at'));
         $show->field('updated_at', trans('admin.updated_at'));
 
@@ -74,14 +75,13 @@ class ServiceController extends AdminController
         $form->display('id', __('ID'));
         $form->text('title', 'Tiêu đề')->rules('required');
         $form->textarea('description', 'Chi tiết')->rules('required');
-        $form->image('image', 'Ảnh')
+        $form->multipleFile('image', 'Ảnh')
             ->rules('mimes:jpeg,png,jpg')
             ->help('Ảnh đầu tiên sẽ hiển thị là ảnh đại diện')
             ->removable()->rules('required');
         $form->disableEditingCheck();
         $form->disableCreatingCheck();
         $form->disableViewCheck();
-
         return $form;
     }
 }

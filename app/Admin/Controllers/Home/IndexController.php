@@ -4,7 +4,9 @@ namespace App\Admin\Controllers\Home;
 
 use App\Http\Controllers\Controller;
 use App\Models\System\Alert;
+use App\Models\System\Service;
 use App\User;
+use Illuminate\Support\Str;
 
 class IndexController extends Controller
 {
@@ -26,6 +28,16 @@ class IndexController extends Controller
 
     public function service()
     {
-        return  view('home.service');
+        $services = Service::all();
+        $data = [];
+        foreach ($services as $item) {
+            $data[] = [
+                'title' => $item['title'] ?? '',
+                'created_at' =>  $item['created_at'] ? date_format($item['created_at'], "Y/m/d") : '',
+                'description' => $item['description'] ? Str::limit($item['description'], 150) : '',
+                'img' => $item['image'] ? $item['image'][0] : ''
+            ];
+        }
+        return  view('home.service', compact('data'));
     }
 }
