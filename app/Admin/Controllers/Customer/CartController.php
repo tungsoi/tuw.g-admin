@@ -387,6 +387,10 @@ SCRIPT;
         $data['customer_id'] = $request->user_id;
         $data['status'] = 10;
         $data['qty_reality'] = $data['qty'];
+        $price = str_replace("¥", "", $data["price"]);
+        $price = number_format($price, 2, '.', '');
+
+        $data['price'] = $price;
 
         $item = PurchaseOrderItem::create($data);
 
