@@ -388,6 +388,7 @@ SCRIPT;
         $data['status'] = 10;
         $data['qty_reality'] = $data['qty'];
         $price = str_replace("¥", "", $data["price"]);
+        $price = str_replace(" ", "", $price);
 
         $data['price'] = $price;
 
