@@ -51,7 +51,15 @@
                 <td align="right">{{ $code->length }}</td>
                 <td align="right">{{ $code->width }}</td>
                 <td align="right">{{ $code->height }}</td>
-                <td align="right">{{ ($code->m3 == "" || $code->m3 == "0.00") ? $code->m3_cal() : $code->m3 }}</td>
+                <td align="right">
+                    @php
+                        $m3 = ($code->m3 == "" || $code->m3 == "0.00") ? $code->m3_cal() : $code->m3;
+                    @endphp
+                    
+                    @if ($m3 == "0.000" || $m3 == "0.00" || $m3 == "0") 
+                        <span style="color: red">{{ $m3 }}</span>
+                    @endif
+                </td>
                 <td align="right">{{ str_replace(".00", "", $code->v()) }}</td>
                 <td align="right">{{ $code->advance_drag }}</td>
             </tr>

@@ -6,8 +6,8 @@
         <tr>
             <td style="width: 50%;">
                 <select class="discount_type form-control" style="width: 100%;" name="discount_type">
-                    <option value="1" selected="">Giảm đi</option>
-                    <option value="0">Tăng lên</option>
+                    <option value="1">Giảm đi</option>
+                    <option value="0"  selected="">Tăng lên</option>
                 </select>
             </td>
             <td>
