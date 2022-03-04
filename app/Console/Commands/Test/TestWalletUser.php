@@ -22,7 +22,7 @@ class TestWalletUser extends Command
      *
      * @var string
      */
-    protected $signature = 'test';
+    protected $signature = 'test {title}';
 
     /**
      * The console command description.
@@ -57,7 +57,7 @@ class TestWalletUser extends Command
           "registration_ids" => $FcmToken,
           "notification" => [
               "title" => 'Alilogi',
-              "body" => 'Ngày mới tốt lành!',  
+              "body" => $this->argument('title'),  
               "icon"  =>  "https://img.icons8.com/doodle/2x/tow-truck--v1.png 2x"
           ]
       ];
