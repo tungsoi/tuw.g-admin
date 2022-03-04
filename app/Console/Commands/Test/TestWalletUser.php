@@ -48,6 +48,47 @@ class TestWalletUser extends Command
      */
     public function handle()
     {   
+      $url = 'https://fcm.googleapis.com/fcm/send';
+      $FcmToken = User::whereNotNull('device_key')->pluck('device_key')->all();
+        
+      $serverKey = 'AAAATD96E58:APA91bEs-WqVYzZdTxBFEVaJlsiBrebZGPd13azXgXtZk3rk0lnyRmm6NOKDh6eOx1Uc6hUUaT-8F0Pn5SuGYrpUL4SXtmJHQVyytmINV9VeaIXxxsPdJByBR5V-CeWHTG8y-8idKBQq';
+
+      $data = [
+          "registration_ids" => $FcmToken,
+          "notification" => [
+              "title" => 'Alilogi',
+              "body" => 'Ngày mới tốt lành!',  
+              "icon"  =>  "https://img.icons8.com/doodle/2x/tow-truck--v1.png 2x"
+          ]
+      ];
+      $encodedData = json_encode($data);
+  
+      $headers = [
+          'Authorization:key=' . $serverKey,
+          'Content-Type: application/json',
+      ];
+  
+      $ch = curl_init();
+    
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_POST, true);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+      curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+      // Disabling SSL Certificate support temporarly
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);        
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
+      // Execute post
+      $result = curl_exec($ch);
+      if ($result === FALSE) {
+          die('Curl failed: ' . curl_error($ch));
+      }        
+      // Close connection
+      curl_close($ch);
+      // FCM response
+      dd($result);  
+
         ini_set('memory_limit', '6400M');
 
         // check đơn thành công nhưng sản phẩm hết hàng

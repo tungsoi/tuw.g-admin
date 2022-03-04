@@ -145,6 +145,7 @@ Route::group([
 ], function (Router $router) {
     $router->get('', 'System\\HomeController@blank')->name('blank');
     $router->get('home', 'System\\HomeController@index')->name('home');
+    $router->post('update_device_token', 'System\\HomeController@updateDeviceToken')->name('update_device_token');
     $router->resources([
 
         // system

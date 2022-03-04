@@ -66,7 +66,8 @@ class User extends Model implements AuthenticatableContract
         'default_price_m3',
         'is_used_pindoudou',
         'time_sync_wallet',
-        'updated_at'
+        'updated_at',
+        'device_key'
     ];
 
     protected $casts = [

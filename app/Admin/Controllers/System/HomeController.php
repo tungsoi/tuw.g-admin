@@ -10,6 +10,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Layout\Row;
 use Encore\Admin\Widgets\InfoBox;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 
 class HomeController extends Controller
@@ -40,5 +41,18 @@ class HomeController extends Controller
 
     public function blank() {
         return redirect()->route('admin.home');
+    }
+
+    public function updateDeviceToken(Request $request) {
+        $token = $request->token;
+
+        User::find(Admin::user()->id)->update([
+            'device_key'  =>  $token
+        ]);
+
+        return response()->json([
+            'status'    =>  200,
+            'msg'   =>  $token
+        ]);
     }
 }

@@ -109,5 +109,50 @@
         window.print();
     })
 </script>
-</body>
+<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase.js"></script>
+<script>
+    var firebaseConfig = {
+        apiKey: 'AIzaSyCqYm1Ay-tR_0gLbbvf5sY-XVCe0q73oDc',
+        authDomain: 'alilogi-web.firebaseapp.com',
+        databaseURL: 'https://project-id.firebaseio.com',
+        projectId: 'alilogi-web',
+        storageBucket: 'alilogi-web.appspot.com',
+        messagingSenderId: '327482479519',
+        appId: '1:327482479519:web:8920cf8f7c964a8e7423aa',
+        measurementId: 'G-90LM8PWF4L',
+    };
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+    messaging
+            .requestPermission()
+            .then(function () {
+                return messaging.getToken()
+            })
+            .then(function (response) {
+                
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: "{{ route('admin.update_device_token') }}",
+                    type: 'POST',
+                    data: {
+                        token: response
+                    }
+                });
+            }).catch(function (error) {
+                
+            });
+
+    messaging.onMessage(function (payload) {
+        const title = payload.notification.title;
+        const options = {
+            body: payload.notification.body,
+            icon: payload.notification.icon,
+        };
+        new Notification(title, options);
+    });
+</script>
 </html>
