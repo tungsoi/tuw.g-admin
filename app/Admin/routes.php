@@ -199,3 +199,4 @@ Route::group([
 
 
 Route::post('api/cart/create', 'App\\Admin\\Controllers\\Customer\\CartController@createProduct');
+Route::get('api/notification/demo', 'App\\Admin\\Controllers\Notification\\BaseController@index');
