@@ -19,7 +19,7 @@ class BaseController extends Controller
                 "title" => 'Alilogi',
                 "body" => [
                     "content"   =>  "This is test",  
-                    "display"   =>  "transport_order",
+                    "display"   =>  "transport_order_detail_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
                     "id"        =>  42064
                 ],
                 "icon"  =>  "https://img.icons8.com/doodle/2x/tow-truck--v1.png 2x"
