@@ -16,9 +16,9 @@ class BaseController extends Controller
         $data = [
             "registration_ids" => $FcmToken,
             "notification" => [
-                "title" => 'Alilogi',
+                "title" => 'Đơn hàng vận chuyển',
                 "body" => [
-                    "content"   =>  "This is test",  
+                    "content"   =>  "Bạn có 1 đơn hàng mới chờ xuất kho",  
                     "display"   =>  "transport_order_detail_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
                     "id"        =>  42064
                 ],
