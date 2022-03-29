@@ -17,7 +17,11 @@ class BaseController extends Controller
             "registration_ids" => $FcmToken,
             "notification" => [
                 "title" => 'Alilogi',
-                "body" => "This is test",  
+                "body" => [
+                    "content"   =>  "This is test",  
+                    "display"   =>  "transport_order",
+                    "id"        =>  42064
+                ],
                 "icon"  =>  "https://img.icons8.com/doodle/2x/tow-truck--v1.png 2x"
             ]
         ];
