@@ -16,14 +16,12 @@ class BaseController extends Controller
         $data = [
             "registration_ids" => $FcmToken,
             "notification" => [
-                "title" => 'Đơn hàng vận chuyển',
-                "body" => [
-                    "content"   =>  "Bạn có 1 đơn hàng mới chờ xuất kho",  
-                    "display"   =>  "transport_order_detail_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
-                    "id"        =>  42064
-                ],
-                "icon"  =>  "https://img.icons8.com/doodle/2x/tow-truck--v1.png 2x"
-            ]
+                "title"     =>  'Đơn hàng vận chuyển',
+                "body"      =>  "Bạn có 1 đơn hàng mới chờ xuất kho",
+                "icon"      =>  "https://img.icons8.com/doodle/2x/tow-truck--v1.png 2x"
+            ],
+            "display"   =>  "transport_order_detail_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
+            "id"        =>  42064
         ];
         $encodedData = json_encode($data);
     
