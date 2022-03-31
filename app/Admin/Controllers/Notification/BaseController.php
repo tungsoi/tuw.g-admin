@@ -18,10 +18,16 @@ class BaseController extends Controller
             "notification" => [
                 "title"     =>  'Đơn hàng vận chuyển',
                 "body"      =>  "Bạn có 1 đơn hàng mới chờ xuất kho",
-                "icon"      =>  "https://img.icons8.com/doodle/2x/tow-truck--v1.png 2x"
+                "icon"      =>  "https://img.icons8.com/doodle/2x/tow-truck--v1.png 2x",
+                'data' => [
+                    "display"   =>  "transport_order_detail_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
+                    "id"        =>  42064
+                ]
             ],
-            "display"   =>  "transport_order_detail_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
-            "id"        =>  42064
+            'data' => [
+                "display"   =>  "transport_order_detail_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
+                "id"        =>  42064
+            ]
         ];
         $encodedData = json_encode($data);
     
