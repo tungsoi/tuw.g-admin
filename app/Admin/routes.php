@@ -200,3 +200,6 @@ Route::group([
 
 Route::post('api/cart/create', 'App\\Admin\\Controllers\\Customer\\CartController@createProduct');
 Route::get('api/notification/demo', 'App\\Admin\\Controllers\Notification\\BaseController@index');
+
+// api for mobile app
+Route::get('api/report_portals', 'App\\Admin\\Controllers\\Report\\PortalController@indexRebuildApi')->name('api_report_portals');
