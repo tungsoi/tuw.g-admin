@@ -202,4 +202,7 @@ Route::post('api/cart/create', 'App\\Admin\\Controllers\\Customer\\CartControlle
 Route::get('api/notification/demo', 'App\\Admin\\Controllers\Notification\\BaseController@index');
 
 // api for mobile app
-Route::get('api/report_portals', 'App\\Admin\\Controllers\\Report\\PortalController@indexRebuildApi')->name('api_report_portals');
+Route::get('api/revenue_reports', 'App\\Admin\\Controllers\\Report\\SaleReportController@revenueReportApi')->name('api_revenue_reports');
+Route::get('api/revenue_reports/{report_id}', 'App\\Admin\\Controllers\\Report\\SaleReportController@fetchRevenueReportApi')->name('api_fetch_revenue_reports');
+Route::get('api/revenue_reports/sales/{report_id}/{user_id}', 'App\\Admin\\Controllers\\Report\\SaleReportController@saleRevenueReportApi')->name('api_sales_revenue_reports');
+Route::get('api/revenue_reports/salaries/{report_id}/{user_id}', 'App\\Admin\\Controllers\\Report\\SaleReportController@salaryReportApi')->name('api_salary_revenue_reports');
