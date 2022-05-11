@@ -285,7 +285,8 @@ class VietnamReceiveController extends AdminController
                             'transport_route'   =>  $code['transport_route'],
                             'warehouse_id'  =>  $data['ware_house_id'],
                             'note'  =>  $code['internal_note'],
-                            'flag'  =>  1
+                            'flag'  =>  1,
+                            'package'   =>  $code['package']
                         ]);
                     }
 

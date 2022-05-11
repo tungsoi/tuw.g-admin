@@ -68,6 +68,7 @@ class DetailController extends AdminController
         $grid->transport_route('Line vận chuyển')->editable('select', TransportLine::all()->pluck('code', 'id'));
         $grid->warehouse()->name('Kho nhận hàng');
         $grid->note('Ghi chú')->editable();
+        $grid->package('Kiện')->editable();
         $grid->created_at(trans('admin.created_at'))->display(function () {
             return date('H:i | d-m-Y', strtotime($this->created_at));
         });
