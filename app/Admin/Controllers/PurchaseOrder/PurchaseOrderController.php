@@ -744,19 +744,21 @@ SCRIPT;
 
         $item_price_rmb = $order->sumItemPrice();
         $item_price_vnd = str_replace(",", "", $order->sumItemPrice()) * $order->current_rate;
+
+
+        $amount_rmb = $order->amount();
+        $amount_vnd = str_replace(",", "", $amount_rmb) * $order->current_rate;
+
         if ($order->status == 2) {
             // don hang moi
             // coc 100
-            $deposite = $item_price_vnd / 100 * 100;
+            $deposite = $amount_vnd;
             $deposite_text = "100% tổng giá trị sp";
         } else {
             // coc 70
             $deposite = $item_price_vnd / 100 * 70;
             $deposite_text = "70% tổng giá trị sp";
         }
-
-        $amount_rmb = $order->amount();
-        $amount_vnd = str_replace(",", "", $amount_rmb) * $order->current_rate;
 
         $deposited_at = $order->deposted_at != null ? date('H:i | d-m-Y', strtotime($order->deposited_at)) : "";
         $purchase_order_service_fee = $order->purchase_order_service_fee != null ? str_replace(",", "", $order->purchase_order_service_fee) : 0;
