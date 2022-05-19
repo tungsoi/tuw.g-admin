@@ -10,7 +10,7 @@
         e.preventDefault();
         
         swal({
-            title: "Bạn có muốn đặt cọc đơn hàng này bằng số dư tài khoản ?",
+            title: "Bạn có muốn đặt cọc đơn hàng này bằng số dư tài khoản ? Số tiền đặt cọc bằng 100% tổng giá trị đơn hàng !",
             type: "warning",
             showCancelButton: true,
             confirmButtonColor: "#DD6B55",

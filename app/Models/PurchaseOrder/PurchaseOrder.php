@@ -184,7 +184,7 @@ class PurchaseOrder extends Model
         return $this->hasOne(User::class, 'id', 'user_cancle_at');
     }
 
-    public function depositeAmountCal($type = 'vn', $percent = 70) {
+    public function depositeAmountCal($type = 'vn', $percent = 100) {
         $rmb =  $this->sumItemPrice(false) / 100 * $percent;
         return $type == 'vn' ? str_replace(",", "", number_format($rmb * $this->current_rate, 0)) : $rmb;
     }
