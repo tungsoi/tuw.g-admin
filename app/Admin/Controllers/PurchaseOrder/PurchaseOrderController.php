@@ -744,7 +744,17 @@ SCRIPT;
 
         $item_price_rmb = $order->sumItemPrice();
         $item_price_vnd = str_replace(",", "", $order->sumItemPrice()) * $order->current_rate;
-        $deposite = $item_price_vnd / 100 * 70;
+        if ($order->status == 2) {
+            // don hang moi
+            // coc 100
+            $deposite = $item_price_vnd / 100 * 100;
+            $deposite_text = "100% tổng giá trị sp";
+        } else {
+            // coc 70
+            $deposite = $item_price_vnd / 100 * 70;
+            $deposite_text = "70% tổng giá trị sp";
+        }
+
         $amount_rmb = $order->amount();
         $amount_vnd = str_replace(",", "", $amount_rmb) * $order->current_rate;
 
@@ -793,7 +803,7 @@ SCRIPT;
             ],
             [
                 'Tiền cần cọc',
-                "<span style='float: right'> <i> 70% tổng giá trị sp </i></span>",
+                "<span style='float: right'> <i> ".$deposite_text." </i></span>",
                 "<b style='float: right; color: blue'>". number_format($deposite) . " (vnd) </b>"
             ],
             [
