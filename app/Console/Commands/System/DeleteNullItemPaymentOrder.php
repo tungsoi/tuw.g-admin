@@ -58,16 +58,16 @@ class DeleteNullItemPaymentOrder extends Command
             }
         }
 
-        dd($ids);
+        // dd($ids);
 
-        // PaymentOrder::whereIn('id', $ids)->update([
-        //     'status'    =>  'cancel',
-        //     'note_command'  =>  'Chuyển từ payment_not_export về cancel do không có item'
-        // ]);
+        PaymentOrder::whereIn('id', $ids)->update([
+            'status'    =>  'cancel',
+            'note_command'  =>  'Chuyển từ payment_not_export về cancel do không có item'
+        ]);
 
-        // ScheduleLog::create([
-        //     'name'  =>  $this->signature . "- " . sizeof($ids)
-        // ]);
+        ScheduleLog::create([
+            'name'  =>  $this->signature . "- " . sizeof($ids)
+        ]);
 
     }
 }
