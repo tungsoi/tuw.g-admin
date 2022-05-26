@@ -2,6 +2,7 @@
 
 namespace App\Models\ReportWarehouse;
 
+use App\Models\TransportOrder\TransportCode;
 use Illuminate\Database\Eloquent\Model;
 
 class ReportWarehousePortal extends Model
@@ -28,4 +29,8 @@ class ReportWarehousePortal extends Model
         'note',
         'status'
     ];
+
+    public function transportCode() {
+        return $this->hasMany(TransportCode::class, "title", "title");
+    }
 }

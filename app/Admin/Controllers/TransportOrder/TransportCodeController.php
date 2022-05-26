@@ -109,6 +109,7 @@ class TransportCodeController extends AdminController
             $filter->column(1/4, function ($filter) {
                 $filter->between('china_receive_at', 'Ngày về TQ')->date();
                 $filter->between('payment_at', 'Ngày thanh toán')->date();
+                $filter->like('title', 'Mã lô');
             });
 
             $filter->column(1/4, function ($filter) {
@@ -179,6 +180,13 @@ class TransportCodeController extends AdminController
                     'text'      =>  $this->getOrdernNumberPurchase()
                 ]
             ];
+
+            if ($this->title != "") {
+                $data[] = [
+                    'is_label'   =>  false,
+                    'text'      =>  "Mã lô: " . $this->title
+                ];
+            }
             return view('admin.system.core.list', compact('data'));
         });
         $grid->customer_code_input('Mã khách hàng')->display(function () {

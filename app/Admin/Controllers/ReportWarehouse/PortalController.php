@@ -8,6 +8,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use App\Models\ReportWarehouse\ReportWarehousePortal;
 use Encore\Admin\Facades\Admin;
+Use Encore\Admin\Widgets\Table;
 
 class PortalController extends AdminController
 {
@@ -31,7 +32,7 @@ class PortalController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new ReportWarehousePortal());
-        $grid->model()->orderBy('date', 'desc');
+        $grid->model()->orderBy('date', 'desc')->with('transportCode');
 
         $grid->filter(function($filter) {
             $filter->expand();
@@ -90,6 +91,22 @@ class PortalController extends AdminController
         $grid->updated_at('Cập nhật cuối cùng')->display(function () {
             return date('H:i | d-m-Y', strtotime($this->updated_at));
         });
+        $grid->id('Mã vận đơn')->display(function (){
+            return $this->transportCode->count();
+        })->expand(function ($model) {
+            $data = $this->transportCode;
+
+            $temp = [];
+            foreach ($data as $key =>  $row) {
+                $temp[] = [
+                    $key+1,
+                    $row->transport_code,
+                    $row->customer_code_input
+                ];
+            }
+        
+            return new Table(['STT', 'Mã vận đơn', 'Tên khách hàng'], $temp);
+        })->style('width: 100px; text-align: center;');
 
         // setup
         $grid->paginate(20);

@@ -12,6 +12,7 @@ use App\Admin\Actions\Export\CustomersExporter;
 use App\Admin\Services\UserService;
 use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder as PurchaseOrderPurchaseOrder;
+use App\Models\System\CustomerPercentService;
 use App\Models\System\TeamSale;
 use App\Models\System\Transaction as SystemTransaction;
 use App\Models\System\TransactionType;
@@ -293,8 +294,17 @@ class CustomerController extends AdminController
             $grid->orderEmployee()->name('NV Order');
         }
 
+        $customer_percents =  CustomerPercentService::orderBy('percent')->pluck('name', 'id');
+        $grid->customer_percent_service('Phí dịch vụ')
+        ->display(function () use ($customer_percents) {
+            if ($this->type_customer == 1) {
+                return null;
+            }
+            // ->editable('select', $this->userService->GetListPercentService())->style('max-width: 150px;')
+            // $percent = $this->userService->GetListPercentService();
 
-        $grid->customer_percent_service('Phí dịch vụ')->editable('select', $this->userService->GetListPercentService())->style('max-width: 150px;');
+            return $customer_percents[$this->customer_percent_service];
+        });
         $grid->default_price_kg('Giá cân')->editable()->style('max-width: 150px;');
         $grid->default_price_m3('Giá khối')->editable()->style('max-width: 150px;');
         $grid->ware_house_id('Kho nhận hàng')->style('text-align: center; width: 100px;')->editable('select', $this->userService->GetListWarehouse());
