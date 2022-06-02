@@ -82,7 +82,7 @@ Route::group([
         'weight_portals_payment'    =>  'System\\WeightPortalPaymentController',
     ]);
 
-    $router->get('ar_reports/{ar_report}', 'Report\\ArReportController@showRebuild')->name('ar_reports.show');
+    // $router->get('ar_reports/{ar_report}', 'Report\\ArReportController@showRebuild')->name('ar_reports.show');
 
     $router->get('report_portals', 'Report\\PortalController@indexRebuild')->name('report_portals');
     $router->get('report_portals/calculatorEstimateAmountBooking', 'Report\\PortalController@calculatorEstimateAmountBooking')->name('report_portals.calculatorEstimateAmountBooking');
@@ -202,6 +202,7 @@ Route::post('api/cart/create', 'App\\Admin\\Controllers\\Customer\\CartControlle
 Route::get('api/notification/demo', 'App\\Admin\\Controllers\Notification\\BaseController@index');
 
 // api for mobile app
+Route::get('api/report_portals', 'App\\Admin\\Controllers\\Report\\PortalController@indexRebuildApi')->name('api_report_portals');
 Route::get('api/revenue_reports', 'App\\Admin\\Controllers\\Report\\SaleReportController@revenueReportApi')->name('api_revenue_reports');
 Route::get('api/revenue_reports/{report_id}', 'App\\Admin\\Controllers\\Report\\SaleReportController@fetchRevenueReportApi')->name('api_fetch_revenue_reports');
 Route::get('api/revenue_reports/sales/{report_id}/{user_id}', 'App\\Admin\\Controllers\\Report\\SaleReportController@saleRevenueReportApi')->name('api_sales_revenue_reports');

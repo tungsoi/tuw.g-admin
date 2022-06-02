@@ -407,7 +407,9 @@ class PortalController extends AdminController
         $month = date('Y-m', strtotime(now()));
 
         $report = Report::where('begin_date', 'like', $month.'%')->where('finish_date', 'like', $month.'%')->first();
-        try {
+        $process = $success = 0;
+        if ($report) 
+        {
             $detail = $report->reportDetail();
 
             $order = new UserService();
@@ -418,8 +420,6 @@ class PortalController extends AdminController
     
             $total = $process + $success;
             $route = route('admin.revenue_reports.show', $report->id) . "?mode=new&portal=false";
-        } catch (\Exception $e) {
-            dd($e);
         }
         
 
