@@ -213,7 +213,7 @@ class PortalController extends AdminController
             // for api
             $data = [
                 [
-                    "Số mã vận đơn về hôm nay"  =>  $codes->count(),
+                    "Mã vận đơn về hôm nay"  =>  $codes->count(),
                     "Tổng cân"  =>  $codes->sum('kg'),
                     "Tổng M3"   =>  $codes->sum('m3')
                 ]
