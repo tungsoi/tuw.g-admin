@@ -50,7 +50,8 @@ class OfferController extends AdminController
         $grid->model()->whereIn('status', [5, 7, 9])
         ->orderBy('id', 'desc')
         ->with('orderEmployee')
-        ->with('statusText');
+        ->with('statusText')
+        ->with('items');
 
         // Khach hang
         if (Admin::user()->isRole('customer')) {

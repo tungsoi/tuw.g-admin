@@ -15,7 +15,7 @@ class OrderReport extends Command
      *
      * @var string
      */
-    protected $signature = 'order:report {type}';
+    protected $signature = 'order:report {type}'; // 1 -2
 
     /**
      * The console command description.
