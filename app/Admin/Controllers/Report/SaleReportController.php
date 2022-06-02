@@ -1116,71 +1116,74 @@ SCRIPT;
     public function salaryReportApi($report_id, $user_id) {
         $value = SaleSalary::whereReportId($report_id)->whereUserId($user_id)->first();
 
-        $data = [
-            [
-                'title' =>  'Khách hàng',
-                'data'  =>  [
-                    'KH mới'    =>  $value->new_customer,
-                    'KH cũ'    =>  $value->old_customer,
-                    'Tổng số'    =>  $value->all_customer,
-                    'Công nợ KH mới'    =>  number_format($value->owed_wallet_new_customer),
-                    'Công nợ KH cũ'    =>  number_format($value->owed_wallet_old_customer),
-                    'Công nợ tổng'    =>  number_format( $value->owed_wallet_all_customer),
+        $data = [];
+        if ($value) {
+            $data = [
+                [
+                    'title' =>  'Khách hàng',
+                    'data'  =>  [
+                        'KH mới'    =>  $value->new_customer,
+                        'KH cũ'    =>  $value->old_customer,
+                        'Tổng số'    =>  $value->all_customer,
+                        'Công nợ KH mới'    =>  number_format($value->owed_wallet_new_customer),
+                        'Công nợ KH cũ'    =>  number_format($value->owed_wallet_old_customer),
+                        'Công nợ tổng'    =>  number_format($value->owed_wallet_all_customer),
+                    ]
+                ],
+                [
+                    'title' =>  'Đơn hàng Order hoàn thành',
+                    'data' =>   [
+                        'Số lượng'  =>  $value->po_success,
+                        'Doanh số KH mới'  =>  number_format($value->po_success_new_customer),
+                        'Doanh số KH cũ'  =>  number_format($value->po_success_old_customer),
+                        'Tổng doanh số'  =>   number_format($value->po_success_all_customer),
+                        'Phí dịch vụ'  =>  number_format($value->po_success_service_fee),
+                        'Tổng tệ'  =>  number_format($value->po_success_total_rmb),
+                        'Đàm phán'  =>  number_format($value->po_success_offer),
+                    ]
+                ],
+                [
+                    'title' =>  'Đơn hàng Order chưa hoàn thành',
+                    'data'  =>  [
+                        'Số lượng'  =>  $value->po_not_success,
+                        'Doanh số KH mới'  =>  number_format($value->po_not_success_new_customer),
+                        'Doanh số KH cũ'  =>  number_format($value->po_not_success_old_customer),
+                        'Tổng doanh số'  =>  number_format($value->po_not_success_all_customer),
+                        'Phí dịch vụ'  =>  number_format($value->po_not_success_service_fee),
+                        'Tổng cọc'  =>  number_format($value->po_not_success_deposited),
+                        'Công nợ'  =>  number_format($value->po_not_success_owed)
+                    ]
+                ],
+                [
+                    'title' =>  'Đơn hàng vận chuyển',
+                    'data' =>   [
+                        'Số lượng'  =>  $value->transport_order ,
+                        'KG KH mới'  =>  $value->trs_kg_new_customer,
+                        'KG KH cũ'  =>  $value->trs_kg_old_customer,
+                        'Tổng KG'  =>  $value->trs_kg_all_customer,
+                        'M3 KH mới'  =>  $value->trs_m3_new_customer,
+                        'M3 KH cũ'  =>  $value->trs_m3_old_customer,
+                        'Tổng M3'  =>  $value->trs_m3_all_customer,
+                        'Doanh thu KH mới'  =>  number_format($value->trs_amount_new_customer) ,
+                        'Doanh thu KH cũ'  =>  number_format($value->trs_amount_old_customer),
+                        'Tổng doanh thu'  =>  number_format($value->trs_amount_all_customer),
+                    ]
+                ],
+                [
+                    'title' =>  'Tổng số cuối',
+                    'data'  =>  [
+                        'Số đơn Order hoàn thành' =>   $value->po_success,
+                        'Phí dịch vụ (100%)' =>   number_format($value->po_success_service_fee),
+                        'Doanh thu vận chuyển (10%)' =>   number_format($value->trs_amount_all_customer*0.1),
+                        'Doanh thu tỷ giá (30 * Tổng giá tệ)' =>   number_format($value->po_success_total_rmb*30),
+                        'Doanh thu đàm phán' =>   number_format($value->po_success_offer*0.85),
+                        'Tổng doanh thu' =>  number_format(
+                            $value->po_success_service_fee + ($value->trs_amount_all_customer*0.1) + ($value->po_success_total_rmb*30) + ($value->po_success_offer*0.85)
+                        ) ,
+                    ]
                 ]
-            ],
-            [
-                'title' =>  'Đơn hàng Order hoàn thành',
-                'data' =>   [
-                    'Số lượng'  =>  $value->po_success,
-                    'Doanh số KH mới'  =>  number_format($value->po_success_new_customer),
-                    'Doanh số KH cũ'  =>  number_format($value->po_success_old_customer),
-                    'Tổng doanh số'  =>   number_format($value->po_success_all_customer),
-                    'Phí dịch vụ'  =>  number_format($value->po_success_service_fee),
-                    'Tổng tệ'  =>  number_format($value->po_success_total_rmb),
-                    'Đàm phán'  =>  number_format($value->po_success_offer),
-                ]
-            ],
-            [
-                'title' =>  'Đơn hàng Order chưa hoàn thành',
-                'data'  =>  [
-                    'Số lượng'  =>  $value->po_not_success,
-                    'Doanh số KH mới'  =>  number_format($value->po_not_success_new_customer),
-                    'Doanh số KH cũ'  =>  number_format($value->po_not_success_old_customer),
-                    'Tổng doanh số'  =>  number_format($value->po_not_success_all_customer),
-                    'Phí dịch vụ'  =>  number_format($value->po_not_success_service_fee),
-                    'Tổng cọc'  =>  number_format($value->po_not_success_deposited),
-                    'Công nợ'  =>  number_format($value->po_not_success_owed)
-                ]
-            ],
-            [
-                'title' =>  'Đơn hàng vận chuyển',
-                'data' =>   [
-                    'Số lượng'  =>  $value->transport_order ,
-                    'KG KH mới'  =>  $value->trs_kg_new_customer,
-                    'KG KH cũ'  =>  $value->trs_kg_old_customer,
-                    'Tổng KG'  =>  $value->trs_kg_all_customer,
-                    'M3 KH mới'  =>  $value->trs_m3_new_customer,
-                    'M3 KH cũ'  =>  $value->trs_m3_old_customer,
-                    'Tổng M3'  =>  $value->trs_m3_all_customer,
-                    'Doanh thu KH mới'  =>  number_format($value->trs_amount_new_customer) ,
-                    'Doanh thu KH cũ'  =>  number_format($value->trs_amount_old_customer),
-                    'Tổng doanh thu'  =>  number_format($value->trs_amount_all_customer),
-                ]
-            ],
-            [
-                'title' =>  'Tổng số cuối',
-                'data'  =>  [
-                    'Số đơn Order hoàn thành' =>   $value->po_success,
-                    'Phí dịch vụ (100%)' =>   number_format($value->po_success_service_fee),
-                    'Doanh thu vận chuyển (10%)' =>   number_format($value->trs_amount_all_customer*0.1),
-                    'Doanh thu tỷ giá (30 * Tổng giá tệ)' =>   number_format($value->po_success_total_rmb*30),
-                    'Doanh thu đàm phán' =>   number_format($value->po_success_offer*0.85),
-                    'Tổng doanh thu' =>  number_format(
-                        $value->po_success_service_fee + ($value->trs_amount_all_customer*0.1) + ($value->po_success_total_rmb*30) + ($value->po_success_offer*0.85)
-                    ) ,
-                ]
-            ]    
-        ];
+            ];
+        }
 
         return response()->json([
             'status'    => 200,
