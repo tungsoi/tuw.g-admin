@@ -355,8 +355,16 @@
             calculator();
             setTimeout(() => {
                 $('.loading-overlay').toggle(); 
-                $(".btn-success").show();
             }, 1000);
+
+            let payment_user_id = $("select.payment_user_id").val();
+
+            console.log(payment_user_id);
+            if (payment_user_id) {
+                $(".btn-success").show();
+            } else {
+                $.admin.toastr.error('Vui lòng chọn Khách hàng thanh toán', '', {positionClass: 'toast-top-center'});
+            }
         });
 
         jQuery(function($) {
