@@ -42,7 +42,7 @@ class Test extends Command
     {
         $user_id = 1378;
 
-        switch ($this->type) {
+        switch ($this->argument('type')) {
             case 1:
                 // transport_order
                 dispatch(
