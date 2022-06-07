@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Notification;
 
+use App\Admin\Services\NotificationService;
 use App\Jobs\Notification\TransportOrder;
 use App\Jobs\Notification\PurchaseOrder;
 use App\Jobs\Notification\Transaction;
@@ -42,16 +43,12 @@ class Test extends Command
     {
         $user_id = 1378;
 
+        $service = new NotificationService();
+
         switch ($this->argument('type')) {
             case 1:
                 // transport_order
-                dispatch(
-                    new TransportOrder(
-                        $user_id,
-                        "Bạn có 1 đơn hàng mới chờ xuất kho - Mã đơn hàng C25856 Test. Bạn đến lấy hàng sớm nhé !",
-                        25856
-                    )
-                );
+                $service->sendTransportOrder($user_id, 25856);
                 break;
             case 2:
                 // purchase_order
