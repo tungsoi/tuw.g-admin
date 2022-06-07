@@ -13,7 +13,6 @@ class BaseController extends Controller
         
         $FcmToken = User::whereEmail('nguyenthuyhien22.2k@gmail.com')->pluck('device_key')->all();
 
-        // dd($FcmToken);
 
         $serverKey = 'AAAAmCs1ZTI:APA91bEhjfd5zbAn_5wQFt7sCKlclpAbDCQ4auPfyMpHP6md6t_BuRG8A20wGQVRw1bgXDs02amy0ByeXAUIZJsQ0SZHJmeaQfeAKr5JaF36YLpgXF9dOPsHAnwBaqLqqkDCIM3TmU8j';
 
@@ -21,15 +20,15 @@ class BaseController extends Controller
             "registration_ids" => $FcmToken,
             "notification" => [
                 "title"     =>  'Alilogi Thông Báo',
-                "body"      =>  "Bạn có 1 đơn hàng mới chờ xuất kho - Mã đơn hàng C25856. Bạn đến lấy hàng sớm nhé !",
+                "body"      =>  "Bạn có 1 đơn hàng mới chờ xuất kho - Mã đơn hàng C25856 Test. Bạn đến lấy hàng sớm nhé !",
                 "icon"      =>  "https://img.icons8.com/doodle/2x/tow-truck--v1.png 2x",
-                'data' => [
-                    "display"   =>  "transport_order_detail_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
-                    "id"        =>  25856
-                ]
+                // 'data' => [
+                //     "display"   =>  "transaction_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
+                //     "id"        =>  25856
+                // ]
             ],
             'data' => [
-                "display"   =>  "transport_order_detail_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
+                "display"   =>  "purchase_order_detail_screen", // transaction_screen, purchase_order_detail_screen, transport_code_list_screen
                 "id"        =>  25856
             ]
         ];
