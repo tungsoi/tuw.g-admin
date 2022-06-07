@@ -3,6 +3,7 @@
 namespace App\Jobs\Notification;
 
 use App\Models\PaymentOrder\PaymentOrder;
+use App\Models\UserNotification;
 use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -70,6 +71,14 @@ class TransportOrder implements ShouldQueue
         }        
 
         curl_close($ch);
+
+        UserNotification::create([
+            'user_id'   =>  $this->user_id,
+            'type'  =>  'transport_order',
+            'title' =>  $title,
+            'order_id' =>   $this->order_id,
+            'step'  =>  $result === FALSE ? json_encode(curl_error($ch)) : "done"
+        ]);
         
         return response()->json([
             'status'    =>  true,
