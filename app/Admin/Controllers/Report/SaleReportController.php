@@ -1035,7 +1035,7 @@ SCRIPT;
 
         return response()->json([
             'status'    => 200,
-            'data'  =>  Report::orderBy('order', 'desc')->get()
+            'data'  => [] // Report::orderBy('order', 'desc')->get()
         ]);
     }
 

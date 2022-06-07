@@ -52,23 +52,11 @@ class Test extends Command
                 break;
             case 2:
                 // purchase_order
-                dispatch(
-                    new PurchaseOrder(
-                        $user_id,
-                        "Bạn có 1 đơn hàng mới chờ xuất kho - Mã đơn hàng C25856 Test. Bạn đến lấy hàng sớm nhé !",
-                        25856
-                    )
-                );
+                $service->sendPurchaseOrder($user_id, 42791);
                 break;
             case 3:
                 // transaction
-                dispatch(
-                    new Transaction(
-                        $user_id,
-                        "Biến động số dư",
-                        25856
-                    )
-                );
+                $service->sendTransaction($user_id, "Biến động số dư: - 1,500,000 VND. Thanh toán đơn hàng mua hộ EC-012322");
                 break;
         }
     }

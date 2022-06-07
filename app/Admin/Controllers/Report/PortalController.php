@@ -103,31 +103,31 @@ class PortalController extends AdminController
             'data'      =>  [
                 [
                     'title'  =>  'Doanh thu nạp tiền kho ngày: ' . $this->today,
-                    'childs' =>  $this->revenueWarehouse(false)
+                    'childs' =>  [] //$this->revenueWarehouse(false)
                 ],
                 [
                     'title' =>  'Doanh thu nạp tiền kế toán ngày: '.$this->today,
-                    'childs'    =>  $this->revenueAr(false)
+                    'childs'    =>  [] //$this->revenueAr(false)
                 ],
                 [
                     'title' =>  "Doanh thu vận chuyển kho / Từ $first_day đến $last_day",
-                    'childs'    =>  $this->revenueOrderWarehouse(false)
+                    'childs'    =>  [] //$this->revenueOrderWarehouse(false)
                 ],
                 [
                     'title' =>  "Tiền dự trù đặt hàng (Toàn thời gian)",
-                    'childs'    =>  $this->calculatorEstimateAmountBooking(false)
+                    'childs'    => [] // $this->calculatorEstimateAmountBooking(false)
                 ],
                 [
                     'title' =>  "Số liệu hàng tồn trong kho (Toàn thời gian)",
-                    'childs'    =>  $this->inWarehouseOrder(false)
+                    'childs'    =>  [] //$this->inWarehouseOrder(false)
                 ],
                 [
                     'title'     =>  'Hàng về trong ngày: '.$this->today,
-                    'childs'    =>  $this->receiveToday(false)
+                    'childs'    =>  [] //$this->receiveToday(false)
                 ],
                 [
                     'title'     =>  'Báo cáo phòng kinh doanh tháng ' . date('m-Y', strtotime(now())),
-                    'childs'    =>  $this->saleRevenue(false)
+                    'childs'    =>  [] //$this->saleRevenue(false)
                 ]
             ]
         ]);
