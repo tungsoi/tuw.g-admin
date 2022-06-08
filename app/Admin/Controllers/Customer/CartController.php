@@ -373,32 +373,36 @@ SCRIPT;
     }
 
     public function createProduct(Request $request) {
-        $data = $request->all();
+        try {
+            $data = $request->all();
 
-        $item = null;
-        if ($request->file('file')) {
-            $file = $request->file->store('public/admin/images');
+            $item = null;
+            if ($request->file('file')) {
+                $file = $request->file->store('public/admin/images');
 
-            $data['product_image'] = str_replace("public/admin/", "", $file);
-        } else {
-            $data['product_image'] = null;
+                $data['product_image'] = str_replace("public/admin/", "", $file);
+            } else {
+                $data['product_image'] = null;
+            }
+
+            $data['customer_id'] = $request->user_id;
+            $data['status'] = 10;
+            $data['qty_reality'] = $data['qty'];
+            $price = str_replace("¥", "", $data["price"]);
+            $price = str_replace(" ", "", $price);
+            $price = str_replace(",", "", $price);
+
+            $data['price'] = $price;
+
+            $item = PurchaseOrderItem::create($data);
+
+            return response()->json([
+                'code'  =>  201,
+                'data'  =>  $item,
+                'msg'   =>  'success'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
         }
-
-        $data['customer_id'] = $request->user_id;
-        $data['status'] = 10;
-        $data['qty_reality'] = $data['qty'];
-        $price = str_replace("¥", "", $data["price"]);
-        $price = str_replace(" ", "", $price);
-        $price = str_replace(",", "", $price);
-
-        $data['price'] = $price;
-
-        $item = PurchaseOrderItem::create($data);
-
-        return response()->json([
-            'code'  =>  201,
-            'data'  =>  $item,
-            'msg'   =>  'success'
-        ]);
     }
 }
