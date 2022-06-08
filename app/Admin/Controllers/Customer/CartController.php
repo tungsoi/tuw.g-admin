@@ -395,14 +395,14 @@ SCRIPT;
             $data['price'] = $price;
 
             $item = PurchaseOrderItem::create($data);
-
+            \Log::info("create_product_api: " . json_encode($data));
             return response()->json([
                 'code'  =>  201,
                 'data'  =>  $item,
                 'msg'   =>  'success'
             ]);
         } catch (\Exception $e) {
-            \Log::error($e->getMessage());
+            \Log::error("create_product_api: " . $e->getMessage());
         }
     }
 }
