@@ -3,8 +3,8 @@
     $total_count = 0;
     $total_money = 0;
 @endphp
-@foreach ($warehouses as $key => $warehouse)
 
+@foreach ($warehouses as $key => $warehouse)
 <div class="col-md-3">
     <div class="alert alert-{{ $color[$key] }}">
         <h4>{{ $warehouse->name }}</h4>

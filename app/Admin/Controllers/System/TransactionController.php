@@ -4,6 +4,7 @@ namespace App\Admin\Controllers\System;
 
 use App\Admin\Actions\Core\BtnDelete;
 use App\Admin\Services\UserService;
+use App\Models\System\Bank;
 use App\Models\System\Transaction;
 use App\Models\System\TransactionType;
 use App\User;
@@ -66,6 +67,7 @@ class TransactionController extends AdminController
             });
             $filter->column(1/3, function ($filter) {
                 $filter->between('created_at', 'Ngày tạo')->date();
+                $filter->equal('bank_id', 'Ngân hàng')->select(Bank::pluck('bank_name', 'id'));
             });
 
             Admin::style('

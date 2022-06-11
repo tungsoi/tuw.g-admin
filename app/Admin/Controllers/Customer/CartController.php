@@ -20,6 +20,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use Illuminate\Http\Request;
 Use Encore\Admin\Widgets\Table;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class CartController extends AdminController
@@ -395,14 +396,14 @@ SCRIPT;
             $data['price'] = $price;
 
             $item = PurchaseOrderItem::create($data);
-            \Log::info("create_product_api: " . json_encode($data));
+            Log::debug("create_product_api: " . json_encode($data));
             return response()->json([
                 'code'  =>  201,
                 'data'  =>  $item,
                 'msg'   =>  'success'
             ]);
         } catch (\Exception $e) {
-            \Log::error("create_product_api: " . $e->getMessage());
+            Log::debug("create_product_api: " . $e->getMessage());
         }
     }
 }

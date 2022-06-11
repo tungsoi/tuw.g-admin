@@ -70,7 +70,7 @@ class PortalController extends AdminController
                     $first_day = date('Y-m-01', strtotime(now()));
                     $last_day = date('Y-m-t', strtotime(now()));
                     $text = 'Doanh thu vận chuyển kho / Từ ' . $first_day . " đến " . $last_day;
-                    $column->append((new Box($text, $this->revenueOrderWarehouse())));
+                    $column->append((new Box($text, $this->revenueOrderWarehouse(false))));
                 });
             })
             ->row(function (Row $row) {
@@ -162,10 +162,15 @@ class PortalController extends AdminController
         $route_total = route('admin.payments.all')
         . "?status=payment_export"
         . "&export_at%5Bstart%5D=".date('Y-m-', strtotime(now()))."01&export_at%5Bend%5D=".date('Y-m-', strtotime(now())).cal_days_in_month(CAL_GREGORIAN, date('m', strtotime(now())), date('Y', strtotime(now())));
-        
-        if ($type) {
-            return view('admin.system.report.revenue_order_warehouse', compact('warehouses', 'revenue', 'route_total'))->render();
+        if (! $type) {
+            try {
+                return view('admin.system.report.revenue_order_warehouse', compact('warehouses', 'revenue', 'route_total'))->render();
+            } catch (\Exception $e) {
+                dd($e->getMessage());
+            }
+           
         } else {
+            dd('api');
             // for api
             $data = [];
 
@@ -280,9 +285,23 @@ class PortalController extends AdminController
                 ->whereIn('type_recharge', [0,1])
                 ->get();
 
+        $cash_money = Transaction::select('id', 'money', 'type_recharge')
+        ->where('money', '!=', 0)
+        ->where('created_at', 'like', $this->today.'%')
+        ->whereIn('user_id_created', $userIdsArRole)
+        ->where('type_recharge', 0)
+        ->sum('money');
+
+        $cash_banking = Transaction::select('id', 'money', 'type_recharge')
+        ->where('money', '!=', 0)
+        ->where('created_at', 'like', $this->today.'%')
+        ->whereIn('user_id_created', $userIdsArRole)
+        ->where('type_recharge', 1)
+        ->sum('money');
+
         $revenue = [
-            'cash_money'    =>  $transactions->where('type_recharge', 0)->sum('money'),
-            'cash_banking'  =>  $transactions->where('type_recharge', 1)->sum('money'),
+            'cash_money'    =>  $cash_money,
+            'cash_banking'  =>  $cash_banking,
             'count'         =>  $transactions->count(),
             'route'     =>  route('admin.transactions.index') ."?content=&"
                     . "type_recharge%5B%5D=0&type_recharge%5B%5D=1"
