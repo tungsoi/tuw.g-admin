@@ -403,6 +403,7 @@ class VietnamReceiveController extends AdminController
                                 }
                             });
 
+                            let i_this = $(this);
                             $.ajax({
                                 url: "vietnam_receives/search/" + value,
                                 type: 'GET',
@@ -412,9 +413,10 @@ class VietnamReceiveController extends AdminController
                                     console.log(response);
 
                                     if (! response.status) {
-                                        // $.admin.toastr.warning(response.message, '', {timeOut: 2000});
-                                        $( ".has-many-vietnam-receive-form" ).last().find('.kg').focus();
-                                        $( ".has-many-vietnam-receive-form" ).last().find('.kg').click();
+                                        $.admin.toastr.warning(response.message, '', {timeOut: 2000});
+                                        i_this.val("");
+                                        // $( ".has-many-vietnam-receive-form" ).last().find('.kg').focus();
+                                        // $( ".has-many-vietnam-receive-form" ).last().find('.kg').click();
                                     } else {
 
                                         // da co thong tin, fill vao bang
@@ -511,6 +513,15 @@ SCRIPT;
 
     public function search($code) { 
         $orderService = new OrderService();
+
+        $flag = TransportCode::whereTransportCode($code)->whereStatus(3)->count();
+        if ($flag > 0) {
+            return response()->json([
+                'status'    =>  false,
+                'message'   =>  'Mã vận đơn đã thanh toán xuất kho. Bắn bị trùng'
+            ]);
+        }
+
         $transport_code = TransportCode::whereTransportCode($code)->whereStatus($orderService->getTransportCodeStatus('china-rev'))->first();
 
         if ($transport_code) {
@@ -519,12 +530,13 @@ SCRIPT;
                 'message'   =>  'Đã lấy dữ liệu',
                 'data'      =>  $transport_code
             ]); 
-        } else {
-            return response()->json([
-                'status'    =>  false,
-                'message'   =>  'Mã vận đơn chưa bắn Trung Quốc nhận'
-            ]);
-        }
+        } 
+        // else {
+        //     return response()->json([
+        //         'status'    =>  false,
+        //         'message'   =>  'Mã vận đơn chưa bắn Trung Quốc nhận'
+        //     ]);
+        // }
     }
 
     public function gridOrder() {
