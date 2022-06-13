@@ -232,6 +232,14 @@ class PaymentController extends AdminController
 
     // handle payment
     public function storeRebuild(Request $request) {
+
+        $flag = TransportCode::whereIn('id', $request->transport_code_id)->whereStatus(3)->count();
+
+        if ($flag > 0) {
+            admin_toastr('Danh sách thanh toán có mã vận đơn đã xuất kho, vui lòng kiểm tra lại', 'error');
+            return redirect()->back();
+        }
+        
         $order_service = new OrderService();
 
         $arr_transport_code = $request->transport_code_id;

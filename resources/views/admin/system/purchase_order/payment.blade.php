@@ -34,7 +34,7 @@
                     {{ $key+1 }}
                     <input type="hidden" name="transport_code_id[]" value="{{ $code->id }}">
                 </td>
-                <td style="width: 300px;">{{ $code->transport_code }}</td>
+                <td style="width: 300px;">{{ $code->transport_code }} <br> <span class="label label-{{$code->statusText->label}}">{{ $code->statusText->name }} {{ $code->paymentOrder ? " - ".$code->paymentOrder->order_number : ""}}</span></td>
                 <td>{{ $code->customer_code_input }}</td>
                 <td>
                     <select class="payment_type form-control" 
