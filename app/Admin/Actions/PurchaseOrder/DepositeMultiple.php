@@ -57,7 +57,7 @@ SCRIPT;
             '90'    =>  "90%",
             '100'    =>  "100%",
         ];
-        $this->select('percent_deposite', 'Tỉ lệ % cọc')->options($data)->default(70);
+        $this->select('percent_deposite', 'Tỉ lệ % cọc')->options($data)->default(100);
         
         $this->hidden('ids_deposite_multiple');
         // $this->text('estimate-deposited', 'Tổng tiền cọc dự tính')->readonly();
