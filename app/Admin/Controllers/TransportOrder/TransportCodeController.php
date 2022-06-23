@@ -447,7 +447,7 @@ EOT);
 
         $service = new UserService();
         $form->select('ware_house_id', 'Kho hàng')->options($service->GetListWarehouse());
-        $form->string('title', 'Mã lô');
+        $form->text('title', 'Mã lô');
 
         $form->saving(function (Form $form) {
             $form->m3 = number_format(($form->width * $form->height * $form->length)/1000000, 3, '.', '');
