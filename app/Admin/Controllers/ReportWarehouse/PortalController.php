@@ -64,7 +64,7 @@ class PortalController extends AdminController
             }
 
             return $this->count;
-        });
+        })->totalRow();
         $grid->column('weight',"Cân nặng")->display(function () {
             return number_format($this->weight, 2);
         })->totalRow();
