@@ -2,6 +2,7 @@
 
 namespace App\Models\TransportOrder;
 
+use App\Admin\Actions\PaymentOrder\TransportCodeLog;
 use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
 use Illuminate\Database\Eloquent\Model;
@@ -169,5 +170,9 @@ class TransportCode extends Model
             case self::VIETNAM_RECEIVE:
                 return $this->vietnamRevUser->name ?? "";
         }
+    }
+
+    public function logs() {
+        return $this->hasMany(TransportCodeLog::class, 'transport_code_id', 'id');
     }
 }

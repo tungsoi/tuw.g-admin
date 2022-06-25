@@ -47,44 +47,47 @@ class TrackingPaymentOrderController extends AdminController
         // dd($orders);
         $ids = [];
         foreach ($orders as $order) {
-            $total_kg = $order->total_kg;
-            $total_m3 = $order->total_m3;
-            if ($order->discount_type == 1) {
-                $total_kg += $order->discount_value;
-            } else {
-                $total_kg -= $order->discount_value;
-            }
+            if ($order->transportCode->count() > 0) {
 
-            if ($order->is_sub_customer_wallet_weight == 1) {
-                $total_kg += str_replace('.0', '', number_format($order->total_sub_wallet_weight, 1, '.', ''));
-            }
-
-            $total_kg_items = $order->transportCode->where('payment_type', 1)->sum('kg');
-            $total_m3_items = $order->transportCode->where('payment_type', -1)->sum('m3');
-            $total_m3_items = number_format($total_m3_items, 3, '.', '');
-
-            // dd($total_kg != $total_kg_items || $total_m3 != $total_m3_items);
-            // dd($total_m3 != $total_m3_items);
-            // dd([
-            //     $order->order_number, $total_kg, $total_m3, $total_kg_items, $total_m3_items
-            // ]);
-
-            $total_kg = number_format($total_kg, 1, '.', '');
-            $total_kg_items = number_format($total_kg_items, 1, '.', '');
-            $total_m3 = number_format($total_m3, 3, '.', '');
-            $total_m3_items = number_format($total_m3_items, 3, '.', '');
-
-            if ($total_kg_items != $total_kg) {
-                $ids[] = $order->id;
-            } else {
-                if ($total_m3 != $total_m3_items) {
-                    $ids[] = $order->id;
+                $total_kg = $order->total_kg;
+                $total_m3 = $order->total_m3;
+                if ($order->discount_type == 1) {
+                    $total_kg += $order->discount_value;
+                } else {
+                    $total_kg -= $order->discount_value;
                 }
+    
+                if ($order->is_sub_customer_wallet_weight == 1) {
+                    $total_kg += str_replace('.0', '', number_format($order->total_sub_wallet_weight, 1, '.', ''));
+                }
+    
+                $total_kg_items = $order->transportCode->where('payment_type', 1)->sum('kg');
+                $total_m3_items = $order->transportCode->where('payment_type', -1)->sum('m3');
+                $total_m3_items = number_format($total_m3_items, 3, '.', '');
+    
+                // dd($total_kg != $total_kg_items || $total_m3 != $total_m3_items);
+                // dd($total_m3 != $total_m3_items);
+                // dd([
+                //     $order->order_number, $total_kg, $total_m3, $total_kg_items, $total_m3_items
+                // ]);
+    
+                $total_kg = number_format($total_kg, 1, '.', '');
+                $total_kg_items = number_format($total_kg_items, 1, '.', '');
+                $total_m3 = number_format($total_m3, 3, '.', '');
+                $total_m3_items = number_format($total_m3_items, 3, '.', '');
+    
+                if ($total_kg_items != $total_kg) {
+                    $ids[] = $order->id;
+                } else {
+                    if ($total_m3 != $total_m3_items) {
+                        $ids[] = $order->id;
+                    }
+                }
+                // if (($total_kg != $total_kg_items) || ($total_m3 != $total_m3_items)) {
+                //     dd($order->id);
+                //     $ids[] = $order->id;
+                // }
             }
-            // if (($total_kg != $total_kg_items) || ($total_m3 != $total_m3_items)) {
-            //     dd($order->id);
-            //     $ids[] = $order->id;
-            // }
         }
 
         $grid = new Grid(new PaymentOrder());

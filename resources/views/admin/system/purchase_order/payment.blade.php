@@ -37,14 +37,20 @@
                 <td style="width: 300px;">{{ $code->transport_code }} <br> <span class="label label-{{$code->statusText->label}}">{{ $code->statusText->name }} {{ $code->paymentOrder ? " - ".$code->paymentOrder->order_number : ""}}</span></td>
                 <td>{{ $code->customer_code_input }}</td>
                 <td>
+                    @php
+                        $this_m3 = ($code->m3 == "" || $code->m3 == "0.00") ? $code->m3_cal() : $code->m3;
+                    @endphp
                     <select class="payment_type form-control" 
                     style="width: 100%;" name="payment_type[]" 
                     data-kg="{{ $code->kg }}" 
-                    data-m3="{{ ($code->m3 == "" || $code->m3 == "0.00") ? $code->m3_cal() : $code->m3 }}" 
+                    data-m3="{{ $this_m3 }}" 
                     data-v="{{ $code->v() }}">
                         <option value="1" selected="">Khối lượng</option>
-                        <option value="-1">M3</option>
-                        <option value="0">V/6000</option>
+
+                        @if ($this_m3 != "0.000")
+                            <option value="-1">M3</option>
+                        @endif
+                        {{-- <option value="0">V/6000</option> --}}
                     </select>
                 </td>
                 <td align="right">{{ str_replace(".0", "", $code->kg) }}</td>

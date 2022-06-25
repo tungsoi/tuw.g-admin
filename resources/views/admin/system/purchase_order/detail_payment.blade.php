@@ -13,7 +13,7 @@
                 <input type="hidden" name="count_kg" class="count_kg" value="{{ $amount_kg }}">
             </td>
             <td>
-                <input type="text" name="sum_kg" class="form-control sum_kg" placeholder="Nhập đơn giá kg" value="0">
+                <input type="text" name="sum_kg" class="form-control sum_kg" placeholder="Nhập đơn giá kg" value="0" >
             </td>
             <td align="right">
                 <input type="text" name="total_kg" class="form-control total_kg" placeholder="Thành tiền kg" readonly="" value="">
@@ -87,3 +87,11 @@
         </tr>
     </tbody>
 </table>
+
+<script>
+    document.addEventListener("wheel", function(event){
+        if(document.activeElement.type === "text"){
+            document.activeElement.blur();
+        }
+    });
+</script>

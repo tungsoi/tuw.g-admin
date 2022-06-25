@@ -23,6 +23,8 @@ use App\Models\TransportOrder\TransportCodeStatus;
 use App\User;
 use Encore\Admin\Grid;
 use App\Admin\Actions\Export\TransportCodeExporter;
+use App\Admin\Actions\PaymentOrder\TransportCodeLog;
+use App\Models\TransportCodeUpdateLog;
 
 class TransportCodeController extends AdminController
 {
@@ -324,6 +326,7 @@ class TransportCodeController extends AdminController
             $actions->disableView();
             $actions->disableDelete();
 
+            $actions->append(new TransportCodeLog($this->row->id));
             $orderService = new OrderService();
             if (in_array($this->row->status, [2, 3])) {
                 $actions->disableEdit();
@@ -430,10 +433,12 @@ EOT);
      *
      * @return Form
      */
-    protected function form()
+    protected function form($id = null)
     {
         $form = new Form(new TransportCode);
 
+        $this_id = $log = null;
+        
         $form->text('customer_code_input', 'Mã khách hàng vận đơn');
         $form->text('transport_code', "Mã vận đơn")->rules(['required']);
 
@@ -451,6 +456,28 @@ EOT);
 
         $form->saving(function (Form $form) {
             $form->m3 = number_format(($form->width * $form->height * $form->length)/1000000, 3, '.', '');
+
+            $uri = \Request::getRequestUri();
+            $arr = explode("/", $uri);
+            $this_id = (int) $arr[3];
+
+            TransportCodeUpdateLog::create([
+                'transport_code_id' => $this_id,
+                'before'    =>  json_encode(TransportCode::find($this_id)->toArray()),
+                'user_updated_id' => Admin::user()->id
+            ]);
+        });
+
+        $form->saved(function (Form $form) use ($log, $this_id) {
+            $uri = \Request::getRequestUri();
+            $arr = explode("/", $uri);
+            $this_id = (int) $arr[3];
+
+            $log = TransportCodeUpdateLog::where('transport_code_id', $this_id)->orderBy('id', 'desc')->first();
+
+            $log->update([
+                'after' =>  json_encode(TransportCode::find($this_id)->toArray())
+            ]); 
         });
 
         $form->tools(function (Form\Tools $tools) {
