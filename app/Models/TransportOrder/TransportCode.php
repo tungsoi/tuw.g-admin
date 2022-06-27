@@ -5,6 +5,7 @@ namespace App\Models\TransportOrder;
 use App\Admin\Actions\PaymentOrder\TransportCodeLog;
 use App\Models\PaymentOrder\PaymentOrder;
 use App\Models\PurchaseOrder\PurchaseOrder;
+use App\Models\TransportCodeUpdateLog;
 use Illuminate\Database\Eloquent\Model;
 
 class TransportCode extends Model
@@ -173,6 +174,6 @@ class TransportCode extends Model
     }
 
     public function logs() {
-        return $this->hasMany(TransportCodeLog::class, 'transport_code_id', 'id');
+        return $this->hasMany(TransportCodeUpdateLog::class, 'transport_code_id', 'id');
     }
 }

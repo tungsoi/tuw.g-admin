@@ -25,7 +25,7 @@ class TransportCodeLog
 
     protected function render()
     {
-        $route = "#";
+        $route = route('admin.transport_codes.history', $this->id);
         return '<a href="'.$route.'" class="btn btn-xs btn-success" data-toggle="tooltip" title="Lịch sử thay đổi"">
                     <i class="fa fa-history"></i>
                 </a>';

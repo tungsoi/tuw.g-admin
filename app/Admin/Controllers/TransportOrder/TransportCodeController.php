@@ -25,6 +25,7 @@ use Encore\Admin\Grid;
 use App\Admin\Actions\Export\TransportCodeExporter;
 use App\Admin\Actions\PaymentOrder\TransportCodeLog;
 use App\Models\TransportCodeUpdateLog;
+use Encore\Admin\Layout\Content;
 
 class TransportCodeController extends AdminController
 {
@@ -52,6 +53,7 @@ class TransportCodeController extends AdminController
             ->orderBy('customer_code_input', 'desc')
             ->with('paymentOrder')
             ->with('warehouse')
+            ->with('logs')
             ->with('statusText');
 
         if (isset($_GET['query_customer_code_input']) && $_GET['query_customer_code_input'] != "") {
@@ -117,6 +119,7 @@ class TransportCodeController extends AdminController
             $filter->column(1/4, function ($filter) {
                 $filter->between('vietnam_receive_at', 'Ngày về VN')->date();
                 $filter->between('export_at', 'Ngày xuất kho')->date();
+                $filter->like('id', 'ID');
             });
 
             Admin::style('
@@ -326,7 +329,11 @@ class TransportCodeController extends AdminController
             $actions->disableView();
             $actions->disableDelete();
 
-            $actions->append(new TransportCodeLog($this->row->id));
+            if ($this->row->logs->count() > 0 ) {
+                $actions->append(new TransportCodeLog($this->row->id));
+            }
+            
+           
             $orderService = new OrderService();
             if (in_array($this->row->status, [2, 3])) {
                 $actions->disableEdit();
@@ -686,6 +693,36 @@ SCRIPT;
 EOT);
             }
         });
+
+        return $grid;
+    }
+
+    public function history($id, Content $content) {
+        return $content
+            ->title("Lịch sử update mã vận đơn")
+            ->description($this->description['index'] ?? trans('admin.list'))
+            ->body($this->historyGrid($id));
+    }
+
+    public function historyGrid($id) {
+        $grid = new Grid(new TransportCodeUpdateLog());
+        $grid->model()->where('transport_code_id', $id);
+
+        $grid->id(); 
+        $grid->before()->display(function () {
+            return json_decode($this->before);
+        });
+        $grid->after()->display(function () {
+            return json_decode($this->after);
+        });
+        $grid->change('Thay doi')->display(function (){
+            $diff = array_diff((array) json_decode($this->after), (array) json_decode($this->before));
+
+            return $diff;
+        });
+        $grid->user()->name('Người thay đổi');
+
+        $grid->disableActions();
 
         return $grid;
     }

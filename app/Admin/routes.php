@@ -111,6 +111,7 @@ Route::group([
     // payment order
     $router->get('payments/{ids}', 'TransportOrder\\PaymentController@indexRebuild')->name('payments.index');
     $router->post('payments', 'TransportOrder\\PaymentController@storeRebuild')->name('payments.storeRebuild');
+    $router->get('transport_codes/{id}/history', 'TransportOrder\\TransportCodeController@history')->name('transport_codes.history');
 
     // weight portal
     $router->get('weight_portals', 'System\\WeightPortalController@indexRebuild')->name('weight_portals.index');
