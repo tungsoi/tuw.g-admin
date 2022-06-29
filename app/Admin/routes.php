@@ -82,6 +82,7 @@ Route::group([
         'weight_portals_payment'    =>  'System\\WeightPortalPaymentController',
         'title_details' =>  'ReportWarehouse\\TitleDetailController',
         'date_reports' =>  'ReportWarehouse\\DateReportController',
+        'transport_customer_report' =>  'CustomerReport\\TransportReportController'
     ]);
 
     // $router->get('ar_reports/{ar_report}', 'Report\\ArReportController@showRebuild')->name('ar_reports.show');
