@@ -46,10 +46,10 @@ class WeightPortalController extends AdminController
             ->description($this->description['index'] ?? trans('admin.list'))
             ->row(function (Row $row)
             {
-                $row->column(6, new InfoBox("Tổng cân trên toàn thời gian", 'weight', 'aqua', '/admin/customers', WeightPortal::whereType(2)->sum('value')));
-                $row->column(6, new InfoBox("Cân tổng còn lại chưa chia", 'weight', 'red', '/admin/customers', WeightPortal::whereType(1)->sum('value')));
-                $row->column(6, new InfoBox("Tổng cân đã chia nhân viên", 'weight', 'primary', '/admin/customers', WeightPortal::whereType(3)->sum('value')));
-                $row->column(6, new InfoBox("Tổng số cân nhân viên còn giữ", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::ADMIN)->sum('wallet_weight')));
+                $row->column(12, new InfoBox("Tổng cân trên toàn thời gian", 'weight', 'aqua', '/admin/customers', WeightPortal::whereType(2)->sum('value')));
+                $row->column(12, new InfoBox("Cân tổng còn lại chưa chia", 'weight', 'red', '/admin/customers', WeightPortal::whereType(1)->sum('value')));
+                $row->column(12, new InfoBox("Tổng cân đã chia nhân viên", 'weight', 'primary', '/admin/customers', WeightPortal::whereType(3)->sum('value')));
+                $row->column(12, new InfoBox("Tổng số cân nhân viên còn giữ", 'weight', 'green', '/admin/customers', User::whereIsActive(User::ACTIVE)->whereIsCustomer(User::ADMIN)->sum('wallet_weight')));
 
                 $row->column(4, new InfoBox("Tổng cân đã chia khách hàng", 'weight', 'orange', '/admin/customers', TransactionWeight::whereType(2)->sum('kg')));
                 $row->column(4, new InfoBox("Tổng cân khách hàng đã thanh toán", 'weight', 'red', '/admin/customers', TransactionWeight::whereType(1)->sum('kg')));
