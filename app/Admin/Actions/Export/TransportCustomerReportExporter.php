@@ -92,7 +92,7 @@ class TransportCustomerReportExporter extends AbstractExporter
             "TỔNG DOANH THU (VND)",
             "TỔNG CÂN (KG)",
             "TỔNG KHỐI (M3)",
-            "TỔNG ỨNG KÉO (TỆ)",
+            "TỔNG ỨNG KÉO (VND)",
         ];
     }
 

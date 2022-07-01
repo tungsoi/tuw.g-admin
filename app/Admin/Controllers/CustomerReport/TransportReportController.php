@@ -199,7 +199,7 @@ class TransportReportController extends AdminController
         $grid->column('m3', 'Tổng khối (M3)')->display(function () {
             return number_format($this->m3);
         })->sortable();
-        $grid->column('advance_drag', 'Tổng ứng kéo (Tệ)')->display(function () {
+        $grid->column('advance_drag', 'Tổng ứng kéo (VND)')->display(function () {
             return number_format($this->advance_drag);
         })->sortable();
 
