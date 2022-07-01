@@ -130,6 +130,7 @@ class TransportReportController extends AdminController
         ->join('payment_orders', 'payment_orders.payment_customer_id', 'admin_users.id')
         ->where("payment_orders.created_at", ">=", $begin)
         ->where("payment_orders.created_at", "<=", $finish)
+        ->where('payment_orders.status', 'payment_export')
         ->groupBy("admin_users.id")
         ->orderBy("amount", "desc");
 
@@ -140,6 +141,7 @@ class TransportReportController extends AdminController
             ->join('payment_orders', 'payment_orders.payment_customer_id', 'admin_users.id')
             ->where("payment_orders.created_at", ">=", $report->begin)
             ->where("payment_orders.created_at", "<=", $report->finish)
+            ->where('payment_orders.status', 'payment_export')
             ->groupBy("admin_users.id")
             ->orderBy("amount", "desc")
             ->get();
