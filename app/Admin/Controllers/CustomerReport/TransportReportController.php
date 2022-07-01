@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\CustomerReport;
 
+use App\Admin\Actions\Export\TransportCustomerReportExporter;
 use App\Admin\Services\UserService;
 use App\Models\System\Alert;
 use App\Models\TransportCustomerReport;
@@ -204,8 +205,9 @@ class TransportReportController extends AdminController
         $grid->disableBatchActions();
         $grid->paginate(20);
         $grid->disableCreateButton();
-        $grid->disableExport();
         $grid->disableColumnSelector();
+
+        $grid->exporter(new TransportCustomerReportExporter($report->id));
 
         return $grid;
     }
