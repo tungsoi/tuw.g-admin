@@ -132,12 +132,18 @@ class TransportReportController extends AdminController
         ->groupBy("admin_users.id")
         ->orderBy("amount", "desc");
 
-        $grid->header(function () use ($report) {
-            $html = "<h4>".$report->title."</h4";
-            $html .= "<h4>Bắt đầu: ".$report->begin."</h4";
-            $html .= "<h4>Kết thúc: ".$report->finish."</h4";
+        $grid->header(function ($query) use ($report) {
+            $data = User::selectRaw(
+                "admin_users.*, admin_users.symbol_name, count(*) as count, sum(payment_orders.amount) as amount, sum(payment_orders.total_kg) as kg,
+                sum(payment_orders.total_m3) as m3, sum(payment_orders.total_advance_drag) as advance_drag")
+            ->join('payment_orders', 'payment_orders.payment_customer_id', 'admin_users.id')
+            ->where("payment_orders.created_at", ">=", $report->begin)
+            ->where("payment_orders.created_at", "<=", $report->finish)
+            ->groupBy("admin_users.id")
+            ->orderBy("amount", "desc")
+            ->get();
 
-            return $html;
+            return view('admin.system.detail_transport_customer_report', compact('data', 'report'));
         });
 
         $grid->expandFilter();
@@ -183,16 +189,16 @@ class TransportReportController extends AdminController
         $grid->column('count', 'Số lượng đơn');
         $grid->column('amount', 'Tổng doanh thu (VND)')->display(function () {
             return number_format($this->amount);
-        });
+        })->sortable();
         $grid->column('kg', 'Tổng cân (Kg)')->display(function () {
             return number_format($this->kg);
-        });
+        })->sortable();
         $grid->column('m3', 'Tổng khối (M3)')->display(function () {
             return number_format($this->m3);
-        });
+        })->sortable();
         $grid->column('advance_drag', 'Tổng ứng kéo (Tệ)')->display(function () {
             return number_format($this->advance_drag);
-        });
+        })->sortable();
 
         $grid->disableActions();
         $grid->disableBatchActions();
