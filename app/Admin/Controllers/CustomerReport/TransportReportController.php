@@ -121,6 +121,10 @@ class TransportReportController extends AdminController
         ->groupBy("admin_users.id")
         ->orderBy("amount", "desc");
 
+        if (isset($_GET['id'])) {
+            $grid->model()->where('admin_users.id', $_GET['id']);
+        }
+
         $grid->header(function ($query) use ($report) {
             $data = User::selectRaw(
                 "admin_users.*, admin_users.symbol_name, count(*) as count, sum(payment_orders.amount) as amount, sum(payment_orders.total_kg) as kg,
@@ -139,7 +143,7 @@ class TransportReportController extends AdminController
         $grid->expandFilter();
         $grid->filter(function($filter) {
             $filter->disableIdFilter();
-            $filter->equal('id', 'Mã khách hàng')->select($this->userService->GetListCustomer());
+            $filter->equal('admin_users.id', 'Mã khách hàng')->select($this->userService->GetListCustomer());
         });
 
         $grid->rows(function (Grid\Row $row) {
