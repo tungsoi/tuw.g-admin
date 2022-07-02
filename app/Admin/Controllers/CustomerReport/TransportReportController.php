@@ -46,12 +46,17 @@ class TransportReportController extends AdminController
         //     $grid->model()->orderByRaw('CONVERT(wallet, SIGNED) asc');
         // }
 
-        // $grid->expandFilter();
-        // $grid->filter(function($filter) {
-        //     $filter->disableIdFilter();
-        //     $filter->equal('id', 'Mã khách hàng')->select($this->userService->GetListCustomer());
-        //     $filter->between('created_at', 'Thời gian')->date();
-        // });
+        $grid->expandFilter();
+        $grid->filter(function($filter) {
+            $filter->disableIdFilter();
+            $filter->where(function ($query) {
+                
+            }, 'Mã khách hàng', 'customer_id')->select($this->userService->GetListCustomer());
+        });
+
+        $grid->header(function () {
+
+        });
 
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
@@ -71,7 +76,7 @@ class TransportReportController extends AdminController
             return $this->total()['amount'];
         });
         $grid->disableBatchActions();
-        $grid->paginate(100);
+        $grid->paginate(10);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableDelete();
             $actions->disableEdit();
@@ -186,7 +191,7 @@ class TransportReportController extends AdminController
             return number_format($this->m3, 3);
         })->sortable();
         $grid->column('amount', 'Tổng doanh thu (VND)')->display(function () {
-            return number_format($this->amount);
+            return number_format($this->amount - $this->advance_drag);
         })->sortable();
 
         $grid->disableActions();

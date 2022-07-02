@@ -18,7 +18,7 @@
             <td>{{ $data->sum('count') }}</td>
             <td>{{ number_format($data->sum('kg'), 1) }}</td>
             <td>{{ number_format($data->sum('m3'), 3) }}</td>
-            <td>{{ number_format($data->sum('amount')) }}</td>
+            <td>{{ number_format($data->sum('amount') - $data->sum('advance_drag')) }}</td>
         </tr>
     </tbody>
 </table>

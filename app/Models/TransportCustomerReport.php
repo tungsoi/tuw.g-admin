@@ -31,7 +31,7 @@ class TransportCustomerReport extends Model
         return [
             'kg'    =>  number_format($data->sum('kg'), 1),
             'm3'    =>  number_format($data->sum('m3'), 3),
-            'amount'    =>  number_format($data->sum('amount'))
+            'amount'    =>  number_format($data->sum('amount') - $data->sum('advance_drag'))
         ];
     }
 }
