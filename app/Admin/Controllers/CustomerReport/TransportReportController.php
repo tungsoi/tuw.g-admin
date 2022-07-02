@@ -61,28 +61,15 @@ class TransportReportController extends AdminController
         $grid->column('title', 'Tiêu đề');
         $grid->column('begin', 'Ngày bắt đầu');
         $grid->column('finish', 'Ngày kết thúc');
-        // $grid->symbol_name('Mã khách hàng');
-        // $grid->wallet('Ví tiền')->display(function () {
-        //     $label = $this->wallet < 0 ? "red" : "green";
-        //     return "<span style='color: {$label}'>".number_format($this->wallet)."</span>";
-        // })->style('text-align: right; max-width: 150px;');
-        // $grid->column('transport_count', 'Số lượng đơn')->display(function () {
-        //     return $this->paymentOrders->count();
-        // });
         $grid->column('total_kg', 'Tổng cân (Kg)')->display(function () {
-            return 0;
+            return $this->total()['kg'];
         });
         $grid->column('total_m3', 'Tổng khối (M3)')->display(function () {
-            return 0;
+            return $this->total()['m3'];
         });
         $grid->column('amount', 'Tổng doanh thu (VND)')->display(function () {
-            return 0;
+            return $this->total()['amount'];
         });
-        // $grid->column('total_advance_drag', 'Tổng ứng kéo (Tệ)')->display(function () {
-        //     return number_format($this->paymentOrders->sum('total_advance_drag'));
-        // });
-
-        // $grid->disableActions();
         $grid->disableBatchActions();
         $grid->paginate(100);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
