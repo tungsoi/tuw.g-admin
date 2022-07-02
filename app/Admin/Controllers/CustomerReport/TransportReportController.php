@@ -55,7 +55,37 @@ class TransportReportController extends AdminController
         });
 
         $grid->header(function () {
+            if (isset($_GET['customer_id'])) {
+                $customer = User::find($_GET['customer_id']);
+                $symbol_name = $customer->symbol_name;
+                $reports = TransportCustomerReport::orderBy('id', 'desc')->get();
+                $temp = [];
 
+                foreach ($reports as $report) {
+                    $data = User::selectRaw(
+                        "admin_users.*, admin_users.symbol_name, count(*) as count, sum(payment_orders.amount) as amount, sum(payment_orders.total_kg) as kg,
+                        sum(payment_orders.total_m3) as m3, sum(payment_orders.total_advance_drag) as advance_drag")
+                    ->join('payment_orders', 'payment_orders.payment_customer_id', 'admin_users.id')
+                    ->where("payment_orders.created_at", ">=", $report->begin)
+                    ->where("payment_orders.created_at", "<=", $report->finish)
+                    ->where('payment_orders.status', 'payment_export')
+                    ->groupBy("admin_users.id")
+                    ->orderBy("amount", "desc")
+                    ->where('admin_users.id', $customer->id)
+                    ->get();
+
+                    $temp[] = [
+                        'symbol_name'   =>  $symbol_name,
+                        'title' =>  $report->title,
+                        'count' =>  $data->sum('count'),
+                        'kg'    =>  number_format($data->sum('kg'), 1),
+                        'm3'    =>  number_format($data->sum('m3'), 3),
+                        'amount'    =>  number_format($data->sum('amount') - $data->sum('advance_drag'))
+                    ];
+                }
+
+                return view('admin.system.search_transport_customer_report', compact('temp'));
+            }
         });
 
         $grid->rows(function (Grid\Row $row) {
