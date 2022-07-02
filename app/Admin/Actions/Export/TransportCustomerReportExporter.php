@@ -43,12 +43,10 @@ class TransportCustomerReportExporter extends AbstractExporter
                     $rows[] = [
                         $key+1,
                         $value->symbol_name,
-                        number_format($value->wallet),
                         $value->count,
+                        number_format( $value->kg, 1),
+                        number_format( $value->m3, 3),
                         number_format( $value->amount),
-                        number_format( $value->kg),
-                        number_format( $value->amount),
-                        number_format( $value->advance_drag),
                     ];
                 } 
                 array_unshift($rows, $this->header());
@@ -66,7 +64,7 @@ class TransportCustomerReportExporter extends AbstractExporter
                     ''
                 ];
                 $sheet->rows($rows);
-                $sheet->getStyle('A1:H1')->applyFromArray(array(
+                $sheet->getStyle('A1:F1')->applyFromArray(array(
                     'font' => [
                         'bold' => true,
                         'size'      =>  13,
@@ -87,12 +85,10 @@ class TransportCustomerReportExporter extends AbstractExporter
         return [
             'STT', 
             'Mã khách hàng', 
-            'Ví tiền',
             "SỐ LƯỢNG ĐƠN",
-            "TỔNG DOANH THU (VND)",
             "TỔNG CÂN (KG)",
             "TỔNG KHỐI (M3)",
-            "TỔNG ỨNG KÉO (VND)",
+            "TỔNG DOANH THU (VND)",
         ];
     }
 

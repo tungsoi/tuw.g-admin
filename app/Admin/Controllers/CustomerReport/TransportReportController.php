@@ -69,15 +69,15 @@ class TransportReportController extends AdminController
         // $grid->column('transport_count', 'Số lượng đơn')->display(function () {
         //     return $this->paymentOrders->count();
         // });
-        // $grid->column('amount', 'Tổng doanh thu (VND)')->display(function () {
-        //     return number_format($this->paymentOrders->sum('amount'));
-        // });
-        // $grid->column('total_kg', 'Tổng cân (Kg)')->display(function () {
-        //     return number_format($this->paymentOrders->sum('total_kg'));
-        // });
-        // $grid->column('total_m3', 'Tổng khối (M3)')->display(function () {
-        //     return number_format($this->paymentOrders->sum('total_m3'));
-        // });
+        $grid->column('total_kg', 'Tổng cân (Kg)')->display(function () {
+            return 0;
+        });
+        $grid->column('total_m3', 'Tổng khối (M3)')->display(function () {
+            return 0;
+        });
+        $grid->column('amount', 'Tổng doanh thu (VND)')->display(function () {
+            return 0;
+        });
         // $grid->column('total_advance_drag', 'Tổng ứng kéo (Tệ)')->display(function () {
         //     return number_format($this->paymentOrders->sum('total_advance_drag'));
         // });
@@ -184,23 +184,16 @@ class TransportReportController extends AdminController
         
             return new Table(['Thông tin', 'Nội dung'], $info);
         })->style('width: 100px; text-align: center;');
-        $grid->wallet('Ví tiền')->display(function () {
-            $label = $this->wallet < 0 ? "red" : "green";
-            return "<span style='color: {$label}'>".number_format($this->wallet)."</span>";
-        })->style('text-align: right; max-width: 150px;');
 
         $grid->column('count', 'Số lượng đơn');
-        $grid->column('amount', 'Tổng doanh thu (VND)')->display(function () {
-            return number_format($this->amount);
-        })->sortable();
         $grid->column('kg', 'Tổng cân (Kg)')->display(function () {
-            return number_format($this->kg);
+            return number_format($this->kg, 1);
         })->sortable();
         $grid->column('m3', 'Tổng khối (M3)')->display(function () {
-            return number_format($this->m3);
+            return number_format($this->m3, 3);
         })->sortable();
-        $grid->column('advance_drag', 'Tổng ứng kéo (VND)')->display(function () {
-            return number_format($this->advance_drag);
+        $grid->column('amount', 'Tổng doanh thu (VND)')->display(function () {
+            return number_format($this->amount);
         })->sortable();
 
         $grid->disableActions();
