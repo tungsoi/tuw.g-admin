@@ -12,7 +12,8 @@ class TransportCustomerReport extends Model
     protected $fillable = [
         'title',
         'begin',
-        'finish'
+        'finish',
+        'kg'
     ];
 
     public function total() {

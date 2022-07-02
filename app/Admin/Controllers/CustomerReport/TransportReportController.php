@@ -105,6 +105,7 @@ class TransportReportController extends AdminController
         $grid->column('amount', 'Tổng doanh thu (VND)')->display(function () {
             return $this->total()['amount'];
         });
+        $grid->column('kg', 'KG Trung Quốc')->editable();
         $grid->disableBatchActions();
         $grid->paginate(10);
         $grid->actions(function (Grid\Displayers\Actions $actions) {
@@ -122,16 +123,9 @@ class TransportReportController extends AdminController
      */
     protected function form()
     {
-        $form = new Form(new Alert);
+        $form = new Form(new TransportCustomerReport());
 
-        $form->text('title', "Tiêu đề")->rules(['required']);
-        $form->summernote('content', "Nội dung")->rules(['required']);
-        $isDefault = [
-            'off' => ['value' => 0, 'text' =>  'Tắt', 'color' => 'danger'],
-            'on'  => ['value' => 1, 'text' => 'Mở', 'color' => 'success']
-        ];
-        $form->switch('status', 'Loại kho')->states($isDefault)->default(1);
-        $form->hidden('created_user_id')->default(Admin::user()->id);
+        $form->text('kg', "KG nhận bên Trung quốc");
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
             $tools->disableView();
