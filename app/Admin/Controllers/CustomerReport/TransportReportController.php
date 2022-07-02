@@ -143,7 +143,9 @@ class TransportReportController extends AdminController
         $grid->expandFilter();
         $grid->filter(function($filter) {
             $filter->disableIdFilter();
-            $filter->equal('id', 'Mã khách hàng')->select($this->userService->GetListCustomer());
+            $filter->where(function ($query) {
+                
+            }, 'Mã khách hàng', 'id')->select($this->userService->GetListCustomer());
         });
 
         $grid->rows(function (Grid\Row $row) {
