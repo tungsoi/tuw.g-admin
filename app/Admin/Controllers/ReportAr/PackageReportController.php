@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers\ReportAr;
 
 use App\Models\ArReport\Unit;
+use App\Models\ReportWarehouse\ReportWarehousePortal;
 use App\User;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -17,7 +18,7 @@ class PackageReportController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Đơn vị';
+    protected $title = 'Hạch toán theo mã lô';
 
     /**
      * Make a grid builder.
@@ -26,29 +27,34 @@ class PackageReportController extends AdminController
      */
     protected function grid()
     {
-        $grid = new Grid(new Unit());
+        $grid = new Grid(new ReportWarehousePortal());
+        $grid->model()->orderBy('id', 'desc');
 
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->title('Tiêu đề');
-        
-        $grid->column('created_at', "Ngày tạo")->display(function () {
-            return date('H:i | d-m-Y', strtotime($this->created_at));
-        })->style('text-align: center; width: 200px');
+        $grid->title('Mã lô');
+        $grid->column('amount_kg', 'Tổng tiền thu khách theo KG')->display(function () {
+            $transport_codes = $this->transportCode->count();
 
-        $grid->column('updated_at', "Ngày cập nhật")->display(function () {
-            return date('H:i | d-m-Y', strtotime($this->updated_at));
-        })->style('text-align: center; width: 200px');
+            return $transport_codes;
+        });
+        $grid->column('amount_m3', 'Tổng tiền thu khách theo Khối');
+        $grid->column('amount', 'Tổng tiền đầu ra');
+        $grid->column('amount', 'Số lượng đầu vào');
+        $grid->column('amount', 'Đơn vị');
+        $grid->column('amount', 'Đơn giá');
+        $grid->column('amount', 'Tổng tiền đầu vào');
+        $grid->column('amount', 'Lãi/Lỗ');
         
+        $grid->disableCreateButton();
         $grid->disableExport();
         $grid->disableFilter();
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
-        $grid->disablePagination();
-        $grid->disablePerPageSelector();
-        $grid->paginate(100);
+        $grid->paginate(20);
+        $grid->disableActions();
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableView();
         });

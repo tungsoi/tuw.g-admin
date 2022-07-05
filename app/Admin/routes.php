@@ -83,7 +83,8 @@ Route::group([
         'title_details' =>  'ReportWarehouse\\TitleDetailController',
         'date_reports' =>  'ReportWarehouse\\DateReportController',
         'transport_customer_report' =>  'CustomerReport\\TransportReportController',
-        'pagkage_reports'   =>  'ReportAr\\PackageReportController'
+        'pagkage_reports'   =>  'ReportAr\\PackageReportController',
+        'tcr_tops'  =>  'CustomerReport\\TcrTopController'
     ]);
 
     // $router->get('ar_reports/{ar_report}', 'Report\\ArReportController@showRebuild')->name('ar_reports.show');
