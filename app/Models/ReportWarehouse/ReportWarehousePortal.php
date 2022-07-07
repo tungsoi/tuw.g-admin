@@ -27,10 +27,36 @@ class ReportWarehousePortal extends Model
         'offer_cublic_meter',
         'line',
         'note',
-        'status'
+        'status',
+        'input_count',
+        'input_type',
+        'input_price'
     ];
 
     public function transportCode() {
         return $this->hasMany(TransportCode::class, "title", "title");
+    }
+
+    public function amount_output() {
+        $transport_codes = $this->transportCode;
+        $sum_kg = 0;
+        foreach ($transport_codes->where('payment_type', 1) as $code) {
+            $sum_kg += $code->paymentOrder->price_kg * $code->kg;
+        }
+
+        $sum_m3 = 0;
+        foreach ($transport_codes->where('payment_type', -1) as $code) {
+            $sum_m3 += $code->paymentOrder->price_m3 * $code->m3_cal();
+        }
+
+        return [
+            'kg'    =>  $sum_kg,
+            'm3'    =>  $sum_m3,
+            'amount'    =>  $sum_kg+$sum_m3
+        ];
+    }
+
+    public function amount_input() {
+        return $this->input_count * $this->input_price;
     }
 }

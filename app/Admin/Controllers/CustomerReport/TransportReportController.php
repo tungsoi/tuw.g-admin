@@ -113,7 +113,17 @@ class TransportReportController extends AdminController
             $actions->disableEdit();
         });
 
+        Admin::script($this->scriptGrid());
+
         return $grid;
+    }
+
+    public function scriptGrid() {
+        return <<<SCRIPT
+        console.log('grid js');
+        
+ 
+SCRIPT;
     }
 
     /**

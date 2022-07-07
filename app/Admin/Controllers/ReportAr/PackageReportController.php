@@ -28,32 +28,53 @@ class PackageReportController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new ReportWarehousePortal());
-        $grid->model()->orderBy('id', 'desc');
+        $grid->model()->orderBy('id', 'desc')->with('transportCode');
+
+        $grid->filter(function($filter) {
+            $filter->expand();
+            $filter->disableIdFilter();
+            $filter->like('title', "Ký hiệu");
+        });
+
+        $grid->header(function () {
+            $html = "<h4>VD: KG 25, 25.5, ....</h4>";
+            $html .= "<h4>VD: M3 5.345, ... </h4>";
+
+            return $html;
+        });
 
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
         $grid->title('Mã lô');
-        $grid->column('amount_kg', 'Tổng tiền thu khách theo KG')->display(function () {
-            $transport_codes = $this->transportCode->count();
 
-            return $transport_codes;
+        $grid->column('output', 'Đầu ra')->display(function () {
+            $amount_output = $this->amount_output();
+
+            return view('admin.system.package_report',compact('amount_output'));
         });
-        $grid->column('amount_m3', 'Tổng tiền thu khách theo Khối');
-        $grid->column('amount', 'Tổng tiền đầu ra');
-        $grid->column('amount', 'Số lượng đầu vào');
-        $grid->column('amount', 'Đơn vị');
-        $grid->column('amount', 'Đơn giá');
-        $grid->column('amount', 'Tổng tiền đầu vào');
-        $grid->column('amount', 'Lãi/Lỗ');
+        $grid->column('input_count', 'Số lượng đầu vào')->editable();
+        $grid->column('input_price', 'Đơn giá')->editable();
+        $grid->column('input_type', 'Đơn vị')->editable('select', [
+            1 => 'kg',
+            2   =>  'm3'
+        ]);
+        $grid->column('amount_input', 'Tổng tiền đầu vào')->display(function () {
+            return number_format($this->amount_input());
+        });
+        $grid->column('revenue', 'Lãi/Lỗ')->display(function () {
+            $amount_output = $this->amount_output()['amount'];
+            $amount_input =  $this->amount_input();
+
+            return number_format($amount_output - $amount_input);
+        });
         
         $grid->disableCreateButton();
         $grid->disableExport();
-        $grid->disableFilter();
         $grid->disableBatchActions();
         $grid->disableColumnSelector();
-        $grid->paginate(20);
+        $grid->paginate(10);
         $grid->disableActions();
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableView();
@@ -69,9 +90,14 @@ class PackageReportController extends AdminController
      */
     protected function form()
     {
-        $form = new Form(new Unit);
+        $form = new Form(new ReportWarehousePortal);
 
-        $form->text('title', "Tiêu đề")->rules(['required']);
+        $form->text('input_count', "Số lượng đầu vào");
+        $form->select('input_type', "Đơn vị")->options([
+            'kg',
+            'm3'
+        ]);
+        $form->text('input_price', "Tổng tiền đầu vào");
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
