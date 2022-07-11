@@ -233,4 +233,25 @@ class User extends Model implements AuthenticatableContract
     {
         return $this->hasMany(User::class, 'staff_sale_id', 'id');
     }
+
+    public function purchaseOrdersByDate($begin, $finish) {
+        $orders = $this->hasMany('App\Models\PurchaseOrder\PurchaseOrder', 'customer_id', 'id')->select('id', 'current_rate', 'purchase_order_service_fee')->where("success_at", ">=", $begin)
+        ->where("success_at", "<=", $finish);
+
+        $total_item = $total_service = $total_ship = $total_amount = 0;
+
+        foreach ($orders as $order) {
+            $total_item += str_replace(",", "", $order->sumItemPrice()) * $order->current_rate;
+            $total_service += $order->purchase_order_service_fee * $order->current_rate;
+            $total_ship += $order->sumShipFee() * $order->current_rate;
+            $total_amount += $order->amount(false) * $order->current_rate;
+        }
+
+        return [
+            'total_item'    =>  $total_item,
+            'total_service'    =>  $total_service,
+            'total_ship'    =>  $total_ship,
+            'total_amount'    =>  $total_amount,
+        ];
+    }
 }

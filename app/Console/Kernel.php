@@ -47,9 +47,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('order:report', [2])->dailyAt("19:00");
         $schedule->command('order:report', [2])->dailyAt("23:59");
 
-        $schedule->command('sale-revenue-report:update', ['2022-06-01', '2022-06-30'])->dailyAt("13:00");
-        $schedule->command('sale-revenue-report:update', ['2022-06-01', '2022-06-30'])->dailyAt("21:00");
-        $schedule->command('sale:salary', ['2022-06-01', '2022-06-30'])->hourly();
+        $schedule->command('sale-revenue-report:update', ['2022-07-01', '2022-07-31'])->dailyAt("13:00");
+        $schedule->command('sale-revenue-report:update', ['2022-07-01', '2022-07-31'])->dailyAt("21:00");
+        $schedule->command('sale:salary', ['2022-07-01', '2022-07-31'])->hourly();
 
         // $schedule->command('sale-revenue-report:update', ['2020-10-01', '2022-01-31'])->dailyAt("03:00");
     }

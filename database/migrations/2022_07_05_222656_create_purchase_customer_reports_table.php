@@ -15,6 +15,9 @@ class CreatePurchaseCustomerReportsTable extends Migration
     {
         Schema::create('purchase_customer_reports', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('title')->nullable();
+            $table->string('begin')->nullable();
+            $table->string('finish')->nullable();
             $table->timestamps();
         });
     }
