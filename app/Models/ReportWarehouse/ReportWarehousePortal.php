@@ -49,11 +49,20 @@ class ReportWarehousePortal extends Model
             $sum_m3 += $code->paymentOrder->price_m3 * $code->m3_cal();
         }
 
-        return [
+        $customer_code = [];
+        if ($transport_codes->count() > 0) {
+            $customer_code = $transport_codes->pluck('customer_code_input')->toArray();
+            $customer_code = array_unique(array_values($customer_code));
+        }
+
+
+        $data = [
             'kg'    =>  $sum_kg,
             'm3'    =>  $sum_m3,
-            'amount'    =>  $sum_kg+$sum_m3
+            'amount'    =>  $sum_kg+$sum_m3,
+            'customer_code' =>  $customer_code
         ];
+        return $data;
     }
 
     public function amount_input() {

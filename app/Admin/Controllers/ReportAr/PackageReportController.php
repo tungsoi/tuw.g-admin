@@ -4,6 +4,7 @@ namespace App\Admin\Controllers\ReportAr;
 
 use App\Models\ArReport\Unit;
 use App\Models\ReportWarehouse\ReportWarehousePortal;
+use App\Models\TransportOrder\TransportCode;
 use App\User;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -34,20 +35,28 @@ class PackageReportController extends AdminController
             $filter->expand();
             $filter->disableIdFilter();
             $filter->like('title', "Ký hiệu");
-        });
+            $filter->where(function ($query) {
+                $title = TransportCode::whereNotNull('title')->where('customer_code_input', $this->input)->pluck('title')->toArray();
 
-        $grid->header(function () {
-            $html = "<h4>VD: KG 25, 25.5, ....</h4>";
-            $html .= "<h4>VD: M3 5.345, ... </h4>";
-
-            return $html;
+                return $query->whereIn('title', array_unique(array_values($title)));
+                
+            }, 'Mã khách hàng', 'customer_code_input');
         });
 
         $grid->rows(function (Grid\Row $row) {
             $row->column('number', ($row->number+1));
         });
         $grid->column('number', 'STT');
-        $grid->title('Mã lô');
+        $grid->title('Mã lô')->display(function () {
+            $html = $this->title;
+            $html .= "<hr>";
+            $html .= "<span>Tổng: ".$this->transportCode->count()."</span><br>";
+            $html .= "<span>Đã về kho: ".$this->transportCode->where('status', 1)->count()."</span><br>";
+            $html .= "<span>Đã xuất kho: ".$this->transportCode->where('status', 3)->count()."</span><br>";
+            $html .= "<span>Luân chuyển: ".$this->transportCode->where('status', 4)->count()."</span>";
+
+            return $html;
+        });
 
         $grid->column('output', 'Đầu ra')->display(function () {
             $amount_output = $this->amount_output();
