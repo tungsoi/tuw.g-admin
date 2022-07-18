@@ -64,19 +64,26 @@ class PackageReportController extends AdminController
             return view('admin.system.package_report',compact('amount_output'));
         });
         $grid->column('input_count', 'Số lượng đầu vào')->editable();
-        $grid->column('input_price', 'Đơn giá')->editable();
+        $grid->column('input_price', 'Đơn giá')->display(function () {
+            return number_format($this->input_price);
+        })->editable();
         $grid->column('input_type', 'Đơn vị')->editable('select', [
             1 => 'kg',
             2   =>  'm3'
         ]);
         $grid->column('amount_input', 'Tổng tiền đầu vào')->display(function () {
-            return number_format($this->amount_input());
+            return number_format( $this->amount_input() );
         });
         $grid->column('revenue', 'Lãi/Lỗ')->display(function () {
             $amount_output = $this->amount_output()['amount'];
             $amount_input =  $this->amount_input();
 
-            return number_format($amount_output - $amount_input);
+            $final = $amount_output - $amount_input;
+            if ($final < 0) {
+                return "<b style='color: red;'>".number_format($final)."</b>";
+            } else {
+                return "<b style='color: green;'>".number_format($final)."</b>";
+            }
         });
         
         $grid->disableCreateButton();
@@ -107,6 +114,10 @@ class PackageReportController extends AdminController
             'm3'
         ]);
         $form->text('input_price', "Tổng tiền đầu vào");
+
+        $form->saving(function (Form $form) {
+            $form->input_price = (int) str_replace(",", "", $form->input_price);
+        });
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();

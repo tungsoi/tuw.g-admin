@@ -66,6 +66,6 @@ class ReportWarehousePortal extends Model
     }
 
     public function amount_input() {
-        return $this->input_count * $this->input_price;
+        return $this->input_count * (int) str_replace(",", "", $this->input_price);
     }
 }
