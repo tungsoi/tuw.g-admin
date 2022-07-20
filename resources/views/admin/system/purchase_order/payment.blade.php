@@ -124,6 +124,12 @@
                     $('#customer-info-payment #customer_note').html(response.data.note);
                     $('#customer_phone_number').html(response.data.phone_number);
                     $('a#zalo-contact').attr('href', 'https://zalo.me/' + response.data.phone_number);
+
+                    if (response.data.wallet_weight == 0) {
+                        $("select.wallet_weight").prop("disabled", true);
+                    } else {
+                        $("select.wallet_weight").prop("disabled", false);
+                    }
                 }
             });
         });
@@ -418,6 +424,11 @@
                 console.log('all_m3'); 
                 $('select.payment_type').val(-1);
             }
+        });
+
+        $(document).bind("paste",".customer_select_id", function(e) {
+            e.preventDefault();
+            console.log('opke');
         });
     });
 </script>

@@ -709,12 +709,15 @@ class CustomerController extends AdminController
             return back();
         } else {
             $user = Admin::user();
-            $user->wallet_weight -= $request->kg;
+
+            $new_wallet_weight = number_format($user->wallet_weight - $request->kg, 1, '.', '');
+            $user->wallet_weight = $new_wallet_weight;
             $user->save();
     
             TransactionWeight::create($request->all());
             $customer = User::find($request->customer_id);
-            $customer->wallet_weight += $request->kg;
+            $new_wallet_weight_customer = number_format($customer->wallet_weight + $request->kg, 1, '.', '');
+            $customer->wallet_weight = $new_wallet_weight_customer;
             $customer->save();
     
             admin_toastr('Nạp ví cân thành công', 'success');
