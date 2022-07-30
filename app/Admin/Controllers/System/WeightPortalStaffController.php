@@ -116,7 +116,6 @@ SCRIPT;
 
         $form->select('user_receive_id', 'Nhân viên')->options($user)->rules(['required']);
     
-
         $form->currency('value', 'Số cân')->digits(1)->symbol('KG')->rules(['required']);
         $form->currency('price', 'Ước tính giá trên 1 KG')->digits(0)->symbol('VND');
         $form->text('content', 'Nội dung')->rules(['required']);
@@ -129,8 +128,14 @@ SCRIPT;
         $form->saved(function (Form $form) {
             $value = $form->model()->value;
             $res = WeightPortal::whereType(1)->first();
-            $res->value += $value;
+            $new_value = $res->value - $value;
+            $res->value = $new_value;
             $res->save();
+
+            $staff = User::find($form->model()->user_receive_id);
+            $new_value = $staff->wallet_weight + $value;
+            $staff->wallet_weight = number_format($new_value, 1, '.', '');
+            $staff->save();
 
             admin_toastr('Chỉnh sửa thành công', 'success');
             return redirect()->route('admin.weight_portals_staff.index');
